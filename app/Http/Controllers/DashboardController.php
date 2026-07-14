@@ -15,39 +15,78 @@ class DashboardController extends Controller
         // Get Active Academic Year
         $activeYear = AcademicYear::where('is_active', true)->first();
         
-        $studentCount = Student::activeYear()->count();
+        // User Context
+        $user = auth()->user();
+        $isTeacher = $user->role == 'teacher';
+        $teacherEskulId = $isTeacher ? $user->eskul_id : null;
+
+        // Scoped Student Count
+        if ($isTeacher) {
+            $studentCount = Student::activeYear()
+                ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
+                    $q->where('student_eskul.eskul_id', $teacherEskulId);
+                    if ($activeYear) {
+                        $q->where('student_eskul.academic_year_id', $activeYear->id)
+                          ->where('student_eskul.semester', $activeYear->active_semester);
+                    }
+                })->count();
+        } else {
+            $studentCount = Student::activeYear()->count();
+        }
 
         // Active Year Context
         $yearId = $activeYear ? $activeYear->id : null;
         $semester = $activeYear ? $activeYear->active_semester : '1';
 
         // Eskul Count: Only count Eskuls that have students in the active academic year & semester
-        $eskulCount = Eskul::whereHas('students', function($q) use ($yearId, $semester) {
-             if ($yearId) {
-                $q->where('student_eskul.academic_year_id', $yearId)
-                  ->where('student_eskul.semester', $semester);
-            }
-            $q->where('status', '!=', 'graduated');
-        })->count();
+        if ($isTeacher) {
+            $eskulCount = Eskul::where('id', $teacherEskulId)->count();
+        } else {
+            $eskulCount = Eskul::whereHas('students', function($q) use ($yearId, $semester) {
+                 if ($yearId) {
+                    $q->where('student_eskul.academic_year_id', $yearId)
+                      ->where('student_eskul.semester', $semester);
+                }
+                $q->where('status', '!=', 'graduated');
+            })->count();
+        }
 
         // Teacher Count: Distinct instructors from Active Eskuls only
-        $teacherCount = Eskul::whereHas('students', function($q) use ($yearId, $semester) {
-             if ($yearId) {
-                $q->where('student_eskul.academic_year_id', $yearId)
-                  ->where('student_eskul.semester', $semester);
-            }
-            $q->where('status', '!=', 'graduated');
-        })
-        ->whereNotNull('instructor_name')
-        ->where('instructor_name', '!=', '')
-        ->distinct('instructor_name')
-        ->count('instructor_name');
+        if ($isTeacher) {
+            $teacherCount = 1;
+        } else {
+            $teacherCount = Eskul::whereHas('students', function($q) use ($yearId, $semester) {
+                 if ($yearId) {
+                    $q->where('student_eskul.academic_year_id', $yearId)
+                      ->where('student_eskul.semester', $semester);
+                }
+                $q->where('status', '!=', 'graduated');
+            })
+            ->whereNotNull('instructor_name')
+            ->where('instructor_name', '!=', '')
+            ->distinct('instructor_name')
+            ->count('instructor_name');
+        }
 
-        // Calculate Grade Statistics (scoped to active year)
-        $classData = Student::activeYear()
-            ->select('class', DB::raw('count(*) as count'))
-            ->groupBy('class')
-            ->get();
+        // Calculate Grade Statistics (scoped to active year and teacher eskul if applicable)
+        if ($isTeacher) {
+            $classData = Student::activeYear()
+                ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
+                    $q->where('student_eskul.eskul_id', $teacherEskulId);
+                    if ($activeYear) {
+                        $q->where('student_eskul.academic_year_id', $activeYear->id)
+                          ->where('student_eskul.semester', $activeYear->active_semester);
+                    }
+                })
+                ->select('class', DB::raw('count(*) as count'))
+                ->groupBy('class')
+                ->get();
+        } else {
+            $classData = Student::activeYear()
+                ->select('class', DB::raw('count(*) as count'))
+                ->groupBy('class')
+                ->get();
+        }
 
         $gradeStatistics = [];
         foreach ($classData as $data) {
@@ -70,13 +109,7 @@ class DashboardController extends Controller
         }
         
         // Sort by grade level (numeric)
-        // Sort by grade level (numeric)
         ksort($gradeStatistics);
-
-        // User Context
-        $user = auth()->user();
-        $isTeacher = $user->role == 'teacher';
-        $teacherEskulId = $isTeacher ? $user->eskul_id : null;
 
         // 3. Actionable: Eskuls Missing Attendance This Week (Active Year/Semester Only)
         $startOfWeek = now()->startOfWeek();
@@ -157,6 +190,9 @@ class DashboardController extends Controller
                 $q->where('student_eskul.academic_year_id', $yearId);
                 $q->where('student_eskul.semester', $activeYear ? $activeYear->active_semester : '1');
             })
+            ->when($isTeacher, function($q) use ($teacherEskulId) {
+                $q->where('student_eskul.eskul_id', $teacherEskulId);
+            })
             ->where('students.status', 'active')
             ->groupBy('class')
             ->orderByDesc('total')
@@ -165,6 +201,10 @@ class DashboardController extends Controller
 
         // 6. Accountability: Recent Activities (Last 5 Attendance Inputs)
         $recentActivities = \App\Models\Attendance::with(['student', 'eskul'])
+            ->when($activeYear, function($q) use ($activeYear) {
+                return $q->where('academic_year_id', $activeYear->id)
+                         ->where('semester', $activeYear->active_semester);
+            })
             ->when($isTeacher, function($q) use ($teacherEskulId) {
                 return $q->where('eskul_id', $teacherEskulId);
             })

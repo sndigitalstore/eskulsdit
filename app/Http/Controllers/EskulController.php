@@ -13,8 +13,17 @@ class EskulController extends Controller
         $yearId = $activeYear ? $activeYear->id : null;
         $semester = $activeYear ? $activeYear->active_semester : '1';
 
-        // Fetch ALL eskuls with context-specific students and history (instructor/schedule)
-        $eskuls = Eskul::with([
+        $user = auth()->user();
+        $isTeacher = $user->role == 'teacher';
+        $teacherEskulId = $isTeacher ? $user->eskul_id : null;
+
+        $query = Eskul::query();
+        if ($isTeacher) {
+            $query->where('id', $teacherEskulId);
+        }
+
+        // Fetch eskuls with context-specific students and history (instructor/schedule)
+        $eskuls = $query->with([
             'students' => function($q) use ($yearId, $semester) {
                 if ($yearId) {
                     $q->where('student_eskul.academic_year_id', $yearId)

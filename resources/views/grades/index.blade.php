@@ -23,7 +23,6 @@
                     </option>
                 @endforeach
             </select>
-            <input type="hidden" name="semester" value="1">
         </div>
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; color: #888;">Ekstrakurikuler</label>
@@ -58,6 +57,8 @@
         <h4 style="margin-bottom: 15px; font-weight: 500;">Lihat Rekap Nilai</h4>
         <form id="report-form" action="{{ route('grades.report') }}" method="GET">
             <input type="hidden" name="eskul_id" id="report-eskul-id">
+            <input type="hidden" name="academic_year_id" id="report-year-id">
+            <input type="hidden" name="semester" id="report-semester">
             <button type="button" class="btn-submit" style="background: white; border: 1px solid #ff7eb3; color: #ff7eb3; width: 100%; justify-content: center;" onclick="submitReport()">
                 <i class="fas fa-file-invoice"></i> Lihat Laporan
             </button>
@@ -102,6 +103,11 @@
             });
             return;
         }
+
+        // Sync values
+        var yearId = document.querySelector('select[name="academic_year_id"]').value;
+        document.getElementById('report-year-id').value = yearId;
+        // In this form, semester is not selectable, but we pass it as empty to let controller resolve
         document.getElementById('report-form').submit();
     }
 </script>

@@ -23,7 +23,6 @@
                     </option>
                 @endforeach
             </select>
-            <input type="hidden" name="semester" value="1"> 
         </div>
         <div class="form-group" style="margin-bottom: 1.5rem;">
             <label style="display: block; margin-bottom: 8px; color: #888;">Ekstrakurikuler</label>

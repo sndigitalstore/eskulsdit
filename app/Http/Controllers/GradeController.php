@@ -163,11 +163,42 @@ class GradeController extends Controller
         $students = [];
         $grades = [];
 
+        // Contextual academic year & semester
+        if ($request->filled('academic_year_id')) {
+            $yearId = $request->academic_year_id;
+        } else {
+            $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+            $yearId = $activeYear ? $activeYear->id : null;
+        }
+
+        if ($request->filled('semester')) {
+            $semester = $request->semester;
+        } else {
+            $contextYear = \App\Models\AcademicYear::find($yearId);
+            $semester = $contextYear ? $contextYear->active_semester : '1';
+        }
+
         if ($eskulId) {
-            $selectedEskul = Eskul::with('students')->find($eskulId);
+            $selectedEskul = Eskul::with(['students' => function($q) use ($yearId, $semester) {
+                if ($yearId) {
+                    $q->wherePivot('academic_year_id', $yearId);
+                }
+                if ($semester) {
+                    $q->wherePivot('semester', $semester);
+                }
+                $q->where('status', '!=', 'graduated');
+            }])->find($eskulId);
+
             if ($selectedEskul) {
                 $students = $selectedEskul->students;
-                $grades = Grade::where('eskul_id', $eskulId)->get()->groupBy('student_id');
+                $gradesQuery = Grade::where('eskul_id', $eskulId);
+                if ($yearId) {
+                    $gradesQuery->where('academic_year_id', $yearId);
+                }
+                if ($semester) {
+                    $gradesQuery->where('semester', $semester);
+                }
+                $grades = $gradesQuery->get()->groupBy('student_id');
             }
         }
 

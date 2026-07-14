@@ -136,6 +136,14 @@ class AttendanceController extends Controller
     {
         $eskulId = $request->eskul_id;
         $yearId = $request->academic_year_id;
+        // Context
+        if ($yearId) {
+             $year = \App\Models\AcademicYear::find($yearId);
+        } else {
+             $year = \App\Models\AcademicYear::where('is_active', true)->first();
+             $yearId = $year ? $year->id : null;
+        }
+
         // Resolve semester: ikuti semester aktif dari tahun yang dipilih
         $semester = $request->semester;
         if (!$semester) {
@@ -144,14 +152,6 @@ class AttendanceController extends Controller
 
         if(empty($eskulId)) {
             return redirect()->route('attendance.index')->with('error', 'Silakan pilih ekstrakurikuler terlebih dahulu.');
-        }
-        
-        // Context
-        if ($yearId) {
-             $year = \App\Models\AcademicYear::find($yearId);
-        } else {
-             $year = \App\Models\AcademicYear::where('is_active', true)->first();
-             $yearId = $year ? $year->id : null;
         }
 
         $eskul = Eskul::with(['students' => function($q) use ($yearId) {
