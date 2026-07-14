@@ -103,7 +103,7 @@ class DashboardController extends Controller
         // 1. Eskul Popularity (Top 5)
         $popularEskuls = Eskul::withCount(['students' => function($q) use ($activeYear) {
             if ($activeYear) {
-                $q->where('academic_year_id', $activeYear->id);
+                $q->where('student_eskul.academic_year_id', $activeYear->id);
             }
         }])
         ->orderByDesc('students_count')
