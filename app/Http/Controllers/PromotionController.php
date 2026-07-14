@@ -11,13 +11,25 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         $class = $request->input('class');
-        $students = [];
-
-        if ($class) {
-            $students = Student::activeYear()->active()->where('class', $class)->get();
+        $academicYears = AcademicYear::orderBy('name', 'desc')->get();
+        $activeYear = $academicYears->where('is_active', true)->first();
+        
+        // Default source academic year is the year before active year, or active year if it's the only one
+        $sourceYearId = $request->input('source_academic_year_id');
+        if (!$sourceYearId && $activeYear) {
+            $olderYear = AcademicYear::where('id', '<', $activeYear->id)->orderBy('id', 'desc')->first();
+            $sourceYearId = $olderYear ? $olderYear->id : $activeYear->id;
         }
 
-        return view('promotions.index', compact('students', 'class'));
+        $students = [];
+        if ($class && $sourceYearId) {
+            $students = Student::where('academic_year_id', $sourceYearId)
+                ->where('status', 'active')
+                ->where('class', $class)
+                ->get();
+        }
+
+        return view('promotions.index', compact('students', 'class', 'academicYears', 'sourceYearId', 'activeYear'));
     }
 
     public function promote(Request $request)
@@ -26,40 +38,66 @@ class PromotionController extends Controller
             'class_from' => 'required|string',
             'ids' => 'required|array',
             'ids.*' => 'exists:students,id',
+            'source_academic_year_id' => 'required|exists:academic_years,id',
         ]);
 
         $classFrom = $request->class_from;
         $studentIds = $request->ids;
+        $sourceYearId = $request->source_academic_year_id;
 
-        // Extract number from class (e.g., "1A" -> 1)
-        // Adjust regex to capture leading number
+        // Find the active year (as target)
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->with('error', 'Tidak ada tahun ajaran aktif sebagai target kenaikan kelas.');
+        }
+
+        // Extract grade level (e.g., "1A" -> 1)
         preg_match('/^(\d+)/', $classFrom, $matches);
         $gradeLevel = isset($matches[1]) ? (int)$matches[1] : 0;
 
         if ($gradeLevel === 6) {
-            // GRADUATION
-            Student::whereIn('id', $studentIds)->update([
-                'status' => 'graduated'
-            ]);
+            // GRADUATION: Update status in the source year record
+            Student::whereIn('id', $studentIds)
+                ->where('academic_year_id', $sourceYearId)
+                ->update([
+                    'status' => 'graduated'
+                ]);
             $message = count($studentIds) . " siswa kelas 6 berhasil diluluskan!";
         } else {
-            // PROMOTION
+            // PROMOTION: Create NEW records for the target academic year
             $nextLevel = $gradeLevel + 1;
-            // Try to keep the same suffix letter if exists (e.g. 1A -> 2A)
             $suffix = substr($classFrom, strlen((string)$gradeLevel));
-            
-            // Simple logic: If class is just "1", next is "2". If "1A", next is "2A".
-            // But if bulk promotion, maybe we just increment the number?
-            // Let's assume user promotes per class section (e.g. 1A -> 2A).
-            
             $nextClass = $nextLevel . $suffix;
 
-            Student::whereIn('id', $studentIds)->update([
-                'class' => $nextClass
-            ]);
-            $message = count($studentIds) . " siswa berhasil naik ke kelas " . $nextClass . "!";
+            $studentsToPromote = Student::whereIn('id', $studentIds)
+                ->where('academic_year_id', $sourceYearId)
+                ->get();
+
+            $promotedCount = 0;
+            foreach ($studentsToPromote as $student) {
+                // Check if the student already exists in the target year to avoid duplicates
+                $exists = Student::where('nis', $student->nis)
+                    ->where('academic_year_id', $activeYear->id)
+                    ->exists();
+
+                if (!$exists) {
+                    // Duplicate/clone student record to target year
+                    $newStudent = $student->replicate();
+                    $newStudent->academic_year_id = $activeYear->id;
+                    $newStudent->class = $nextClass;
+                    $newStudent->status = 'active'; // Reset status to active in new year
+                    $newStudent->save();
+                    
+                    $promotedCount++;
+                }
+            }
+
+            $message = $promotedCount . " siswa berhasil naik ke kelas " . $nextClass . " di Tahun Ajaran " . $activeYear->name . "!";
         }
 
-        return back()->with('success', $message);
+        return redirect()->route('promotions.index', [
+            'class' => $classFrom,
+            'source_academic_year_id' => $sourceYearId
+        ])->with('success', $message);
     }
 }

@@ -18,15 +18,27 @@
         </div>
     @endif
 
-    <form action="{{ route('promotions.index') }}" method="GET" style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <label style="font-weight: 600;">Pilih Kelas Asal:</label>
-            <input type="text" name="class" value="{{ $class }}" placeholder="Contoh: 1A, 5B, 6A" class="form-control" style="width: 150px; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
-            <button type="submit" class="btn-view" style="padding: 8px 15px; background: #3498db; color: white;">
+    <form action="{{ route('promotions.index') }}" method="GET" style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 10px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-weight: 600;">Tahun Ajaran Asal:</label>
+                <select name="source_academic_year_id" class="form-control" style="width: 200px; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
+                    @foreach($academicYears as $year)
+                        <option value="{{ $year->id }}" {{ $sourceYearId == $year->id ? 'selected' : '' }}>
+                            {{ $year->name }} {{ $year->is_active ? '(Aktif)' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-weight: 600;">Pilih Kelas Asal:</label>
+                <input type="text" name="class" value="{{ $class }}" placeholder="Contoh: 1A, 5B, 6A" class="form-control" style="width: 150px; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
+            </div>
+            <button type="submit" class="btn-view" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer;">
                 <i class="fas fa-search"></i> Tampilkan Siswa
             </button>
         </div>
-        <small style="color: #666;">Masukkan nama kelas persis sesuai data siswa (Contoh: 1A, 2, 6B).</small>
+        <small style="color: #666;">Pilih Tahun Ajaran asal dan masukkan nama kelas persis sesuai data siswa (Contoh: 1A, 2, 6B).</small>
     </form>
 
     @if($class)
@@ -34,6 +46,7 @@
             <form id="promotionForm" action="{{ route('promotions.promote') }}" method="POST">
                 @csrf
                 <input type="hidden" name="class_from" value="{{ $class }}">
+                <input type="hidden" name="source_academic_year_id" value="{{ $sourceYearId }}">
 
                 <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
                     <strong style="color: #333;">Daftar Siswa Kelas {{ $class }} ({{ count($students) }} siswa)</strong>
