@@ -364,12 +364,14 @@ class StudentController extends Controller
 
     public function show(\App\Models\Student $student)
     {
-        // Eager load everything needed to avoid N+1 inside the loop
-        $student->load(['eskuls', 'grades']);
+        // Find all student records belonging to this NIS to construct history
+        $allRecords = \App\Models\Student::where('nis', $student->nis)
+            ->with(['eskuls', 'grades'])
+            ->get();
 
-        // Extract unique academic year IDs from enrolled eskuls
-        $yearIds = $student->eskuls->pluck('pivot.academic_year_id')->unique();
-            
+        // Extract all unique academic year IDs across all records
+        $yearIds = $allRecords->pluck('academic_year_id')->unique();
+
         $academicYears = \App\Models\AcademicYear::whereIn('id', $yearIds)
             ->orderBy('name', 'desc')
             ->get();
@@ -377,31 +379,38 @@ class StudentController extends Controller
         $history = [];
         
         foreach ($academicYears as $year) {
-            $eskuls = $student->eskuls->where('pivot.academic_year_id', $year->id);
+            // Find the student record for this specific academic year
+            $recordForYear = $allRecords->where('academic_year_id', $year->id)->first();
+            if (!$recordForYear) continue;
+
+            $eskuls = $recordForYear->eskuls;
                 
             $yearData = [];
             foreach ($eskuls as $eskul) {
                 // Get grades from the loaded collection
-                $sas1 = $student->grades
+                $sas1 = $recordForYear->grades
                     ->where('eskul_id', $eskul->id)
                     ->where('academic_year_id', $year->id)
                     ->where('type', 'sas1')
                     ->first();
                     
-                $sas2 = $student->grades
+                $sas2 = $recordForYear->grades
                     ->where('eskul_id', $eskul->id)
                     ->where('academic_year_id', $year->id)
                     ->where('type', 'sas2')
                     ->first();
                     
                 $yearData[] = [
+                    'class' => $recordForYear->class,
                     'eskul' => $eskul,
                     'sas1' => $sas1 ? $sas1->score : '-',
                     'sas2' => $sas2 ? $sas2->score : '-',
                 ];
             }
             
-            $history[$year->name] = $yearData;
+            if (!empty($yearData)) {
+                $history[$year->name] = $yearData;
+            }
         }
 
         return view('students.show', compact('student', 'history'));

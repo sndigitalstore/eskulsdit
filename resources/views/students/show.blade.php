@@ -42,8 +42,15 @@
             @foreach($history as $yearName => $data)
             <div style="border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
                 <div style="background: #f8fafc; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
-                    <h3 style="font-size: 1.1rem; color: #475569;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px; color: #3498db;"></i> Tahun Ajaran: <strong>{{ $yearName }}</strong>
+                    <h3 style="font-size: 1.1rem; color: #475569; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <span>
+                            <i class="fas fa-calendar-alt" style="margin-right: 8px; color: #3498db;"></i> Tahun Ajaran: <strong>{{ $yearName }}</strong>
+                        </span>
+                        @if(isset($data[0]['class']))
+                            <span style="font-size: 0.85rem; font-weight: 500; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px;">
+                                Kelas {{ $data[0]['class'] }}
+                            </span>
+                        @endif
                     </h3>
                 </div>
                 
