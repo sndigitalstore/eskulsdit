@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('eskul_histories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('eskul_id')->constrained()->onDelete('cascade');
-            $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
-            $table->enum('semester', ['1', '2']);
-            $table->string('instructor_name')->nullable();
-            $table->string('schedule')->nullable(); // Jadwal juga bisa berubah
-            $table->timestamps();
+        if (!Schema::hasTable('eskul_histories')) {
+            Schema::create('eskul_histories', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('eskul_id')->constrained()->onDelete('cascade');
+                $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
+                $table->enum('semester', ['1', '2']);
+                $table->string('instructor_name')->nullable();
+                $table->string('schedule')->nullable(); // Jadwal juga bisa berubah
+                $table->timestamps();
 
-            // Constraint: Satu history per eskul per tahun per semester
-            $table->unique(['eskul_id', 'academic_year_id', 'semester']);
-        });
+                // Constraint: Satu history per eskul per tahun per semester
+                $table->unique(['eskul_id', 'academic_year_id', 'semester']);
+            });
+        }
     }
 
     /**

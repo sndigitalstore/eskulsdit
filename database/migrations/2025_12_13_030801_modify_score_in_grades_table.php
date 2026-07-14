@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         // Change score to varchar to allow storing JSON or other values
-        // Using raw statement to avoid doctrine/dbal dependency issues with enums
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE grades MODIFY COLUMN score VARCHAR(255) NULL");
+        // Using raw statement for non-sqlite drivers to avoid enum change issues,
+        // and using native schema builder for SQLite to allow testing.
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
+            Schema::table('grades', function (Blueprint $table) {
+                $table->string('score', 255)->nullable()->change();
+            });
+        } else {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE grades MODIFY COLUMN score VARCHAR(255) NULL");
+        }
     }
 
     /**
@@ -21,7 +28,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Reverting might fail if data contains non-enum values, so we just set it back to varchar or try enum
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE grades MODIFY COLUMN score ENUM('A','B','C') NOT NULL");
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
+            Schema::table('grades', function (Blueprint $table) {
+                $table->string('score', 255)->change();
+            });
+        } else {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE grades MODIFY COLUMN score ENUM('A','B','C') NOT NULL");
+        }
     }
 };
