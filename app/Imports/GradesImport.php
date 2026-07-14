@@ -26,7 +26,9 @@ class GradesImport implements ToCollection, WithHeadingRow
             if (!$studentId) {
                 $name = $row['nama_lengkap'] ?? $row['nama_siswa'] ?? $row['nama'] ?? null;
                 if ($name) {
-                    $student = \App\Models\Student::where('name', $name)->first(); // Simple exact match first
+                    // Scope student lookup to active year only
+                    $student = \App\Models\Student::where('academic_year_id', $yearId)
+                        ->where('name', $name)->first();
                     if ($student) {
                         $studentId = $student->id;
                     }
