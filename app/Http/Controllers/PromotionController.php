@@ -14,7 +14,7 @@ class PromotionController extends Controller
         $students = [];
 
         if ($class) {
-            $students = Student::active()->where('class', $class)->get();
+            $students = Student::activeYear()->active()->where('class', $class)->get();
         }
 
         return view('promotions.index', compact('students', 'class'));

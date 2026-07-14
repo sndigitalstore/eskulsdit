@@ -19,10 +19,13 @@ class StudentApiController extends Controller
         // Enhance search flexibility: "Muh Zaky" matches "Muhammad Zaky"
         $term = str_replace(' ', '%', $query); // 'muh zaky' -> 'muh%zaky'
         
-        $students = Student::where('name', 'like', "%{$term}%")
-                            ->orWhere('nis', 'like', "%{$query}%") // Keep strict for NIS
+        $students = Student::activeYear()
+                            ->where(function($q) use ($term, $query) {
+                                $q->where('name', 'like', "%{$term}%")
+                                  ->orWhere('nis', 'like', "%{$query}%");
+                            })
                             ->select('id', 'name', 'nis', 'class', 'status') 
-                            ->limit(20) // Increase limit as requested
+                            ->limit(20)
                             ->get();
 
         return response()->json($students);
@@ -36,7 +39,8 @@ class StudentApiController extends Controller
         $class = $request->query('class');
         if (!$class) return response()->json([]);
         
-        $students = Student::where('class', $class)
+        $students = Student::activeYear()
+            ->where('class', $class)
             ->where(function($q) {
                 $q->where('status', '!=', 'graduated')
                   ->orWhereNull('status');

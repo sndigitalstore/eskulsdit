@@ -11,17 +11,18 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Get all unique classes for the filter dropdown
-        $classes = Student::select('class')->distinct()->orderBy('class')->pluck('class');
-        
         // Get active academic year
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         // Get all academic years for dropdown
         $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
-        
+
         $selectedClass = $request->class;
         $selectedPeriod = $request->period ?? 'all'; // 1, 2, or all
-        $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null); 
+        $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
+
+        // Get all unique classes for the filter dropdown, scoped to the selected year
+        $classes = Student::forYear($selectedYearId)
+            ->select('class')->distinct()->orderBy('class')->pluck('class');
         
         $students = [];
         
@@ -88,7 +89,8 @@ class ReportController extends Controller
             return back()->with('error', 'Kelas dan Tahun Ajaran harus dipilih.');
         }
 
-        $students = \App\Models\Student::where('class', $class)
+        $students = \App\Models\Student::forYear($yearId)
+            ->where('class', $class)
             ->where(function($q) {
                 $q->where('status', '!=', 'graduated')
                   ->orWhereNull('status');
@@ -122,7 +124,8 @@ class ReportController extends Controller
             return back()->with('error', 'Kelas dan Tahun Ajaran harus dipilih.');
         }
 
-        $students = \App\Models\Student::where('class', $class)
+        $students = \App\Models\Student::forYear($yearId)
+            ->where('class', $class)
             ->where(function($q) {
                 $q->where('status', '!=', 'graduated')
                   ->orWhereNull('status');

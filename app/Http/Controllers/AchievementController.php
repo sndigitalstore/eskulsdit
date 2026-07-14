@@ -37,7 +37,7 @@ class AchievementController extends Controller
             // If no student selected, we need list for dropdown
             // Optimization: Maybe limit or use ajax search if too many. 
             // For now, let's just get active students.
-            $students = Student::active()->orderBy('name')->get();
+            $students = Student::activeYear()->active()->orderBy('name')->get();
         }
 
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
@@ -131,7 +131,7 @@ class AchievementController extends Controller
                     $description = isset($cols[6]) ? trim($cols[6]) : null;
 
                     // Mencocokkan Siswa dengan Nama DAN Kelas agar lebih akurat
-                    $query = Student::where('name', 'like', "%{$studentName}%");
+                    $query = Student::activeYear()->where('name', 'like', "%{$studentName}%");
                     
                     if (!empty($className)) {
                         $query->where('class', 'like', "%{$className}%");

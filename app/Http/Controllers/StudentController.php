@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Imports\StudentsImport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -11,7 +12,8 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $status = $request->input('status', 'active');
-        $query = \App\Models\Student::with('eskuls');
+        // Scope to active academic year only
+        $query = \App\Models\Student::activeYear()->with('eskuls');
 
         if ($status !== 'all') {
              $query->where('status', $status);
@@ -22,16 +24,16 @@ class StudentController extends Controller
             $search = str_replace(' ', '%', $searchRaw);
 
             $query->where(function($q) use ($search, $searchRaw) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('class', 'like', "%{$search}%")
-                  ->orWhere('nis', 'like', "%{$searchRaw}%") // strict for NIS
+                $q->where('students.name', 'like', "%{$search}%")
+                  ->orWhere('students.class', 'like', "%{$search}%")
+                  ->orWhere('students.nis', 'like', "%{$searchRaw}%")
                   ->orWhereHas('eskuls', function($subQ) use ($search) {
                       $subQ->where('name', 'like', "%{$search}%");
                   });
             });
         }
 
-        $students = $query->paginate(10); // Use pagination
+        $students = $query->paginate(10);
         return view('students.index', compact('students', 'status'));
     }
 
@@ -54,23 +56,27 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
+        // Get active year first so we can validate NIS uniqueness within active year
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->withErrors(['msg' => 'Tidak ada tahun ajaran aktif. Silakan hubungi admin.'])->withInput();
+        }
+
         $validated = $request->validate([
-            'nis' => 'required|string|unique:students,nis|max:20',
+            'nis' => [
+                'required', 'string', 'max:20',
+                // NIS must be unique within the active academic year only
+                Rule::unique('students', 'nis')->where('academic_year_id', $activeYear->id),
+            ],
             'name' => 'required|string|max:255',
             'class' => 'required|exists:school_classes,name',
             'eskul_name' => 'required|string|max:255',
             'instructor_name' => 'nullable|string|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
-        // Check for active year first
-        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
-        if (!$activeYear) {
-             return back()->withErrors(['msg' => 'Tidak ada tahun ajaran aktif. Silakan hubungi admin.'])->withInput();
-        }
-
-        // Check if student with same name and class already exists
-        $studentObject = \App\Models\Student::where('name', $validated['name'])
+        // Check if student with same name and class already exists in active year
+        $studentObject = \App\Models\Student::activeYear()
+                                      ->where('name', $validated['name'])
                                       ->where('class', $validated['class'])
                                       ->first();
 
@@ -89,13 +95,14 @@ class StudentController extends Controller
                  $student = $studentObject;
              }
         } else {
-             // Create new student
+             // Create new student (academic_year_id auto-filled by model boot event)
              $photoPath = null;
              if ($request->hasFile('photo')) {
                  $photoPath = $request->file('photo')->store('students', 'public');
              }
 
              $student = \App\Models\Student::create([
+                'academic_year_id' => $activeYear->id,
                 'nis' => $validated['nis'],
                 'name' => $validated['name'],
                 'class' => $validated['class'],
@@ -159,7 +166,9 @@ class StudentController extends Controller
                 $instructorName = isset($cols[3]) ? trim($cols[3]) : null;
 
                 // Check for existing student
-                $existingStudent = \App\Models\Student::where('name', $name)->where('class', $class)->first();
+                // Match existing student in active year only
+                $existingStudent = \App\Models\Student::activeYear()
+                    ->where('name', $name)->where('class', $class)->first();
                 
                 if ($existingStudent) {
                     $student = $existingStudent;
@@ -176,6 +185,7 @@ class StudentController extends Controller
                     }
                 } else {
                     $student = \App\Models\Student::create([
+                        'academic_year_id' => $activeYear->id,
                         'name' => $name,
                         'class' => $class,
                     ]);
@@ -254,7 +264,13 @@ class StudentController extends Controller
     public function update(Request $request, \App\Models\Student $student)
     {
         $validated = $request->validate([
-            'nis' => 'required|string|max:20|unique:students,nis,' . $student->id,
+            // NIS unique within same academic year, excluding self
+            'nis' => [
+                'required', 'string', 'max:20',
+                Rule::unique('students', 'nis')
+                    ->where('academic_year_id', $student->academic_year_id)
+                    ->ignore($student->id),
+            ],
             'name' => 'required|string|max:255',
             'class' => 'required|exists:school_classes,name',
             'eskul_1_id' => 'required|exists:eskuls,id',

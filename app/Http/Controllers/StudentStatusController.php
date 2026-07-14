@@ -33,19 +33,15 @@ class StudentStatusController extends Controller
         // Find user by searched NIS or if accessed from query string ?q=NIS
         $keyword = $request->keyword ?? $request->q;
 
-        // Try to find by NIS first (Exact Match)
-        $student = Student::with(['eskuls', 'achievements'])->where('nis', $keyword)->first();
+        // Try to find by NIS first (Exact Match) - scoped to active year
+        $student = Student::activeYear()->with(['eskuls', 'achievements'])->where('nis', $keyword)->first();
         
-        // If not found by NIS, try by Name (Like Match) - take the first one or logic to show list?
-        // Assuming unique names or just taking the best match for now as per request "bisa nama lengkap"
-        // Let's try exact name first, then like
         if (!$student) {
-             $student = Student::with(['eskuls', 'achievements'])->where('name', 'LIKE', $keyword)->first();
+             $student = Student::activeYear()->with(['eskuls', 'achievements'])->where('name', 'LIKE', $keyword)->first();
         }
         
         if (!$student) {
-             // Try broader search
-             $student = Student::with(['eskuls', 'achievements'])->where('name', 'LIKE', "%{$keyword}%")->first();
+             $student = Student::activeYear()->with(['eskuls', 'achievements'])->where('name', 'LIKE', "%{$keyword}%")->first();
         }
         
         if (!$student) {
@@ -116,7 +112,7 @@ class StudentStatusController extends Controller
         $class = $request->query('class');
         if (!$class) return response()->json([]);
         
-        $students = Student::where('class', $class)->orderBy('name')->get(['id', 'name']);
+        $students = Student::activeYear()->where('class', $class)->orderBy('name')->get(['id', 'name']);
         return response()->json($students);
     }
 

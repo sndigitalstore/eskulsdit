@@ -17,16 +17,19 @@ class GlobalSearchController extends Controller
         if ($query) {
             $term = str_replace(' ', '%', $query);
 
-            $students = Student::with(['eskuls' => function($q) use ($activeYear) {
+            $students = Student::activeYear()
+                ->with(['eskuls' => function($q) use ($activeYear) {
                     if ($activeYear) {
                         $q->where('student_eskul.academic_year_id', $activeYear->id)
                           ->where('student_eskul.semester', $activeYear->active_semester);
                     }
                 }])
-                ->where('name', 'like', "%{$term}%")
-                ->orWhere('class', 'like', "%{$term}%")
-                ->orWhere('nis', 'like', "%{$query}%") // Keep strict for NIS
-                ->limit(50) // Cap results for performance
+                ->where(function($q) use ($term, $query) {
+                    $q->where('students.name', 'like', "%{$term}%")
+                      ->orWhere('students.class', 'like', "%{$term}%")
+                      ->orWhere('students.nis', 'like', "%{$query}%");
+                })
+                ->limit(50)
                 ->get();
         }
 

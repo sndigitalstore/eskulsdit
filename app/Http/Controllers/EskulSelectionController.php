@@ -58,7 +58,8 @@ class EskulSelectionController extends Controller
         
         $activeYear = AcademicYear::where('is_active', true)->first();
 
-        $students = Student::where('class', $class)
+        $students = Student::activeYear()
+            ->where('class', $class)
             ->where(function($q) {
                 $q->where('status', '!=', 'graduated')
                   ->orWhereNull('status');

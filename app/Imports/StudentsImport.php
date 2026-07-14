@@ -19,8 +19,8 @@ class StudentsImport
             throw new \Exception('Tidak ada tahun ajaran aktif.');
         }
 
-        // Cache existing students to minimize DB queries
-        $existingStudents = Student::all();
+        // Cache existing students for the ACTIVE YEAR ONLY to minimize DB queries
+        $existingStudents = Student::where('academic_year_id', $activeYear->id)->get();
         $mapNis = [];
         $mapNameClass = [];
         
@@ -264,9 +264,10 @@ class StudentsImport
                     }
                 }
                 
-                // 3. Try Loose Name Match (Same class, similar name) - for small typos
+                // 3. Try Loose Name Match (Same class, similar name) - for small typos, scoped to active year
                 if (!$student) {
-                    $student = \App\Models\Student::where('class', $rowClass)
+                    $student = \App\Models\Student::where('academic_year_id', $activeYear->id)
+                        ->where('class', $rowClass)
                         ->where('name', 'LIKE', "%{$name}%")
                         ->first();
                 }
@@ -276,10 +277,10 @@ class StudentsImport
                 // But let's keep consistency: if data is there, we use it. Since name+class is there.
                 
                 if ($student) {
-                    // Update only if strictly creating a robust student database
-                    // For now, let's just ensure they exist.
+                    // Student already exists in active year, reuse
                 } else {
                     $student = Student::create([
+                        'academic_year_id' => $activeYear->id,
                         'name' => $name,
                         'class' => $rowClass,
                         'nis' => $nis,
@@ -500,9 +501,9 @@ class StudentsImport
                          if (isset($mapNameClass[$key])) {
                              $student = $mapNameClass[$key];
                          } else {
-                             // Try just name if class is fuzzy
-                             // Note: This matches first student with same name.
-                             $student = Student::where('name', $name)->first(); 
+                             // Try just name if class is fuzzy, scoped to active year
+                             $student = Student::where('academic_year_id', $activeYear->id)
+                                              ->where('name', $name)->first(); 
                          }
                     }
 

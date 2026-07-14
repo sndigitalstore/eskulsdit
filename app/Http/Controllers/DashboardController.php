@@ -15,7 +15,7 @@ class DashboardController extends Controller
         // Get Active Academic Year
         $activeYear = AcademicYear::where('is_active', true)->first();
         
-        $studentCount = Student::count();
+        $studentCount = Student::activeYear()->count();
 
         // Active Year Context
         $yearId = $activeYear ? $activeYear->id : null;
@@ -43,8 +43,9 @@ class DashboardController extends Controller
         ->distinct('instructor_name')
         ->count('instructor_name');
 
-        // Calculate Grade Statistics
-        $classData = Student::select('class', DB::raw('count(*) as count'))
+        // Calculate Grade Statistics (scoped to active year)
+        $classData = Student::activeYear()
+            ->select('class', DB::raw('count(*) as count'))
             ->groupBy('class')
             ->get();
 
