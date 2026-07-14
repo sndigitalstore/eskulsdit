@@ -183,13 +183,13 @@
             </a>
         </div>
 
-        @if($student->achievements->isEmpty())
+        @if($achievements->isEmpty())
              <div style="background: #fffbe7; color: #9a7d0a; padding: 20px; border-radius: 10px; text-align: center; border: 1px dashed #f1c40f;">
                 Belum ada data prestasi yang tercatat.
             </div>
         @else
             <div style="display: flex; flex-direction: column; gap: 15px;">
-                @foreach($student->achievements as $achievement)
+                @foreach($achievements as $achievement)
                 <div style="background: white; border: 1px solid #f9e79f; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="width: 50px; height: 50px; background: #fffbe7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #f1c40f;">

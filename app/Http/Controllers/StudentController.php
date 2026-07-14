@@ -413,7 +413,12 @@ class StudentController extends Controller
             }
         }
 
-        return view('students.show', compact('student', 'history'));
+        // Fetch all achievements associated with all historical records of this student
+        $achievements = \App\Models\Achievement::whereIn('student_id', $allRecords->pluck('id'))
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return view('students.show', compact('student', 'history', 'achievements'));
     }
 
     public function card(\App\Models\Student $student)
