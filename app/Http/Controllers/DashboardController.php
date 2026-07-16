@@ -230,6 +230,45 @@ class DashboardController extends Controller
         
         // 8. Latest Announcements
         $announcements = \App\Models\InternalAnnouncement::where('is_active', true)->latest()->limit(3)->get();
+
+        // 9. Calculate Participant Counts by Category (Olahraga, Sains, Bahasa, Seni)
+        $categoryQuery = Eskul::query();
+        if ($isTeacher) {
+            $categoryQuery->where('id', $teacherEskulId);
+        }
+
+        $eskulsWithStudents = $categoryQuery->with(['students' => function($q) use ($yearId, $semester) {
+            if ($yearId) {
+                $q->where('student_eskul.academic_year_id', $yearId)
+                  ->where('student_eskul.semester', $semester);
+            }
+            $q->where('status', '!=', 'graduated');
+        }])->get();
+
+        $categoryCounts = [
+            'Olahraga' => 0,
+            'Sains' => 0,
+            'Bahasa' => 0,
+            'Seni' => 0,
+        ];
+
+        foreach ($eskulsWithStudents as $eskul) {
+            $cat = 'Lainnya';
+            $nameLower = strtolower($eskul->name);
+            if (str_contains($nameLower, 'futsal') || str_contains($nameLower, 'karate') || str_contains($nameLower, 'panahan') || str_contains($nameLower, 'badminton') || str_contains($nameLower, 'pramuka')) {
+                $cat = 'Olahraga';
+            } elseif (str_contains($nameLower, 'matematika') || str_contains($nameLower, 'science') || str_contains($nameLower, 'sains') || str_contains($nameLower, 'ipa')) {
+                $cat = 'Sains';
+            } elseif (str_contains($nameLower, 'english') || str_contains($nameLower, 'bahasa') || str_contains($nameLower, 'calistung')) {
+                $cat = 'Bahasa';
+            } elseif (str_contains($nameLower, 'seni') || str_contains($nameLower, 'lukis') || str_contains($nameLower, 'vokal') || str_contains($nameLower, 'tari') || str_contains($nameLower, 'musik')) {
+                $cat = 'Seni';
+            }
+            
+            if (isset($categoryCounts[$cat])) {
+                $categoryCounts[$cat] += $eskul->students->count();
+            }
+        }
         
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
@@ -237,7 +276,7 @@ class DashboardController extends Controller
             'eskulMissingAttendance', 'activeYear',
             'todaySchedule', 'topClasses', 'recentActivities',
             'teacherAttendanceToday', 'teacherAttendancePresent', 'registeredTeacherAccounts',
-            'announcements'
+            'announcements', 'categoryCounts'
         ));
     }
 }

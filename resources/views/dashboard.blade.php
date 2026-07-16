@@ -279,6 +279,61 @@
         </div>
         @endif
 
+        <!-- Kategori Eskul Diminati -->
+        <div class="card" style="background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 25px;">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; color: #2c3e50;">
+                <i class="fas fa-shapes" style="color: #7367f0;"></i> Minat Kategori Eskul
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                @php
+                    $totalParticipants = array_sum($categoryCounts ?? []);
+                @endphp
+                
+                @foreach($categoryCounts ?? [] as $category => $count)
+                    @php
+                        $percentage = $totalParticipants > 0 ? round(($count / $totalParticipants) * 100) : 0;
+                        $icon = match($category) {
+                            'Olahraga' => 'fa-basketball-ball',
+                            'Sains' => 'fa-flask',
+                            'Bahasa' => 'fa-language',
+                            'Seni' => 'fa-palette',
+                            default => 'fa-shapes'
+                        };
+                        $color = match($category) {
+                            'Olahraga' => '#ff7e5f',
+                            'Sains' => '#00cdac',
+                            'Bahasa' => '#5381ff',
+                            'Seni' => '#ff416c',
+                            default => '#94a3b8'
+                        };
+                        $bg = match($category) {
+                            'Olahraga' => '#fff0ec',
+                            'Sains' => '#e6fbf7',
+                            'Bahasa' => '#eef2ff',
+                            'Seni' => '#ffebee',
+                            default => '#f1f5f9'
+                        };
+                    @endphp
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 32px; height: 32px; background: {{ $bg }}; color: {{ $color }}; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem;">
+                                    <i class="fas {{ $icon }}"></i>
+                                </div>
+                                <span style="font-weight: 600; color: #34495e; font-size: 0.95rem;">{{ $category }}</span>
+                            </div>
+                            <span style="font-size: 0.9rem; font-weight: 700; color: #2c3e50;">
+                                {{ $count }} <span style="font-weight: 400; color: #888; font-size: 0.8rem;">Siswa ({{ $percentage }}%)</span>
+                            </span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                            <div style="width: {{ $percentage }}%; height: 100%; background: {{ $color }}; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <!-- Population / Eskul Chart -->
         <div class="card">
             <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Eskul Terpopuler</h3>
