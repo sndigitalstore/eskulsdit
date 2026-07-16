@@ -168,7 +168,23 @@
 
     @if(session('success'))
         <div style="background: #e0fbf0; color: #2ecc71; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 500;">
-            {{ session('success') }}
+            {!! session('success') !!}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div style="background: #fdf2f2; color: #ec4899; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 500; border: 1px solid #fbcfe8;">
+            {!! session('error') !!}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div style="background: #fdf2f2; color: #ec4899; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #fbcfe8;">
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 

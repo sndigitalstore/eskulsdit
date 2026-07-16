@@ -215,14 +215,23 @@ class StudentController extends Controller
 
     public function importExcel(Request $request)
     {
-        set_time_limit(300); // 5 minutes limit
+        // Increase time limit and memory limit to handle large backups/imports
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|file',
         ]);
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['xlsx', 'xls', 'csv'])) {
+            return back()->with('error', 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).');
+        }
 
         try {
             // Read all sheets as array
-            $data = Excel::toArray(new \stdClass, $request->file('file'));
+            $data = Excel::toArray(new \stdClass, $file);
             
             // Process the data (returns array of counts)
             $counts = \App\Imports\StudentsImport::processArrays($data);

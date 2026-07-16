@@ -52,13 +52,23 @@ class GradeImportController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
+        // Increase resources for importing
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|file',
         ]);
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['xlsx', 'xls', 'csv'])) {
+            return back()->with('error', 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).');
+        }
 
         try {
             // Smart Import: Detect everything from the file
-            Excel::import(new GradesImport(), $request->file('file'));
+            Excel::import(new GradesImport(), $file);
             return back()->with('success', 'Smart Import Berhasil! Data nilai telah masuk ke sistem.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
