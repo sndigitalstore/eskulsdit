@@ -103,7 +103,20 @@ class AcademicYearController extends Controller
         if ($academicYear->is_active) {
             return back()->with('error', 'Tidak bisa menghapus tahun ajaran yang sedang aktif.');
         }
-        $academicYear->delete();
-        return back()->with('success', 'Tahun ajaran berhasil dihapus.');
+
+        \Illuminate\Support\Facades\DB::transaction(function() use ($academicYear) {
+            // Delete all related records first to ensure referential integrity
+            \App\Models\Student::where('academic_year_id', $academicYear->id)->delete();
+            \Illuminate\Support\Facades\DB::table('student_eskul')->where('academic_year_id', $academicYear->id)->delete();
+            \App\Models\Attendance::where('academic_year_id', $academicYear->id)->delete();
+            \App\Models\Grade::where('academic_year_id', $academicYear->id)->delete();
+            \App\Models\Achievement::where('academic_year_id', $academicYear->id)->delete();
+            \App\Models\EskulHistory::where('academic_year_id', $academicYear->id)->delete();
+            \App\Models\TeacherAttendance::where('academic_year_id', $academicYear->id)->delete();
+            
+            $academicYear->delete();
+        });
+
+        return back()->with('success', 'Tahun ajaran beserta seluruh data terkait berhasil dihapus.');
     }
 }

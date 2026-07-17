@@ -342,8 +342,14 @@ class StudentController extends Controller
     public function destroy(\App\Models\Student $student)
     {
         \App\Models\ActivityLog::log('Students', 'Delete', "Menghapus data siswa: {$student->name}");
+        
+        // Manually delete related data to ensure clean slate
+        \App\Models\Attendance::where('student_id', $student->id)->delete();
+        \App\Models\Grade::where('student_id', $student->id)->delete();
+        \App\Models\Achievement::where('student_id', $student->id)->delete();
         $student->eskuls()->detach();
         $student->delete();
+        
         return back()->with('success', 'Data siswa berhasil dihapus!');
     }
 
@@ -361,6 +367,7 @@ class StudentController extends Controller
                 // Manually delete related data to ensure clean slate
                 \App\Models\Attendance::where('student_id', $student->id)->delete();
                 \App\Models\Grade::where('student_id', $student->id)->delete();
+                \App\Models\Achievement::where('student_id', $student->id)->delete();
                 $student->eskuls()->detach();
                 $student->delete();
             }
