@@ -79,11 +79,21 @@ class EskulSelectionController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function ($student) use ($activeYear) {
-                $currentEskul = null;
-                $isLockedCalistung = false;
-                $calistungMsg = '';
+                $isAlreadyRegistered = false;
+                $alreadyRegisteredMsg = '';
 
                 if ($activeYear) {
+                    // Check if already registered in current active semester
+                    $hasCurrentEnrollment = $student->eskuls->where('pivot.semester', $activeYear->active_semester)->isNotEmpty();
+                    if ($hasCurrentEnrollment) {
+                        $isAlreadyRegistered = true;
+                        if ($activeYear->active_semester == '1') {
+                            $alreadyRegisteredMsg = 'Ananda sudah terdaftar di eskul semester ini. Pendaftaran dikunci.';
+                        } else {
+                            $alreadyRegisteredMsg = 'Ananda sudah terdaftar. Mengisi kembali akan memindahkan pilihan eskul sebelumnya.';
+                        }
+                    }
+
                     // 1. Try to find CURRENT semester enrollment
                     $eskulPivot = $student->eskuls->where('pivot.semester', $activeYear->active_semester)->first();
 
@@ -144,10 +154,10 @@ class EskulSelectionController extends Controller
                     'id' => $student->id,
                     'name' => $student->name,
                     'current_eskul' => $currentEskul,
-                    'is_locked' => $isLockedCalistung || $isGrade6Lock,
-                    'lock_message' => $isGrade6Lock ? $grade6Msg : $calistungMsg,
-                    'is_already_registered' => $isAlreadyRegistered ?? false,
-                    'already_registered_msg' => $alreadyRegisteredMsg ?? ''
+                    'is_locked' => $isLockedCalistung || $isGrade6Lock || ($isAlreadyRegistered && $activeYear && $activeYear->active_semester == '1'),
+                    'lock_message' => $isGrade6Lock ? $grade6Msg : ($isLockedCalistung ? $calistungMsg : ($isAlreadyRegistered && $activeYear && $activeYear->active_semester == '1' ? $alreadyRegisteredMsg : '')),
+                    'is_already_registered' => $isAlreadyRegistered,
+                    'already_registered_msg' => $alreadyRegisteredMsg
                 ];
             });
 
