@@ -231,6 +231,10 @@ class EskulController extends Controller
 
     public function destroy(Eskul $eskul)
     {
+        $eskul->students()->detach();
+        $eskul->histories()->delete();
+        \App\Models\Attendance::where('eskul_id', $eskul->id)->delete();
+        \App\Models\Grade::where('eskul_id', $eskul->id)->delete();
         $eskul->delete();
         return back()->with('success', 'Ekstrakurikuler berhasil dihapus!');
     }
