@@ -17,8 +17,7 @@ class ImportPortalController extends Controller
     public function index()
     {
         // Ambil 10 log aktivitas terbaru yang berkaitan dengan impor
-        $recentLogs = ActivityLog::where('description', 'like', '%import%')
-            ->orWhere('description', 'like', '%Import%')
+        $recentLogs = ActivityLog::where('module', 'Import Portal')
             ->orderByDesc('created_at')
             ->limit(10)
             ->get();
@@ -68,12 +67,12 @@ class ImportPortalController extends Controller
                 $summary = 'Tidak ada data baru yang diproses (mungkin sudah ada atau format tidak dikenali).';
             }
 
-            // Catat log aktivitas
-            ActivityLog::create([
-                'user_id'     => auth()->id(),
-                'description' => "Import Excel Satu Pintu: {$summary}",
-                'ip_address'  => $request->ip(),
-            ]);
+            // Catat log aktivitas menggunakan method log() bawaan model
+            ActivityLog::log(
+                'Import Portal',
+                'import',
+                "Import Excel Satu Pintu: {$summary}"
+            );
 
             return redirect()->route('import-portal.index')
                 ->with('success', "✅ Import berhasil! Data yang diproses: {$summary}.");
