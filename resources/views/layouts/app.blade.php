@@ -580,6 +580,12 @@
                     <span>Form Pilihan Eskul</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('import-portal.index') }}" class="nav-link {{ request()->is('import-portal*') ? 'active' : '' }}">
+                    <i class="fas fa-file-import"></i>
+                    <span>Import Excel</span>
+                </a>
+            </li>
             @endif
         </ul>
         <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>

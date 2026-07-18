@@ -118,5 +118,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/teacher-attendance/export', [\App\Http\Controllers\TeacherAttendanceController::class, 'export'])->name('teacher-attendance.export');
     Route::resource('teacher-attendance', \App\Http\Controllers\TeacherAttendanceController::class)->only(['index', 'store', 'destroy']);
 
+    // Import Portal Satu Pintu
+    Route::get('/import-portal', [\App\Http\Controllers\ImportPortalController::class, 'index'])->name('import-portal.index');
+    Route::get('/import-portal/template', [\App\Http\Controllers\ImportPortalController::class, 'downloadTemplate'])->name('import-portal.template');
+    Route::post('/import-portal/import', [\App\Http\Controllers\ImportPortalController::class, 'import'])->name('import-portal.import');
 
 });

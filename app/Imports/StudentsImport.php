@@ -33,11 +33,12 @@ class StudentsImport
         }
 
         $counts = [
-            'students' => 0,
-            'attendance' => 0,
-            'grades' => 0,
-            'achievements' => 0,
-            'teacher_attendance' => 0
+            'students'           => 0,
+            'attendance'         => 0,
+            'grades'             => 0,
+            'achievements'       => 0,
+            'teacher_attendance' => 0,
+            'teachers'           => 0,
         ];
 
         foreach ($sheets as $sheetIndex => $rows) {
@@ -94,6 +95,63 @@ class StudentsImport
             
             // 2. Process Data Rows
             $headers = array_map(function($h) { return strtolower(trim($h ?? '')); }, $rows[$headerRowIndex]);
+
+            // --- TEACHER LIST PROCESSING (Sheet: Data Guru) ---
+            $isTeacherList = false;
+            foreach ($headers as $h) {
+                if ($h === 'username' || str_contains($h, 'username')) $isTeacherList = true;
+            }
+
+            if ($isTeacherList) {
+                $colTName = -1; $colUser = -1; $colEmail = -1; $colPhone = -1; $colEskul = -1;
+                foreach ($headers as $k => $h) {
+                    if ($h === 'nama guru' || $h === 'nama') $colTName = $k;
+                    if ($h === 'username') $colUser = $k;
+                    if ($h === 'email') $colEmail = $k;
+                    if (str_contains($h, 'hp') || str_contains($h, 'telepon') || str_contains($h, 'phone')) $colPhone = $k;
+                    if (str_contains($h, 'eskul') || str_contains($h, 'ekstrakurikuler') || str_contains($h, 'diampu')) $colEskul = $k;
+                }
+
+                if ($colTName !== -1 && $colUser !== -1) {
+                    for ($i = $headerRowIndex + 1; $i < count($rows); $i++) {
+                        $row = $rows[$i];
+                        if (!isset($row[$colTName])) continue;
+                        $teacherName = trim($row[$colTName]);
+                        $username    = $colUser !== -1 && isset($row[$colUser]) ? trim($row[$colUser]) : null;
+                        if (!$teacherName || !$username) continue;
+
+                        $email  = ($colEmail !== -1  && isset($row[$colEmail]))  ? trim($row[$colEmail])  : null;
+                        $phone  = ($colPhone !== -1  && isset($row[$colPhone]))  ? trim($row[$colPhone])  : null;
+                        $eskulN = ($colEskul !== -1  && isset($row[$colEskul]))  ? trim($row[$colEskul])  : null;
+
+                        // Create or update user
+                        $user = \App\Models\User::updateOrCreate(
+                            ['username' => $username],
+                            [
+                                'name'     => $teacherName,
+                                'email'    => $email,
+                                'role'     => 'teacher',
+                                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                            ]
+                        );
+
+                        // Link to eskul if provided
+                        if ($eskulN) {
+                            $eskul = \App\Models\Eskul::firstOrCreate(
+                                ['name' => $eskulN],
+                                ['instructor_name' => $teacherName]
+                            );
+                            // Update instructor_name if changed
+                            if ($eskul->instructor_name !== $teacherName) {
+                                $eskul->update(['instructor_name' => $teacherName]);
+                            }
+                        }
+
+                        $counts['teachers']++;
+                    }
+                }
+                continue; // Done with Teacher List sheet
+            }
 
             // --- TEACHER ATTENDANCE PROCESSING ---
             $isTeacherSheet = false;
