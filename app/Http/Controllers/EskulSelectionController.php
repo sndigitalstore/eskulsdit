@@ -206,55 +206,57 @@ class EskulSelectionController extends Controller
             $eskulToCheck = Eskul::find($value);
             if (!$eskulToCheck) return;
 
-            if ($eskulToCheck->target_group !== 'all') {
-                $class = $request->class;
-                $studentGroup = 'all';
-                if ($class) {
-                    if (str_starts_with($class, '1')) {
-                        $studentGroup = 'sesi_1';
+            $groups = $eskulToCheck->target_groups; // pakai accessor dari model
+            if (in_array('all', $groups)) return; // Semua kelas boleh
 
-                        // Check if it is Semester 2 and student is a Calistung Graduate (all A's)
-                        $activeYear = AcademicYear::where('is_active', true)->first();
-                        if ($activeYear && $activeYear->active_semester == '2') {
-                            $student = Student::find($request->student_id);
-                            if ($student) {
-                                // Find Calistung eskul
-                                $calistungEskul = Eskul::where('name', 'like', '%Calistung%')->first();
-                                if ($calistungEskul) {
-                                    $grade = \App\Models\Grade::where('student_id', $student->id)
-                                        ->where('eskul_id', $calistungEskul->id)
-                                        ->where('academic_year_id', $activeYear->id)
-                                        ->first();
-                                    
-                                    if ($grade) {
-                                        $achievements = [];
-                                        $json = json_decode($grade->score, true);
-                                        if (is_array($json)) {
-                                            if (isset($json['reading']) && strtoupper(trim($json['reading'])) === 'A') $achievements[] = 'Membaca';
-                                            if (isset($json['writing']) && strtoupper(trim($json['writing'])) === 'A') $achievements[] = 'Menulis';
-                                            if (isset($json['counting']) && strtoupper(trim($json['counting'])) === 'A') $achievements[] = 'Berhitung';
-                                        }
-                                        
-                                        if (count($achievements) === 3) {
-                                            // Graduated Calistung! Allowed to select Sesi 2 (Kelas Kecil)
-                                            if ($eskulToCheck->target_group === 'sesi_2') {
-                                                return; // VALID!
-                                            }
+            $class = $request->class;
+            $studentGroup = null;
+            if ($class) {
+                if (str_starts_with($class, '1')) {
+                    $studentGroup = 'sesi_1';
+
+                    // Cek apakah Semester 2 dan siswa lulus Calistung (semua A)
+                    $activeYear = AcademicYear::where('is_active', true)->first();
+                    if ($activeYear && $activeYear->active_semester == '2') {
+                        $student = Student::find($request->student_id);
+                        if ($student) {
+                            $calistungEskul = Eskul::where('name', 'like', '%Calistung%')->first();
+                            if ($calistungEskul) {
+                                $grade = \App\Models\Grade::where('student_id', $student->id)
+                                    ->where('eskul_id', $calistungEskul->id)
+                                    ->where('academic_year_id', $activeYear->id)
+                                    ->first();
+
+                                if ($grade) {
+                                    $achievements = [];
+                                    $json = json_decode($grade->score, true);
+                                    if (is_array($json)) {
+                                        if (isset($json['reading']) && strtoupper(trim($json['reading'])) === 'A') $achievements[] = 'Membaca';
+                                        if (isset($json['writing']) && strtoupper(trim($json['writing'])) === 'A') $achievements[] = 'Menulis';
+                                        if (isset($json['counting']) && strtoupper(trim($json['counting'])) === 'A') $achievements[] = 'Berhitung';
+                                    }
+
+                                    if (count($achievements) === 3) {
+                                        // Lulus Calistung! Boleh pilih Sesi 2 (Kelas 2)
+                                        if ($eskulToCheck->isForGroup('sesi_2')) {
+                                            return; // VALID!
                                         }
                                     }
                                 }
                             }
                         }
-                    } elseif (str_starts_with($class, '2') || str_starts_with($class, '3')) {
-                        $studentGroup = 'sesi_2';
-                    } elseif (str_starts_with($class, '4') || str_starts_with($class, '5') || str_starts_with($class, '6')) {
-                        $studentGroup = 'sesi_3';
                     }
+                } elseif (str_starts_with($class, '2')) {
+                    $studentGroup = 'sesi_2';
+                } elseif (str_starts_with($class, '3')) {
+                    $studentGroup = 'sesi_3';
+                } elseif (str_starts_with($class, '4') || str_starts_with($class, '5') || str_starts_with($class, '6')) {
+                    $studentGroup = 'sesi_4';
                 }
+            }
 
-                if ($eskulToCheck->target_group !== $studentGroup) {
-                    $fail('Mohon maaf, eskul "' . $eskulToCheck->name . '" tidak diperuntukkan bagi kelas Anda.');
-                }
+            if ($studentGroup && !$eskulToCheck->isForGroup($studentGroup)) {
+                $fail('Mohon maaf, eskul "' . $eskulToCheck->name . '" tidak diperuntukkan bagi kelas Anda.');
             }
         };
 

@@ -276,7 +276,7 @@
             <div style="margin-top: 10px;">
                 @foreach($eskuls as $eskul)
                 @php $isFull = $eskul->students_count >= $quota; @endphp
-                <label class="radio-option eskul-option" data-target-group="{{ $eskul->target_group }}" style="{{ $isFull ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
+                <label class="radio-option eskul-option" data-target-group="{{ json_encode($eskul->target_groups) }}" style="{{ $isFull ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
                     <input type="radio" name="eskul_1" value="{{ $eskul->id }}" data-is-full="{{ $isFull ? 'true' : 'false' }}" {{ old('eskul_1') == $eskul->id ? 'checked' : '' }} {{ $isFull ? 'disabled' : '' }} required>
                     <span>{{ $eskul->name }}</span>
                     @if($isFull)
@@ -523,7 +523,7 @@
 
     // Filter eskul based on student's class group
     function filterEskulOptions(className, canChooseSesi2 = false) {
-        let studentGroup = 'all';
+        let studentGroup = null;
         if (className) {
             if (className.startsWith('1')) {
                 studentGroup = canChooseSesi2 ? 'sesi_2' : 'sesi_1';
@@ -538,10 +538,18 @@
 
         let options = document.querySelectorAll('.eskul-option');
         options.forEach(opt => {
-            let targetGroup = opt.getAttribute('data-target-group');
+            let targetGroups;
+            try {
+                targetGroups = JSON.parse(opt.getAttribute('data-target-group'));
+            } catch(e) {
+                targetGroups = [opt.getAttribute('data-target-group')];
+            }
             let radio = opt.querySelector('input[type="radio"]');
 
-            if (!className || targetGroup === 'all' || targetGroup === studentGroup) {
+            // Tampilkan jika: tidak ada filter, eskul untuk 'all', atau studentGroup cocok
+            let show = !className || targetGroups.includes('all') || (studentGroup && targetGroups.includes(studentGroup));
+
+            if (show) {
                 opt.style.display = 'flex';
                 let isFull = radio.getAttribute('data-is-full') === 'true';
                 if (!isFull) {

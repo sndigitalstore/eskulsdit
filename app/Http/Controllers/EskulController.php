@@ -50,14 +50,25 @@ class EskulController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'alias_name' => 'nullable|string|max:255',
-            'target_group' => 'required|string|in:all,sesi_1,sesi_2,sesi_3',
+            'target_group' => 'required|array|min:1',
+            'target_group.*' => 'in:all,sesi_1,sesi_2,sesi_3,sesi_4',
             'instructor_name' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
         ]);
 
+        // Jika 'all' dipilih, simpan hanya 'all'
+        $groups = $validated['target_group'];
+        if (in_array('all', $groups)) {
+            $targetGroupValue = 'all';
+        } elseif (count($groups) === 1) {
+            $targetGroupValue = $groups[0]; // backward-compatible string
+        } else {
+            $targetGroupValue = json_encode($groups);
+        }
+
         $eskul = Eskul::create([
             'name' => $validated['name'],
-            'target_group' => $validated['target_group'],
+            'target_group' => $targetGroupValue,
             'instructor_name' => $validated['instructor_name'],
             'schedule' => $validated['schedule']
         ]);
@@ -83,14 +94,25 @@ class EskulController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'alias_name' => 'nullable|string|max:255',
-            'target_group' => 'required|string|in:all,sesi_1,sesi_2,sesi_3',
+            'target_group' => 'required|array|min:1',
+            'target_group.*' => 'in:all,sesi_1,sesi_2,sesi_3,sesi_4',
             'instructor_name' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
             'is_lockable' => 'boolean',
         ]);
 
+        // Jika 'all' dipilih, simpan hanya 'all'
+        $groups = $validated['target_group'];
+        if (in_array('all', $groups)) {
+            $targetGroupValue = 'all';
+        } elseif (count($groups) === 1) {
+            $targetGroupValue = $groups[0]; // backward-compatible string
+        } else {
+            $targetGroupValue = json_encode($groups);
+        }
+
         $eskul->name = $validated['name'];
-        $eskul->target_group = $validated['target_group'];
+        $eskul->target_group = $targetGroupValue;
         $eskul->instructor_name = $validated['instructor_name'];
         $eskul->schedule = $validated['schedule'];
         $eskul->is_lockable = $request->has('is_lockable'); 

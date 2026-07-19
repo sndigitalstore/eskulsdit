@@ -260,14 +260,32 @@
                         <small style="color: #888;">Gunakan nama tetap untuk database.</small>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Sesi Pendaftaran / Sasaran Kelas</label>
-                        <select name="target_group" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                            <option value="all" {{ $eskul->target_group == 'all' ? 'selected' : '' }}>Semua Kelas (Umum)</option>
-                            <option value="sesi_1" {{ $eskul->target_group == 'sesi_1' ? 'selected' : '' }}>Sesi 1: Kelas 1</option>
-                            <option value="sesi_2" {{ $eskul->target_group == 'sesi_2' ? 'selected' : '' }}>Sesi 2: Kelas 2</option>
-                            <option value="sesi_3" {{ $eskul->target_group == 'sesi_3' ? 'selected' : '' }}>Sesi 3: Kelas 3</option>
-                            <option value="sesi_4" {{ $eskul->target_group == 'sesi_4' ? 'selected' : '' }}>Sesi 4: Kelas Besar (Kelas 4-6)</option>
-                        </select>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Sesi Pendaftaran / Sasaran Kelas</label>
+                        @php $currentGroups = $eskul->target_groups; @endphp
+                        <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="all" {{ in_array('all', $currentGroups) ? 'checked' : '' }} style="width:16px;height:16px;" onchange="handleAllCheckbox(this, 'edit-{{ $eskul->id }}')">
+                                <span>Semua Kelas (Umum)</span>
+                            </label>
+                            <hr style="margin: 2px 0; border-color: #eee;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_1" {{ in_array('sesi_1', $currentGroups) ? 'checked' : '' }} style="width:16px;height:16px;" class="sesi-cb-edit-{{ $eskul->id }}">
+                                <span>Sesi 1: Kelas 1</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_2" {{ in_array('sesi_2', $currentGroups) ? 'checked' : '' }} style="width:16px;height:16px;" class="sesi-cb-edit-{{ $eskul->id }}">
+                                <span>Sesi 2: Kelas 2</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_3" {{ in_array('sesi_3', $currentGroups) ? 'checked' : '' }} style="width:16px;height:16px;" class="sesi-cb-edit-{{ $eskul->id }}">
+                                <span>Sesi 3: Kelas 3</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_4" {{ in_array('sesi_4', $currentGroups) ? 'checked' : '' }} style="width:16px;height:16px;" class="sesi-cb-edit-{{ $eskul->id }}">
+                                <span>Sesi 4: Kelas Besar (Kelas 4-6)</span>
+                            </label>
+                        </div>
+                        <small style="color: #888;">Pilih satu atau lebih sesi. Centang "Semua Kelas" untuk tidak membatasi.</small>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nama Pembina</label>
@@ -318,14 +336,31 @@
                         <input type="text" name="alias_name" class="form-control" placeholder="Contoh: Karate Kelas Kecil">
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Sesi Pendaftaran / Sasaran Kelas</label>
-                        <select name="target_group" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                            <option value="all" selected>Semua Kelas (Umum)</option>
-                            <option value="sesi_1">Sesi 1: Kelas 1</option>
-                            <option value="sesi_2">Sesi 2: Kelas 2</option>
-                            <option value="sesi_3">Sesi 3: Kelas 3</option>
-                            <option value="sesi_4">Sesi 4: Kelas Besar (Kelas 4-6)</option>
-                        </select>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Sesi Pendaftaran / Sasaran Kelas</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="all" checked style="width:16px;height:16px;" onchange="handleAllCheckbox(this, 'create')">
+                                <span>Semua Kelas (Umum)</span>
+                            </label>
+                            <hr style="margin: 2px 0; border-color: #eee;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_1" style="width:16px;height:16px;" class="sesi-cb-create">
+                                <span>Sesi 1: Kelas 1</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_2" style="width:16px;height:16px;" class="sesi-cb-create">
+                                <span>Sesi 2: Kelas 2</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_3" style="width:16px;height:16px;" class="sesi-cb-create">
+                                <span>Sesi 3: Kelas 3</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" name="target_group[]" value="sesi_4" style="width:16px;height:16px;" class="sesi-cb-create">
+                                <span>Sesi 4: Kelas Besar (Kelas 4-6)</span>
+                            </label>
+                        </div>
+                        <small style="color: #888;">Pilih satu atau lebih sesi. Centang "Semua Kelas" untuk tidak membatasi.</small>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nama Pembina</label>
@@ -412,5 +447,34 @@
             event.target.style.display = "none";
         }
     }
+
+    /**
+     * Jika checkbox 'Semua Kelas' dicentang → uncheck semua sesi spesifik.
+     * Jika checkbox sesi spesifik dicentang → uncheck 'Semua Kelas'.
+     */
+    function handleAllCheckbox(checkbox, formKey) {
+        if (checkbox.value === 'all' && checkbox.checked) {
+            // Uncheck semua sesi spesifik
+            document.querySelectorAll('.sesi-cb-' + formKey).forEach(cb => cb.checked = false);
+        }
+    }
+
+    // Tambahkan listener untuk setiap sesi spesifik agar uncheck 'all' jika dipilih
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('input[type="checkbox"][name="target_group[]"]').forEach(function(cb) {
+            if (cb.value !== 'all') {
+                cb.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Cari checkbox 'all' dalam form/modal yang sama
+                        var container = this.closest('div[style*="flex-direction: column"]');
+                        if (container) {
+                            var allCb = container.querySelector('input[value="all"]');
+                            if (allCb) allCb.checked = false;
+                        }
+                    }
+                });
+            }
+        });
+    });
 </script>
 @endsection
