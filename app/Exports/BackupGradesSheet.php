@@ -79,6 +79,6 @@ class BackupGradesSheet implements FromView, WithTitle, ShouldAutoSize
 
     public function title(): string
     {
-        return 'Data Nilai';
+        return 'Nilai';
     }
 }

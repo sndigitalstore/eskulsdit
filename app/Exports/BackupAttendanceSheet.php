@@ -30,6 +30,6 @@ class BackupAttendanceSheet implements FromView, WithTitle, ShouldAutoSize
 
     public function title(): string
     {
-        return 'Data Absensi';
+        return 'Absensi Siswa';
     }
 }

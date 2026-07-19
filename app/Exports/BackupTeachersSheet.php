@@ -1,13 +1,13 @@
 <?php
 namespace App\Exports;
 
-use App\Models\Student;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class BackupStudentsSheet implements FromView, WithTitle, ShouldAutoSize
+class BackupTeachersSheet implements FromView, WithTitle, ShouldAutoSize
 {
     protected $yearId;
 
@@ -18,19 +18,17 @@ class BackupStudentsSheet implements FromView, WithTitle, ShouldAutoSize
 
     public function view(): View
     {
-        $students = Student::where('academic_year_id', $this->yearId)
-            ->with(['eskuls' => function($q) {
-                $q->wherePivot('academic_year_id', $this->yearId);
-            }])
-            ->orderBy('class')
+        $teachers = User::where('role', 'teacher')
+            ->where('academic_year_id', $this->yearId)
+            ->with('eskul')
             ->orderBy('name')
             ->get();
 
-        return view('exports.backup_students', compact('students'));
+        return view('exports.backup_teachers', compact('teachers'));
     }
 
     public function title(): string
     {
-        return 'Data Siswa';
+        return 'Data Guru';
     }
 }

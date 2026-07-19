@@ -30,14 +30,13 @@ class BackupAchievementsSheet implements FromCollection, WithHeadings, WithTitle
             ->get()
             ->map(function($achievement) {
                 return [
+                    'student_nis' => $achievement->student->nis ?? '-',
                     'student_name' => $achievement->student->name ?? 'Unknown',
                     'student_class' => $achievement->student->class ?? '-',
-                    'year' => $achievement->academicYear->name ?? '-',
-                    'semester' => $achievement->semester ? 'Semester ' . $achievement->semester : '-',
                     'achievement_name' => $achievement->name,
                     'level' => $achievement->level,
-                    'date' => $achievement->date,
                     'organizer' => $achievement->organizer,
+                    'date' => $achievement->date,
                     'description' => $achievement->description,
                 ];
             });
@@ -46,14 +45,13 @@ class BackupAchievementsSheet implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
+            'NIS',
             'Nama Siswa',
             'Kelas',
-            'Tahun Pelajaran',
-            'Semester',
             'Nama Prestasi',
             'Tingkat',
-            'Tanggal',
             'Penyelenggara',
+            'Tanggal',
             'Keterangan',
         ];
     }

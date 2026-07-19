@@ -22,6 +22,7 @@ class ActiveYearBackup implements WithMultipleSheets
             new BackupGradesSheet($this->yearId),
             new BackupAttendanceSheet($this->yearId),
             new BackupAchievementsSheet($this->yearId),
+            new BackupTeachersSheet($this->yearId),
             new BackupTeacherAttendanceSheet($this->yearId),
         ];
     }
