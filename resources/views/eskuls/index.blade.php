@@ -127,16 +127,24 @@
                     ({{ $eskul->name }})
                 </div>
                 @endif
-                <div style="margin-top: 4px; display: inline-flex; gap: 4px; margin-bottom: 2px;">
-                    @if($eskul->target_group == 'sesi_1')
-                        <span style="font-size: 0.65rem; background: #fffbeb; color: #b45309; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #fde68a;">Sesi 1: Kelas 1</span>
-                    @elseif($eskul->target_group == 'sesi_2')
-                        <span style="font-size: 0.65rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #bae6fd;">Sesi 2: Kelas 2-3</span>
-                    @elseif($eskul->target_group == 'sesi_3')
-                        <span style="font-size: 0.65rem; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #a7f3d0;">Sesi 3: Kelas 4-6</span>
-                    @else
-                        <span style="font-size: 0.65rem; background: #f3f4f6; color: #4b5563; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #e5e7eb;">Semua Kelas</span>
-                    @endif
+                <div style="margin-top: 4px; display: inline-flex; flex-wrap: wrap; gap: 4px; margin-bottom: 2px;">
+                    @php
+                        $groups = $eskul->target_groups;
+                        $sesiLabels = [
+                            'all'    => ['label' => 'Semua Kelas', 'bg' => '#f3f4f6', 'color' => '#4b5563', 'border' => '#e5e7eb'],
+                            'sesi_1' => ['label' => 'Sesi 1: Kelas 1', 'bg' => '#fffbeb', 'color' => '#b45309', 'border' => '#fde68a'],
+                            'sesi_2' => ['label' => 'Sesi 2: Kelas 2', 'bg' => '#e0f2fe', 'color' => '#0369a1', 'border' => '#bae6fd'],
+                            'sesi_3' => ['label' => 'Sesi 3: Kelas 3', 'bg' => '#f0fdf4', 'color' => '#166534', 'border' => '#bbf7d0'],
+                            'sesi_4' => ['label' => 'Sesi 4: Kelas 4-6', 'bg' => '#ecfdf5', 'color' => '#047857', 'border' => '#a7f3d0'],
+                        ];
+                    @endphp
+                    @foreach($groups as $g)
+                        @if(isset($sesiLabels[$g]))
+                            <span style="font-size: 0.65rem; background: {{ $sesiLabels[$g]['bg'] }}; color: {{ $sesiLabels[$g]['color'] }}; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid {{ $sesiLabels[$g]['border'] }};">
+                                {{ $sesiLabels[$g]['label'] }}
+                            </span>
+                        @endif
+                    @endforeach
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 0.8rem; opacity: 0.9;">
                     <i class="far fa-calendar-alt"></i> 
