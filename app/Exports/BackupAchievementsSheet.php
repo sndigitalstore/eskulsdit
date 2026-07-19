@@ -23,7 +23,15 @@ class BackupAchievementsSheet implements FromCollection, WithHeadings, WithTitle
         $query = Achievement::with(['student', 'academicYear']);
         
         if ($this->yearId) {
-            $query->where('academic_year_id', $this->yearId);
+            $query->where(function($q) {
+                $q->where('academic_year_id', $this->yearId)
+                  ->orWhere(function($subQ) {
+                      $subQ->whereNull('academic_year_id')
+                           ->whereHas('student', function($studentQ) {
+                               $studentQ->where('academic_year_id', $this->yearId);
+                           });
+                  });
+            });
         }
 
         return $query->orderBy('date', 'desc')

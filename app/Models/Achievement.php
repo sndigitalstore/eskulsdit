@@ -17,6 +17,21 @@ class Achievement extends Model
         'description',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($achievement) {
+            if (empty($achievement->academic_year_id)) {
+                $activeYear = AcademicYear::where('is_active', true)->first();
+                if ($activeYear) {
+                    $achievement->academic_year_id = $activeYear->id;
+                    $achievement->semester = $activeYear->active_semester;
+                }
+            }
+        });
+    }
+
     public function student()
     {
         return $this->belongsTo(Student::class);
