@@ -44,7 +44,12 @@
             <!-- TIGA KOLOM UNTUK KEMUDAHAN UNIT WAKTU AKADEMIS & STATUS FORM -->
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="form-group">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Tahun Ajaran Aktif</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="margin: 0; font-weight: 600;">Tahun Ajaran Aktif</label>
+                        <a href="/academic-years" style="font-size: 0.8rem; color: #2980b9; text-decoration: none; font-weight: 600;">
+                            <i class="fas fa-edit"></i> Kelola
+                        </a>
+                    </div>
                     <select name="active_academic_year_id" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
                         @foreach($academicYears as $year)
                             <option value="{{ $year->id }}" {{ $year->is_active ? 'selected' : '' }}>

@@ -545,12 +545,6 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/academic-years" class="nav-link {{ request()->is('academic-years*') ? 'active' : '' }}">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Tahun Ajaran</span>
-                </a>
-            </li>
-            <li class="nav-item">
                 <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>
                     <span>Pengaturan Form</span>
