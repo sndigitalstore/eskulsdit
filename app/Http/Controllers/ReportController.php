@@ -46,6 +46,7 @@ class ReportController extends Controller
                               ->with('eskul'); 
                     }
                 ])
+                ->orderBy('name')
                 ->get();
         }
 
