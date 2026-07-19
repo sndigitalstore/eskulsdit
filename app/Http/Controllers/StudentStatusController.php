@@ -53,18 +53,33 @@ class StudentStatusController extends Controller
             return back()->withErrors(['msg' => 'Tidak ada tahun ajaran aktif.']);
         }
 
+        // Fetch all unique eskul IDs for this student in the active year from:
+        // 1. Enrolled eskuls
+        // 2. Graded eskuls
+        // 3. Attended eskuls
+        $enrolledEskulIds = \Illuminate\Support\Facades\DB::table('student_eskul')
+            ->where('student_id', $student->id)
+            ->where('academic_year_id', $activeYear->id)
+            ->pluck('eskul_id')
+            ->toArray();
+            
+        $gradedEskulIds = \App\Models\Grade::where('student_id', $student->id)
+            ->where('academic_year_id', $activeYear->id)
+            ->pluck('eskul_id')
+            ->toArray();
+            
+        $attendanceEskulIds = \App\Models\Attendance::where('student_id', $student->id)
+            ->where('academic_year_id', $activeYear->id)
+            ->pluck('eskul_id')
+            ->toArray();
+            
+        $allEskulIds = array_unique(array_merge($enrolledEskulIds, $gradedEskulIds, $attendanceEskulIds));
+        $eskuls = \App\Models\Eskul::whereIn('id', $allEskulIds)->get();
+
         // Fetch data for the student for the active year
         $reportData = [];
 
-        foreach ($student->eskuls as $eskul) {
-            // Check if student is enrolled in this eskul for the active year
-            $isEnrolled = \Illuminate\Support\Facades\DB::table('student_eskul')
-                            ->where('student_id', $student->id)
-                            ->where('eskul_id', $eskul->id)
-                            ->where('academic_year_id', $activeYear->id)
-                            ->exists();
-            
-            if (!$isEnrolled) continue;
+        foreach ($eskuls as $eskul) {
 
             // Attendance
             $attendanceCounts = Attendance::where('student_id', $student->id)

@@ -220,14 +220,19 @@
             <tbody>
                 @foreach($students as $index => $student)
                     @php
-                        // Merge Current Eskuls + Historical Eskuls from Grades
+                        // Merge Current Eskuls + Historical Eskuls from Grades + Attendance
                         $currentEskuls = $student->eskuls;
                         $historicalEskuls = $student->grades->map(function($grade) {
                             return $grade->eskul;
                         })->filter(); // remove nulls if any grade has no eskul
                         
+                        $attendanceEskuls = \App\Models\Eskul::whereIn('id', \App\Models\Attendance::where('student_id', $student->id)
+                            ->where('academic_year_id', $selectedYearId)
+                            ->pluck('eskul_id')
+                            ->toArray())->get();
+                        
                         // Combine and Unique by ID
-                        $allEskuls = $currentEskuls->merge($historicalEskuls)->unique('id')->sortBy('name');
+                        $allEskuls = $currentEskuls->merge($historicalEskuls)->merge($attendanceEskuls)->unique('id')->sortBy('name');
                     @endphp
 
                     @if($allEskuls->isEmpty())
