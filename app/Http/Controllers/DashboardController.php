@@ -22,7 +22,7 @@ class DashboardController extends Controller
 
         // Scoped Student Count
         if ($isTeacher) {
-            $studentCount = Student::activeYear()
+            $studentCount = Student::activeYear()->active()
                 ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
                     $q->where('student_eskul.eskul_id', $teacherEskulId);
                     if ($activeYear) {
@@ -31,7 +31,7 @@ class DashboardController extends Controller
                     }
                 })->count();
         } else {
-            $studentCount = Student::activeYear()->count();
+            $studentCount = Student::activeYear()->active()->count();
         }
 
         // Active Year Context
