@@ -28,33 +28,45 @@
         <!-- SECTION 1: FORMULIR -->
         <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
             <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                <i class="fas fa-file-alt" style="margin-right: 8px; color: var(--accent-color);"></i> Pengaturan Formulir Pilihan Eskul
+                <i class="fas fa-file-alt" style="margin-right: 8px; color: var(--accent-color);"></i> Pengaturan Periode & Formulir
             </h4>
 
             <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Judul Formulir</label>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Judul Formulir Pilihan Eskul</label>
                 <input type="text" name="form_title" class="form-control" value="{{ $settings['form_title'] ?? 'Pilihan Ekstrakurikuler' }}" required>
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Deskripsi / Instruksi</label>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Deskripsi / Instruksi Formulir</label>
                 <textarea name="form_description" class="form-control" rows="3" required>{{ $settings['form_description'] ?? 'Silakan lengkapi data ananda untuk memilih kegiatan ekstrakurikuler.' }}</textarea>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <!-- TIGA KOLOM UNTUK KEMUDAHAN UNIT WAKTU AKADEMIS & STATUS FORM -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="form-group">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Status Formulir</label>
-                    <select name="form_status" class="form-control">
-                        <option value="open" {{ ($settings['form_status'] ?? 'open') == 'open' ? 'selected' : '' }}>Dibuka (Aktif)</option>
-                        <option value="closed" {{ ($settings['form_status'] ?? '') == 'closed' ? 'selected' : '' }}>Ditutup (Non-Aktif)</option>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Tahun Ajaran Aktif</label>
+                    <select name="active_academic_year_id" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                        @foreach($academicYears as $year)
+                            <option value="{{ $year->id }}" {{ $year->is_active ? 'selected' : '' }}>
+                                {{ $year->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Semester Data</label>
-                    <select name="active_semester" class="form-control">
+                    <select name="active_semester" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
                         <option value="1" {{ ($settings['active_semester'] ?? '1') == '1' ? 'selected' : '' }}>Semester 1 (Ganjil)</option>
                         <option value="2" {{ ($settings['active_semester'] ?? '') == '2' ? 'selected' : '' }}>Semester 2 (Genap)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Status Formulir</label>
+                    <select name="form_status" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                        <option value="open" {{ ($settings['form_status'] ?? 'open') == 'open' ? 'selected' : '' }}>Dibuka (Aktif)</option>
+                        <option value="closed" {{ ($settings['form_status'] ?? '') == 'closed' ? 'selected' : '' }}>Ditutup (Non-Aktif)</option>
                     </select>
                 </div>
             </div>
@@ -65,14 +77,20 @@
             </div>
 
             <div class="form-group">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Eskul yang Ditampilkan</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="margin: 0; font-weight: 600;">Eskul yang Ditampilkan di Formulir</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" onclick="selectAllEskuls(true)" style="background: #e2e8f0; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; color: #475569;">Pilih Semua</button>
+                        <button type="button" onclick="selectAllEskuls(false)" style="background: #e2e8f0; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; color: #475569;">Hapus Semua</button>
+                    </div>
+                </div>
                 <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;">
                     @php
                         $allowed = json_decode($settings['allowed_eskuls'] ?? '[]', true);
                     @endphp
                     @foreach($eskuls as $eskul)
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="eskul_{{ $eskul->id }}" name="allowed_eskuls[]" value="{{ $eskul->id }}" 
+                        <input type="checkbox" class="eskul-checkbox" id="eskul_{{ $eskul->id }}" name="allowed_eskuls[]" value="{{ $eskul->id }}" 
                             {{ in_array($eskul->id, $allowed) ? 'checked' : '' }}>
                         <label for="eskul_{{ $eskul->id }}" style="cursor: pointer; font-size: 0.9rem;">{{ $eskul->name }}</label>
                     </div>
@@ -138,5 +156,43 @@
             </button>
         </div>
     </form>
+
+    <!-- SECTION 3: ZONE BAHAYA (DANGER ZONE) -->
+    <div style="background: #fff5f5; border: 1px solid #ffccd2; padding: 20px; border-radius: 12px; margin-top: 40px;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #c0392b; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-exclamation-triangle"></i> Zona Bahaya (Danger Zone)
+        </h4>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px; margin-top: 0;">Tindakan di bawah ini bersifat permanen dan tidak dapat dibatalkan di database.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ffccd2;">
+            <div>
+                <h5 style="margin: 0; font-size: 1rem; color: #2c3e50;">Bersihkan Riwayat Log Aktivitas</h5>
+                <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 0.85rem;">Menghapus seluruh catatan log aktivitas audit sistem yang tercatat di database.</p>
+            </div>
+            <button type="button" onclick="confirmClearLogs()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);">
+                <i class="fas fa-trash-alt"></i> Bersihkan Log
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden Form for Clear Logs -->
+    <form id="clearLogsForm" action="{{ route('settings.clear-logs') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 </div>
+
+<script>
+// Fungsi pilih / hapus semua eskul
+function selectAllEskuls(status) {
+    document.querySelectorAll('.eskul-checkbox').forEach(cb => {
+        cb.checked = status;
+    });
+}
+
+// Fungsi konfirmasi hapus log aktivitas
+function confirmClearLogs() {
+    if (confirm('Apakah Anda yakin ingin menghapus SELURUH riwayat log aktivitas? Tindakan ini tidak dapat dibatalkan.')) {
+        document.getElementById('clearLogsForm').submit();
+    }
+}
+</script>
 @endsection

@@ -10,8 +10,10 @@ class SettingController extends Controller
     public function index()
     {
         $settings = Setting::all()->pluck('value', 'key');
+        $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
+        $activeYear = $academicYears->where('is_active', true)->first();
         $eskuls = \App\Models\Eskul::activeYear()->get();
-        return view('settings.index', compact('settings', 'eskuls'));
+        return view('settings.index', compact('settings', 'eskuls', 'academicYears', 'activeYear'));
     }
 
     public function update(Request $request)
@@ -33,20 +35,21 @@ class SettingController extends Controller
             $user->save();
         }
 
+        // SYNC: Update active academic year if changed
+        if ($request->has('active_academic_year_id')) {
+            $yearId = $request->active_academic_year_id;
+            \App\Models\AcademicYear::query()->update(['is_active' => false]);
+            \App\Models\AcademicYear::where('id', $yearId)->update(['is_active' => true]);
+        }
+
         // 2. Update Settings
         // Exclude tokens, methods, and the profile specific fields
-        $data = $request->except(['_token', '_method', 'admin_name', 'change_password']);
+        $data = $request->except(['_token', '_method', 'admin_name', 'change_password', 'active_academic_year_id']);
 
         // Handle allowed_eskuls specifically because if unrestricted/unchecked it might be missing
-        // But since we use 'except', if it's missing it won't be in $data.
-        // We MUST ensure it updates to empty array if missing BUT we are in the context of the full form.
-        // To be safe, we always check if the key exists in the "keys we know are checkboxes".
-        // Or simpler: always set it.
         $data['allowed_eskuls'] = json_encode($request->input('allowed_eskuls', []));
         
         foreach ($data as $key => $value) {
-            // value is already processed for allowed_eskuls above, but for others stick to string
-            // actually allowed_eskuls is overwritten in $data so it's fine.
             Setting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value]
@@ -54,7 +57,6 @@ class SettingController extends Controller
         }
 
         // SYNC: If active_semester is changed here, we MUST update the Active Academic Year record too
-        // because the request logic (GlobalSearch, etc) relies on $activeYear->active_semester
         if ($request->has('active_semester')) {
              $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
              if ($activeYear) {
@@ -69,5 +71,12 @@ class SettingController extends Controller
         }
 
         return redirect()->back()->with('success', 'Semua konfigurasi berhasil disimpan!');
+    }
+
+    public function clearLogs()
+    {
+        \App\Models\ActivityLog::truncate();
+        \App\Models\ActivityLog::log('Settings', 'Delete', 'Membersihkan semua riwayat log aktivitas sistem.');
+        return redirect()->back()->with('success', 'Semua riwayat log aktivitas berhasil dibersihkan!');
     }
 }

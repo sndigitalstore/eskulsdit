@@ -114,6 +114,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/clear-logs', [\App\Http\Controllers\SettingController::class, 'clearLogs'])->name('settings.clear-logs');
     Route::post('/settings/profile', [\App\Http\Controllers\SettingController::class, 'updateProfile'])->name('settings.update-profile');
 
     Route::get('/global-search', [\App\Http\Controllers\GlobalSearchController::class, 'index'])->name('global-search');
