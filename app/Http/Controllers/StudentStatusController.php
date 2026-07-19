@@ -7,17 +7,14 @@ use App\Models\Student;
 use App\Models\AcademicYear;
 use App\Models\Attendance;
 use App\Models\Grade;
+use App\Models\Eskul;
+use Illuminate\Support\Facades\DB;
 
 class StudentStatusController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->has('q')) {
-            // Re-use logic or redirect to 'search' via POST is tricky with redirect, 
-            // easier to just handle here or call search logic.
-            // But search is POST route usually. Let's make index handle it if needed or simple redirect view
-            // Better: update search method to handle both but index is GET search is POST.
-            // Let's forward to search logic manually if we want result immediately
             $request->merge(['keyword' => $request->q]);
             return $this->search($request);
         }
@@ -30,18 +27,17 @@ class StudentStatusController extends Controller
             'keyword' => 'required',
         ]);
         
-        // Find user by searched NIS or if accessed from query string ?q=NIS
         $keyword = $request->keyword ?? $request->q;
 
-        // Try to find by NIS first (Exact Match) - scoped to active year
-        $student = Student::activeYear()->with(['eskuls', 'achievements'])->where('nis', $keyword)->first();
+        // Find student across ALL academic years (not just active)
+        $student = Student::with(['eskuls', 'achievements'])->where('nis', $keyword)->first();
         
         if (!$student) {
-             $student = Student::activeYear()->with(['eskuls', 'achievements'])->where('name', 'LIKE', $keyword)->first();
+             $student = Student::with(['eskuls', 'achievements'])->where('name', 'LIKE', $keyword)->first();
         }
         
         if (!$student) {
-             $student = Student::activeYear()->with(['eskuls', 'achievements'])->where('name', 'LIKE', "%{$keyword}%")->first();
+             $student = Student::with(['eskuls', 'achievements'])->where('name', 'LIKE', "%{$keyword}%")->first();
         }
         
         if (!$student) {
@@ -49,76 +45,123 @@ class StudentStatusController extends Controller
         }
 
         $activeYear = AcademicYear::where('is_active', true)->first();
-        if (!$activeYear) {
-            return back()->withErrors(['msg' => 'Tidak ada tahun ajaran aktif.']);
-        }
 
-        // Fetch all unique eskul IDs for this student in the active year from:
-        // 1. Enrolled eskuls
-        // 2. Graded eskuls
-        // 3. Attended eskuls
-        $enrolledEskulIds = \Illuminate\Support\Facades\DB::table('student_eskul')
-            ->where('student_id', $student->id)
-            ->where('academic_year_id', $activeYear->id)
-            ->pluck('eskul_id')
-            ->toArray();
-            
-        $gradedEskulIds = \App\Models\Grade::where('student_id', $student->id)
-            ->where('academic_year_id', $activeYear->id)
-            ->pluck('eskul_id')
-            ->toArray();
-            
-        $attendanceEskulIds = \App\Models\Attendance::where('student_id', $student->id)
-            ->where('academic_year_id', $activeYear->id)
-            ->pluck('eskul_id')
-            ->toArray();
-            
-        $allEskulIds = array_unique(array_merge($enrolledEskulIds, $gradedEskulIds, $attendanceEskulIds));
-        $eskuls = \App\Models\Eskul::whereIn('id', $allEskulIds)->get();
+        // =====================================================================
+        // BUILD FULL HISTORY across ALL academic years
+        // =====================================================================
+        $allAcademicYears = AcademicYear::orderBy('name', 'asc')->get();
+        $historyData = [];
 
-        // Fetch data for the student for the active year
-        $reportData = [];
+        foreach ($allAcademicYears as $year) {
+            // Find student record for this specific year
+            // (A student may have a record in multiple years under same NIS)
+            $studentInYear = Student::where('academic_year_id', $year->id)
+                ->where(function($q) use ($student) {
+                    if ($student->nis) {
+                        $q->where('nis', $student->nis);
+                    } else {
+                        $q->where('name', $student->name);
+                    }
+                })->first();
 
-        foreach ($eskuls as $eskul) {
+            if (!$studentInYear) continue;
 
-            // Attendance
-            $attendanceCounts = Attendance::where('student_id', $student->id)
-                ->where('eskul_id', $eskul->id)
-                ->where('academic_year_id', $activeYear->id)
-                ->selectRaw('status, count(*) as count')
-                ->groupBy('status')
-                ->pluck('count', 'status');
+            // Get all unique eskul IDs for this student in this year from:
+            // 1. Enrolled eskuls
+            // 2. Graded eskuls
+            // 3. Attended eskuls
+            $enrolledEskulIds = DB::table('student_eskul')
+                ->where('student_id', $studentInYear->id)
+                ->where('academic_year_id', $year->id)
+                ->pluck('eskul_id')
+                ->toArray();
+                
+            $gradedEskulIds = Grade::where('student_id', $studentInYear->id)
+                ->where('academic_year_id', $year->id)
+                ->pluck('eskul_id')
+                ->toArray();
+                
+            $attendanceEskulIds = Attendance::where('student_id', $studentInYear->id)
+                ->where('academic_year_id', $year->id)
+                ->pluck('eskul_id')
+                ->toArray();
+                
+            $allEskulIds = array_unique(array_merge($enrolledEskulIds, $gradedEskulIds, $attendanceEskulIds));
 
-            // Grades (Both Semesters)
-            $grade1 = Grade::where('student_id', $student->id)
-                ->where('eskul_id', $eskul->id)
-                ->where('academic_year_id', $activeYear->id)
-                ->where('type', 'sas1')
-                ->first();
+            if (empty($allEskulIds)) continue; // Skip years with no activity
 
-            $grade2 = Grade::where('student_id', $student->id)
-                ->where('eskul_id', $eskul->id)
-                ->where('academic_year_id', $activeYear->id)
-                ->where('type', 'sas2')
-                ->first();
+            $eskuls = Eskul::whereIn('id', $allEskulIds)->get();
 
-            $reportData[] = [
-                'eskul_name' => $eskul->name,
-                'instructor' => $eskul->instructor_name,
-                'attendance' => [
-                    'H' => $attendanceCounts['present'] ?? 0,
-                    'S' => $attendanceCounts['sick'] ?? 0,
-                    'I' => $attendanceCounts['permission'] ?? 0,
-                    'A' => $attendanceCounts['absent'] ?? 0,
-                ],
-                'grades' => [
-                    'sas1' => $grade1->score ?? '-',
-                    'sas2' => $grade2->score ?? '-',
-                ]
+            $yearEskulData = [];
+            foreach ($eskuls as $eskul) {
+                // Attendance summary
+                $attendanceCounts = Attendance::where('student_id', $studentInYear->id)
+                    ->where('eskul_id', $eskul->id)
+                    ->where('academic_year_id', $year->id)
+                    ->selectRaw('status, count(*) as count')
+                    ->groupBy('status')
+                    ->pluck('count', 'status');
+
+                // Grades (Both Semesters)
+                $grade1 = Grade::where('student_id', $studentInYear->id)
+                    ->where('eskul_id', $eskul->id)
+                    ->where('academic_year_id', $year->id)
+                    ->where('type', 'sas1')
+                    ->first();
+
+                $grade2 = Grade::where('student_id', $studentInYear->id)
+                    ->where('eskul_id', $eskul->id)
+                    ->where('academic_year_id', $year->id)
+                    ->where('type', 'sas2')
+                    ->first();
+
+                $yearEskulData[] = [
+                    'eskul_name'  => $eskul->name,
+                    'instructor'  => $eskul->instructor_name,
+                    'attendance'  => [
+                        'H' => $attendanceCounts['present']    ?? 0,
+                        'S' => $attendanceCounts['sick']       ?? 0,
+                        'I' => $attendanceCounts['permission'] ?? 0,
+                        'A' => $attendanceCounts['absent']     ?? 0,
+                    ],
+                    'grades' => [
+                        'sas1' => $grade1->score ?? '-',
+                        'sas2' => $grade2->score ?? '-',
+                    ],
+                ];
+            }
+
+            $historyData[] = [
+                'year_name'    => $year->name,
+                'year_id'      => $year->id,
+                'is_active'    => $year->is_active,
+                'student_class'=> $studentInYear->class,
+                'student_id'   => $studentInYear->id,
+                'eskul_data'   => $yearEskulData,
             ];
         }
 
-        return view('status.result', compact('student', 'activeYear', 'reportData'));
+        // =====================================================================
+        // Current active year data (for backwards compat with $reportData)
+        // =====================================================================
+        $reportData = [];
+        $currentYearHistory = collect($historyData)->firstWhere('is_active', true);
+        if ($currentYearHistory) {
+            $reportData = $currentYearHistory['eskul_data'];
+        }
+
+        // All achievements (across all years)
+        $achievements = \App\Models\Achievement::where(function($q) use ($student) {
+            if ($student->nis) {
+                // Match by NIS across all student records
+                $studentIds = Student::where('nis', $student->nis)->pluck('id')->toArray();
+                $q->whereIn('student_id', $studentIds);
+            } else {
+                $q->where('student_id', $student->id);
+            }
+        })->orderBy('date', 'desc')->get();
+
+        return view('status.result', compact('student', 'activeYear', 'reportData', 'historyData', 'achievements'));
     }
     
     // API Helper to reuse the class-student fetch logic
