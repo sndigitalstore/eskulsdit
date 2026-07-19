@@ -537,13 +537,16 @@
                 </a>
             </li>
 
-            @if(Auth::user()->role == 'admin')
+            @if(Auth::user()->role == 'admin' || (Auth::user()->role == 'teacher' && !empty(Auth::user()->homeroom_class)))
             <li class="nav-item">
                 <a href="/reports" class="nav-link {{ request()->is('reports*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
-                    <span>Laporan</span>
+                    <span>{{ Auth::user()->role == 'admin' ? 'Laporan' : 'Laporan Kelas Saya' }}</span>
                 </a>
             </li>
+            @endif
+
+            @if(Auth::user()->role == 'admin')
             <li class="nav-item">
                 <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>

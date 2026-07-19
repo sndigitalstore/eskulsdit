@@ -19,7 +19,8 @@ class TeacherController extends Controller
     public function create()
     {
         $eskuls = Eskul::activeYear()->orderBy('name')->get();
-        return view('teachers.create', compact('eskuls'));
+        $classes = \App\Models\SchoolClass::orderBy('name')->get();
+        return view('teachers.create', compact('eskuls', 'classes'));
     }
 
     public function store(Request $request)
@@ -36,6 +37,7 @@ class TeacherController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'eskul_id' => 'required|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
+            'homeroom_class' => 'nullable|string|max:50',
         ]);
 
         User::create([
@@ -46,6 +48,7 @@ class TeacherController extends Controller
             'role' => 'teacher',
             'eskul_id' => $request->eskul_id,
             'phone' => $request->phone,
+            'homeroom_class' => $request->homeroom_class,
         ]);
 
         return redirect()->route('teachers.index')->with('success', 'Akun Guru Pembina berhasil dibuat.');
@@ -55,7 +58,8 @@ class TeacherController extends Controller
     {
         if ($teacher->role !== 'teacher') return redirect()->route('teachers.index');
         $eskuls = Eskul::activeYear()->orderBy('name')->get();
-        return view('teachers.edit', compact('teacher', 'eskuls'));
+        $classes = \App\Models\SchoolClass::orderBy('name')->get();
+        return view('teachers.edit', compact('teacher', 'eskuls', 'classes'));
     }
 
     public function update(Request $request, User $teacher)
@@ -74,6 +78,7 @@ class TeacherController extends Controller
             'eskul_id' => 'required|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6|confirmed',
+            'homeroom_class' => 'nullable|string|max:50',
         ]);
 
         $data = [
@@ -81,6 +86,7 @@ class TeacherController extends Controller
             'username' => $request->username,
             'eskul_id' => $request->eskul_id,
             'phone' => $request->phone,
+            'homeroom_class' => $request->homeroom_class,
         ];
 
         if ($request->filled('password')) {

@@ -354,12 +354,23 @@ class EskulSelectionController extends Controller
 
         // --- Send WhatsApp Notification ---
         if ($chosenEskul) {
-            $waMessage = view('messages.whatsapp_registration', [
-                'student' => $student,
-                'chosenEskul' => $chosenEskul,
-                'semester' => $semester,
-                'activeYear' => $activeYear
-            ])->render();
+            $template = \App\Models\Setting::where('key', 'wa_message_template')->value('value');
+            
+            if (!empty($template)) {
+                $semesterName = $semester == '1' ? 'Ganjil' : 'Genap';
+                $waMessage = str_replace(
+                    ['{nama_siswa}', '{kelas}', '{nama_eskul}', '{tahun_ajaran}', '{semester}'],
+                    [$student->name, $student->class, $chosenEskul->name, $activeYear->name ?? '-', $semesterName],
+                    $template
+                );
+            } else {
+                $waMessage = view('messages.whatsapp_registration', [
+                    'student' => $student,
+                    'chosenEskul' => $chosenEskul,
+                    'semester' => $semester,
+                    'activeYear' => $activeYear
+                ])->render();
+            }
 
             $formattedNumber = \App\Services\WhatsappService::formatNumber($request->parent_phone);
             \App\Services\WhatsappService::send($formattedNumber, $waMessage);

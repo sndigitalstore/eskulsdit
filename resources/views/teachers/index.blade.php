@@ -40,6 +40,7 @@
                 <th>Username</th>
                 <th>No WA</th>
                 <th>Eskul Binaan</th>
+                <th>Wali Kelas</th>
                 <th width="15%" class="text-center">Aksi</th>
             </tr>
         </thead>
@@ -54,6 +55,15 @@
                     <span class="badge" style="background: #e3f2fd; color: #1976d2;">
                         {{ $teacher->eskul->name ?? '-' }}
                     </span>
+                </td>
+                <td>
+                    @if($teacher->homeroom_class)
+                        <span class="badge" style="background: #e8f5e9; color: #2e7d32;">
+                            Kelas {{ $teacher->homeroom_class }}
+                        </span>
+                    @else
+                        <span style="color: #999;">-</span>
+                    @endif
                 </td>
                 <td class="text-center">
                     <div style="display: flex; gap: 5px; justify-content: center;">

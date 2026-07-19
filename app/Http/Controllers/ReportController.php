@@ -20,9 +20,15 @@ class ReportController extends Controller
         $selectedPeriod = $request->period ?? 'all'; // 1, 2, or all
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
 
-        // Get all unique classes for the filter dropdown, scoped to the selected year
-        $classes = Student::forYear($selectedYearId)
-            ->select('class')->distinct()->orderBy('class')->pluck('class');
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+            $selectedClass = $user->homeroom_class;
+            $classes = collect([$user->homeroom_class]);
+        } else {
+            // Get all unique classes for the filter dropdown, scoped to the selected year
+            $classes = Student::forYear($selectedYearId)
+                ->select('class')->distinct()->orderBy('class')->pluck('class');
+        }
         
         $students = [];
         
@@ -47,12 +53,22 @@ class ReportController extends Controller
     }
     public function exportCalistung()
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role !== 'admin') {
+            abort(403, 'Akses ditolak: Hanya Admin yang dapat mengunduh laporan kelulusan Calistung.');
+        }
+
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CalistungGraduatesExport, 'Siswa_Lulus_Calistung_' . date('Ymd_His') . '.xlsx');
     }
 
     public function exportClass(Request $request)
     {
         $class = $request->query('class');
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+            $class = $user->homeroom_class;
+        }
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
         $period = $request->query('period') ?? 'all';
@@ -81,6 +97,11 @@ class ReportController extends Controller
     public function printRecapClass(Request $request)
     {
         $class = $request->query('class');
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+            $class = $user->homeroom_class;
+        }
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
         $period = $request->query('period') ?? 'all';
@@ -116,6 +137,11 @@ class ReportController extends Controller
     public function printFullClass(Request $request)
     {
         $class = $request->query('class');
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+            $class = $user->homeroom_class;
+        }
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
         $period = $request->query('period') ?? 'all';
@@ -152,6 +178,10 @@ class ReportController extends Controller
 
     public function printCalistungGraduates()
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role !== 'admin') {
+            abort(403, 'Akses ditolak: Hanya Admin yang dapat mencetak laporan kelulusan Calistung.');
+        }
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearName = $activeYear ? $activeYear->name : '-';
         if (!$activeYear) return back()->with('error', 'Tidak ada tahun ajaran aktif.');

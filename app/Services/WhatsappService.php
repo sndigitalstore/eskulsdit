@@ -16,37 +16,53 @@ class WhatsappService
      */
     public static function send($target, $message)
     {
-        if (!config('whatsapp.enabled')) {
+        $enabledSetting = \App\Models\Setting::where('key', 'wa_gateway_enabled')->value('value') ?? 'no';
+        if ($enabledSetting !== 'yes') {
             Log::info("WhatsApp Disabled. Target: $target, Msg: $message");
             return false;
         }
 
-        $token = config('whatsapp.api_token');
-        $endpoint = config('whatsapp.endpoint');
+        $token = \App\Models\Setting::where('key', 'wa_gateway_token')->value('value');
+        $provider = \App\Models\Setting::where('key', 'wa_gateway_provider')->value('value') ?? 'fonnte';
+        $sender = \App\Models\Setting::where('key', 'wa_gateway_sender')->value('value');
 
         if (empty($token)) {
             Log::warning("WhatsApp API Token is missing!");
             return false;
         }
 
+        $endpoint = 'https://api.fonnte.com/send';
+        $postData = [
+            'target' => $target,
+            'message' => $message,
+            'countryCode' => '62',
+        ];
+
+        if ($provider === 'wablas') {
+            $endpoint = 'https://api.wablas.com/api/send-message';
+            $postData = [
+                'phone' => $target,
+                'message' => $message,
+            ];
+            if (!empty($sender)) {
+                $postData['sender'] = $sender;
+            }
+        }
+
         try {
             $response = Http::withHeaders([
                 'Authorization' => $token,
-            ])->post($endpoint, [
-                'target' => $target,
-                'message' => $message,
-                'countryCode' => '62', // Default Indonesia
-            ]);
+            ])->post($endpoint, $postData);
 
             if ($response->successful()) {
-                Log::info("WA Sent Successfully to $target");
+                Log::info("WA Sent Successfully using $provider to $target");
                 return true;
             } else {
-                Log::error("WA Failed to $target. Status: " . $response->status() . " Body: " . $response->body());
+                Log::error("WA Failed using $provider to $target. Status: " . $response->status() . " Body: " . $response->body());
                 return false;
             }
         } catch (\Exception $e) {
-            Log::error("WA Exception: " . $e->getMessage());
+            Log::error("WA Exception using $provider: " . $e->getMessage());
             return false;
         }
     }

@@ -109,6 +109,51 @@
             </div>
         </div>
 
+        <!-- SECTION 1.5: WHATSAPP GATEWAY -->
+        <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+            <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                <i class="fab fa-whatsapp" style="margin-right: 8px; color: #25d366; font-size: 1.2rem;"></i> Integrasi WhatsApp Gateway (Notifikasi Pendaftaran)
+            </h4>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Status WhatsApp Gateway</label>
+                    <select name="wa_gateway_enabled" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                        <option value="no" {{ ($settings['wa_gateway_enabled'] ?? 'no') == 'no' ? 'selected' : '' }}>Non-Aktif (Mati)</option>
+                        <option value="yes" {{ ($settings['wa_gateway_enabled'] ?? '') == 'yes' ? 'selected' : '' }}>Aktif (Kirim Notifikasi)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Provider API</label>
+                    <select name="wa_gateway_provider" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                        <option value="fonnte" {{ ($settings['wa_gateway_provider'] ?? 'fonnte') == 'fonnte' ? 'selected' : '' }}>Fonnte (api.fonnte.com)</option>
+                        <option value="wablas" {{ ($settings['wa_gateway_provider'] ?? '') == 'wablas' ? 'selected' : '' }}>Wablas (api.wablas.com)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Token API / API Key</label>
+                    <input type="text" name="wa_gateway_token" class="form-control" value="{{ $settings['wa_gateway_token'] ?? '' }}" placeholder="Masukkan Token API Fonnte / Wablas">
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nomor WhatsApp Pengirim (Optional)</label>
+                    <input type="text" name="wa_gateway_sender" class="form-control" value="{{ $settings['wa_gateway_sender'] ?? '' }}" placeholder="Contoh: 08123456789 (Khusus Wablas jika diperlukan)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Template Pesan Sukses</label>
+                <textarea name="wa_message_template" class="form-control" rows="3" placeholder="Gunakan placeholder: {nama_siswa}, {kelas}, {nama_eskul}, {tahun_ajaran}">{{ $settings['wa_message_template'] ?? "Halo Bapak/Ibu, pendaftaran eskul untuk Ananda {nama_siswa} (Kelas {kelas}) ke eskul {nama_eskul} pada tahun ajaran {tahun_ajaran} berhasil disimpan. Terima kasih." }}</textarea>
+                <small style="color: #666; margin-top: 5px; display: block;">
+                    Placeholder yang didukung: <strong>{nama_siswa}</strong>, <strong>{kelas}</strong>, <strong>{nama_eskul}</strong>, <strong>{tahun_ajaran}</strong>.
+                </small>
+            </div>
+        </div>
+
         <!-- SECTION 2: IDENTITAS & PROFIL -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
             <div style="background: #fafafa; padding: 20px; border-radius: 12px;">

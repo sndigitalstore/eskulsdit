@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'homeroom_class',
     ];
 
     protected static function boot()

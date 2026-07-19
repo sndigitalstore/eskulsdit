@@ -29,6 +29,20 @@
         </div>
 
         <div class="form-group">
+            <label>Kelas Binaan (Wali Kelas)</label>
+            <select name="homeroom_class" class="form-control">
+                <option value="">-- Bukan Wali Kelas (None) --</option>
+                @foreach($classes as $class)
+                    <option value="{{ $class->name }}" {{ old('homeroom_class') == $class->name ? 'selected' : '' }}>
+                        Kelas {{ $class->name }}
+                    </option>
+                @endforeach
+            </select>
+            <small style="color: #666; margin-top: 5px; display: block;">Pilih kelas jika guru ini ditugaskan sebagai Wali Kelas.</small>
+            @error('homeroom_class')<div style="color: red; font-size: 0.8rem;">{{ $message }}</div>@enderror
+        </div>
+
+        <div class="form-group">
             <label>Username Login</label>
             <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
             @error('username')<div style="color: red; font-size: 0.8rem;">{{ $message }}</div>@enderror
