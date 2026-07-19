@@ -527,10 +527,12 @@
         if (className) {
             if (className.startsWith('1')) {
                 studentGroup = canChooseSesi2 ? 'sesi_2' : 'sesi_1';
-            } else if (className.startsWith('2') || className.startsWith('3')) {
+            } else if (className.startsWith('2')) {
                 studentGroup = 'sesi_2';
-            } else if (className.startsWith('4') || className.startsWith('5') || className.startsWith('6')) {
+            } else if (className.startsWith('3')) {
                 studentGroup = 'sesi_3';
+            } else if (className.startsWith('4') || className.startsWith('5') || className.startsWith('6')) {
+                studentGroup = 'sesi_4';
             }
         }
 
