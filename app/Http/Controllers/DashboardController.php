@@ -234,6 +234,7 @@ class DashboardController extends Controller
             'Sains' => 0,
             'Bahasa' => 0,
             'Seni' => 0,
+            'Lainnya' => 0,
         ];
 
         foreach ($eskulsWithStudents as $eskul) {
