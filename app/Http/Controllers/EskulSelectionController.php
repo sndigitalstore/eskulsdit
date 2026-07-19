@@ -81,6 +81,9 @@ class EskulSelectionController extends Controller
             ->map(function ($student) use ($activeYear) {
                 $isAlreadyRegistered = false;
                 $alreadyRegisteredMsg = '';
+                $isLockedCalistung = false;
+                $calistungMsg = '';
+                $currentEskul = '';
 
                 if ($activeYear) {
                     // Check if already registered in current active semester
@@ -186,11 +189,34 @@ class EskulSelectionController extends Controller
             }
         };
 
+        $groupValidator = function($attribute, $value, $fail) use ($request) {
+            $eskulToCheck = Eskul::find($value);
+            if (!$eskulToCheck) return;
+
+            if ($eskulToCheck->target_group !== 'all') {
+                $class = $request->class;
+                $studentGroup = 'all';
+                if ($class) {
+                    if (str_starts_with($class, '1')) {
+                        $studentGroup = 'sesi_1';
+                    } elseif (str_starts_with($class, '2') || str_starts_with($class, '3')) {
+                        $studentGroup = 'sesi_2';
+                    } elseif (str_starts_with($class, '4') || str_starts_with($class, '5') || str_starts_with($class, '6')) {
+                        $studentGroup = 'sesi_3';
+                    }
+                }
+
+                if ($eskulToCheck->target_group !== $studentGroup) {
+                    $fail('Mohon maaf, eskul "' . $eskulToCheck->name . '" tidak diperuntukkan bagi kelas Anda.');
+                }
+            }
+        };
+
         $request->validate([
             'class' => 'required|string',
             'student_id' => 'required|exists:students,id',
             'parent_phone' => 'required|string|min:10',
-            'eskul_1' => ['required', 'exists:eskuls,id', $quotaValidator],
+            'eskul_1' => ['required', 'exists:eskuls,id', $quotaValidator, $groupValidator],
             'agreement' => 'required|accepted',
         ], [
             'student_id.required' => 'Silakan pilih Nama Siswa dari daftar.',

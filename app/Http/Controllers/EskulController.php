@@ -50,12 +50,14 @@ class EskulController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'alias_name' => 'nullable|string|max:255',
+            'target_group' => 'required|string|in:all,sesi_1,sesi_2,sesi_3',
             'instructor_name' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
         ]);
 
         $eskul = Eskul::create([
             'name' => $validated['name'],
+            'target_group' => $validated['target_group'],
             'instructor_name' => $validated['instructor_name'],
             'schedule' => $validated['schedule']
         ]);
@@ -81,12 +83,14 @@ class EskulController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'alias_name' => 'nullable|string|max:255',
+            'target_group' => 'required|string|in:all,sesi_1,sesi_2,sesi_3',
             'instructor_name' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
             'is_lockable' => 'boolean',
         ]);
 
         $eskul->name = $validated['name'];
+        $eskul->target_group = $validated['target_group'];
         $eskul->instructor_name = $validated['instructor_name'];
         $eskul->schedule = $validated['schedule'];
         $eskul->is_lockable = $request->has('is_lockable'); 

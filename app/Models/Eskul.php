@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Eskul extends Model
 {
-    protected $fillable = ['academic_year_id', 'name', 'instructor_name', 'schedule', 'is_lockable'];
+    protected $fillable = ['academic_year_id', 'name', 'target_group', 'instructor_name', 'schedule', 'is_lockable'];
 
     protected static function boot()
     {

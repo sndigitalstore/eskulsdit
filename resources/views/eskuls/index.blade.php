@@ -127,6 +127,17 @@
                     ({{ $eskul->name }})
                 </div>
                 @endif
+                <div style="margin-top: 4px; display: inline-flex; gap: 4px; margin-bottom: 2px;">
+                    @if($eskul->target_group == 'sesi_1')
+                        <span style="font-size: 0.65rem; background: #fffbeb; color: #b45309; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #fde68a;">Sesi 1: Kelas 1</span>
+                    @elseif($eskul->target_group == 'sesi_2')
+                        <span style="font-size: 0.65rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #bae6fd;">Sesi 2: Kelas 2-3</span>
+                    @elseif($eskul->target_group == 'sesi_3')
+                        <span style="font-size: 0.65rem; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #a7f3d0;">Sesi 3: Kelas 4-6</span>
+                    @else
+                        <span style="font-size: 0.65rem; background: #f3f4f6; color: #4b5563; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 0.5px solid #e5e7eb;">Semua Kelas</span>
+                    @endif
+                </div>
                 <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 0.8rem; opacity: 0.9;">
                     <i class="far fa-calendar-alt"></i> 
                     <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $displaySchedule ?? 'Jadwal belum diatur' }}">{{ $displaySchedule ?? 'Jadwal belum diatur' }}</span>
@@ -249,6 +260,15 @@
                         <small style="color: #888;">Gunakan nama tetap untuk database.</small>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Sesi Pendaftaran / Sasaran Kelas</label>
+                        <select name="target_group" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                            <option value="all" {{ $eskul->target_group == 'all' ? 'selected' : '' }}>Semua Kelas (Umum)</option>
+                            <option value="sesi_1" {{ $eskul->target_group == 'sesi_1' ? 'selected' : '' }}>Sesi 1: Kelas 1</option>
+                            <option value="sesi_2" {{ $eskul->target_group == 'sesi_2' ? 'selected' : '' }}>Sesi 2: Kelas Kecil (Kelas 2-3)</option>
+                            <option value="sesi_3" {{ $eskul->target_group == 'sesi_3' ? 'selected' : '' }}>Sesi 3: Kelas Besar (Kelas 4-6)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nama Pembina</label>
                         <input type="text" name="instructor_name" class="form-control" value="{{ $displayInstructor }}">
                     </div>
@@ -295,6 +315,15 @@
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Istilah Nama (Alias) - Opsional</label>
                         <input type="text" name="alias_name" class="form-control" placeholder="Contoh: Karate Kelas Kecil">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Sesi Pendaftaran / Sasaran Kelas</label>
+                        <select name="target_group" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                            <option value="all" selected>Semua Kelas (Umum)</option>
+                            <option value="sesi_1">Sesi 1: Kelas 1</option>
+                            <option value="sesi_2">Sesi 2: Kelas Kecil (Kelas 2-3)</option>
+                            <option value="sesi_3">Sesi 3: Kelas Besar (Kelas 4-6)</option>
+                        </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nama Pembina</label>

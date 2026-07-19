@@ -276,7 +276,7 @@
             <div style="margin-top: 10px;">
                 @foreach($eskuls as $eskul)
                 @php $isFull = $eskul->students_count >= $quota; @endphp
-                <label class="radio-option" style="{{ $isFull ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
+                <label class="radio-option eskul-option" data-target-group="{{ $eskul->target_group }}" style="{{ $isFull ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
                     <input type="radio" name="eskul_1" value="{{ $eskul->id }}" data-is-full="{{ $isFull ? 'true' : 'false' }}" {{ old('eskul_1') == $eskul->id ? 'checked' : '' }} {{ $isFull ? 'disabled' : '' }} required>
                     <span>{{ $eskul->name }}</span>
                     @if($isFull)
@@ -337,6 +337,9 @@
 
         var selectedClass = classSelect.value;
         var oldStudentId = "{{ old('student_id') }}";
+
+        // Filter eskul options based on class
+        filterEskulOptions(selectedClass);
 
         if (!selectedClass) {
             studentSelect.innerHTML = '<option value="">-- Pilih Kelas Terlebih Dahulu --</option>';
@@ -467,41 +470,9 @@
         }
     });
 
-    // Auto-save Draft Feature
     const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('input[type="text"], input[type="radio"], select, textarea');
 
-    // Load from Draft
-    document.addEventListener('DOMContentLoaded', function() {
-        // Trigger load for specific dependent selects
-        if (document.getElementById('class-select').value) {
-            loadStudents();
-        }
-
-        inputs.forEach(input => {
-            const savedValue = localStorage.getItem('form_draft_' + input.name);
-            if (savedValue) {
-                if (input.type === 'radio') {
-                    if (input.value === savedValue) input.checked = true;
-                } else {
-                    input.value = savedValue;
-                }
-            }
-        });
-    });
-
-    // Save to Draft on change
-    inputs.forEach(input => {
-        input.addEventListener('change', () => {
-            if (input.type === 'radio') {
-                if (input.checked) localStorage.setItem('form_draft_' + input.name, input.value);
-            } else {
-                localStorage.setItem('form_draft_' + input.name, input.value);
-            }
-        });
-    });
-
-    // Clear draft on clear button
+    // Clear form on clear button
     document.querySelector('.clear-form').addEventListener('click', (e) => {
         e.preventDefault();
         Swal.fire({
@@ -515,7 +486,6 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                inputs.forEach(input => localStorage.removeItem('form_draft_' + input.name));
                 form.reset();
                 location.reload();
             }
@@ -545,6 +515,47 @@
             confirmButtonColor: '#2980b9'
         });
     @endif
+
+    // Filter eskul based on student's class group
+    function filterEskulOptions(className) {
+        let studentGroup = 'all';
+        if (className) {
+            if (className.startsWith('1')) {
+                studentGroup = 'sesi_1';
+            } else if (className.startsWith('2') || className.startsWith('3')) {
+                studentGroup = 'sesi_2';
+            } else if (className.startsWith('4') || className.startsWith('5') || className.startsWith('6')) {
+                studentGroup = 'sesi_3';
+            }
+        }
+
+        let options = document.querySelectorAll('.eskul-option');
+        options.forEach(opt => {
+            let targetGroup = opt.getAttribute('data-target-group');
+            let radio = opt.querySelector('input[type="radio"]');
+
+            if (!className || targetGroup === 'all' || targetGroup === studentGroup) {
+                opt.style.display = 'flex';
+                let isFull = radio.getAttribute('data-is-full') === 'true';
+                if (!isFull) {
+                    radio.disabled = false;
+                }
+            } else {
+                opt.style.display = 'none';
+                radio.disabled = true;
+                radio.checked = false;
+            }
+        });
+    }
+
+    // Trigger initial filter on load if class is pre-selected
+    document.addEventListener('DOMContentLoaded', function() {
+        var classSelect = document.getElementById('class-select');
+        if (classSelect && classSelect.value) {
+            loadStudents();
+            filterEskulOptions(classSelect.value);
+        }
+    });
 </script>
 </body>
 </html>
