@@ -234,7 +234,7 @@
             <select name="class" id="class-select" class="input-select" required onchange="loadStudents()">
                 <option value="">Pilih Kelas</option>
                 @foreach($classes as $cls)
-                    <option value="{{ $cls->name }}" {{ old('class') == $cls->name ? 'selected' : '' }}>{{ $cls->name }}</option>
+                    <option value="{{ $cls }}" {{ old('class') == $cls ? 'selected' : '' }}>{{ $cls }}</option>
                 @endforeach
             </select>
              @error('class')

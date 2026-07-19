@@ -47,7 +47,19 @@ class EskulSelectionController extends Controller
              }])->get();
         }
         
-        $classes = \App\Models\SchoolClass::orderBy('name')->get();
+        $classes = Student::activeYear()
+            ->where(function($q) {
+                $q->where('status', '!=', 'graduated')
+                  ->orWhereNull('status');
+            })
+            ->distinct()
+            ->orderBy('class')
+            ->pluck('class');
+
+        if ($classes->isEmpty()) {
+            $classes = \App\Models\SchoolClass::orderBy('name')->pluck('name');
+        }
+
         return view('pilihan_eskul.form', compact('eskuls', 'title', 'description', 'quota', 'classes'));
     }
 
