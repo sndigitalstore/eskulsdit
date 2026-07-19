@@ -69,15 +69,20 @@ class StudentController extends Controller
                 Rule::unique('students', 'nis')->where('academic_year_id', $activeYear->id),
             ],
             'name' => 'required|string|max:255',
-            'class' => 'required|exists:school_classes,name',
+            'class' => 'required|string|max:50',
             'eskul_name' => 'required|string|max:255',
             'instructor_name' => 'nullable|string|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        // Auto-create/find SchoolClass so it stays registered
+        $className = trim($validated['class']);
+        \App\Models\SchoolClass::firstOrCreate(['name' => $className]);
+
         // Check if student with same name and class already exists in active year
         $studentObject = \App\Models\Student::activeYear()
                                       ->where('name', $validated['name'])
-                                      ->where('class', $validated['class'])
+                                      ->where('class', $className)
                                       ->first();
 
         // If student exists, check if they are already enrolled in THIS YEAR
@@ -89,10 +94,10 @@ class StudentController extends Controller
                 ->exists();
 
              if ($isEnrolled) {
-                 return back()->withErrors(['name' => 'Siswa tersebut sudah terdaftar di tahun ajaran ini!'])->withInput();
+                  return back()->withErrors(['name' => 'Siswa tersebut sudah terdaftar di tahun ajaran ini!'])->withInput();
              } else {
-                 // Not enrolled in this year yet. We will proceed to ENROLL them.
-                 $student = $studentObject;
+                  // Not enrolled in this year yet. We will proceed to ENROLL them.
+                  $student = $studentObject;
              }
         } else {
              // Create new student (academic_year_id auto-filled by model boot event)
@@ -105,7 +110,7 @@ class StudentController extends Controller
                 'academic_year_id' => $activeYear->id,
                 'nis' => $validated['nis'],
                 'name' => $validated['name'],
-                'class' => $validated['class'],
+                'class' => $className,
                 'photo' => $photoPath,
             ]);
         }
@@ -281,11 +286,15 @@ class StudentController extends Controller
                     ->ignore($student->id),
             ],
             'name' => 'required|string|max:255',
-            'class' => 'required|exists:school_classes,name',
+            'class' => 'required|string|max:50',
             'eskul_1_id' => 'required|exists:eskuls,id',
             'eskul_2_id' => 'nullable|exists:eskuls,id',
             'last_sync' => 'nullable|string'
         ]);
+
+        // Auto-create/find SchoolClass so it stays registered
+        $className = trim($validated['class']);
+        \App\Models\SchoolClass::firstOrCreate(['name' => $className]);
 
         // LOCKING CHECK: If student was updated after form was loaded
         if ($request->filled('last_sync') && $student->updated_at->format('Y-m-d H:i:s') != $request->last_sync) {
@@ -295,7 +304,7 @@ class StudentController extends Controller
         $updateData = [
             'nis' => $validated['nis'],
             'name' => $validated['name'],
-            'class' => $validated['class'],
+            'class' => $className,
         ];
 
         // Process photo if present (though removed from form, keep logic for robustness)
