@@ -264,8 +264,9 @@
                         <select name="target_group" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                             <option value="all" {{ $eskul->target_group == 'all' ? 'selected' : '' }}>Semua Kelas (Umum)</option>
                             <option value="sesi_1" {{ $eskul->target_group == 'sesi_1' ? 'selected' : '' }}>Sesi 1: Kelas 1</option>
-                            <option value="sesi_2" {{ $eskul->target_group == 'sesi_2' ? 'selected' : '' }}>Sesi 2: Kelas Kecil (Kelas 2-3)</option>
-                            <option value="sesi_3" {{ $eskul->target_group == 'sesi_3' ? 'selected' : '' }}>Sesi 3: Kelas Besar (Kelas 4-6)</option>
+                            <option value="sesi_2" {{ $eskul->target_group == 'sesi_2' ? 'selected' : '' }}>Sesi 2: Kelas 2</option>
+                            <option value="sesi_3" {{ $eskul->target_group == 'sesi_3' ? 'selected' : '' }}>Sesi 3: Kelas 3</option>
+                            <option value="sesi_4" {{ $eskul->target_group == 'sesi_4' ? 'selected' : '' }}>Sesi 4: Kelas Besar (Kelas 4-6)</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
@@ -321,8 +322,9 @@
                         <select name="target_group" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                             <option value="all" selected>Semua Kelas (Umum)</option>
                             <option value="sesi_1">Sesi 1: Kelas 1</option>
-                            <option value="sesi_2">Sesi 2: Kelas Kecil (Kelas 2-3)</option>
-                            <option value="sesi_3">Sesi 3: Kelas Besar (Kelas 4-6)</option>
+                            <option value="sesi_2">Sesi 2: Kelas 2</option>
+                            <option value="sesi_3">Sesi 3: Kelas 3</option>
+                            <option value="sesi_4">Sesi 4: Kelas Besar (Kelas 4-6)</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
