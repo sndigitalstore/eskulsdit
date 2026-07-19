@@ -15,10 +15,10 @@ class GradeController extends Controller
         $user = auth()->user();
         if ($user->role == 'teacher') {
             $eskuls = $user->eskul_id 
-                ? Eskul::has('students')->where('id', $user->eskul_id)->get()
+                ? Eskul::activeYear()->has('students')->where('id', $user->eskul_id)->get()
                 : collect();
         } else {
-            $eskuls = Eskul::has('students')->get();
+            $eskuls = Eskul::activeYear()->has('students')->get();
         }
 
         $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();

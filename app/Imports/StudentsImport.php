@@ -126,7 +126,10 @@ class StudentsImport
 
                         // Create or update user
                         $user = \App\Models\User::updateOrCreate(
-                            ['username' => $username],
+                            [
+                                'username' => $username,
+                                'academic_year_id' => $activeYear->id
+                            ],
                             [
                                 'name'     => $teacherName,
                                 'email'    => $email,
@@ -138,7 +141,10 @@ class StudentsImport
                         // Link to eskul if provided
                         if ($eskulN) {
                             $eskul = \App\Models\Eskul::firstOrCreate(
-                                ['name' => $eskulN],
+                                [
+                                    'name' => $eskulN,
+                                    'academic_year_id' => $activeYear->id
+                                ],
                                 ['instructor_name' => $teacherName]
                             );
                             // Update instructor_name if changed
@@ -178,12 +184,13 @@ class StudentsImport
 
                         // Find Teacher User
                         $user = \App\Models\User::where('role', 'teacher')
+                            ->activeYear()
                             ->where('name', 'LIKE', $name) 
                             ->first();
                         
                         // Fallback: Try matching username or partial name
                         if (!$user) {
-                             $user = \App\Models\User::where('role', 'teacher')->where('name', 'LIKE', "%{$name}%")->first();
+                             $user = \App\Models\User::where('role', 'teacher')->activeYear()->where('name', 'LIKE', "%{$name}%")->first();
                         }
 
                         if ($user) {
@@ -354,8 +361,8 @@ class StudentsImport
                 if ($isAttendanceSheet && $student) {
                      if ($colEskul !== -1 && isset($row[$colEskul]) && $row[$colEskul]) {
                         $eskulName = trim($row[$colEskul]);
-                        $eskul = \App\Models\Eskul::where('name', $eskulName)->first();
-                        if (!$eskul) $eskul = \App\Models\Eskul::where('name', 'LIKE', "%{$eskulName}%")->first(); // Loose match
+                        $eskul = \App\Models\Eskul::activeYear()->where('name', $eskulName)->first();
+                        if (!$eskul) $eskul = \App\Models\Eskul::activeYear()->where('name', 'LIKE', "%{$eskulName}%")->first(); // Loose match
                         
                         if ($eskul) {
                             $dateRaw = trim($row[$colDate]);
@@ -414,11 +421,11 @@ class StudentsImport
                     $eskulName = trim($row[$colEskul]);
                     
                     // 1. Try Exact Match
-                    $eskul = \App\Models\Eskul::where('name', $eskulName)->first();
+                    $eskul = \App\Models\Eskul::activeYear()->where('name', $eskulName)->first();
                     
                     // 2. Try Loose Match
                     if (!$eskul) {
-                         $eskul = \App\Models\Eskul::where('name', 'LIKE', "%{$eskulName}%")->first();
+                         $eskul = \App\Models\Eskul::activeYear()->where('name', 'LIKE', "%{$eskulName}%")->first();
                     }
 
                     // 3. Create if Not Found (Auto-Discovery)

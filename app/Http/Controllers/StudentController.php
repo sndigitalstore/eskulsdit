@@ -115,9 +115,12 @@ class StudentController extends Controller
             ]);
         }
 
-        // Find or create Eskul
+        // Find or create Eskul in the active academic year
         $eskul = \App\Models\Eskul::firstOrCreate(
-            ['name' => $validated['eskul_name']],
+            [
+                'name' => $validated['eskul_name'],
+                'academic_year_id' => $activeYear->id
+            ],
             ['instructor_name' => $validated['instructor_name']]
         );
         
@@ -197,7 +200,10 @@ class StudentController extends Controller
                 }
 
                 $eskul = \App\Models\Eskul::firstOrCreate(
-                    ['name' => $eskulName],
+                    [
+                        'name' => $eskulName,
+                        'academic_year_id' => $activeYear->id
+                    ],
                     ['instructor_name' => $instructorName]
                 );
 

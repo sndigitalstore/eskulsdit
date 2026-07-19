@@ -10,7 +10,7 @@ class SettingController extends Controller
     public function index()
     {
         $settings = Setting::all()->pluck('value', 'key');
-        $eskuls = \App\Models\Eskul::all();
+        $eskuls = \App\Models\Eskul::activeYear()->get();
         return view('settings.index', compact('settings', 'eskuls'));
     }
 

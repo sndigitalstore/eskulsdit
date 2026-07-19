@@ -38,34 +38,18 @@ class DashboardController extends Controller
         $yearId = $activeYear ? $activeYear->id : null;
         $semester = $activeYear ? $activeYear->active_semester : '1';
 
-        // Eskul Count: Only count Eskuls that have students in the active academic year & semester
+        // Eskul Count: Count all Eskuls registered for the active year
         if ($isTeacher) {
-            $eskulCount = Eskul::where('id', $teacherEskulId)->count();
+            $eskulCount = Eskul::activeYear()->where('id', $teacherEskulId)->count();
         } else {
-            $eskulCount = Eskul::whereHas('students', function($q) use ($yearId, $semester) {
-                 if ($yearId) {
-                    $q->where('student_eskul.academic_year_id', $yearId)
-                      ->where('student_eskul.semester', $semester);
-                }
-                $q->where('status', '!=', 'graduated');
-            })->count();
+            $eskulCount = Eskul::activeYear()->count();
         }
 
-        // Teacher Count: Distinct instructors from Active Eskuls only
+        // Teacher Count: Count distinct teachers for the active year
         if ($isTeacher) {
             $teacherCount = 1;
         } else {
-            $teacherCount = Eskul::whereHas('students', function($q) use ($yearId, $semester) {
-                 if ($yearId) {
-                    $q->where('student_eskul.academic_year_id', $yearId)
-                      ->where('student_eskul.semester', $semester);
-                }
-                $q->where('status', '!=', 'graduated');
-            })
-            ->whereNotNull('instructor_name')
-            ->where('instructor_name', '!=', '')
-            ->distinct('instructor_name')
-            ->count('instructor_name');
+            $teacherCount = \App\Models\User::where('role', 'teacher')->activeYear()->count();
         }
 
         // Calculate Grade Statistics (scoped to active year and teacher eskul if applicable)
@@ -115,7 +99,7 @@ class DashboardController extends Controller
         $startOfWeek = now()->startOfWeek();
         $endOfWeek = now()->endOfWeek();
         
-        $eskulMissingAttendance = Eskul::whereHas('students', function($q) use ($activeYear) {
+        $eskulMissingAttendance = Eskul::activeYear()->whereHas('students', function($q) use ($activeYear) {
              if ($activeYear) {
                 $q->where('student_eskul.academic_year_id', $activeYear->id)
                   ->where('student_eskul.semester', $activeYear->active_semester);
@@ -134,7 +118,7 @@ class DashboardController extends Controller
         // --- CHART DATA PREPARATION ---
 
         // 1. Eskul Popularity (Top 5)
-        $popularEskuls = Eskul::withCount(['students' => function($q) use ($activeYear) {
+        $popularEskuls = Eskul::activeYear()->withCount(['students' => function($q) use ($activeYear) {
             if ($activeYear) {
                 $q->where('student_eskul.academic_year_id', $activeYear->id);
             }
@@ -170,7 +154,7 @@ class DashboardController extends Controller
         \Carbon\Carbon::setLocale('id'); // Ensure ID locale
         $todayName = \Carbon\Carbon::now()->translatedFormat('l'); // e.g. "Senin"
         
-        $todaySchedule = Eskul::where('schedule', 'LIKE', "%{$todayName}%")
+        $todaySchedule = Eskul::activeYear()->where('schedule', 'LIKE', "%{$todayName}%")
             ->whereHas('students', function($q) use ($activeYear) {
                  if ($activeYear) {
                     $q->where('student_eskul.academic_year_id', $activeYear->id)
@@ -232,7 +216,7 @@ class DashboardController extends Controller
         $announcements = \App\Models\InternalAnnouncement::where('is_active', true)->latest()->limit(3)->get();
 
         // 9. Calculate Participant Counts by Category (Olahraga, Sains, Bahasa, Seni)
-        $categoryQuery = Eskul::query();
+        $categoryQuery = Eskul::activeYear();
         if ($isTeacher) {
             $categoryQuery->where('id', $teacherEskulId);
         }

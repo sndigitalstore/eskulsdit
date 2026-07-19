@@ -16,18 +16,29 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::post('/login', function (Request $request) {
-    $credentials = $request->validate([
+    $request->validate([
         'username' => ['required'],
         'password' => ['required'],
     ]);
 
-    if (Auth::attempt($credentials)) {
+    $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+    $activeYearId = $activeYear ? $activeYear->id : null;
+
+    $user = \App\Models\User::where('username', $request->username)
+        ->where(function($query) use ($activeYearId) {
+            $query->where('role', 'admin')
+                  ->orWhere('academic_year_id', $activeYearId);
+        })
+        ->first();
+
+    if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        Auth::login($user);
         $request->session()->regenerate();
         return redirect()->intended('dashboard');
     }
 
     return back()->withErrors([
-        'username' => 'Login gagal! Username atau password salah.',
+        'username' => 'Login gagal! Username atau password salah, atau akun Anda tidak aktif di Tahun Ajaran ini.',
     ])->onlyInput('username');
 });
 

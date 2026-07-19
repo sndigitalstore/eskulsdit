@@ -12,27 +12,34 @@ class TeacherController extends Controller
 {
     public function index()
     {
-        $teachers = User::where('role', 'teacher')->with('eskul')->get();
+        $teachers = User::where('role', 'teacher')->activeYear()->with('eskul')->get();
         return view('teachers.index', compact('teachers'));
     }
 
     public function create()
     {
-        $eskuls = Eskul::orderBy('name')->get();
+        $eskuls = Eskul::activeYear()->orderBy('name')->get();
         return view('teachers.create', compact('eskuls'));
     }
 
     public function store(Request $request)
     {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
+            'username' => [
+                'required', 'string', 'max:255',
+                Rule::unique('users')->where('academic_year_id', $activeYearId),
+            ],
             'password' => 'required|string|min:6|confirmed',
             'eskul_id' => 'required|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
         ]);
 
         User::create([
+            'academic_year_id' => $activeYearId,
             'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
@@ -47,15 +54,23 @@ class TeacherController extends Controller
     public function edit(User $teacher)
     {
         if ($teacher->role !== 'teacher') return redirect()->route('teachers.index');
-        $eskuls = Eskul::orderBy('name')->get();
+        $eskuls = Eskul::activeYear()->orderBy('name')->get();
         return view('teachers.edit', compact('teacher', 'eskuls'));
     }
 
     public function update(Request $request, User $teacher)
     {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($teacher->id)],
+            'username' => [
+                'required', 'string', 'max:255',
+                Rule::unique('users')
+                    ->where('academic_year_id', $activeYearId)
+                    ->ignore($teacher->id)
+            ],
             'eskul_id' => 'required|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6|confirmed',
@@ -88,7 +103,7 @@ class TeacherController extends Controller
     public function print()
     {
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
-        $teachers = User::where('role', 'teacher')->with('eskul')->orderBy('name')->get();
+        $teachers = User::where('role', 'teacher')->activeYear()->with('eskul')->orderBy('name')->get();
         return view('teachers.print', compact('teachers', 'activeYear'));
     }
 
@@ -127,15 +142,26 @@ class TeacherController extends Controller
                     'password' => Hash::make('123456'), // Default password
                 ];
 
-                // Find Eskul
+                // Find Eskul in the active academic year
+                $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+                $activeYearId = $activeYear ? $activeYear->id : null;
+
                 if ($eskulName) {
-                    $eskul = Eskul::where('name', 'LIKE', "%{$eskulName}%")->first();
+                    $eskul = Eskul::activeYear()->where('name', 'LIKE', "%{$eskulName}%")->first();
                     if ($eskul) {
                         $userData['eskul_id'] = $eskul->id;
                     }
                 }
 
-                User::updateOrCreate(['username' => $username], $userData);
+                $userData['academic_year_id'] = $activeYearId;
+
+                User::updateOrCreate(
+                    [
+                        'username' => $username,
+                        'academic_year_id' => $activeYearId
+                    ],
+                    $userData
+                );
                 $count++;
             }
         }

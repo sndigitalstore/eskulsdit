@@ -17,7 +17,7 @@ class EskulController extends Controller
         $isTeacher = $user->role == 'teacher';
         $teacherEskulId = $isTeacher ? $user->eskul_id : null;
 
-        $query = Eskul::query();
+        $query = Eskul::activeYear();
         if ($isTeacher) {
             $query->where('id', $teacherEskulId);
         }

@@ -6,7 +6,35 @@ use Illuminate\Database\Eloquent\Model;
 
 class Eskul extends Model
 {
-    protected $fillable = ['name', 'instructor_name', 'schedule', 'is_lockable'];
+    protected $fillable = ['academic_year_id', 'name', 'instructor_name', 'schedule', 'is_lockable'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($eskul) {
+            if (empty($eskul->academic_year_id)) {
+                $activeYear = AcademicYear::where('is_active', true)->first();
+                if ($activeYear) {
+                    $eskul->academic_year_id = $activeYear->id;
+                }
+            }
+        });
+    }
+
+    public function scopeActiveYear($query)
+    {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if ($activeYear) {
+            return $query->where('eskuls.academic_year_id', $activeYear->id);
+        }
+        return $query;
+    }
+
+    public function scopeForYear($query, $yearId)
+    {
+        return $query->where('eskuls.academic_year_id', $yearId);
+    }
 
     // Relation removed since it's just a string now
     /*

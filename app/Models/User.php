@@ -18,6 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'academic_year_id',
         'name',
         'username',
         'role',
@@ -26,6 +27,40 @@ class User extends Authenticatable
         'phone',
         'password',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if ($user->role === 'teacher' && empty($user->academic_year_id)) {
+                $activeYear = AcademicYear::where('is_active', true)->first();
+                if ($activeYear) {
+                    $user->academic_year_id = $activeYear->id;
+                }
+            }
+        });
+    }
+
+    public function scopeActiveYear($query)
+    {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if ($activeYear) {
+            return $query->where(function($q) use ($activeYear) {
+                $q->where('users.academic_year_id', $activeYear->id)
+                  ->orWhere('users.role', 'admin');
+            });
+        }
+        return $query;
+    }
+
+    public function scopeForYear($query, $yearId)
+    {
+        return $query->where(function($q) use ($yearId) {
+            $q->where('users.academic_year_id', $yearId)
+              ->orWhere('users.role', 'admin');
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.

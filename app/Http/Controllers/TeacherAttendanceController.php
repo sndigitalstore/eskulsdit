@@ -22,7 +22,8 @@ class TeacherAttendanceController extends Controller
             $yearStr = substr($month, 0, 4);
             $monthStr = substr($month, 5, 2);
             
-            $attendances = TeacherAttendance::whereYear('date', $yearStr)
+            $attendances = TeacherAttendance::where('academic_year_id', $activeYear->id)
+                ->whereYear('date', $yearStr)
                 ->whereMonth('date', $monthStr)
                 ->with('user')
                 ->orderBy('date', 'desc')
@@ -32,10 +33,12 @@ class TeacherAttendanceController extends Controller
         } else {
             // Teacher View: My Attendance
             $myAttendances = TeacherAttendance::where('user_id', $user->id)
+                ->where('academic_year_id', $activeYear->id)
                 ->orderBy('date', 'desc')
                 ->paginate(10);
                 
             $todayAttendance = TeacherAttendance::where('user_id', $user->id)
+                ->where('academic_year_id', $activeYear->id)
                 ->where('date', now()->toDateString())
                 ->first();
                 
