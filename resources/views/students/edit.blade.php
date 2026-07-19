@@ -37,7 +37,12 @@
 
         <div class="form-group" style="margin-bottom: 15px;">
             <label style="display: block; margin-bottom: 5px; font-weight: 600;">Kelas</label>
-            <input type="text" name="class" class="form-control" value="{{ old('class', $student->class) }}" required>
+            <input type="text" name="class" list="classList" class="form-control" value="{{ old('class', $student->class) }}" required>
+            <datalist id="classList">
+                @foreach(\App\Models\SchoolClass::orderBy('name')->get() as $class)
+                    <option value="{{ $class->name }}">
+                @endforeach
+            </datalist>
              @error('class')<span style="color: red; font-size: 0.8rem;">{{ $message }}</span>@enderror
         </div>
 

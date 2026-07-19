@@ -31,12 +31,12 @@
 
         <div class="form-group" style="margin-bottom: 1.5rem;">
             <label style="display: block; margin-bottom: 8px; color: #888;">Kelas</label>
-            <select name="class" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
-                <option value="">-- Pilih Kelas --</option>
+            <input type="text" name="class" list="classList" class="form-control" placeholder="Ketik atau pilih kelas" value="{{ old('class') }}" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            <datalist id="classList">
                 @foreach(\App\Models\SchoolClass::orderBy('name')->get() as $class)
-                    <option value="{{ $class->name }}" {{ old('class') == $class->name ? 'selected' : '' }}>{{ $class->name }}</option>
+                    <option value="{{ $class->name }}">
                 @endforeach
-            </select>
+            </datalist>
         </div>
 
         <div class="form-group" style="margin-bottom: 1.5rem;">
