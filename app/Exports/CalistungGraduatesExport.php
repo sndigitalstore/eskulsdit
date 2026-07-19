@@ -72,7 +72,7 @@ class CalistungGraduatesExport implements FromCollection, WithHeadings, ShouldAu
             if (isset($parsed['writing']) && strtoupper(trim($parsed['writing'])) === 'A') $achievements[] = 'Menulis';
             if (isset($parsed['counting']) && strtoupper(trim($parsed['counting'])) === 'A') $achievements[] = 'Berhitung';
 
-            if (!empty($achievements)) {
+            if (count($achievements) === 3) {
                 if (!isset($graduates[$studentId])) {
                      $graduates[$studentId] = [
                         'name' => $grade->student->name ?? 'Unknown',

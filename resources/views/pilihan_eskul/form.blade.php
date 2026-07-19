@@ -409,8 +409,13 @@
         resetFormState();
         infoDiv.style.display = 'none';
 
+        var selectedClass = document.getElementById('class-select').value;
+
         if (studentId && studentsData[studentId]) {
             var s = studentsData[studentId];
+            
+            // Re-filter eskul list based on student's specific can_choose_sesi_2 status
+            filterEskulOptions(selectedClass, s.can_choose_sesi_2);
             
             // Check for Lock
             if (s.is_locked) {
@@ -517,11 +522,11 @@
     @endif
 
     // Filter eskul based on student's class group
-    function filterEskulOptions(className) {
+    function filterEskulOptions(className, canChooseSesi2 = false) {
         let studentGroup = 'all';
         if (className) {
             if (className.startsWith('1')) {
-                studentGroup = 'sesi_1';
+                studentGroup = canChooseSesi2 ? 'sesi_2' : 'sesi_1';
             } else if (className.startsWith('2') || className.startsWith('3')) {
                 studentGroup = 'sesi_2';
             } else if (className.startsWith('4') || className.startsWith('5') || className.startsWith('6')) {

@@ -160,7 +160,8 @@ class EskulSelectionController extends Controller
                     'is_locked' => $isLockedCalistung || $isGrade6Lock || ($isAlreadyRegistered && $activeYear && $activeYear->active_semester == '1'),
                     'lock_message' => $isGrade6Lock ? $grade6Msg : ($isLockedCalistung ? $calistungMsg : ($isAlreadyRegistered && $activeYear && $activeYear->active_semester == '1' ? $alreadyRegisteredMsg : '')),
                     'is_already_registered' => $isAlreadyRegistered,
-                    'already_registered_msg' => $alreadyRegisteredMsg
+                    'already_registered_msg' => $alreadyRegisteredMsg,
+                    'can_choose_sesi_2' => ($activeYear && $activeYear->active_semester == '2' && !$isLockedCalistung && str_starts_with($student->class, '1'))
                 ];
             });
 
@@ -199,6 +200,39 @@ class EskulSelectionController extends Controller
                 if ($class) {
                     if (str_starts_with($class, '1')) {
                         $studentGroup = 'sesi_1';
+
+                        // Check if it is Semester 2 and student is a Calistung Graduate (all A's)
+                        $activeYear = AcademicYear::where('is_active', true)->first();
+                        if ($activeYear && $activeYear->active_semester == '2') {
+                            $student = Student::find($request->student_id);
+                            if ($student) {
+                                // Find Calistung eskul
+                                $calistungEskul = Eskul::where('name', 'like', '%Calistung%')->first();
+                                if ($calistungEskul) {
+                                    $grade = \App\Models\Grade::where('student_id', $student->id)
+                                        ->where('eskul_id', $calistungEskul->id)
+                                        ->where('academic_year_id', $activeYear->id)
+                                        ->first();
+                                    
+                                    if ($grade) {
+                                        $achievements = [];
+                                        $json = json_decode($grade->score, true);
+                                        if (is_array($json)) {
+                                            if (isset($json['reading']) && strtoupper(trim($json['reading'])) === 'A') $achievements[] = 'Membaca';
+                                            if (isset($json['writing']) && strtoupper(trim($json['writing'])) === 'A') $achievements[] = 'Menulis';
+                                            if (isset($json['counting']) && strtoupper(trim($json['counting'])) === 'A') $achievements[] = 'Berhitung';
+                                        }
+                                        
+                                        if (count($achievements) === 3) {
+                                            // Graduated Calistung! Allowed to select Sesi 2 (Kelas Kecil)
+                                            if ($eskulToCheck->target_group === 'sesi_2') {
+                                                return; // VALID!
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     } elseif (str_starts_with($class, '2') || str_starts_with($class, '3')) {
                         $studentGroup = 'sesi_2';
                     } elseif (str_starts_with($class, '4') || str_starts_with($class, '5') || str_starts_with($class, '6')) {
