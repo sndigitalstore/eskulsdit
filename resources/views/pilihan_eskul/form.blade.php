@@ -500,6 +500,22 @@
                 <img src="{{ asset('header_banner.png') }}" alt="Header Banner">
             </div>
 
+            <!-- Title & Ketentuan Pendaftaran -->
+            <div style="padding: 24px 30px 14px; border-bottom: 1px dashed rgba(203, 213, 225, 0.8);">
+                <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px;">
+                    {{ $title }}
+                </h1>
+                @if($description)
+                <div style="background: rgba(240, 253, 244, 0.8); border: 1.5px solid #a7f3d0; padding: 14px 18px; border-radius: 16px; font-size: 0.88rem; color: #047857; line-height: 1.6; display: flex; gap: 12px; align-items: flex-start; margin-top: 10px;">
+                    <i class="fas fa-info-circle" style="font-size: 1.1rem; color: #10b981; margin-top: 2px;"></i>
+                    <div style="flex: 1;">
+                        <strong style="display: block; font-weight: 700; color: #065f46; margin-bottom: 3px;">Ketentuan & Petunjuk Pendaftaran:</strong>
+                        {!! nl2br(e($description)) !!}
+                    </div>
+                </div>
+                @endif
+            </div>
+
             <!-- Stepper Header Progress -->
             <div class="stepper-header">
                 <div class="stepper-track">
