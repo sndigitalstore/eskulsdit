@@ -20,30 +20,6 @@ Route::get('/run-migration', function () {
     }
 });
 
-// Temporary: Seed all school classes 1A-6C
-Route::get('/seed-school-classes', function () {
-    try {
-        $classes = [
-            '1A', '1B', '1C',
-            '2A', '2B', '2C',
-            '3A', '3B', '3C',
-            '4A', '4B', '4C',
-            '5A', '5B', '5C',
-            '6A', '6B', '6C',
-        ];
-        $added = [];
-        foreach ($classes as $class) {
-            \App\Models\SchoolClass::firstOrCreate(['name' => $class]);
-            $added[] = $class;
-        }
-        return 'Berhasil! Kelas yang ditambahkan: ' . implode(', ', $added) .
-               '<br><br><b>Total kelas di database: ' . \App\Models\SchoolClass::count() . '</b>' .
-               '<br><br><i>Silakan hapus route ini setelah selesai.</i>';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-
 Route::get('/login', function () {
     return view('login');
 })->name('login');
