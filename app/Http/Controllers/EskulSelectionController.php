@@ -263,12 +263,11 @@ class EskulSelectionController extends Controller
         $request->validate([
             'class' => 'required|string',
             'student_id' => 'required|exists:students,id',
-            'parent_phone' => 'required|string|min:10',
+            'parent_phone' => 'nullable|string|min:8',
             'eskul_1' => ['required', 'exists:eskuls,id', $quotaValidator, $groupValidator],
             'agreement' => 'required|accepted',
         ], [
             'student_id.required' => 'Silakan pilih Nama Siswa dari daftar.',
-            'parent_phone.required' => 'Nomor WhatsApp wajib diisi untuk notifikasi.',
             'agreement.accepted' => 'Anda harus menyetujui pernyataan untuk melanjutkan.',
         ]);
 
@@ -285,8 +284,10 @@ class EskulSelectionController extends Controller
             return back()->withErrors(['student_id' => 'Mohon maaf, khusus kelas 6 di Semester 2 berfokus pada Program Tahfidz dan tidak diperkenankan mendaftar eskul pilihan lainnya.']);
         }
 
-        // Update student phone number if it's new
-        $student->update(['parent_phone' => $request->parent_phone]);
+        // Update student phone number if provided
+        if ($request->filled('parent_phone')) {
+            $student->update(['parent_phone' => $request->parent_phone]);
+        }
 
         // Determine active semester logic (Year Based now)
         $semester = $activeYear ? $activeYear->active_semester : '1';

@@ -572,17 +572,17 @@
                     <div class="step-title">
                         <span class="step-num">Langkah 2 dari 3</span>
                         <h2>Kontak Orang Tua</h2>
-                        <p>Nomor WhatsApp aktif untuk konfirmasi pendaftaran eskul.</p>
+                        <p>Nomor WhatsApp untuk konfirmasi pendaftaran eskul (opsional).</p>
                     </div>
 
                     <div class="form-group-group">
-                        <label class="question-label">Nomor WhatsApp Orang Tua / Wali <span class="required-star">*</span></label>
+                        <label class="question-label">Nomor WhatsApp Orang Tua / Wali <span style="font-size: 0.82rem; font-weight: 500; color: #64748b;">(Opsional)</span></label>
                         <div class="input-with-icon">
                             <i class="fab fa-whatsapp input-icon"></i>
-                            <input type="text" name="parent_phone" id="parent-phone-input" class="input-text-icon" placeholder="Contoh: 081234567890" value="{{ old('parent_phone') }}" required>
+                            <input type="text" name="parent_phone" id="parent-phone-input" class="input-text-icon" placeholder="Contoh: 081234567890 (Boleh dikosongkan)" value="{{ old('parent_phone') }}">
                         </div>
                         <div style="font-size: 0.82rem; color: #64748b; margin-top: 10px;">
-                            <i class="fas fa-shield-alt"></i> Digunakan untuk pengiriman bukti notifikasi pendaftaran berhasil.
+                            <i class="fas fa-shield-alt"></i> Boleh dikosongkan. Jika diisi, digunakan untuk bukti notifikasi pendaftaran berhasil.
                         </div>
                         @error('parent_phone')
                             <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
@@ -739,11 +739,11 @@
             }
         } else if (step === 2) {
             var parentPhone = document.getElementById('parent-phone-input');
-            if (!parentPhone.value || parentPhone.value.trim().length < 9) {
+            if (parentPhone && parentPhone.value.trim().length > 0 && parentPhone.value.trim().length < 8) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Isi No. WhatsApp',
-                    text: 'Silakan masukkan nomor WhatsApp aktif yang valid (min. 9 digit).',
+                    title: 'No. WhatsApp Tidak Valid',
+                    text: 'Jika diisi, mohon masukkan nomor WhatsApp yang valid (minimal 8 digit).',
                     confirmButtonColor: '#10b981'
                 });
                 return false;
