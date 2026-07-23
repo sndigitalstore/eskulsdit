@@ -69,8 +69,20 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         
-        .sidebar-header img { height: 38px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); transition: transform 0.3s; }
-        .sidebar-header:hover img { transform: rotate(8deg) scale(1.05); }
+        .sidebar-header img { 
+            width: 44px; 
+            height: 44px; 
+            object-fit: cover;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; 
+        }
+        .sidebar-header:hover img { 
+            transform: scale(1.08) rotate(6deg); 
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55);
+        }
         .sidebar-header h2 { font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: 0.3px; white-space: nowrap; }
 
         .nav-links { list-style: none; padding: 1.25rem 0.85rem; flex: 1; overflow-y: auto; }

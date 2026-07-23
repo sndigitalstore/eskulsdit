@@ -68,11 +68,19 @@
         }
 
         .brand img { 
-            height: 50px; 
-            filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2));
-            transition: transform 0.3s;
+            width: 56px; 
+            height: 56px; 
+            object-fit: cover;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
         }
-        .brand:hover img { transform: scale(1.1) rotate(-5deg); }
+        .brand:hover img { 
+            transform: scale(1.1) rotate(6deg); 
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
 
         .brand h1 { 
             font-size: 1.5rem; 
