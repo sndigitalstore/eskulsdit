@@ -397,13 +397,14 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #7367f0, #9c8ff5);
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
         color: white;
         font-size: 0.78rem;
         font-weight: 700;
         padding: 4px 12px;
         border-radius: 20px;
         min-width: 42px;
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
     }
 
     /* Eskul chips */
@@ -416,22 +417,22 @@
     .eskul-chip {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
+        gap: 6px;
+        padding: 4px 12px;
         border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: rgba(115,103,240,0.1);
-        color: #7367f0;
-        border: 1px solid rgba(115,103,240,0.15);
+        font-size: 0.76rem;
+        font-weight: 700;
+        background: #e0e7ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
         white-space: nowrap;
     }
 
     .eskul-chip-dot {
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: #7367f0;
+        background: #4f46e5;
         flex-shrink: 0;
     }
 

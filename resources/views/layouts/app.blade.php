@@ -4,28 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Eskul - @yield('title', 'Dashboard')</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @php
         $branding = \App\Models\Setting::whereIn('key', ['app_primary_color', 'app_accent_color'])->pluck('value', 'key');
-        $primaryColor = $branding['app_primary_color'] ?? '#1c1130';
-        $accentColor = $branding['app_accent_color'] ?? '#7367f0';
+        $primaryColor = $branding['app_primary_color'] ?? '#0f172a';
+        $accentColor = $branding['app_accent_color'] ?? '#6366f1';
     @endphp
     <style>
         :root {
-            --primary-bg: #f4f5fa;
+            --primary-bg: #f8fafc;
             --sidebar-bg: {{ $primaryColor }};
-            --header-bg: #ffffff;
-            --text-main: #333333;
-            --text-light: #888888;
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --accent-color: {{ $accentColor }};
-            --accent-gradient: linear-gradient(135deg, {{ $accentColor }} 0%, {{ $accentColor }}cc 100%); 
-            --card-shadow: 0 4px 20px 0 rgba(0,0,0,0.05); 
-            --transition-speed: 0.4s;
+            --accent-gradient: linear-gradient(135deg, {{ $accentColor }} 0%, #4f46e5 100%); 
+            --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.03); 
+            --transition-speed: 0.3s;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
         
         body { 
             background-color: var(--primary-bg); 
@@ -33,103 +33,107 @@
             height: 100vh; 
             overflow: hidden; 
             color: var(--text-main); 
+            -webkit-font-smoothing: antialiased;
         }
 
         /* Animation Keyframes */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-20px); }
+            from { opacity: 0; transform: translateX(-15px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
         /* Sidebar Styling */
         .sidebar { 
-            width: 260px; 
-            background: linear-gradient(180deg, #2b1f4d 0%, #17112c 100%); 
+            width: 270px; 
+            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); 
             display: flex; 
             flex-direction: column; 
-            border-right: none; 
+            border-right: 1px solid rgba(255, 255, 255, 0.08); 
             transition: all var(--transition-speed);
             z-index: 100;
-            color: #d1cceb;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            color: #cbd5e1;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.06);
         }
 
         .sidebar-header { 
-            padding: 2rem 1.5rem; 
+            padding: 1.75rem 1.5rem; 
             display: flex; 
             align-items: center; 
-            gap: 10px; 
-            animation: fadeIn 0.5s ease-out;
+            gap: 12px; 
+            animation: fadeIn 0.4s ease-out;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         
-        .sidebar-header img { height: 35px; transition: transform 0.3s; }
-        .sidebar-header:hover img { transform: rotate(10deg); }
-        .sidebar-header h2 { font-size: 1.1rem; font-weight: 800; color: white; letter-spacing: 0.5px; white-space: nowrap; }
+        .sidebar-header img { height: 38px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); transition: transform 0.3s; }
+        .sidebar-header:hover img { transform: rotate(8deg) scale(1.05); }
+        .sidebar-header h2 { font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: 0.3px; white-space: nowrap; }
 
-        .nav-links { list-style: none; padding: 1rem; flex: 1; overflow-y: auto; }
+        .nav-links { list-style: none; padding: 1.25rem 0.85rem; flex: 1; overflow-y: auto; }
         
-        .nav-item { margin-bottom: 0.5rem; animation: slideInLeft 0.5s ease-out forwards; opacity: 0; }
-        .nav-item:nth-child(1) { animation-delay: 0.1s; }
-        .nav-item:nth-child(2) { animation-delay: 0.2s; }
-        .nav-item:nth-child(3) { animation-delay: 0.3s; }
-        .nav-item:nth-child(4) { animation-delay: 0.4s; }
-        .nav-item:nth-child(5) { animation-delay: 0.5s; }
-        .nav-item:nth-child(6) { animation-delay: 0.6s; }
+        .nav-item { margin-bottom: 0.35rem; animation: slideInLeft 0.4s ease-out forwards; opacity: 0; }
+        .nav-item:nth-child(1) { animation-delay: 0.05s; }
+        .nav-item:nth-child(2) { animation-delay: 0.1s; }
+        .nav-item:nth-child(3) { animation-delay: 0.15s; }
+        .nav-item:nth-child(4) { animation-delay: 0.2s; }
+        .nav-item:nth-child(5) { animation-delay: 0.25s; }
+        .nav-item:nth-child(6) { animation-delay: 0.3s; }
 
         .nav-link { 
             display: flex; 
             align-items: center; 
-            padding: 12px 15px; 
+            padding: 11px 16px; 
             text-decoration: none; 
-            color: #d1cceb; 
+            color: #94a3b8; 
             border-radius: 12px; 
-            font-weight: 500; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-weight: 600; 
+            font-size: 0.92rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
             position: relative;
             overflow: hidden;
         }
 
         .nav-link:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateX(8px);
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateX(5px);
         }
 
         .nav-link.active { 
-            background: linear-gradient(135deg, #e54261 0%, #ff6a88 100%); 
-            color: white; 
-            box-shadow: 0 6px 20px rgba(229, 66, 97, 0.4); 
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
+            color: #ffffff; 
+            box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.45); 
         }
 
-        .nav-link i { margin-right: 12px; font-size: 1.2rem; width: 25px; text-align: center; }
+        .nav-link i { margin-right: 12px; font-size: 1.15rem; width: 24px; text-align: center; }
 
         .logout-btn { 
-            margin: 1.5rem; 
+            margin: 1.25rem 1rem; 
             padding: 12px; 
             border: 1px solid rgba(255,255,255,0.1); 
-            background-color: rgba(255,255,255,0.05); 
-            color: #d1cceb; 
+            background: rgba(255,255,255,0.04); 
+            color: #cbd5e1; 
             border-radius: 12px; 
             cursor: pointer; 
             font-weight: 600; 
+            font-size: 0.9rem;
             display: flex; 
             align-items: center; 
             justify-content: center; 
             gap: 8px; 
             text-decoration: none; 
-            transition: all 0.3s;
+            transition: all 0.25s;
         }
 
         .logout-btn:hover {
-            background: linear-gradient(135deg, #e54261 0%, #ff6a88 100%);
-            color: white;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
             border-color: transparent;
-            box-shadow: 0 6px 20px rgba(229, 66, 97, 0.3);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
             transform: translateY(-2px);
         }
 
@@ -143,61 +147,94 @@
         }
 
         .header { 
-            background-color: var(--header-bg); 
-            padding: 1rem 2rem; 
+            background: var(--header-bg); 
+            padding: 1rem 2.25rem; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02); 
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
             position: sticky;
             top: 0;
             z-index: 90;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        .header h1 { font-size: 1.5rem; color: var(--text-main); }
+        .header h1 { font-size: 1.4rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.3px; }
 
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .user-profile b {
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1e293b;
             font-weight: 700;
         }
 
         .content { 
-            padding: 2rem; 
-            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2.25rem; 
+            animation: fadeIn 0.4s ease-out;
         }
 
         /* Card & Elements */
         .card { 
-            background: white; 
-            border-radius: 15px; /* Apex boxes are slightly less rounded */
+            background: #ffffff; 
+            border-radius: 18px; 
             padding: 2rem; 
             box-shadow: var(--card-shadow); 
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
-            border: none;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.7);
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.07);
         }
 
         /* Buttons */
         .btn-submit, .btn-filter, .btn-add { 
             background: var(--accent-gradient); 
-            color: white; 
+            color: #ffffff; 
             border: none; 
             border-radius: 50px; 
-            padding: 12px 25px;
+            padding: 11px 24px;
+            font-size: 0.92rem;
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 18px -2px rgba(99, 102, 241, 0.4);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover, .btn-filter:hover, .btn-add:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px -4px rgba(99, 102, 241, 0.5);
+            color: #ffffff;
+        }
+
+        /* Form Controls */
+        .form-control { 
+            width: 100%; 
+            padding: 11px 16px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            transition: all 0.2s ease; 
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+        }
             font-weight: 600; 
             cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -604,15 +641,20 @@
                 </form>
             </div>
             @endif
-             <div class="user-profile">
+             <div class="user-profile" style="display: flex; align-items: center; gap: 12px;">
                 @if(isset($activeYear) && $activeYear)
-                    <span style="display: inline-block; margin-right: 10px; background: #e0fbf0; color: #2ecc71; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
-                        {{ $activeYear->name }}
+                    <span style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 5px rgba(5, 150, 105, 0.08);">
+                        <i class="fas fa-calendar-check" style="font-size: 0.85rem;"></i> {{ $activeYear->name }} (Sem {{ $activeYear->active_semester ?? '1' }})
                     </span>
                 @endif
-                <div class="user-name-display">
-                    <span style="margin-right: 5px; color: #888;">Halo, </span>
-                    <b>{{ Auth::user()->name }}</b>
+                <div class="user-name-display" style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 6px 14px 6px 8px; border-radius: 30px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a; line-height: 1.2;">{{ Auth::user()->name }}</span>
+                        <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">{{ Auth::user()->role == 'admin' ? 'Administrator' : 'Guru / Wali Kelas' }}</span>
+                    </div>
                 </div>
             </div>
         </header>

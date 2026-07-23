@@ -5,33 +5,33 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="dashboard-hero responsive-flex" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;">
+<div class="dashboard-hero responsive-flex" style="background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); padding: 28px 32px; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;">
     <div style="z-index: 2;">
-        <h2 style="font-size: 1.8rem; color: #064e3b; margin-bottom: 5px;">
+        <h2 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px;">
             <span id="greeting">Selamat Datang</span>, {{ Auth::user()->name }}! 👋
         </h2>
         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
-            <p style="color: #64748b; font-size: 1rem; margin: 0;">
-                 Tahun Ajaran <b>{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b>{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
+            <p style="color: #64748b; font-size: 0.95rem; margin: 0; font-weight: 500;">
+                 Tahun Ajaran <b style="color: #0f172a;">{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b style="color: #0f172a;">{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
             </p>
             @if(Auth::user()->role === 'admin')
-                <span style="background: #e0e7ff; color: #4f46e5; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Administrator</span>
+                <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Administrator</span>
             @else
                 @if($isHomeroomTeacher)
-                    <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>
+                    <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>
                 @endif
                 @if(Auth::user()->eskul)
-                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Pembina {{ Auth::user()->eskul->name }}</span>
+                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Pembina {{ Auth::user()->eskul->name }}</span>
                 @endif
             @endif
         </div>
     </div>
     <div style="text-align: right; z-index: 2;">
-        <div id="clock" style="font-size: 2rem; font-weight: 700; color: #10b981; letter-spacing: 1px;">00:00</div>
-        <div style="font-size: 0.9rem; color: #aaa;">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</div>
+        <div id="clock" style="font-size: 2.1rem; font-weight: 800; color: #10b981; letter-spacing: -0.5px;">00:00</div>
+        <div style="font-size: 0.88rem; font-weight: 600; color: #64748b;">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</div>
     </div>
     <!-- Decor -->
-    <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -20px; bottom: -30px; font-size: 10rem; color: rgba(115, 103, 240, 0.05);"></i>
+    <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -15px; bottom: -25px; font-size: 9.5rem; color: rgba(99, 102, 241, 0.05);"></i>
 </div>
 
 <!-- Stats Grid (Dinamis Sesuai Peran) -->
@@ -39,14 +39,14 @@
     @if(Auth::user()->role === 'admin')
         <!-- Admin Stats: Global -->
         <!-- Students -->
-        <div class="card" style="background: linear-gradient(45deg, #02aab0 0%, #00cdac 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+        <div class="card" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(79, 70, 229, 0.4);">
             <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                 <div>
-                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $studentCount }}</h3>
-                    <p style="opacity: 0.9; font-size: 0.9rem;">Total Siswa</p>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $studentCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Total Siswa</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                     <i class="fas fa-users" style="font-size: 1.2rem;"></i>
+                <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-users" style="font-size: 1.25rem;"></i>
                 </div>
             </div>
             <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -57,14 +57,14 @@
         </div>
 
         <!-- Eskuls -->
-        <div class="card" style="background: linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+        <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.4);">
             <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                 <div>
-                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $eskulCount }}</h3>
-                    <p style="opacity: 0.9; font-size: 0.9rem;">Ekstrakurikuler</p>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $eskulCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Ekstrakurikuler</p>
                 </div>
-                 <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                     <i class="fas fa-basketball-ball" style="font-size: 1.2rem;"></i>
+                 <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-basketball-ball" style="font-size: 1.25rem;"></i>
                 </div>
             </div>
             <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -75,14 +75,14 @@
         </div>
 
         <!-- Teachers -->
-        <div class="card" style="background: linear-gradient(45deg, #0ba360 0%, #3cba92 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+        <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.4);">
             <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                 <div>
-                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $teacherCount }}</h3>
-                    <p style="opacity: 0.9; font-size: 0.9rem;">Guru Pembina</p>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $teacherCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Guru Pembina</p>
                 </div>
-                 <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                     <i class="fas fa-chalkboard-teacher" style="font-size: 1.2rem;"></i>
+                 <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-chalkboard-teacher" style="font-size: 1.25rem;"></i>
                 </div>
             </div>
             <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -93,17 +93,17 @@
         </div>
 
         <!-- Monitor Guru -->
-        <div class="card" style="background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+        <div class="card" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.4);">
             <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                 <div>
-                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">
                         {{ $teacherAttendancePresent ?? 0 }} <span style="font-size: 1rem; opacity: 0.7;">/ {{ $registeredTeacherAccounts ?? 0 }}</span>
                     </h3>
-                    <p style="opacity: 0.9; font-size: 0.9rem; margin-bottom: 5px;">Hadir Hari Ini</p>
-                    <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.75rem; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Detail <i class="fas fa-arrow-right"></i></a>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Hadir Hari Ini</p>
+                    <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Detail <i class="fas fa-arrow-right"></i></a>
                 </div>
-                 <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                     <i class="fas fa-user-clock" style="font-size: 1.2rem;"></i>
+                 <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-user-clock" style="font-size: 1.25rem;"></i>
                 </div>
             </div>
             <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
