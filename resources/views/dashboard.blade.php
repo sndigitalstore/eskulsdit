@@ -116,14 +116,14 @@
         <!-- Teacher/Wali Kelas/Pembina Stats -->
         @if($isHomeroomTeacher)
             <!-- Wali Kelas: Total Murid Binaan -->
-            <div class="card" style="background: linear-gradient(45deg, #02aab0 0%, #00cdac 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div class="card" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(79, 70, 229, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
-                        <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $homeroomStudentCount }}</h3>
-                        <p style="opacity: 0.9; font-size: 0.9rem;">Siswa Kelas {{ $homeroomClass }}</p>
+                        <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $homeroomStudentCount }}</h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Siswa Kelas {{ $homeroomClass }}</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                         <i class="fas fa-school" style="font-size: 1.2rem;"></i>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="fas fa-school" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
                 <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -134,19 +134,19 @@
             </div>
 
             <!-- Wali Kelas: Terdaftar Eskul -->
-            <div class="card" style="background: linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
-                        <h3 style="font-size: 2.2rem; margin-bottom: 0;">
-                            {{ $homeroomRegisteredCount }} <span style="font-size: 1.1rem; opacity: 0.8;">/ {{ $homeroomStudentCount }}</span>
+                        <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">
+                            {{ $homeroomRegisteredCount }} <span style="font-size: 1.1rem; opacity: 0.85;">/ {{ $homeroomStudentCount }}</span>
                         </h3>
-                        <p style="opacity: 0.9; font-size: 0.9rem; margin-bottom: 5px;">Sudah Memilih Eskul</p>
-                        <span style="background: rgba(255,255,255,0.2); font-size: 0.75rem; padding: 2px 8px; border-radius: 8px;">
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px;">Sudah Memilih Eskul</p>
+                        <span style="background: rgba(255,255,255,0.25); font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;">
                             {{ $homeroomUnregisteredCount }} Belum Daftar
                         </span>
                     </div>
-                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                         <i class="fas fa-clipboard-check" style="font-size: 1.2rem;"></i>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="fas fa-clipboard-check" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
                 <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -158,15 +158,15 @@
         @endif
 
         @if(Auth::user()->eskul_id)
-            <!-- Pembina: Jumlah Anggota Eskul -->
-            <div class="card" style="background: linear-gradient(45deg, #0ba360 0%, #3cba92 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <!-- Pembina: Jumlah Anggota Eskul (Scoped to Pembina Eskul) -->
+            <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
-                        <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $studentCount }}</h3>
-                        <p style="opacity: 0.9; font-size: 0.9rem;">Siswa Terdaftar ({{ Auth::user()->eskul->name }})</p>
+                        <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $studentCount }}</h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Siswa Terdaftar ({{ Auth::user()->eskul->name }})</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                         <i class="fas fa-running" style="font-size: 1.2rem;"></i>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="fas fa-running" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
                 <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -177,16 +177,16 @@
             </div>
 
             <!-- Pembina: Jadwal Latihan -->
-            <div class="card" style="background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div class="card" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
-                        <h3 style="font-size: 1.3rem; font-weight: 700; margin-top: 5px; margin-bottom: 5px; word-break: break-word; line-height: 1.3;">
+                        <h3 style="font-size: 1.3rem; font-weight: 800; margin-top: 5px; margin-bottom: 5px; word-break: break-word; line-height: 1.3;">
                             {{ Auth::user()->eskul->schedule ?? 'Belum diatur' }}
                         </h3>
-                        <p style="opacity: 0.9; font-size: 0.9rem;">Jadwal Eskul Binaan</p>
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Jadwal Eskul Binaan</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                         <i class="far fa-calendar-alt" style="font-size: 1.2rem;"></i>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="far fa-calendar-alt" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
                 <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
