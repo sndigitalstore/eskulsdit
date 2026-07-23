@@ -487,10 +487,6 @@ class StudentController extends Controller
             return back()->with('error', 'Tidak ada tahun ajaran aktif.');
         }
 
-        if ($activeYear->active_semester != '2') {
-            return back()->with('error', 'Plotting otomatis Kelompok Tahfidz khusus untuk Semester 2.');
-        }
-
         // Find or create Eskul "Kelompok Tahfidz" for active year
         $tahfidzEskul = \App\Models\Eskul::firstOrCreate([
             'name' => 'Kelompok Tahfidz',
