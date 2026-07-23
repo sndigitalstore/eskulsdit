@@ -96,10 +96,12 @@
     </table>
     
     <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
-        <div style="text-align: center; width: 200px;">
+        <div style="text-align: center; width: 220px;">
             <p>Wali Kelas {{ $class }}</p>
             <br><br><br>
-            <p>_________________________</p>
+            <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">
+                {{ $homeroomTeacherName ?? '_________________________' }}
+            </p>
         </div>
     </div>
 </body>

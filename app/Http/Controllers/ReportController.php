@@ -132,7 +132,13 @@ class ReportController extends Controller
              if($y) $yearName = $y->name;
         }
 
-        return view('reports.print_recap', compact('students', 'class', 'yearName'));
+        // Find homeroom teacher name for this class
+        $homeroomTeacher = \App\Models\User::where('role', 'teacher')
+            ->where('homeroom_class', $class)
+            ->first();
+        $homeroomTeacherName = $homeroomTeacher ? $homeroomTeacher->name : null;
+
+        return view('reports.print_recap', compact('students', 'class', 'yearName', 'homeroomTeacherName'));
     }
 
     public function printFullClass(Request $request)
@@ -173,8 +179,14 @@ class ReportController extends Controller
              if($y) $yearName = $y->name;
         }
 
+        // Find homeroom teacher name for this class
+        $homeroomTeacher = \App\Models\User::where('role', 'teacher')
+            ->where('homeroom_class', $class)
+            ->first();
+        $homeroomTeacherName = $homeroomTeacher ? $homeroomTeacher->name : null;
+
         // Pass yearId to view for attendance calculation query
-        return view('reports.print_full', compact('students', 'class', 'yearName', 'yearId', 'period'));
+        return view('reports.print_full', compact('students', 'class', 'yearName', 'yearId', 'period', 'homeroomTeacherName'));
     }
 
     public function printCalistungGraduates()
