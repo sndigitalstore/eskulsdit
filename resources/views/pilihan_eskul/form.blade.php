@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>{{ $title }} - SDIT AN NADZIR</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-color: #f1f5f9;
-            --primary-color: #10b981;
+            --primary: #10b981;
             --primary-dark: #047857;
-            --border-color: rgba(226, 232, 240, 0.8);
+            --accent: #6366f1;
+            --bg-color: #f1f5f9;
             --error-color: #ef4444;
             --text-color: #0f172a;
             --text-muted: #64748b;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 50%, #f8fafc 100%);
             background-attachment: fixed;
             padding: 40px 20px;
@@ -44,92 +43,173 @@
         .shape {
             position: absolute;
             border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.5;
+            filter: blur(100px);
+            opacity: 0.55;
         }
 
-        .shape-1 { width: 500px; height: 500px; background: #c7d2fe; top: -100px; right: -100px; }
-        .shape-2 { width: 450px; height: 450px; background: #a7f3d0; bottom: -100px; left: -100px; }
+        .shape-1 { width: 550px; height: 550px; background: #c7d2fe; top: -120px; right: -120px; }
+        .shape-2 { width: 500px; height: 500px; background: #a7f3d0; bottom: -120px; left: -120px; }
 
         .container {
             width: 100%;
-            max-width: 680px;
+            max-width: 660px;
             z-index: 10;
             position: relative;
         }
 
-        .card {
+        /* Main Glass Wizard Card */
+        .wizard-card {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            border-radius: 26px;
+            border-radius: 32px;
             border: 1px solid rgba(255, 255, 255, 0.95);
-            padding: 30px 34px;
-            margin-bottom: 22px;
+            box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255,255,255,0.6);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .banner-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        /* Stepper Header */
+        .stepper-header {
+            padding: 24px 30px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: relative;
-            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.05);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: fadeInUp 0.5s ease-out both;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .stepper-track {
+            position: absolute;
+            top: 44px;
+            left: 60px;
+            right: 60px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            z-index: 1;
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 40px -5px rgba(15, 23, 42, 0.08);
+        .stepper-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981 0%, #6366f1 100%);
+            border-radius: 4px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .form-header h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.85rem;
+        .step-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .badge-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2.5px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+
+        .step-badge.active .badge-icon {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            border-color: #ffffff;
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+            transform: scale(1.1);
+        }
+
+        .step-badge.completed .badge-icon {
+            background: #6366f1;
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .step-badge span {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .step-badge.active span { color: #0f172a; }
+
+        /* Wizard Body Steps */
+        .wizard-body {
+            padding: 24px 32px 34px;
+        }
+
+        .wizard-step {
+            display: none;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .wizard-step.step-active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .step-title {
+            margin-bottom: 24px;
+        }
+
+        .step-num {
+            font-size: 0.78rem;
             font-weight: 800;
-            margin: 0 0 10px 0;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-title h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 800;
             color: #0f172a;
             letter-spacing: -0.5px;
         }
 
-        .form-description {
-            font-size: 0.98rem;
-            color: var(--text-muted);
-            line-height: 1.7;
+        .step-title p {
+            font-size: 0.92rem;
+            color: #64748b;
+            margin-top: 4px;
         }
 
         .question-label {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: block;
             color: #0f172a;
         }
 
-        .required-star {
-            color: var(--error-color);
-            margin-left: 4px;
-        }
+        .required-star { color: var(--error-color); margin-left: 3px; }
 
-        .input-text {
-            width: 100%;
-            padding: 14px 20px;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 16px;
-            font-size: 0.98rem;
-            outline: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            background: #ffffff;
-            font-family: inherit;
-            color: #0f172a;
-            font-weight: 500;
-        }
-
-        .input-text:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.16), 0 4px 12px rgba(16, 185, 129, 0.08);
-        }
-
+        /* Modern Select & Inputs */
         select.input-select {
             width: 100%;
             padding: 14px 44px 14px 20px;
@@ -139,7 +219,6 @@
             outline: none;
             background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E") no-repeat right 16px center/16px 16px;
             -webkit-appearance: none;
-            -moz-appearance: none;
             appearance: none;
             cursor: pointer;
             font-family: inherit;
@@ -155,9 +234,47 @@
         }
 
         select.input-select:focus {
-            border-color: var(--primary-color);
+            border-color: var(--primary);
             background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.16), 0 4px 12px rgba(16, 185, 129, 0.08);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.16);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #10b981;
+            font-size: 1.2rem;
+        }
+
+        .input-text-icon {
+            width: 100%;
+            padding: 15px 20px 15px 48px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.25s;
+            background: #ffffff;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .input-text-icon:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.16);
+        }
+
+        /* Eskul Options Cards */
+        .eskul-grid-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .radio-option {
@@ -165,52 +282,155 @@
             align-items: center;
             padding: 16px 20px;
             cursor: pointer;
-            border-radius: 16px;
+            border-radius: 18px;
             background: #ffffff;
             border: 1.5px solid #e2e8f0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 10px;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         .radio-option:hover {
             background-color: #f0fdf4;
             border-color: #a7f3d0;
-            transform: translateX(4px) translateY(-1px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.08);
+            transform: translateX(4px);
         }
 
         .radio-option:has(input[type="radio"]:checked) {
             background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
             border-color: #10b981;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.18);
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.2);
         }
 
         .radio-option input[type="radio"] {
             margin-right: 14px;
             width: 22px;
             height: 22px;
-            accent-color: var(--primary-color);
+            accent-color: var(--primary);
             cursor: pointer;
         }
 
-        .radio-option span {
-            font-size: 0.98rem;
+        .eskul-info-wrap {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .eskul-title-text {
+            font-size: 1rem;
             font-weight: 700;
             color: #0f172a;
         }
 
-        .btn-submit {
+        .badge-available {
+            background: #d1fae5;
+            color: #047857;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .badge-full {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        /* Agreement Box */
+        .agreement-box {
+            background: rgba(241, 245, 249, 0.7);
+            border: 1.5px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 16px 20px;
+        }
+
+        .checkbox-custom-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-custom-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        /* Buttons Action Row */
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-prev {
+            background: #ffffff;
+            color: #64748b;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 50px;
+            padding: 14px 28px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-prev:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #94a3b8;
+        }
+
+        .btn-next {
             background: linear-gradient(135deg, #10b981 0%, #047857 100%);
             color: white;
             border: none;
             border-radius: 50px;
-            padding: 16px 40px;
-            font-size: 1.05rem;
+            padding: 14px 32px;
+            font-size: 0.98rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.45);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 36px;
+            font-size: 1.02rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -218,24 +438,21 @@
 
         .btn-submit:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.45);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.5);
         }
 
         .clear-form {
             color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             font-weight: 600;
             cursor: pointer;
             border: none;
             background: none;
-            padding: 12px 16px;
+            padding: 10px 16px;
             transition: color 0.2s;
         }
 
-        .clear-form:hover {
-            color: var(--error-color);
-        }
+        .clear-form:hover { color: var(--error-color); }
 
         .error-msg {
             color: var(--error-color);
@@ -247,164 +464,305 @@
         }
 
         .error-msg i { margin-right: 6px; }
-        
+
         .footer-branding {
             text-align: center;
-            margin-top: 36px;
+            margin-top: 25px;
             font-size: 0.88rem;
             color: var(--text-muted);
             font-weight: 600;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 580px) {
             body { padding: 20px 12px; }
-            .card { padding: 20px; }
-            .form-header h1 { font-size: 1.45rem; }
+            .wizard-body { padding: 20px 20px 28px; }
+            .stepper-header { padding: 20px 16px 10px; }
+            .stepper-track { left: 40px; right: 40px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Ambient Pastel Blobs -->
     <div class="bg-shapes">
         <div class="shape shape-1"></div>
         <div class="shape shape-2"></div>
     </div>
 
 <div class="container">
-    <form action="{{ route('pilihan-eskul.store') }}" method="POST">
+    <form action="{{ route('pilihan-eskul.store') }}" method="POST" id="wizard-form">
         @csrf
-        
-        <div class="card card-header-top" style="padding: 0; overflow: hidden;">
-            <img src="{{ asset('header_banner.png') }}" alt="Header Banner" style="width: 100%; height: auto; display: block;">
-            
-            <div style="padding: 25px 30px 30px 30px;">
-                <div class="form-header">
-                    <h1>{{ $title }}</h1>
+
+        <!-- Single Central Glass Wizard Card -->
+        <div class="wizard-card">
+            <!-- Header Banner -->
+            <div class="banner-wrapper">
+                <img src="{{ asset('header_banner.png') }}" alt="Header Banner">
+            </div>
+
+            <!-- Stepper Header Progress -->
+            <div class="stepper-header">
+                <div class="stepper-track">
+                    <div class="stepper-progress" id="wizard-progress-bar"></div>
                 </div>
-                
-                <div class="form-description">
-                    @if($description)
-                        {!! nl2br(e($description)) !!}
-                    @endif
+                <div class="step-badge active" id="step-badge-1" onclick="goToStep(1)">
+                    <div class="badge-icon"><i class="fas fa-user-graduate"></i></div>
+                    <span>Siswa</span>
+                </div>
+                <div class="step-badge" id="step-badge-2" onclick="goToStep(2)">
+                    <div class="badge-icon"><i class="fab fa-whatsapp"></i></div>
+                    <span>Kontak</span>
+                </div>
+                <div class="step-badge" id="step-badge-3" onclick="goToStep(3)">
+                    <div class="badge-icon"><i class="fas fa-running"></i></div>
+                    <span>Pilihan</span>
+                </div>
+            </div>
+
+            <!-- Wizard Body -->
+            <div class="wizard-body">
+                <!-- STEP 1: Identitas Siswa -->
+                <div class="wizard-step step-active" id="wizard-step-1">
+                    <div class="step-title">
+                        <span class="step-num">Langkah 1 dari 3</span>
+                        <h2>Identitas Siswa</h2>
+                        <p>Pilih kelas dan cari nama siswa yang akan didaftarkan.</p>
+                    </div>
+
+                    <!-- Input Kelas -->
+                    <div class="form-group-group">
+                        <label class="question-label">1. Pilih Kelas <span class="required-star">*</span></label>
+                        <select name="class" id="class-select" class="input-select" required onchange="loadStudents()">
+                            <option value="">-- Pilih Kelas --</option>
+                            @foreach($classes as $cls)
+                                <option value="{{ $cls }}" {{ old('class') == $cls ? 'selected' : '' }}>Kelas {{ $cls }}</option>
+                            @endforeach
+                        </select>
+                        @error('class')
+                            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Input Nama Siswa -->
+                    <div class="form-group-group" style="margin-top: 22px;">
+                        <label class="question-label">2. Nama Lengkap Siswa <span class="required-star">*</span></label>
+                        <select name="student_id" id="student-select" class="input-select" disabled required>
+                            <option value="">-- Pilih Kelas Terlebih Dahulu --</option>
+                        </select>
+                        <div style="font-size: 0.82rem; color: #64748b; margin-top: 8px;">
+                            <i class="fas fa-info-circle"></i> Jika nama siswa tidak ditemukan, silakan hubungi admin sekolah.
+                        </div>
+                        <div id="current-eskul-info" style="display: none; margin-top: 12px; padding: 14px 18px; border-radius: 16px; font-size: 0.88rem; line-height: 1.6;">
+                        </div>
+                        @error('student_id')
+                            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="wizard-actions" style="margin-top: 32px;">
+                        <div></div>
+                        <button type="button" class="btn-next" onclick="nextStep(1)">
+                            <span>Lanjut Ke Kontak</span> <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div style="border-top: 1px solid #f1f2f6; margin-top: 25px; padding-top: 15px; color: var(--error-color); font-size: 13px;">
-                    * Menunjukkan pertanyaan yang wajib diisi
+                <!-- STEP 2: Informasi Kontak -->
+                <div class="wizard-step" id="wizard-step-2">
+                    <div class="step-title">
+                        <span class="step-num">Langkah 2 dari 3</span>
+                        <h2>Kontak Orang Tua</h2>
+                        <p>Nomor WhatsApp aktif untuk konfirmasi pendaftaran eskul.</p>
+                    </div>
+
+                    <div class="form-group-group">
+                        <label class="question-label">Nomor WhatsApp Orang Tua / Wali <span class="required-star">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fab fa-whatsapp input-icon"></i>
+                            <input type="text" name="parent_phone" id="parent-phone-input" class="input-text-icon" placeholder="Contoh: 081234567890" value="{{ old('parent_phone') }}" required>
+                        </div>
+                        <div style="font-size: 0.82rem; color: #64748b; margin-top: 10px;">
+                            <i class="fas fa-shield-alt"></i> Digunakan untuk pengiriman bukti notifikasi pendaftaran berhasil.
+                        </div>
+                        @error('parent_phone')
+                            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="wizard-actions" style="margin-top: 35px;">
+                        <button type="button" class="btn-prev" onclick="prevStep(2)">
+                            <i class="fas fa-arrow-left"></i> <span>Kembali</span>
+                        </button>
+                        <button type="button" class="btn-next" onclick="nextStep(2)">
+                            <span>Lanjut Ke Pilih Eskul</span> <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Pilih Eskul & Konfirmasi -->
+                <div class="wizard-step" id="wizard-step-3">
+                    <div class="step-title">
+                        <span class="step-num">Langkah 3 dari 3</span>
+                        <h2>Pilih Kegiatan Ekstrakurikuler</h2>
+                        <p>Pilih 1 kegiatan eskul yang diminati siswa untuk semester ini.</p>
+                    </div>
+
+                    <div class="form-group-group">
+                        <label class="question-label">Daftar Pilihan Ekstrakurikuler <span class="required-star">*</span></label>
+                        <div class="eskul-grid-options">
+                            @foreach($eskuls as $eskul)
+                            @php $isFull = $eskul->students_count >= $quota; @endphp
+                            <label class="radio-option eskul-option" data-target-group="{{ json_encode($eskul->target_groups) }}" style="{{ $isFull ? 'opacity: 0.55; cursor: not-allowed;' : '' }}">
+                                <input type="radio" name="eskul_1" value="{{ $eskul->id }}" data-is-full="{{ $isFull ? 'true' : 'false' }}" {{ old('eskul_1') == $eskul->id ? 'checked' : '' }} {{ $isFull ? 'disabled' : '' }} required>
+                                <div class="eskul-info-wrap">
+                                    <span class="eskul-title-text">{{ $eskul->name }}</span>
+                                    @if($isFull)
+                                        <span class="badge-full">Penuh</span>
+                                    @else
+                                        <span class="badge-available">Tersedia</span>
+                                    @endif
+                                </div>
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('eskul_1')
+                            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Pernyataan Setuju -->
+                    <div class="agreement-box" style="margin-top: 24px;">
+                        <label class="checkbox-custom-label">
+                            <input type="checkbox" name="agreement" id="agreement-checkbox" value="1" required>
+                            <span class="checkbox-text">
+                                Dengan ini menyatakan telah memilih ekskul yang sesuai dengan minat anak kami serta menyetujui ketentuan sekolah yang ditetapkan. <span class="required-star">*</span>
+                            </span>
+                        </label>
+                        @error('agreement')
+                            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="wizard-actions" style="margin-top: 35px;">
+                        <button type="button" class="btn-prev" onclick="prevStep(3)">
+                            <i class="fas fa-arrow-left"></i> <span>Kembali</span>
+                        </button>
+                        <button type="submit" class="btn-submit">
+                            <span>Kirim Pilihan Eskul</span> <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Kelas -->
-        <div class="card">
-            <label class="question-label">Kelas <span class="required-star">*</span></label>
-            <select name="class" id="class-select" class="input-select" required onchange="loadStudents()">
-                <option value="">Pilih Kelas</option>
-                @foreach($classes as $cls)
-                    <option value="{{ $cls }}" {{ old('class') == $cls ? 'selected' : '' }}>{{ $cls }}</option>
-                @endforeach
-            </select>
-             @error('class')
-                <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-            @enderror
-        </div>
-
-        <!-- Nama Lengkap -->
-        <div class="card">
-            <label class="question-label">Nama Lengkap Siswa <span class="required-star">*</span></label>
-            <select name="student_id" id="student-select" class="input-select" style="width: 100%; max-width: 100%;" disabled required>
-                <option value="">-- Pilih Kelas Terlebih Dahulu --</option>
-            </select>
-            <div style="font-size: 12px; color: #888; margin-top: 5px;">
-                * Jika nama tidak ada, silakan hubungi admin sekolah.
-            </div>
-            <div id="current-eskul-info" style="display: none; margin-top: 10px; padding: 10px; background-color: #e8f0fe; color: #1967d2; border-radius: 6px; font-size: 13px;">
-            </div>
-            @error('student_id')
-                <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-            @enderror
-        </div>
-
-        <!-- No. WhatsApp Ortu -->
-        <div class="card">
-            <label class="question-label">No. WhatsApp Orang Tua <span class="required-star">*</span></label>
-            <input type="text" name="parent_phone" class="input-text" placeholder="Contoh: 081234567890" value="{{ old('parent_phone') }}" required>
-            <div style="font-size: 12px; color: #888; margin-top: 5px;">
-                * Digunakan untuk pengiriman notifikasi pendaftaran berhasil.
-            </div>
-            @error('parent_phone')
-                <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-            @enderror
-        </div>
-
-        <!-- Pilihan Eskul -->
-        <div class="card">
-            <label class="question-label">Pilihan Eskul <span class="required-star">*</span></label>
-            <div style="margin-top: 10px;">
-                @foreach($eskuls as $eskul)
-                @php $isFull = $eskul->students_count >= $quota; @endphp
-                <label class="radio-option eskul-option" data-target-group="{{ json_encode($eskul->target_groups) }}" style="{{ $isFull ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
-                    <input type="radio" name="eskul_1" value="{{ $eskul->id }}" data-is-full="{{ $isFull ? 'true' : 'false' }}" {{ old('eskul_1') == $eskul->id ? 'checked' : '' }} {{ $isFull ? 'disabled' : '' }} required>
-                    <span>{{ $eskul->name }}</span>
-                    @if($isFull)
-                        <span style="color: #d63031; font-weight: 600; font-size: 12px; margin-left: 5px;">(Penuh)</span>
-                    @endif
-                </label>
-                @endforeach
-            </div>
-             @error('eskul_1')
-                <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-            @enderror
-        </div>
-
-        <!-- Pernyataan -->
-        <div class="card">
-            <div style="font-weight: 500; font-size: 15px; margin-bottom: 20px; line-height: 1.6; color: #2d3436;">
-                Dengan ini menyatakan telah memilih ekskul yang sesuai dengan minat anak kami serta akan mengikuti ketentuan yang telah ditetapkan. <span class="required-star">*</span>
-            </div>
-            <label class="radio-option">
-                <input type="radio" name="agreement" value="1" required>
-                <span>Ya, saya setuju</span>
-            </label>
-             @error('agreement')
-                <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-            @enderror
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 5px;">
-            <button type="submit" class="btn-submit">Kirim Pilihan</button>
-            <button type="reset" class="clear-form">Kosongkan formulir</button>
+        <div style="display: flex; justify-content: center; margin-top: 18px;">
+            <button type="reset" class="clear-form">
+                <i class="fas fa-undo"></i> Kosongkan Formulir
+            </button>
         </div>
 
         <div class="footer-branding">
             SDIT AN NADZIR &copy; {{ date('Y') }}
-            @php
-                $footerText = \App\Models\Setting::where('key', 'app_credits')->value('value');
-            @endphp
-            @if($footerText)
-                <br>
-                <span style="font-size: 0.85em; font-weight: 400; color: #b2bec3;">{{ $footerText }}</span>
-            @endif
         </div>
     </form>
 </div>
 
-
 <script>
+    var currentStep = 1;
     var studentsData = {};
+
+    function updateWizardProgress(step) {
+        currentStep = step;
+        var progressBar = document.getElementById('wizard-progress-bar');
+        
+        // Progress percentage
+        var percent = (step - 1) * 50;
+        progressBar.style.width = percent + '%';
+
+        // Update badges
+        for (let i = 1; i <= 3; i++) {
+            let badge = document.getElementById('step-badge-' + i);
+            let stepView = document.getElementById('wizard-step-' + i);
+            
+            if (i === step) {
+                badge.className = 'step-badge active';
+                stepView.className = 'wizard-step step-active';
+            } else if (i < step) {
+                badge.className = 'step-badge completed';
+                stepView.className = 'wizard-step';
+            } else {
+                badge.className = 'step-badge';
+                stepView.className = 'wizard-step';
+            }
+        }
+    }
+
+    function goToStep(targetStep) {
+        if (targetStep > currentStep) {
+            if (!validateStep(currentStep)) return;
+        }
+        updateWizardProgress(targetStep);
+    }
+
+    function nextStep(step) {
+        if (validateStep(step)) {
+            updateWizardProgress(step + 1);
+        }
+    }
+
+    function prevStep(step) {
+        updateWizardProgress(step - 1);
+    }
+
+    function validateStep(step) {
+        if (step === 1) {
+            var classSelect = document.getElementById('class-select');
+            var studentSelect = document.getElementById('student-select');
+            
+            if (!classSelect.value) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pilih Kelas',
+                    text: 'Silakan pilih kelas terlebih dahulu.',
+                    confirmButtonColor: '#10b981'
+                });
+                return false;
+            }
+            if (!studentSelect.value) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pilih Nama Siswa',
+                    text: 'Silakan pilih nama siswa dari daftar terlebih dahulu.',
+                    confirmButtonColor: '#10b981'
+                });
+                return false;
+            }
+        } else if (step === 2) {
+            var parentPhone = document.getElementById('parent-phone-input');
+            if (!parentPhone.value || parentPhone.value.trim().length < 9) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Isi No. WhatsApp',
+                    text: 'Silakan masukkan nomor WhatsApp aktif yang valid (min. 9 digit).',
+                    confirmButtonColor: '#10b981'
+                });
+                return false;
+            }
+        }
+        return true;
+    }
 
     function loadStudents() {
         var classSelect = document.getElementById('class-select');
         var studentSelect = document.getElementById('student-select');
         var infoDiv = document.getElementById('current-eskul-info');
         
-        // Reset info when class changes
         if(infoDiv) infoDiv.style.display = 'none';
         resetFormState();
 
         var selectedClass = classSelect.value;
         var oldStudentId = "{{ old('student_id') }}";
 
-        // Filter eskul options based on class
         filterEskulOptions(selectedClass);
 
         if (!selectedClass) {
@@ -413,13 +771,13 @@
             return;
         }
 
-        studentSelect.innerHTML = '<option value="">Memuat data...</option>';
+        studentSelect.innerHTML = '<option value="">Memuat data siswa...</option>';
         studentSelect.disabled = true;
 
         fetch('{{ route("pilihan-eskul.students") }}?class=' + selectedClass)
             .then(response => response.json())
             .then(data => {
-                studentsData = {}; // Clear previous data
+                studentsData = {};
                 if (data.length > 0) {
                     var options = '<option value="">-- Pilih Nama Siswa --</option>';
                     data.forEach(function(student) {
@@ -430,7 +788,6 @@
                     studentSelect.innerHTML = options;
                     studentSelect.disabled = false;
 
-                    // Trigger change if we have an old value to show info
                     if (oldStudentId) {
                         setTimeout(() => {
                            var event = new Event('change');
@@ -453,25 +810,24 @@
         var submitBtn = document.querySelector('.btn-submit');
         
         radios.forEach(r => {
-             // Only enable if NOT full
              if (r.getAttribute('data-is-full') !== 'true') {
                  r.disabled = false;
                  r.parentElement.style.opacity = '1';
                  r.parentElement.style.cursor = 'pointer';
              }
         });
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.innerHTML = 'Kirim Pilihan';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.innerHTML = '<span>Kirim Pilihan Eskul</span> <i class="fas fa-paper-plane"></i>';
+        }
     }
 
-    // Listener for student selection changes
     document.getElementById('student-select').addEventListener('change', function() {
         var studentId = this.value;
         var infoDiv = document.getElementById('current-eskul-info');
         if (!infoDiv) return;
 
-        // Reset first
         resetFormState();
         infoDiv.style.display = 'none';
 
@@ -480,19 +836,15 @@
         if (studentId && studentsData[studentId]) {
             var s = studentsData[studentId];
             
-            // Re-filter eskul list based on student's specific can_choose_sesi_2 status
             filterEskulOptions(selectedClass, s.can_choose_sesi_2);
             
-            // Check for Lock
             if (s.is_locked) {
-                // LOCK STATE
                 infoDiv.style.display = 'block';
                 infoDiv.style.backgroundColor = '#ffebee';
                 infoDiv.style.color = '#c62828';
                 infoDiv.style.border = '1px solid #ffcdd2';
                 infoDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <b>PERHATIAN!</b><br>' + s.lock_message;
                 
-                // Disable Inputs
                 var radios = document.querySelectorAll('input[name="eskul_1"]');
                 radios.forEach(r => {
                     r.disabled = true;
@@ -501,21 +853,20 @@
                     r.parentElement.style.cursor = 'not-allowed';
                 });
                 
-                // Disable Submit
                 var submitBtn = document.querySelector('.btn-submit');
-                submitBtn.disabled = true;
-                submitBtn.style.opacity = '0.5';
-                submitBtn.innerHTML = 'Terkunci (Wajib Calistung)';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.innerHTML = 'Terkunci (Wajib Calistung / Tahfidz)';
+                }
                 
             } else if (s.is_already_registered) {
-                 // ALREADY REGISTERED (SEM 1 BLOCK)
                  infoDiv.style.display = 'block';
-                 infoDiv.style.backgroundColor = '#e0f7fa'; // Light cyan
-                 infoDiv.style.color = '#006064'; // Dark cyan
+                 infoDiv.style.backgroundColor = '#e0f7fa';
+                 infoDiv.style.color = '#006064';
                  infoDiv.style.border = '1px solid #b2ebf2';
                  infoDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + s.already_registered_msg;
 
-                 // Disable Inputs
                  var radios = document.querySelectorAll('input[name="eskul_1"]');
                  radios.forEach(r => {
                     r.disabled = true;
@@ -524,26 +875,23 @@
                     r.parentElement.style.cursor = 'not-allowed';
                  });
                  
-                 // Disable Submit
                  var submitBtn = document.querySelector('.btn-submit');
-                 submitBtn.disabled = true;
-                 submitBtn.style.opacity = '0.5';
-                 submitBtn.innerHTML = 'Sudah Terdaftar';
+                 if (submitBtn) {
+                     submitBtn.disabled = true;
+                     submitBtn.style.opacity = '0.5';
+                     submitBtn.innerHTML = 'Sudah Terdaftar';
+                 }
 
             } else if (s.current_eskul) {
-                 // NORMAL INFO STATE (Usually for Sem 2 transfer info)
                  infoDiv.style.display = 'block';
                  infoDiv.style.backgroundColor = '#e8f0fe';
                  infoDiv.style.color = '#1967d2';
                  infoDiv.style.border = 'none';
-                 infoDiv.innerHTML = '<i class="fas fa-info-circle"></i> Siswa ini terdaftar di eskul: <b>' + s.current_eskul + '</b>. <br>Memilih eskul baru akan otomatis menggantikan data lama.';
+                 infoDiv.innerHTML = '<i class="fas fa-info-circle"></i> Siswa ini terdaftar di eskul: <b>' + s.current_eskul + '</b>. Memilih eskul baru akan otomatis menggantikan data lama.';
             }
         }
     });
 
-    const form = document.querySelector('form');
-
-    // Clear form on clear button
     document.querySelector('.clear-form').addEventListener('click', (e) => {
         e.preventDefault();
         Swal.fire({
@@ -551,22 +899,16 @@
             text: "Seluruh data yang telah diisi akan dikosongkan.",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#2980b9',
+            confirmButtonColor: '#10b981',
             cancelButtonColor: '#94a3b8',
             confirmButtonText: 'Ya, Bersihkan',
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                form.reset();
+                document.getElementById('wizard-form').reset();
                 location.reload();
             }
         });
-    });
-
-    // Clear draft on successful submit (handled by redirect usually, but good practice to clear)
-    form.addEventListener('submit', () => {
-        // We don't clear immediately because submit might fail validation.
-        // We let the Success page or redirect handle it or just keep it until next time.
     });
 
     @if(session('success'))
@@ -574,7 +916,7 @@
             icon: 'success',
             title: 'Berhasil',
             text: '{{ session('success') }}',
-            confirmButtonColor: '#2980b9'
+            confirmButtonColor: '#10b981'
         });
     @endif
 
@@ -583,11 +925,10 @@
             icon: 'error',
             title: 'Gagal',
             text: '{{ $errors->first() }}',
-            confirmButtonColor: '#2980b9'
+            confirmButtonColor: '#10b981'
         });
     @endif
 
-    // Filter eskul based on student's class group
     function filterEskulOptions(className, canChooseSesi2 = false) {
         let studentGroup = null;
         if (className) {
@@ -612,7 +953,6 @@
             }
             let radio = opt.querySelector('input[type="radio"]');
 
-            // Tampilkan jika: tidak ada filter, eskul untuk 'all', atau studentGroup cocok
             let show = !className || targetGroups.includes('all') || (studentGroup && targetGroups.includes(studentGroup));
 
             if (show) {
@@ -629,14 +969,15 @@
         });
     }
 
-    // Trigger initial filter on load if class is pre-selected
     document.addEventListener('DOMContentLoaded', function() {
         var classSelect = document.getElementById('class-select');
         if (classSelect && classSelect.value) {
             loadStudents();
             filterEskulOptions(classSelect.value);
         }
+        updateWizardProgress(1);
     });
 </script>
 </body>
 </html>
+
