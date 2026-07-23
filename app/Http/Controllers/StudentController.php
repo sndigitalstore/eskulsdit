@@ -51,7 +51,15 @@ class StudentController extends Controller
 
     public function create()
     {
-        return view('students.create');
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $allEskuls = collect();
+        if ($activeYear) {
+            $allEskuls = \App\Models\Eskul::where('academic_year_id', $activeYear->id)->orderBy('name')->get();
+        }
+        if ($allEskuls->isEmpty()) {
+            $allEskuls = \App\Models\Eskul::orderBy('name')->get();
+        }
+        return view('students.create', compact('allEskuls'));
     }
 
     public function store(Request $request)
@@ -70,7 +78,8 @@ class StudentController extends Controller
             ],
             'name' => 'required|string|max:255',
             'class' => 'required|string|max:50',
-            'eskul_name' => 'required|string|max:255',
+            'eskul_1_id' => 'nullable|exists:eskuls,id',
+            'eskul_name' => 'nullable|string|max:255',
             'instructor_name' => 'nullable|string|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -115,24 +124,30 @@ class StudentController extends Controller
             ]);
         }
 
-        // Find or create Eskul in the active academic year
-        $eskul = \App\Models\Eskul::firstOrCreate(
-            [
-                'name' => $validated['eskul_name'],
-                'academic_year_id' => $activeYear->id
-            ],
-            ['instructor_name' => $validated['instructor_name']]
-        );
-        
-        if ($validated['instructor_name'] && $eskul->wasRecentlyCreated === false) {
-             $eskul->update(['instructor_name' => $validated['instructor_name']]);
-        }
+        // Handle Eskul attachment (if dropdown selected or custom name typed)
+        if (!empty($validated['eskul_1_id'])) {
+            $student->eskuls()->attach($validated['eskul_1_id'], [
+                'academic_year_id' => $activeYear->id,
+                'semester' => $activeYear->active_semester ?? '1'
+            ]);
+        } elseif (!empty($validated['eskul_name'])) {
+            $eskul = \App\Models\Eskul::firstOrCreate(
+                [
+                    'name' => trim($validated['eskul_name']),
+                    'academic_year_id' => $activeYear->id
+                ],
+                ['instructor_name' => $validated['instructor_name'] ?? null]
+            );
+            
+            if (!empty($validated['instructor_name']) && $eskul->wasRecentlyCreated === false) {
+                 $eskul->update(['instructor_name' => $validated['instructor_name']]);
+            }
 
-        // Attach eskul with context (Year only, Active Semester)
-        $student->eskuls()->attach($eskul->id, [
-            'academic_year_id' => $activeYear->id,
-            'semester' => $activeYear->active_semester ?? '1'
-        ]);
+            $student->eskuls()->attach($eskul->id, [
+                'academic_year_id' => $activeYear->id,
+                'semester' => $activeYear->active_semester ?? '1'
+            ]);
+        }
 
         \App\Models\ActivityLog::log('Students', 'Create', "Menambahkan siswa: {$student->name} (Kelas {$student->class})");
 
