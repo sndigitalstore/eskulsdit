@@ -5,15 +5,26 @@
 
 @section('content')
 <!-- Hero Section -->
-<!-- Hero Section -->
 <div class="dashboard-hero responsive-flex" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;">
     <div style="z-index: 2;">
         <h2 style="font-size: 1.8rem; color: #064e3b; margin-bottom: 5px;">
             <span id="greeting">Selamat Datang</span>, {{ Auth::user()->name }}! 👋
         </h2>
-        <p style="color: #64748b; font-size: 1rem;">
-             Tahun Ajaran <b>{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b>{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
-        </p>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+            <p style="color: #64748b; font-size: 1rem; margin: 0;">
+                 Tahun Ajaran <b>{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b>{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
+            </p>
+            @if(Auth::user()->role === 'admin')
+                <span style="background: #e0e7ff; color: #4f46e5; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Administrator</span>
+            @else
+                @if($isHomeroomTeacher)
+                    <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>
+                @endif
+                @if(Auth::user()->eskul)
+                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Pembina {{ Auth::user()->eskul->name }}</span>
+                @endif
+            @endif
+        </div>
     </div>
     <div style="text-align: right; z-index: 2;">
         <div id="clock" style="font-size: 2rem; font-weight: 700; color: #10b981; letter-spacing: 1px;">00:00</div>
@@ -23,82 +34,169 @@
     <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -20px; bottom: -30px; font-size: 10rem; color: rgba(115, 103, 240, 0.05);"></i>
 </div>
 
-<!-- Stats Grid (4 Columns) -->
-<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 30px;">
-    <!-- Students -->
-    <div class="card" style="background: linear-gradient(45deg, #02aab0 0%, #00cdac 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden;">
-        <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
-            <div>
-                <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $studentCount }}</h3>
-                <p style="opacity: 0.9; font-size: 0.9rem;">Total Siswa</p>
+<!-- Stats Grid (Dinamis Sesuai Peran) -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
+    @if(Auth::user()->role === 'admin')
+        <!-- Admin Stats: Global -->
+        <!-- Students -->
+        <div class="card" style="background: linear-gradient(45deg, #02aab0 0%, #00cdac 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $studentCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem;">Total Siswa</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                     <i class="fas fa-users" style="font-size: 1.2rem;"></i>
+                </div>
             </div>
-            <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                 <i class="fas fa-users" style="font-size: 1.2rem;"></i>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,15 C15,15 20,5 35,10 C50,15 65,5 80,10 C90,12 95,5 100,8" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
             </div>
         </div>
-        <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
-            <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
-                <path d="M0,15 C15,15 20,5 35,10 C50,15 65,5 80,10 C90,12 95,5 100,8" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
-            </svg>
-        </div>
-    </div>
 
-    <!-- Eskuls -->
-    <div class="card" style="background: linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden;">
-        <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
-            <div>
-                <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $eskulCount }}</h3>
-                <p style="opacity: 0.9; font-size: 0.9rem;">Ekstrakurikuler</p>
+        <!-- Eskuls -->
+        <div class="card" style="background: linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $eskulCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem;">Ekstrakurikuler</p>
+                </div>
+                 <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                     <i class="fas fa-basketball-ball" style="font-size: 1.2rem;"></i>
+                </div>
             </div>
-             <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                 <i class="fas fa-basketball-ball" style="font-size: 1.2rem;"></i>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,10 C15,0 20,20 35,15 C50,10 65,20 80,5 C90,0 95,15 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
             </div>
         </div>
-        <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
-            <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
-                <path d="M0,10 C15,0 20,20 35,15 C50,10 65,20 80,5 C90,0 95,15 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
-            </svg>
-        </div>
-    </div>
 
-    <!-- Teachers -->
-    <div class="card" style="background: linear-gradient(45deg, #0ba360 0%, #3cba92 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden;">
-        <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
-            <div>
-                <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $teacherCount }}</h3>
-                <p style="opacity: 0.9; font-size: 0.9rem;">Guru Pembina</p>
+        <!-- Teachers -->
+        <div class="card" style="background: linear-gradient(45deg, #0ba360 0%, #3cba92 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $teacherCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem;">Guru Pembina</p>
+                </div>
+                 <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                     <i class="fas fa-chalkboard-teacher" style="font-size: 1.2rem;"></i>
+                </div>
             </div>
-             <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                 <i class="fas fa-chalkboard-teacher" style="font-size: 1.2rem;"></i>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,5 C15,20 20,5 35,5 C50,5 65,15 80,10 C90,5 95,15 100,5" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
             </div>
         </div>
-        <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
-            <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
-                <path d="M0,5 C15,20 20,5 35,5 C50,5 65,15 80,10 C90,5 95,15 100,5" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
-            </svg>
-        </div>
-    </div>
 
-    <!-- NEW: Monitor Guru (Teacher Presence) -->
-    <div class="card" style="background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden;">
-        <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
-            <div>
-                <h3 style="font-size: 2.2rem; margin-bottom: 0;">
-                    {{ $teacherAttendancePresent ?? 0 }} <span style="font-size: 1rem; opacity: 0.7;">/ {{ $registeredTeacherAccounts ?? 0 }}</span>
-                </h3>
-                <p style="opacity: 0.9; font-size: 0.9rem; margin-bottom: 5px;">Hadir Hari Ini</p>
-                <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.75rem; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Detail <i class="fas fa-arrow-right"></i></a>
+        <!-- Monitor Guru -->
+        <div class="card" style="background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; margin-bottom: 0;">
+                        {{ $teacherAttendancePresent ?? 0 }} <span style="font-size: 1rem; opacity: 0.7;">/ {{ $registeredTeacherAccounts ?? 0 }}</span>
+                    </h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; margin-bottom: 5px;">Hadir Hari Ini</p>
+                    <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.75rem; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Detail <i class="fas fa-arrow-right"></i></a>
+                </div>
+                 <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                     <i class="fas fa-user-clock" style="font-size: 1.2rem;"></i>
+                </div>
             </div>
-             <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
-                 <i class="fas fa-user-clock" style="font-size: 1.2rem;"></i>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,20 C15,0 20,10 35,5 C50,0 65,15 80,10 C90,5 95,0 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
             </div>
         </div>
-        <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
-            <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
-                <path d="M0,20 C15,0 20,10 35,5 C50,0 65,15 80,10 C90,5 95,0 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
-            </svg>
-        </div>
-    </div>
+    @else
+        <!-- Teacher/Wali Kelas/Pembina Stats -->
+        @if($isHomeroomTeacher)
+            <!-- Wali Kelas: Total Murid Binaan -->
+            <div class="card" style="background: linear-gradient(45deg, #02aab0 0%, #00cdac 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $homeroomStudentCount }}</h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem;">Siswa Kelas {{ $homeroomClass }}</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                         <i class="fas fa-school" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,15 C15,15 20,5 35,10 C50,15 65,5 80,10 C90,12 95,5 100,8" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Wali Kelas: Terdaftar Eskul -->
+            <div class="card" style="background: linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 2.2rem; margin-bottom: 0;">
+                            {{ $homeroomRegisteredCount }} <span style="font-size: 1.1rem; opacity: 0.8;">/ {{ $homeroomStudentCount }}</span>
+                        </h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem; margin-bottom: 5px;">Sudah Memilih Eskul</p>
+                        <span style="background: rgba(255,255,255,0.2); font-size: 0.75rem; padding: 2px 8px; border-radius: 8px;">
+                            {{ $homeroomUnregisteredCount }} Belum Daftar
+                        </span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                         <i class="fas fa-clipboard-check" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,10 C15,0 20,20 35,15 C50,10 65,20 80,5 C90,0 95,15 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        @endif
+
+        @if(Auth::user()->eskul_id)
+            <!-- Pembina: Jumlah Anggota Eskul -->
+            <div class="card" style="background: linear-gradient(45deg, #0ba360 0%, #3cba92 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 2.2rem; margin-bottom: 0;">{{ $studentCount }}</h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem;">Siswa Terdaftar ({{ Auth::user()->eskul->name }})</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                         <i class="fas fa-running" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,5 C15,20 20,5 35,5 C50,5 65,15 80,10 C90,5 95,15 100,5" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Pembina: Jadwal Latihan -->
+            <div class="card" style="background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 1.3rem; font-weight: 700; margin-top: 5px; margin-bottom: 5px; word-break: break-word; line-height: 1.3;">
+                            {{ Auth::user()->eskul->schedule ?? 'Belum diatur' }}
+                        </h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem;">Jadwal Eskul Binaan</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; justify-content: center; align-items: center; display: flex; border-radius: 10px;">
+                         <i class="far fa-calendar-alt" style="font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,20 C15,0 20,10 35,5 C50,0 65,15 80,10 C90,5 95,0 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        @endif
+    @endif
 </div>
 
 @if(isset($todaySchedule) && count($todaySchedule) > 0)
@@ -163,6 +261,77 @@
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
     <!-- Left Column -->
     <div style="display: flex; flex-direction: column; gap: 2rem;">
+        
+        <!-- Wali Kelas Widgets: Belum Daftar & Sebaran Eskul -->
+        @if($isHomeroomTeacher)
+            <!-- Siswa Belum Memilih Eskul -->
+            <div class="card" style="border-left: 5px solid #e74c3c;">
+                <h3 style="margin-bottom: 1rem; color: #c0392b; display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem; font-weight: 700;">
+                    <span><i class="fas fa-user-slash" style="margin-right: 10px;"></i> Belum Memilih Eskul (Kelas {{ $homeroomClass }})</span>
+                    <span class="badge" style="background: #fde8e8; color: #e74c3c; font-size: 0.85rem; padding: 5px 12px; border-radius: 15px;">
+                        {{ $homeroomUnregisteredCount }} Anak
+                    </span>
+                </h3>
+                
+                @if($homeroomUnregisteredList->isEmpty())
+                    <div style="background: #e0fbf0; color: #27ae60; padding: 15px; border-radius: 12px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-check-circle"></i> Luar biasa! Semua siswa kelas Anda sudah mendaftar ekskul.
+                    </div>
+                @else
+                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 15px;">
+                        Hubungi orang tua secara langsung melalui WhatsApp untuk mengingatkan pengisian pilihan eskul.
+                    </p>
+                    <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+                        @foreach($homeroomUnregisteredList as $student)
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px;">
+                                <div>
+                                    <div style="font-weight: 700; color: #2d3748; font-size: 0.95rem;">{{ $student->name }}</div>
+                                    <div style="font-size: 0.8rem; color: #718096; margin-top: 2px;">
+                                        <i class="fas fa-phone-alt"></i> Ortu: {{ $student->parent_phone ?? 'Belum ada nomor WA' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    @if($student->parent_phone)
+                                        @php
+                                            $phoneClean = preg_replace('/[^0-9]/', '', $student->parent_phone);
+                                            if (str_starts_with($phoneClean, '0')) {
+                                                $phoneClean = '62' . substr($phoneClean, 1);
+                                            }
+                                            $waMsg = urlencode("Assalamu'alaikum wr. wb. Halo Bapak/Ibu wali murid dari Ananda " . $student->name . ", kami menginfokan bahwa Ananda belum memilih kegiatan ekstrakurikuler di sekolah untuk semester ini. Silakan segera mengisi formulir pendaftaran eskul melalui tautan berikut ya: " . route('pilihan-eskul.form') . ". Terima kasih.");
+                                        @endphp
+                                        <a href="https://wa.me/{{ $phoneClean }}?text={{ $waMsg }}" target="_blank" class="btn-action-header btn-green" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-radius: 6px;">
+                                            <i class="fab fa-whatsapp"></i> Hubungi
+                                        </a>
+                                    @else
+                                        <span style="font-size: 0.75rem; color: #a0aec0; font-style: italic;">No WA Kosong</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <!-- Sebaran Eskul Kelas Binaan -->
+            <div class="card">
+                <h3 style="margin-bottom: 1.2rem; font-size: 1.15rem; font-weight: 700; color: #2c3e50;"><i class="fas fa-chart-pie" style="color: #3498db; margin-right: 10px;"></i> Sebaran Pilihan Eskul (Kelas {{ $homeroomClass }})</h3>
+                @if($homeroomEskulDistribution->isEmpty())
+                    <div style="text-align: center; color: #999; padding: 1.5rem; background: #fafafa; border-radius: 12px;">Belum ada siswa yang mendaftar eskul.</div>
+                @else
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+                        @foreach($homeroomEskulDistribution as $dist)
+                            <div style="padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600; color: #334155; font-size: 0.9rem;">{{ $dist->name }}</span>
+                                <span style="background: #3498db; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; flex-shrink: 0;">
+                                    {{ $dist->total }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endif
+
         
         <!-- Announcements (Internal Chat) -->
         @if(isset($announcements) && count($announcements) > 0)

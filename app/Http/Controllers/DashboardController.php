@@ -255,13 +255,87 @@ class DashboardController extends Controller
             }
         }
         
+        // Wali Kelas Context
+        $homeroomClass = $isTeacher ? $user->homeroom_class : null;
+        $isHomeroomTeacher = !empty($homeroomClass);
+        
+        $homeroomStudentCount = 0;
+        $homeroomRegisteredCount = 0;
+        $homeroomUnregisteredCount = 0;
+        $homeroomUnregisteredList = collect();
+        $homeroomEskulDistribution = collect();
+
+        if ($isHomeroomTeacher) {
+            $class = $homeroomClass;
+            
+            // Total active students in homeroom class
+            $homeroomStudentCount = Student::activeYear()
+                ->where('class', $class)
+                ->where(function($q) {
+                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                })
+                ->count();
+                
+            // Students who have selected at least 1 eskul
+            $homeroomRegisteredStudents = Student::activeYear()
+                ->where('class', $class)
+                ->where(function($q) {
+                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                })
+                ->whereHas('eskuls', function($q) use ($yearId, $semester) {
+                    if ($yearId) {
+                        $q->where('student_eskul.academic_year_id', $yearId)
+                          ->where('student_eskul.semester', $semester);
+                    }
+                })
+                ->get();
+                
+            $homeroomRegisteredCount = $homeroomRegisteredStudents->count();
+            
+            // Students who have NOT selected any eskul
+            $homeroomUnregisteredList = Student::activeYear()
+                ->where('class', $class)
+                ->where(function($q) {
+                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                })
+                ->whereDoesntHave('eskuls', function($q) use ($yearId, $semester) {
+                    if ($yearId) {
+                        $q->where('student_eskul.academic_year_id', $yearId)
+                          ->where('student_eskul.semester', $semester);
+                    }
+                })
+                ->orderBy('name')
+                ->get();
+                
+            $homeroomUnregisteredCount = $homeroomUnregisteredList->count();
+            
+            // Sebaran Eskul Kelas Binaan
+            $homeroomEskulDistribution = DB::table('student_eskul')
+                ->join('students', 'student_eskul.student_id', '=', 'students.id')
+                ->join('eskuls', 'student_eskul.eskul_id', '=', 'eskuls.id')
+                ->where('students.class', $class)
+                ->where('student_eskul.academic_year_id', $yearId)
+                ->where('student_eskul.semester', $semester)
+                ->where(function($q) {
+                    $q->where('students.status', '!=', 'graduated')->orWhereNull('students.status');
+                })
+                ->select('eskuls.name', DB::raw('count(*) as total'))
+                ->groupBy('eskuls.name')
+                ->orderByDesc('total')
+                ->get();
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
             'eskulMissingAttendance', 'activeYear',
             'todaySchedule', 'topClasses', 'recentActivities',
             'teacherAttendanceToday', 'teacherAttendancePresent', 'registeredTeacherAccounts',
-            'announcements', 'categoryCounts'
+            'announcements', 'categoryCounts',
+            
+            'homeroomClass', 'isHomeroomTeacher', 'homeroomStudentCount', 
+            'homeroomRegisteredCount', 'homeroomUnregisteredCount', 
+            'homeroomUnregisteredList', 'homeroomEskulDistribution'
         ));
     }
 }
