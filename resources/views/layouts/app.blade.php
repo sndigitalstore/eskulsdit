@@ -48,17 +48,17 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* Sidebar Styling */
+        /* Sidebar Styling - Matching Reference Image 2 Pastel Gradient */
         .sidebar { 
             width: 270px; 
-            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); 
+            background: linear-gradient(180deg, #a7f3d0 0%, #7dd3fc 45%, #c084fc 100%); 
             display: flex; 
             flex-direction: column; 
-            border-right: 1px solid rgba(255, 255, 255, 0.08); 
+            border-right: 1px solid rgba(255, 255, 255, 0.6); 
             transition: all var(--transition-speed);
             z-index: 100;
-            color: #cbd5e1;
-            box-shadow: 4px 0 25px rgba(0,0,0,0.06);
+            color: #0f172a;
+            box-shadow: 4px 0 25px rgba(15, 23, 42, 0.05);
         }
 
         .sidebar-header { 
@@ -67,7 +67,7 @@
             align-items: center; 
             gap: 12px; 
             animation: fadeIn 0.4s ease-out;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
         }
         
         .sidebar-header img { 
@@ -76,15 +76,15 @@
             object-fit: cover;
             border-radius: 50%;
             padding: 3px;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(6, 95, 70, 0.2);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; 
         }
         .sidebar-header:hover img { 
             transform: scale(1.08) rotate(6deg); 
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55);
+            box-shadow: 0 6px 20px rgba(6, 95, 70, 0.35);
         }
-        .sidebar-header h2 { font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: 0.3px; white-space: nowrap; }
+        .sidebar-header h2 { font-size: 1.15rem; font-weight: 800; color: #065f46; letter-spacing: 0.3px; white-space: nowrap; }
 
         .nav-links { list-style: none; padding: 1.25rem 0.85rem; flex: 1; overflow-y: auto; }
         
@@ -101,9 +101,9 @@
             align-items: center; 
             padding: 11px 16px; 
             text-decoration: none; 
-            color: #94a3b8; 
-            border-radius: 12px; 
-            font-weight: 600; 
+            color: rgba(15, 23, 42, 0.75); 
+            border-radius: 14px; 
+            font-weight: 700; 
             font-size: 0.92rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
             position: relative;
@@ -111,15 +111,16 @@
         }
 
         .nav-link:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.07);
+            color: #047857;
+            background: rgba(255, 255, 255, 0.45);
             transform: translateX(5px);
         }
 
         .nav-link.active { 
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
-            color: #ffffff; 
-            box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.45); 
+            background: rgba(255, 255, 255, 0.88); 
+            color: #047857; 
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06); 
+            border: 1px solid rgba(255, 255, 255, 0.9);
         }
 
         .nav-link i { margin-right: 12px; font-size: 1.15rem; width: 24px; text-align: center; }
@@ -127,12 +128,12 @@
         .logout-btn { 
             margin: 1.25rem 1rem; 
             padding: 12px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(255,255,255,0.04); 
-            color: #cbd5e1; 
+            border: 1px solid rgba(255,255,255,0.7); 
+            background: rgba(255,255,255,0.4); 
+            color: #991b1b; 
             border-radius: 12px; 
             cursor: pointer; 
-            font-weight: 600; 
+            font-weight: 700; 
             font-size: 0.9rem;
             display: flex; 
             align-items: center; 
