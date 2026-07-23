@@ -293,7 +293,7 @@ class StudentController extends Controller
             ],
             'name' => 'required|string|max:255',
             'class' => 'required|string|max:50',
-            'eskul_1_id' => 'required|exists:eskuls,id',
+            'eskul_1_id' => 'nullable|exists:eskuls,id',
             'eskul_2_id' => 'nullable|exists:eskuls,id',
             'last_sync' => 'nullable|string'
         ]);
@@ -335,13 +335,15 @@ class StudentController extends Controller
             ->where('academic_year_id', $activeYear->id)
             ->delete();
 
-        // Attach Eskul 1
-        $student->eskuls()->attach($validated['eskul_1_id'], [
-             'academic_year_id' => $activeYear->id,
-             'semester' => $activeYear->active_semester ?? '1'
-        ]);
+        // Attach Eskul 1 if provided
+        if (!empty($validated['eskul_1_id'])) {
+            $student->eskuls()->attach($validated['eskul_1_id'], [
+                 'academic_year_id' => $activeYear->id,
+                 'semester' => $activeYear->active_semester ?? '1'
+            ]);
+        }
 
-        // Attach Eskul 2
+        // Attach Eskul 2 if provided and different
         if (!empty($validated['eskul_2_id']) && $validated['eskul_2_id'] != $validated['eskul_1_id']) {
             $student->eskuls()->attach($validated['eskul_2_id'], [
                  'academic_year_id' => $activeYear->id,

@@ -65,9 +65,9 @@
             </h4>
             
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">Pilihan Eskul 1 (Wajib)</label>
-                <select name="eskul_1_id" class="form-control" required style="border: 2px solid #ddd;">
-                    <option value="">-- Pilih Eskul --</option>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">Pilihan Eskul 1 (Opsional)</label>
+                <select name="eskul_1_id" class="form-control" style="border: 2px solid #ddd;">
+                    <option value="">-- Belum Memilih Eskul / Kosongkan --</option>
                     @foreach($allEskuls as $eskul)
                         <option value="{{ $eskul->id }}" 
                             {{ ($student->eskuls->count() > 0 && $student->eskuls[0]->id == $eskul->id) ? 'selected' : '' }}>
@@ -75,7 +75,7 @@
                         </option>
                     @endforeach
                 </select>
-                <small style="color: #666; display: block; margin-top: 5px;">* Ubah pilihan di atas untuk memindahkan siswa ke eskul lain.</small>
+                <small style="color: #666; display: block; margin-top: 5px;">* Kosongkan jika siswa belum mendaftar/memilih eskul, atau ubah untuk memindahkan eskul siswa.</small>
             </div>
 
             <div>
