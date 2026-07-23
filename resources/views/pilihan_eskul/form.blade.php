@@ -5,204 +5,242 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-color: #e0f7fa; /* Light Blue Background */
-            --primary-color: #2980b9; /* Strong Blue Primary */
-            --border-color: #dadce0;
-            --header-border-top: #2980b9;
-            --error-color: #d93025;
-            --text-color: #202124;
+            --bg-color: #f1f5f9;
+            --primary-color: #10b981;
+            --primary-dark: #047857;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --error-color: #ef4444;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
         }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 50%, #f8fafc 100%);
+            background-attachment: fixed;
             padding: 40px 20px;
             color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            position: relative;
         }
+
+        /* Ambient Pastel Blobs */
+        .bg-shapes {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.5;
+        }
+
+        .shape-1 { width: 500px; height: 500px; background: #c7d2fe; top: -100px; right: -100px; }
+        .shape-2 { width: 450px; height: 450px; background: #a7f3d0; bottom: -100px; left: -100px; }
+
         .container {
             width: 100%;
-            max-width: 640px;
-        }
-        .logo-header {
-            display: block;
-            margin: 0 auto 25px auto;
-            max-height: 100px;
-            width: auto;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            margin-bottom: 15px;
+            max-width: 680px;
+            z-index: 10;
             position: relative;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
         }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            padding: 28px 32px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -5px rgba(15, 23, 42, 0.08);
         }
-        .card-header-top {
-            border-top: 10px solid var(--header-border-top);
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
+
         .form-header h1 {
-            font-size: 28px;
-            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
             margin: 0 0 10px 0;
-            color: #2d3436;
+            color: #0f172a;
+            letter-spacing: -0.5px;
         }
+
         .form-description {
-            font-size: 15px;
-            color: #636e72;
-            line-height: 1.6;
+            font-size: 0.98rem;
+            color: var(--text-muted);
+            line-height: 1.7;
         }
+
         .question-label {
-            font-size: 16px;
-            font-weight: 500;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
             margin-bottom: 12px;
             display: block;
-            color: #2d3436;
+            color: #0f172a;
         }
+
         .required-star {
             color: var(--error-color);
             margin-left: 4px;
         }
+
         .input-text {
             width: 100%;
-            padding: 10px 0;
-            border: none;
-            border-bottom: 1px solid #dfe6e9;
-            font-size: 15px;
+            padding: 13px 18px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 14px;
+            font-size: 0.98rem;
             outline: none;
-            transition: 0.3s;
-            background: transparent;
+            transition: all 0.3s;
+            background: #ffffff;
             font-family: inherit;
+            color: #0f172a;
         }
+
         .input-text:focus {
-            border-bottom: 2px solid var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
         }
+
         select.input-select {
             width: 100%;
-            max-width: 250px;
-            padding: 12px;
-            border: 1px solid #dfe6e9;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 13px 18px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 14px;
+            font-size: 0.98rem;
             outline: none;
-            background: white;
+            background: #ffffff;
             cursor: pointer;
             font-family: inherit;
-            transition: border 0.2s;
+            transition: all 0.3s;
+            color: #0f172a;
+            font-weight: 500;
         }
+
         select.input-select:focus {
-            border: 2px solid var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
         }
+
         .radio-option {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
+            padding: 14px 18px;
             cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.1s;
-            margin-bottom: 5px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.25s ease;
+            margin-bottom: 10px;
         }
+
         .radio-option:hover {
-            background-color: #f7f9fa;
+            background-color: #f0fdf4;
+            border-color: #a7f3d0;
+            transform: translateX(3px);
         }
+
         .radio-option input[type="radio"] {
-            margin-right: 15px;
+            margin-right: 14px;
             width: 20px;
             height: 20px;
             accent-color: var(--primary-color);
             cursor: pointer;
         }
+
         .radio-option span {
-            font-size: 15px;
-            color: #2d3436;
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: #0f172a;
         }
+
         .btn-submit {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-size: 15px;
-            font-weight: 500;
+            border-radius: 50px;
+            padding: 15px 36px;
+            font-size: 1.02rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 15px;
-            box-shadow: 0 4px 6px rgba(0, 184, 148, 0.2);
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
         }
+
         .btn-submit:hover {
-            background-color: #00a884;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 184, 148, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.45);
         }
+
         .clear-form {
-            float: right;
-            color: #636e72;
+            color: var(--text-muted);
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 0.92rem;
+            font-weight: 600;
             cursor: pointer;
             border: none;
             background: none;
-            padding: 15px 0;
+            padding: 12px 16px;
             transition: color 0.2s;
         }
+
         .clear-form:hover {
             color: var(--error-color);
         }
+
         .error-msg {
             color: var(--error-color);
-            font-size: 13px;
-            margin-top: 6px;
+            font-size: 0.88rem;
+            margin-top: 8px;
             display: flex;
             align-items: center;
-            font-weight: 500;
+            font-weight: 600;
         }
-        .error-msg i { margin-right: 5px; }
+
+        .error-msg i { margin-right: 6px; }
         
         .footer-branding {
             text-align: center;
-            margin-top: 30px;
-            font-size: 13px;
-            color: #636e72;
-            font-weight: 500;
+            margin-top: 36px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 15px;
-            }
-            .card {
-                padding: 20px;
-            }
-            .form-header h1 {
-                font-size: 22px;
-            }
-            .logo-header {
-                max-width: 100%;
-                height: auto;
-            }
-            select.input-select {
-                max-width: 100%;
-            }
+            body { padding: 20px 12px; }
+            .card { padding: 20px; }
+            .form-header h1 { font-size: 1.45rem; }
         }
     </style>
 </head>
 <body>
+
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
 
 <div class="container">
     <form action="{{ route('pilihan-eskul.store') }}" method="POST">
