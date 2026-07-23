@@ -59,20 +59,26 @@
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            padding: 28px 32px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            padding: 30px 34px;
+            margin-bottom: 22px;
             position: relative;
             box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.05);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 20px 40px -5px rgba(15, 23, 42, 0.08);
         }
 
@@ -107,71 +113,90 @@
 
         .input-text {
             width: 100%;
-            padding: 13px 18px;
+            padding: 14px 20px;
             border: 1.5px solid #cbd5e1;
-            border-radius: 14px;
+            border-radius: 16px;
             font-size: 0.98rem;
             outline: none;
-            transition: all 0.3s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             background: #ffffff;
             font-family: inherit;
-            color: #0f172a;
-        }
-
-        .input-text:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
-        }
-
-        select.input-select {
-            width: 100%;
-            padding: 13px 18px;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 14px;
-            font-size: 0.98rem;
-            outline: none;
-            background: #ffffff;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
             color: #0f172a;
             font-weight: 500;
         }
 
+        .input-text:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.16), 0 4px 12px rgba(16, 185, 129, 0.08);
+        }
+
+        select.input-select {
+            width: 100%;
+            padding: 14px 44px 14px 20px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 0.98rem;
+            outline: none;
+            background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E") no-repeat right 16px center/16px 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #0f172a;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+        }
+
+        select.input-select:hover {
+            border-color: #94a3b8;
+            background-color: #f8fafc;
+        }
+
         select.input-select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.16), 0 4px 12px rgba(16, 185, 129, 0.08);
         }
 
         .radio-option {
             display: flex;
             align-items: center;
-            padding: 14px 18px;
+            padding: 16px 20px;
             cursor: pointer;
-            border-radius: 14px;
+            border-radius: 16px;
             background: #ffffff;
             border: 1.5px solid #e2e8f0;
-            transition: all 0.25s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
         }
 
         .radio-option:hover {
             background-color: #f0fdf4;
             border-color: #a7f3d0;
-            transform: translateX(3px);
+            transform: translateX(4px) translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.08);
+        }
+
+        .radio-option:has(input[type="radio"]:checked) {
+            background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
+            border-color: #10b981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.18);
         }
 
         .radio-option input[type="radio"] {
             margin-right: 14px;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             accent-color: var(--primary-color);
             cursor: pointer;
         }
 
         .radio-option span {
             font-size: 0.98rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #0f172a;
         }
 
@@ -180,12 +205,15 @@
             color: white;
             border: none;
             border-radius: 50px;
-            padding: 15px 36px;
-            font-size: 1.02rem;
+            padding: 16px 40px;
+            font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .btn-submit:hover {
