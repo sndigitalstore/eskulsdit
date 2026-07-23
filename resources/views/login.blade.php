@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SIM Ekstrakurikuler</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Login - SIM Ekstrakurikuler SDIT AN NADZIR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
         body {
             min-height: 100vh;
             width: 100vw;
             overflow-x: hidden;
             display: flex;
-            background: #ffffff;
+            background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 50%, #f8fafc 100%);
             position: relative;
+            color: #0f172a;
         }
 
-        /* --- Animations --- */
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
+
+        /* Animations */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-40px); }
+            from { opacity: 0; transform: translateX(-30px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes float { 
-            0% { transform: translate(0, 0) rotate(0deg); } 
-            50% { transform: translate(15px, -20px) rotate(5deg); }
-            100% { transform: translate(0, 0) rotate(0deg); } 
+            0% { transform: translateY(0px) rotate(0deg); } 
+            50% { transform: translateY(-12px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); } 
         }
 
         @keyframes pulseGlow {
@@ -41,98 +45,124 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* Pastel Ambient Blobs */
+        .bg-shapes {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.55;
+            animation: float 14s ease-in-out infinite alternate;
+        }
+
+        .shape-1 { width: 500px; height: 500px; background: #c7d2fe; top: -120px; left: -100px; }
+        .shape-2 { width: 450px; height: 450px; background: #a7f3d0; bottom: -100px; right: -100px; }
+        .shape-3 { width: 350px; height: 350px; background: #fef08a; top: 30%; right: 25%; opacity: 0.35; }
+
+        /* Container Layout */
+        .login-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 46% 54%;
+            z-index: 10;
+            position: relative;
         }
 
         /* --- Left Side: Form --- */
         .login-section {
-            width: 45%;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0 8vw;
+            padding: 4rem 6vw;
             position: relative;
-            background: #ffffff;
-            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(25px);
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .brand {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
             animation: slideInLeft 0.8s ease-out forwards;
         }
 
         .brand img { 
-            width: 56px; 
-            height: 56px; 
+            width: 54px; 
+            height: 54px; 
             object-fit: cover;
             border-radius: 50%;
             padding: 3px;
-            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            background: linear-gradient(135deg, #10b981 0%, #6366f1 100%);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
         }
+
         .brand:hover img { 
-            transform: scale(1.1) rotate(6deg); 
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+            transform: scale(1.08) rotate(6deg); 
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
         }
 
         .brand h1 { 
             font-size: 1.5rem; 
-            font-weight: 700; 
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            font-weight: 800; 
+            background: linear-gradient(135deg, #059669 0%, #4338ca 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 0.5px;
+            letter-spacing: -0.5px;
         }
 
         .welcome-text { animation: fadeInUp 0.8s ease-out 0.2s both; }
-        .welcome-text h2 { font-size: 2.2rem; color: #064e3b; margin-bottom: 10px; font-weight: 700; }
-        .welcome-text p { color: #64748b; margin-bottom: 2.5rem; font-size: 1.05rem; line-height: 1.6; }
+        .welcome-text h2 { font-size: 2.1rem; color: #0f172a; margin-bottom: 8px; font-weight: 800; letter-spacing: -0.5px; }
+        .welcome-text p { color: #64748b; margin-bottom: 2.2rem; font-size: 1.02rem; line-height: 1.6; }
 
         /* Form Styling */
         form { animation: fadeInUp 0.8s ease-out 0.4s both; }
 
-        .input-group { margin-bottom: 1.8rem; position: relative; }
+        .input-group { margin-bottom: 1.6rem; position: relative; }
         
         .input-group label {
             position: absolute;
-            left: 20px;
+            left: 18px;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: white;
-            padding: 0 5px;
-            font-size: 1rem;
-            font-weight: 400;
+            padding: 0 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 4px;
         }
 
         .input-group input:focus + label,
         .input-group input:not(:placeholder-shown) + label {
             top: 0;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: #059669;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .input-group input {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 1rem;
+            padding: 16px 48px 16px 18px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 0.98rem;
             outline: none;
             transition: all 0.3s ease;
-            color: #064e3b;
-            background: transparent;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+            color: #0f172a;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
         }
 
         .input-group input:focus { 
@@ -142,7 +172,7 @@
 
         .input-icon-right {
             position: absolute;
-            right: 20px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
@@ -154,264 +184,426 @@
 
         .btn-login {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            padding: 17px;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
             color: white;
             border: none;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn-login::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: all 0.5s;
+            animation: pulseGlow 2.5s infinite;
         }
 
         .btn-login:hover { 
             transform: translateY(-3px); 
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4); 
-            animation: pulseGlow 2s infinite;
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5); 
         }
         
-        .btn-login:hover::after { left: 150%; }
         .btn-login:active { transform: translateY(0); }
 
         .footer-text {
-            margin-top: 2.5rem; 
+            margin-top: 2.2rem; 
             text-align: center; 
             color: #94a3b8; 
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             animation: fadeInUp 0.8s ease-out 0.6s both;
         }
 
-        /* --- Right Side: Decoration with Green Theme --- */
+        /* --- Right Side: Inspired by Image 2 UI Glass Mockup --- */
         .visual-section {
-            width: 55%;
-            background: linear-gradient(-45deg, #022c22, #064e3b, #047857, #065f46);
-            background-size: 400% 400%;
-            animation: gradientMove 15s ease infinite;
-            position: relative;
-            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            text-align: center;
-            padding: 4rem;
+            padding: 3rem 4vw;
+            position: relative;
+            overflow: hidden;
         }
 
-        .visual-content {
-            z-index: 2;
-            max-width: 550px;
-            animation: fadeInUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both;
-        }
-        
-        .visual-content h3 { 
-            font-size: 2.8rem; 
-            font-weight: 700; 
-            margin-bottom: 25px; 
-            line-height: 1.2;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        .visual-content p { 
-            font-size: 1.15rem; 
-            opacity: 0.9; 
-            line-height: 1.7; 
-            font-weight: 300;
+        /* Outer Glass Frame matching Image 2 */
+        .glass-mockup-frame {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 32px;
+            padding: 16px;
+            box-shadow: 0 30px 70px -15px rgba(15, 23, 42, 0.12);
+            width: 100%;
+            max-width: 540px;
+            animation: float 6s ease-in-out infinite;
         }
 
-        /* Enhanced Abstract shapes */
-        .shape { 
-            position: absolute; 
-            border-radius: 50%; 
-            filter: blur(60px); 
-            opacity: 0.6; 
-            animation: float 15s ease-in-out infinite alternate; 
-            z-index: 1;
-        }
-        .shape-1 { width: 450px; height: 450px; background: #34d399; top: -150px; right: -100px; animation-duration: 20s; }
-        .shape-2 { width: 350px; height: 350px; background: #059669; bottom: -100px; left: -100px; animation-duration: 25s; animation-delay: -5s;}
-        .shape-3 { width: 250px; height: 250px; background: #a7f3d0; top: 30%; left: 20%; filter: blur(80px); opacity: 0.4; animation-duration: 18s; animation-delay: -10s;}
-        .shape-4 { width: 150px; height: 150px; background: #fcd34d; bottom: 20%; right: 10%; filter: blur(40px); opacity: 0.3; animation-duration: 22s;}
-
-        /* Modern Glass Card Effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.08); /* slight transparency */
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            padding: 3.5rem 3rem;
-            margin-top: 2rem;
-            transform: translateY(20px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        
-        .glass-card:hover { 
-            transform: translateY(0) scale(1.02); 
-            background: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .ui-mockup-container {
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+            min-height: 420px;
         }
 
-        .icon-wrapper {
-            display: inline-flex;
+        /* Left Pastel Gradient Sidebar in Mockup matching Image 2 */
+        .ui-sidebar {
+            background: linear-gradient(180deg, #a7f3d0 0%, #7dd3fc 50%, #c084fc 100%);
+            padding: 20px 14px;
+            color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ui-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: #065f46;
+            margin-bottom: 8px;
+        }
+
+        .ui-sidebar-avatar {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 80px;
-            height: 80px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #047857;
+        }
+
+        .ui-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: rgba(15, 23, 42, 0.75);
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.25);
+        }
+
+        .ui-menu-item.active {
+            background: rgba(255,255,255,0.88);
+            color: #047857;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* Right Content Area in Mockup */
+        .ui-content {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #ffffff;
+        }
+
+        .ui-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ui-search-input {
+            background: #f1f5f9;
             border-radius: 20px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 25px;
-            animation: float 6s ease-in-out infinite;
+            padding: 6px 14px;
+            font-size: 0.72rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 170px;
+        }
+
+        /* Widgets Grid inside Mockup */
+        .ui-widgets-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .ui-widget-card {
+            border-radius: 16px;
+            padding: 12px;
+            color: #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ui-widget-card.card-1 {
+            background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+        }
+
+        .ui-widget-card.card-2 {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        }
+
+        .ui-widget-card h5 {
+            font-size: 0.7rem;
+            color: #475569;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .ui-widget-card .value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* Donut Progress Chart Widget matching Image 2 */
+        .ui-chart-widget {
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .ui-chart-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 10px;
+        }
+
+        .ui-donuts-flex {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .ui-donut {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #0f172a;
+            position: relative;
+        }
+
+        .ui-donut-1 { background: conic-gradient(#10b981 0% 75%, #e2e8f0 75% 100%); }
+        .ui-donut-2 { background: conic-gradient(#6366f1 0% 88%, #e2e8f0 88% 100%); }
+        .ui-donut-3 { background: conic-gradient(#f59e0b 0% 65%, #e2e8f0 65% 100%); }
+
+        .ui-donut-inner {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Text Quote Card below UI Mockup */
+        .visual-text-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 18px;
+            padding: 14px 18px;
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .visual-text-card h4 {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #065f46;
+            margin-bottom: 4px;
+        }
+
+        .visual-text-card p {
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.5;
         }
 
         /* Error Message Animation */
         .error-msg {
             background: #fef2f2; color: #b91c1c;
-            padding: 14px 18px; border-radius: 12px;
-            font-size: 0.95rem; margin-bottom: 25px;
+            padding: 14px 18px; border-radius: 14px;
+            font-size: 0.92rem; margin-bottom: 22px;
             display: flex; align-items: flex-start; gap: 12px;
             border-left: 5px solid #ef4444;
             animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.05);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
         }
 
         .error-msg i { margin-top: 3px; font-size: 1.1rem; }
 
         /* Responsiveness */
-        @media (max-width: 900px) {
-            body { 
-                flex-direction: column; 
-                overflow-y: auto;
+        @media (max-width: 1024px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
             }
-            .visual-section { 
-                position: fixed;
-                top: 0; left: 0;
-                width: 100%; height: 100%;
-                z-index: 1;
-                padding: 2rem;
-            }
-            .visual-content { display: none; } /* Hide the text card to keep login clean */
-            
-            .login-section { 
-                width: 100%; 
+            .visual-section { display: none; }
+            .login-section {
+                padding: 3rem 8vw;
+                background: rgba(255, 255, 255, 0.85);
                 min-height: 100vh;
-                padding: 2rem 5vw; 
-                background: transparent; 
-                z-index: 10;
-                display: flex;
-                align-items: center;
-                justify-content: center;
             }
-            
-            .brand { justify-content: center; margin-bottom: 2rem; }
-            .welcome-text { text-align: center; }
-            .welcome-text h2 { color: #f8fafc; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-            .welcome-text p { color: #e2e8f0; }
-            
-            form { 
-                background: rgba(255, 255, 255, 0.95); 
-                backdrop-filter: blur(10px);
-                padding: 35px 25px; 
-                border-radius: 24px; 
-                box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-                width: 100%;
-                max-width: 450px;
-            }
-            
-            .brand h1 { background: white; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-            .footer-text { color: #f1f5f9; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Left: Login Form -->
-    <div class="login-section">
-        <div class="brand">
-            <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
-            <h1>SDIT AN NADZIR</h1>
-        </div>
-
-        <div class="welcome-text">
-            <h2>Selamat Datang!</h2>
-            <p>Sistem Informasi Manajemen Ekstrakurikuler yang cerdas, efisien, dan modern.</p>
-        </div>
-
-        @if ($errors->any())
-        <div class="error-msg">
-            <i class="fas fa-exclamation-circle"></i>
-            <div>
-                @foreach ($errors->all() as $error)
-                    <div style="margin-bottom: 4px;">{{ $error }}</div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        <form action="{{ url('/login') }}" method="POST">
-            @csrf
-            
-            <div class="input-group">
-                <input type="text" id="username" name="username" placeholder=" " value="{{ old('username') }}" required autocomplete="off">
-                <label for="username">Nama Pengguna (Username)</label>
-                <i class="fas fa-user input-icon-right" style="cursor: default;"></i>
-            </div>
-
-            <div class="input-group">
-                <input type="password" id="password" name="password" placeholder=" " required>
-                <label for="password">Kata Sandi</label>
-                <i class="fas fa-eye input-icon-right" id="togglePassword"></i>
-            </div>
-
-            <button type="submit" class="btn-login">
-                <span>Masuk Sekarang</span> <i class="fas fa-sign-in-alt"></i>
-            </button>
-        </form>
-
-        <div class="footer-text">
-            &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Aplikasi Manajemen Terpadu.
-        </div>
-    </div>
-
-    <!-- Right: Visual Decoration with Dynamic Green Gradient -->
-    <div class="visual-section">
+    <!-- Pastel Ambient Blobs -->
+    <div class="bg-shapes">
         <div class="shape shape-1"></div>
         <div class="shape shape-2"></div>
         <div class="shape shape-3"></div>
-        <div class="shape shape-4"></div>
+    </div>
 
-        <div class="visual-content">
-            <div class="glass-card">
-                <div class="icon-wrapper">
-                    <i class="fas fa-leaf" style="font-size: 2.2rem; color: #a7f3d0;"></i>
+    <div class="login-wrapper">
+        <!-- Left: Login Form -->
+        <div class="login-section">
+            <div class="brand">
+                <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
+                <h1>SDIT AN NADZIR</h1>
+            </div>
+
+            <div class="welcome-text">
+                <h2>Selamat Datang!</h2>
+                <p>Sistem Informasi Manajemen Ekstrakurikuler yang cerdas, efisien, dan modern.</p>
+            </div>
+
+            @if ($errors->any())
+            <div class="error-msg">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    @foreach ($errors->all() as $error)
+                        <div style="margin-bottom: 4px;">{{ $error }}</div>
+                    @endforeach
                 </div>
-                <h3>Eksplorasi Potensi <br> Generasi Islam</h3>
-                <p>Pantau perkembangan, rekap nilai, dan kelola kegiatan ekstrakurikuler siswa dengan kemudahan visual yang indah melalui satu pintu yang terintegrasi secara cerdas.</p>
+            </div>
+            @endif
+
+            <form action="{{ url('/login') }}" method="POST">
+                @csrf
+                
+                <div class="input-group">
+                    <input type="text" id="username" name="username" placeholder=" " value="{{ old('username') }}" required autocomplete="off">
+                    <label for="username">Nama Pengguna (Username)</label>
+                    <i class="fas fa-user input-icon-right" style="cursor: default;"></i>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" id="password" name="password" placeholder=" " required>
+                    <label for="password">Kata Sandi</label>
+                    <i class="fas fa-eye input-icon-right" id="togglePassword"></i>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <span>Masuk Sekarang</span> <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </form>
+
+            <div class="footer-text">
+                &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Aplikasi Manajemen Terpadu.
+            </div>
+        </div>
+
+        <!-- Right Side: Inspired by Reference Image 2 UI Glass Mockup -->
+        <div class="visual-section">
+            <div class="glass-mockup-frame">
+                <div class="ui-mockup-container">
+                    <!-- Left Pastel Sidebar -->
+                    <div class="ui-sidebar">
+                        <div class="ui-sidebar-brand">
+                            <div class="ui-sidebar-avatar">.D</div>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="ui-menu-item active">
+                            <i class="fas fa-home"></i> Beranda
+                        </div>
+                        <div class="ui-menu-item">
+                            <i class="fas fa-running"></i> Eskul
+                        </div>
+                        <div class="ui-menu-item">
+                            <i class="fas fa-users"></i> Siswa
+                        </div>
+                        <div class="ui-menu-item">
+                            <i class="fas fa-chart-pie"></i> Laporan
+                        </div>
+                    </div>
+
+                    <!-- Right Content Mockup -->
+                    <div class="ui-content">
+                        <div class="ui-header-bar">
+                            <div class="ui-search-input">
+                                <i class="fas fa-search"></i> Cari siswa...
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <i class="fas fa-bell" style="font-size: 0.75rem; color: #94a3b8;"></i>
+                                <div style="width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: #475569;">A</div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Widgets Grid -->
+                        <div class="ui-widgets-grid">
+                            <div class="ui-widget-card card-1">
+                                <h5>Total Eskul</h5>
+                                <div class="value">12</div>
+                            </div>
+                            <div class="ui-widget-card card-2">
+                                <h5>Kehadiran</h5>
+                                <div class="value">98%</div>
+                            </div>
+                        </div>
+
+                        <!-- Donut Progress Chart Widget matching Image 2 -->
+                        <div class="ui-chart-widget">
+                            <div class="ui-chart-header">
+                                <span>Statistik Latihan</span>
+                                <span style="color: #10b981; font-weight: 800;">Realtime</span>
+                            </div>
+                            <div class="ui-donuts-flex">
+                                <div class="ui-donut ui-donut-1">
+                                    <div class="ui-donut-inner">75%</div>
+                                </div>
+                                <div class="ui-donut ui-donut-2">
+                                    <div class="ui-donut-inner">88%</div>
+                                </div>
+                                <div class="ui-donut ui-donut-3">
+                                    <div class="ui-donut-inner">65%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Quote Card inside Mockup -->
+                        <div class="visual-text-card">
+                            <h4>Eksplorasi Potensi Siswa</h4>
+                            <p>Pantau rekap nilai, absensi, dan prestasi siswa dalam satu platform cerdas.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Password Toggle Script with tiny animation
+        // Password Toggle Script
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#password');
 
@@ -422,17 +614,12 @@
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
             
-            // Add click effect
-            this.style.transform = 'translateY(-50%) scale(0.8)';
+            this.style.transform = 'translateY(-50%) scale(0.85)';
             setTimeout(() => {
                 this.style.transform = 'translateY(-50%) scale(1)';
             }, 150);
         });
-        
-        // Add subtle animation delay for inputs
-        document.querySelectorAll('.input-group').forEach((group, index) => {
-            group.style.animation = `fadeInUp 0.8s ease-out ${0.4 + (index * 0.1)}s both`;
-        });
     </script>
 </body>
 </html>
+
