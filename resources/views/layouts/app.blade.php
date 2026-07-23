@@ -16,19 +16,20 @@
         :root {
             --primary-bg: #f8fafc;
             --sidebar-bg: {{ $primaryColor }};
-            --header-bg: rgba(255, 255, 255, 0.85);
+            --header-bg: rgba(255, 255, 255, 0.75);
             --text-main: #0f172a;
             --text-muted: #64748b;
             --accent-color: {{ $accentColor }};
             --accent-gradient: linear-gradient(135deg, {{ $accentColor }} 0%, #4f46e5 100%); 
-            --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.03); 
+            --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02); 
             --transition-speed: 0.3s;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
         
         body { 
-            background-color: var(--primary-bg); 
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f0fdf4 100%);
+            background-attachment: fixed;
             display: flex; 
             height: 100vh; 
             overflow: hidden; 
@@ -192,31 +193,33 @@
 
         /* Card & Elements */
         .card { 
-            background: #ffffff; 
-            border-radius: 18px; 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px; 
             padding: 2rem; 
-            box-shadow: var(--card-shadow); 
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02); 
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-            border: 1px solid rgba(226, 232, 240, 0.7);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.07);
+            transform: translateY(-3px);
+            box-shadow: 0 18px 35px -5px rgba(15, 23, 42, 0.08);
         }
 
         /* Buttons */
         .btn-submit, .btn-filter, .btn-add { 
-            background: var(--accent-gradient); 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
             color: #ffffff; 
             border: none; 
             border-radius: 50px; 
             padding: 11px 24px;
             font-size: 0.92rem;
-            font-weight: 600; 
+            font-weight: 700; 
             cursor: pointer; 
             transition: all 0.25s ease;
-            box-shadow: 0 6px 18px -2px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 6px 18px -2px rgba(16, 185, 129, 0.35);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -225,7 +228,7 @@
 
         .btn-submit:hover, .btn-filter:hover, .btn-add:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 10px 25px -4px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.5);
             color: #ffffff;
         }
 
@@ -233,51 +236,20 @@
         .form-control { 
             width: 100%; 
             padding: 11px 16px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 12px; 
+            border: 1.5px solid #cbd5e1; 
+            border-radius: 14px; 
             font-size: 0.95rem; 
+            font-weight: 500;
             transition: all 0.2s ease; 
-            background: #f8fafc;
+            background: #ffffff;
             color: #0f172a;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #6366f1;
+            border-color: #10b981;
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
-        }
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-submit:hover, .btn-filter:hover, .btn-add:hover { 
-            transform: translateY(-3px) scale(1.02); 
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-        }
-
-        /* Form Controls */
-        .form-control { 
-            width: 100%; 
-            padding: 12px 15px; 
-            border: 1px solid #eee; 
-            border-radius: 12px; 
-            font-size: 1rem; 
-            transition: all 0.3s; 
-            background: #fafafa;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14);
         }
 
         /* Table Styling */
