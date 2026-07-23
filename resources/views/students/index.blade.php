@@ -838,6 +838,18 @@
             </form>
 
             @if(Auth::user()->role == 'admin')
+                @php
+                    $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+                @endphp
+                @if($activeYear && $activeYear->active_semester == '2')
+                    <form action="{{ route('students.assign_grade_6_tahfidz') }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin mem-plotting seluruh siswa Kelas 6 ke Kelompok Tahfidz untuk Semester 2?');">
+                        @csrf
+                        <button type="submit" class="act-btn" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;" title="Plotting Massal Siswa Kelas 6 ke Kelompok Tahfidz Semester 2">
+                            <i class="fas fa-quran"></i> Plotting Tahfidz Kelas 6
+                        </button>
+                    </form>
+                @endif
+
                 <button id="btnBulkDelete" onclick="confirmBulkDelete()"
                         class="act-btn act-btn-danger" style="display:none;">
                     <i class="fas fa-trash"></i> Hapus Terpilih

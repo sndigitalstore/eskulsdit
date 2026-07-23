@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('students/bulk', [\App\Http\Controllers\StudentController::class, 'store_bulk'])->name('students.store_bulk');
     Route::post('students/import-excel', [\App\Http\Controllers\StudentController::class, 'importExcel'])->name('students.import_excel');
+    Route::post('students/assign-grade-6-tahfidz', [\App\Http\Controllers\StudentController::class, 'assignGrade6Tahfidz'])->name('students.assign_grade_6_tahfidz');
     Route::delete('students/bulk-destroy', [\App\Http\Controllers\StudentController::class, 'destroy_bulk'])->name('students.destroy_bulk');
     Route::get('students/backup', [\App\Http\Controllers\StudentController::class, 'backup'])->name('students.backup');
     Route::resource('students', \App\Http\Controllers\StudentController::class);

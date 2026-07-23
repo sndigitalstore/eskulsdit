@@ -479,4 +479,62 @@ class StudentController extends Controller
         }
         return view('students.card', compact('student', 'activeYear'));
     }
+
+    public function assignGrade6Tahfidz(Request $request)
+    {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->with('error', 'Tidak ada tahun ajaran aktif.');
+        }
+
+        if ($activeYear->active_semester != '2') {
+            return back()->with('error', 'Plotting otomatis Kelompok Tahfidz khusus untuk Semester 2.');
+        }
+
+        // Find or create Eskul "Kelompok Tahfidz" for active year
+        $tahfidzEskul = \App\Models\Eskul::firstOrCreate([
+            'name' => 'Kelompok Tahfidz',
+            'academic_year_id' => $activeYear->id,
+        ], [
+            'instructor_name' => 'Tim Tahfidz',
+            'target_group' => 'sesi_4',
+        ]);
+
+        $students = \App\Models\Student::activeYear()
+            ->where('class', 'like', '6%')
+            ->where(function($q) {
+                $q->where('status', '!=', 'graduated')->orWhereNull('status');
+            })
+            ->get();
+
+        $enrolledCount = 0;
+        foreach ($students as $student) {
+            // Check if already enrolled in Tahfidz for active year & semester 2
+            $exists = \Illuminate\Support\Facades\DB::table('student_eskul')
+                ->where('student_id', $student->id)
+                ->where('academic_year_id', $activeYear->id)
+                ->where('semester', '2')
+                ->where('eskul_id', $tahfidzEskul->id)
+                ->exists();
+
+            if (!$exists) {
+                // Clear any other choices for semester 2 if present
+                \Illuminate\Support\Facades\DB::table('student_eskul')
+                    ->where('student_id', $student->id)
+                    ->where('academic_year_id', $activeYear->id)
+                    ->where('semester', '2')
+                    ->delete();
+
+                $student->eskuls()->attach($tahfidzEskul->id, [
+                    'academic_year_id' => $activeYear->id,
+                    'semester' => '2'
+                ]);
+                $enrolledCount++;
+            }
+        }
+
+        \App\Models\ActivityLog::log('Students', 'Assign', "Memplotting {$enrolledCount} siswa Kelas 6 ke Kelompok Tahfidz Semester 2");
+
+        return back()->with('success', "Berhasil mem-plotting {$enrolledCount} siswa Kelas 6 ke Kelompok Tahfidz untuk Semester 2!");
+    }
 }
