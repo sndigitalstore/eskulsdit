@@ -116,16 +116,10 @@
             letter-spacing: -0.5px;
         }
 
-        .logo-icon-frame {
-            width: 42px;
+        .logo-img {
             height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #10b981 0%, #6366f1 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            width: auto;
+            object-fit: contain;
         }
 
         .nav-links { display: flex; gap: 32px; align-items: center; }
@@ -697,9 +691,7 @@
     <!-- Navigation -->
     <nav>
         <a href="/" class="logo">
-            <div class="logo-icon-frame">
-                <i class="fas fa-graduation-cap" style="font-size: 1.2rem;"></i>
-            </div>
+            <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" class="logo-img">
             <span>SIM ESKUL</span>
         </a>
         <div class="nav-links">
@@ -897,7 +889,10 @@
     <footer>
         <div class="footer-grid">
             <div class="footer-brand">
-                <h3>SIM ESKUL AN NADZIR</h3>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" style="height: 38px; width: auto; object-fit: contain;">
+                    <h3 style="margin: 0;">SIM ESKUL AN NADZIR</h3>
+                </div>
                 <p>Membentuk generasi Qur'ani yang unggul dalam akademik dan berbakat dalam minat. SDIT AN NADZIR terus berinovasi untuk memberikan pendidikan berkualitas terbaik.</p>
             </div>
             <div class="footer-links">
