@@ -568,6 +568,13 @@
             </li>
             @endif
 
+            <li class="nav-item">
+                <a href="{{ route('profile.index') }}" class="nav-link {{ request()->is('profile*') ? 'active' : '' }}">
+                    <i class="fas fa-key"></i>
+                    <span>Ubah Password</span>
+                </a>
+            </li>
+
             @if(Auth::user()->role == 'admin')
             <li class="nav-item">
                 <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
@@ -632,7 +639,7 @@
                         <i class="fas fa-calendar-check" style="font-size: 0.85rem;"></i> {{ $activeYear->name }} (Sem {{ $activeYear->active_semester ?? '1' }})
                     </span>
                 @endif
-                <div class="user-name-display" style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 6px 14px 6px 8px; border-radius: 30px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <a href="{{ route('profile.index') }}" class="user-name-display" title="Klik untuk Ubah Profil & Password" style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 6px 14px 6px 8px; border-radius: 30px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
@@ -640,7 +647,8 @@
                         <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a; line-height: 1.2;">{{ Auth::user()->name }}</span>
                         <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">{{ Auth::user()->role == 'admin' ? 'Administrator' : 'Guru / Wali Kelas' }}</span>
                     </div>
-                </div>
+                    <i class="fas fa-chevron-right" style="font-size: 0.7rem; color: #94a3b8; margin-left: 4px;"></i>
+                </a>
             </div>
         </header>
 

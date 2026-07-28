@@ -71,6 +71,8 @@ Route::post('/cek-status/cari', [\App\Http\Controllers\StudentStatusController::
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     Route::post('students/bulk', [\App\Http\Controllers\StudentController::class, 'store_bulk'])->name('students.store_bulk');
     Route::post('students/import-excel', [\App\Http\Controllers\StudentController::class, 'importExcel'])->name('students.import_excel');
