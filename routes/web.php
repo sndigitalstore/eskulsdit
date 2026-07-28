@@ -126,6 +126,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'bulk'])->name('teachers.bulk');
     Route::post('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'storeBulk'])->name('teachers.store_bulk');
     Route::post('teachers/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetAllPasswords'])->name('teachers.reset-all');
+    Route::post('teachers/{teacher}/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetSinglePassword'])->name('teachers.reset-single');
     Route::resource('teachers', \App\Http\Controllers\TeacherController::class);
     Route::get('/achievements/print', [\App\Http\Controllers\AchievementController::class, 'print'])->name('achievements.print');
     

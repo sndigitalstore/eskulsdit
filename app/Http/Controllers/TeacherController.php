@@ -190,4 +190,21 @@ class TeacherController extends Controller
 
         return back()->with('success', "Berhasil! Password untuk {$count} akun guru telah diubah.");
     }
+
+    public function resetSinglePassword(Request $request, User $teacher)
+    {
+        if ($teacher->role !== 'teacher') return back()->with('error', 'Aksi tidak diizinkan.');
+
+        $request->validate([
+            'new_password' => 'required|string|min:6'
+        ]);
+
+        $teacher->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        \App\Models\ActivityLog::log('Teacher', 'Update', "Admin mereset password akun guru {$teacher->name}.");
+
+        return back()->with('success', "Berhasil! Password untuk akun {$teacher->name} telah direset.");
+    }
 }
