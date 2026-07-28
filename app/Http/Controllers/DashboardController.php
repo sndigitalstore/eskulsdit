@@ -22,14 +22,21 @@ class DashboardController extends Controller
 
         // Scoped Student Count
         if ($isTeacher) {
-            $studentCount = Student::activeYear()->active()
-                ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
-                    $q->where('student_eskul.eskul_id', $teacherEskulId);
-                    if ($activeYear) {
-                        $q->where('student_eskul.academic_year_id', $activeYear->id)
-                          ->where('student_eskul.semester', $activeYear->active_semester);
-                    }
-                })->count();
+            if ($teacherEskulId) {
+                $studentCount = Student::activeYear()->active()
+                    ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
+                        $q->where('student_eskul.eskul_id', $teacherEskulId);
+                        if ($activeYear) {
+                            $q->where('student_eskul.academic_year_id', $activeYear->id)
+                              ->where('student_eskul.semester', $activeYear->active_semester);
+                        }
+                    })->count();
+            } elseif (!empty($user->homeroom_class)) {
+                $studentCount = Student::activeYear()->active()
+                    ->where('class', $user->homeroom_class)->count();
+            } else {
+                $studentCount = 0;
+            }
         } else {
             $studentCount = Student::activeYear()->active()->count();
         }
@@ -40,7 +47,7 @@ class DashboardController extends Controller
 
         // Eskul Count: Count all Eskuls registered for the active year
         if ($isTeacher) {
-            $eskulCount = Eskul::activeYear()->where('id', $teacherEskulId)->count();
+            $eskulCount = $teacherEskulId ? Eskul::activeYear()->where('id', $teacherEskulId)->count() : 0;
         } else {
             $eskulCount = Eskul::activeYear()->count();
         }
@@ -54,17 +61,27 @@ class DashboardController extends Controller
 
         // Calculate Grade Statistics (scoped to active year and teacher eskul if applicable)
         if ($isTeacher) {
-            $classData = Student::activeYear()
-                ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
-                    $q->where('student_eskul.eskul_id', $teacherEskulId);
-                    if ($activeYear) {
-                        $q->where('student_eskul.academic_year_id', $activeYear->id)
-                          ->where('student_eskul.semester', $activeYear->active_semester);
-                    }
-                })
-                ->select('class', DB::raw('count(*) as count'))
-                ->groupBy('class')
-                ->get();
+            if ($teacherEskulId) {
+                $classData = Student::activeYear()
+                    ->whereHas('eskuls', function($q) use ($teacherEskulId, $activeYear) {
+                        $q->where('student_eskul.eskul_id', $teacherEskulId);
+                        if ($activeYear) {
+                            $q->where('student_eskul.academic_year_id', $activeYear->id)
+                              ->where('student_eskul.semester', $activeYear->active_semester);
+                        }
+                    })
+                    ->select('class', DB::raw('count(*) as count'))
+                    ->groupBy('class')
+                    ->get();
+            } elseif (!empty($user->homeroom_class)) {
+                $classData = Student::activeYear()
+                    ->where('class', $user->homeroom_class)
+                    ->select('class', DB::raw('count(*) as count'))
+                    ->groupBy('class')
+                    ->get();
+            } else {
+                $classData = collect();
+            }
         } else {
             $classData = Student::activeYear()
                 ->select('class', DB::raw('count(*) as count'))

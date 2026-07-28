@@ -35,7 +35,7 @@ class TeacherController extends Controller
                 Rule::unique('users')->where('academic_year_id', $activeYearId),
             ],
             'password' => 'required|string|min:6|confirmed',
-            'eskul_id' => 'required|exists:eskuls,id',
+            'eskul_id' => 'nullable|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
             'homeroom_class' => 'nullable|string|max:50',
         ]);
@@ -75,7 +75,7 @@ class TeacherController extends Controller
                     ->where('academic_year_id', $activeYearId)
                     ->ignore($teacher->id)
             ],
-            'eskul_id' => 'required|exists:eskuls,id',
+            'eskul_id' => 'nullable|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6|confirmed',
             'homeroom_class' => 'nullable|string|max:50',

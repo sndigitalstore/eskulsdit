@@ -16,15 +16,16 @@
         </div>
 
         <div class="form-group">
-            <label>Pilih Eskul Binaan</label>
-            <select name="eskul_id" class="form-control" required>
-                <option value="">-- Pilih Eskul --</option>
+            <label>Pilih Eskul Binaan (Opsional)</label>
+            <select name="eskul_id" class="form-control">
+                <option value="">-- Tidak Mengampu Eskul (Hanya Wali Kelas) --</option>
                 @foreach($eskuls as $eskul)
                     <option value="{{ $eskul->id }}" {{ old('eskul_id') == $eskul->id ? 'selected' : '' }}>
                         {{ $eskul->name }}
                     </option>
                 @endforeach
             </select>
+            <small style="color: #666; margin-top: 5px; display: block;">Kosongkan jika guru ini hanya bertindak sebagai Wali Kelas dan tidak mengampu eskul.</small>
             @error('eskul_id')<div style="color: red; font-size: 0.8rem;">{{ $message }}</div>@enderror
         </div>
 
