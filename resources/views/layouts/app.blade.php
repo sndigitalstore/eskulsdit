@@ -633,7 +633,10 @@
                 </form>
             </div>
             @endif
-             <div class="user-profile" style="display: flex; align-items: center; gap: 12px;">
+             <div class="user-profile" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" onclick="showContextualHelp()" style="display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.08);" title="Petunjuk & Fitur Halaman Ini">
+                    <i class="fas fa-question-circle" style="font-size: 0.9rem;"></i> <span>Bantuan Halaman</span>
+                </button>
                 @if(isset($activeYear) && $activeYear)
                     <span style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 5px rgba(5, 150, 105, 0.08);">
                         <i class="fas fa-calendar-check" style="font-size: 0.85rem;"></i> {{ $activeYear->name }} (Sem {{ $activeYear->active_semester ?? '1' }})
@@ -667,6 +670,7 @@
     </main>
 
     @stack('scripts')
+    @include('partials.page_help_script')
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('mainSidebar');
