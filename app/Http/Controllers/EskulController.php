@@ -54,6 +54,8 @@ class EskulController extends Controller
             'target_group.*' => 'in:all,sesi_1,sesi_2,sesi_3,sesi_4',
             'instructor_name' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
+            'quota' => 'required|integer|min:1',
+            'is_active' => 'boolean',
         ]);
 
         // Jika 'all' dipilih, simpan hanya 'all'
@@ -70,7 +72,9 @@ class EskulController extends Controller
             'name' => $validated['name'],
             'target_group' => $targetGroupValue,
             'instructor_name' => $validated['instructor_name'],
-            'schedule' => $validated['schedule']
+            'schedule' => $validated['schedule'],
+            'quota' => $validated['quota'],
+            'is_active' => $request->has('is_active') ? true : false,
         ]);
 
         // Create Initial History for Active Semester
@@ -99,6 +103,8 @@ class EskulController extends Controller
             'instructor_name' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
             'is_lockable' => 'boolean',
+            'quota' => 'required|integer|min:1',
+            'is_active' => 'boolean',
         ]);
 
         // Jika 'all' dipilih, simpan hanya 'all'
@@ -116,6 +122,8 @@ class EskulController extends Controller
         $eskul->instructor_name = $validated['instructor_name'];
         $eskul->schedule = $validated['schedule'];
         $eskul->is_lockable = $request->has('is_lockable'); 
+        $eskul->quota = $validated['quota'];
+        $eskul->is_active = $request->has('is_active');
         $eskul->save();
 
         // Update/Create History for Active Semester
@@ -263,5 +271,29 @@ class EskulController extends Controller
         \App\Models\Grade::where('eskul_id', $eskul->id)->delete();
         $eskul->delete();
         return back()->with('success', 'Ekstrakurikuler berhasil dihapus!');
+    }
+
+    public function quickUpdate(Request $request, Eskul $eskul)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'quota' => 'nullable|integer|min:1',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        if ($request->has('quota')) {
+            $eskul->quota = $validated['quota'];
+        }
+
+        if ($request->has('is_active')) {
+            $eskul->is_active = $validated['is_active'];
+        }
+
+        $eskul->save();
+
+        return response()->json(['success' => true, 'message' => 'Ekstrakurikuler berhasil diperbarui!']);
     }
 }

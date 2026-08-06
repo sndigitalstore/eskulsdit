@@ -627,18 +627,23 @@
                         <label class="question-label">Daftar Pilihan Ekstrakurikuler <span class="required-star">*</span></label>
                         <div class="eskul-grid-options">
                             @foreach($eskuls as $eskul)
-                            @php $isFull = $eskul->students_count >= $quota; @endphp
-                            <label class="radio-option eskul-option" data-target-group="{{ json_encode($eskul->target_groups) }}" style="{{ $isFull ? 'opacity: 0.55; cursor: not-allowed;' : '' }}">
-                                <input type="radio" name="eskul_1" value="{{ $eskul->id }}" data-is-full="{{ $isFull ? 'true' : 'false' }}" {{ old('eskul_1') == $eskul->id ? 'checked' : '' }} {{ $isFull ? 'disabled' : '' }} required>
-                                <div class="eskul-info-wrap">
-                                    <span class="eskul-title-text">{{ $eskul->name }}</span>
-                                    @if($isFull)
-                                        <span class="badge-full">Penuh</span>
-                                    @else
-                                        <span class="badge-available">Tersedia</span>
-                                    @endif
-                                </div>
-                            </label>
+                             @php $isFull = $eskul->students_count >= ($eskul->quota ?? 25); @endphp
+                             <label class="radio-option eskul-option" data-target-group="{{ json_encode($eskul->target_groups) }}" style="{{ $isFull ? 'opacity: 0.55; cursor: not-allowed;' : '' }}">
+                                 <input type="radio" name="eskul_1" value="{{ $eskul->id }}" data-is-full="{{ $isFull ? 'true' : 'false' }}" {{ old('eskul_1') == $eskul->id ? 'checked' : '' }} {{ $isFull ? 'disabled' : '' }} required>
+                                 <div class="eskul-info-wrap" style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                                     <div style="display: flex; flex-direction: column;">
+                                         <span class="eskul-title-text">{{ $eskul->name }}</span>
+                                         <span style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
+                                             Kuota terisi: <b>{{ $eskul->students_count }}</b> dari <b>{{ $eskul->quota ?? 25 }}</b>
+                                         </span>
+                                     </div>
+                                     @if($isFull)
+                                         <span class="badge-full">Penuh</span>
+                                     @else
+                                         <span class="badge-available">Tersedia</span>
+                                     @endif
+                                 </div>
+                             </label>
                             @endforeach
                         </div>
                         @error('eskul_1')

@@ -34,7 +34,7 @@ class EskulSelectionController extends Controller
                         ->where('student_eskul.semester', $activeYear->active_semester)
                         ->where('status', '!=', 'graduated');
                   }
-             }])->whereIn('id', $allowedIds)->get();
+             }])->where('is_active', true)->whereIn('id', $allowedIds)->get();
         } else {
              // If no setting, default to all.
              $eskuls = Eskul::withCount(['students' => function($q) {
@@ -44,7 +44,7 @@ class EskulSelectionController extends Controller
                         ->where('student_eskul.semester', $activeYear->active_semester)
                         ->where('status', '!=', 'graduated');
                   }
-             }])->get();
+             }])->where('is_active', true)->get();
         }
         
         $classes = Student::activeYear()
@@ -60,7 +60,7 @@ class EskulSelectionController extends Controller
             $classes = \App\Models\SchoolClass::orderBy('name')->pluck('name');
         }
 
-        return view('pilihan_eskul.form', compact('eskuls', 'title', 'description', 'quota', 'classes'));
+        return view('pilihan_eskul.form', compact('eskuls', 'title', 'description', 'classes'));
     }
 
     public function getStudentsByClass(Request $request)
@@ -178,15 +178,15 @@ class EskulSelectionController extends Controller
 
     public function store(Request $request)
     {
-        $quota = Setting::where('key', 'eskul_quota')->value('value') ?? 25;
-
-        $quotaValidator = function($attribute, $value, $fail) use ($quota) {
+        $quotaValidator = function($attribute, $value, $fail) {
             $activeYear = AcademicYear::where('is_active', true)->first();
             $yearId = $activeYear ? $activeYear->id : null;
             $semester = $activeYear ? $activeYear->active_semester : '1';
 
             $eskulToCheck = Eskul::find($value);
             if (!$eskulToCheck) return;
+
+            $quota = $eskulToCheck->quota ?? 25;
 
             $count = $eskulToCheck->students()
                 ->wherePivot('academic_year_id', $yearId)
@@ -289,6 +289,7 @@ class EskulSelectionController extends Controller
         $semester = $activeYear ? $activeYear->active_semester : '1';
 
         $chosenEskul = Eskul::find($request->eskul_1);
+        $quota = $chosenEskul ? ($chosenEskul->quota ?? 25) : 25;
 
         // --- FIXED LOGIC: Transaction with lock to prevent Race Condition ---
         try {

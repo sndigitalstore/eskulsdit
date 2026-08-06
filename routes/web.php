@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/eskuls/{eskul}', [\App\Http\Controllers\EskulController::class, 'destroy'])->name('eskuls.destroy');
     Route::post('/eskuls/bulk-update-schedule', [\App\Http\Controllers\EskulController::class, 'bulkUpdateSchedule'])->name('eskuls.bulk-update-schedule');
     Route::put('/eskuls/{eskul}', [\App\Http\Controllers\EskulController::class, 'update'])->name('eskuls.update');
+    Route::patch('/eskuls/{eskul}/quick-update', [\App\Http\Controllers\EskulController::class, 'quickUpdate'])->name('eskuls.quick-update');
     Route::get('/eskuls/{eskul}/export', [\App\Http\Controllers\EskulController::class, 'export'])->name('eskuls.export');
 
     Route::get('/attendance/report', [\App\Http\Controllers\AttendanceController::class, 'report'])->name('attendance.report');

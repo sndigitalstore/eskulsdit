@@ -6,7 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Eskul extends Model
 {
-    protected $fillable = ['academic_year_id', 'name', 'target_group', 'instructor_name', 'schedule', 'is_lockable'];
+    protected $fillable = [
+        'academic_year_id', 
+        'name', 
+        'target_group', 
+        'instructor_name', 
+        'schedule', 
+        'is_lockable', 
+        'quota', 
+        'is_active'
+    ];
+
+    protected $casts = [
+        'is_lockable' => 'boolean',
+        'is_active' => 'boolean',
+        'quota' => 'integer',
+    ];
 
     /**
      * Selalu kembalikan target_group sebagai array, backward-compatible

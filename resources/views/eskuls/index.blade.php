@@ -153,15 +153,37 @@
             </div>
 
             <div style="padding: 12px 16px; flex-grow: 1;">
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                     <div style="width: 36px; height: 36px; background: #f0f7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: bold; color: #3498db; border: 2px solid #eef2ff; flex-shrink: 0;">
                         {{ substr($displayInstructor ?? '?', 0, 1) }}
                     </div>
-                    <div style="min-width: 0;">
+                    <div style="min-width: 0; flex-grow: 1;">
                         <div style="font-size: 0.65rem; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Pembina</div>
                         <div style="font-weight: 600; color: #333; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $displayInstructor ?? 'Belum ditentukan' }}">{{ $displayInstructor ?? 'Belum ditentukan' }}</div>
                     </div>
                 </div>
+
+                @if(auth()->user()->role == 'admin')
+                <div style="border-top: 1px dashed #e2e8f0; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.85rem;">
+                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #475569; font-weight: 600;">
+                        <input type="checkbox" class="eskul-active-checkbox" data-id="{{ $eskul->id }}" {{ $eskul->is_active ? 'checked' : '' }} style="width: 16px; height: 16px; accent-color: #10b981;">
+                        <span>Aktif di Form</span>
+                    </label>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; color: #475569; font-weight: 600;">
+                        <span>Kuota:</span>
+                        <input type="number" class="eskul-quota-input" data-id="{{ $eskul->id }}" value="{{ $eskul->quota }}" min="1" style="width: 55px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: bold; text-align: center;">
+                    </div>
+                </div>
+                @else
+                <div style="border-top: 1px dashed #e2e8f0; padding-top: 10px; font-size: 0.8rem; color: #64748b; font-weight: 600;">
+                    Kuota: <strong>{{ $eskul->quota }} Siswa</strong> | Status: 
+                    @if($eskul->is_active)
+                        <span style="color: #10b981;"><i class="fas fa-check-circle"></i> Aktif</span>
+                    @else
+                        <span style="color: #ef4444;"><i class="fas fa-times-circle"></i> Nonaktif</span>
+                    @endif
+                </div>
+                @endif
             </div>
 
             <!-- Action Buttons -->
@@ -303,6 +325,18 @@
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Jadwal Latihan</label>
                         <input type="text" name="schedule" class="form-control" value="{{ $displaySchedule }}">
                     </div>
+                    <div class="form-group" style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Kuota Siswa</label>
+                            <input type="number" name="quota" class="form-control" value="{{ $eskul->quota }}" required min="1">
+                        </div>
+                        <div style="display: flex; align-items: flex-end; padding-bottom: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+                                <input type="checkbox" name="is_active" value="1" {{ $eskul->is_active ? 'checked' : '' }} style="width: 18px; height: 18px; accent-color: #10b981;">
+                                <span>Aktif di Form</span>
+                            </label>
+                        </div>
+                    </div>
                     
                     <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; margin-top: 15px;">
                         <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
@@ -377,6 +411,18 @@
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Jadwal Latihan</label>
                         <input type="text" name="schedule" class="form-control" placeholder="Contoh: Sabtu, 08.00 WIB">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Kuota Siswa</label>
+                            <input type="number" name="quota" class="form-control" value="25" required min="1">
+                        </div>
+                        <div style="display: flex; align-items: flex-end; padding-bottom: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+                                <input type="checkbox" name="is_active" value="1" checked style="width: 18px; height: 18px; accent-color: #10b981;">
+                                <span>Aktif di Form</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -483,6 +529,86 @@
                 });
             }
         });
-    });
+
+        // AJAX for quick updating quota and active status
+        document.querySelectorAll('.eskul-active-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const id = this.getAttribute('data-id');
+                const isActive = this.checked ? 1 : 0;
+                
+                fetch(`/eskuls/${id}/quick-update`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ is_active: isActive })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Gagal memperbarui status aktif.');
+                });
+            });
+        });
+
+        document.querySelectorAll('.eskul-quota-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const id = this.getAttribute('data-id');
+                const quota = this.value;
+                
+                if (quota < 1) {
+                    alert('Kuota minimal 1!');
+                    return;
+                }
+
+                fetch(`/eskuls/${id}/quick-update`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ quota: quota })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Gagal memperbarui kuota.');
+                });
+            });
+        });
+     });
 </script>
 @endsection
