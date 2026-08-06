@@ -53,7 +53,7 @@
                     @endif
                 </td>
                 <td>
-                    <form action="{{ route('teacher-attendance.destroy', $attendance->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
+                    <form action="{{ route('teacher-attendance.destroy', $attendance->id) }}" method="POST" class="confirm-delete" data-confirm="Apakah Anda yakin ingin menghapus data absensi guru ini?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" style="background: none; border: none; color: #e74c3c; cursor: pointer;"><i class="fas fa-trash"></i></button>
