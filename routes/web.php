@@ -69,6 +69,10 @@ Route::get('/cek-status/students', [\App\Http\Controllers\StudentStatusControlle
 Route::get('/api/students/search', [\App\Http\Controllers\Api\StudentApiController::class, 'search'])->name('api.students.search');
 Route::post('/cek-status/cari', [\App\Http\Controllers\StudentStatusController::class, 'search'])->name('student-status.search');
 
+// Public Routes for Substitute Teacher Attendance (Option 1)
+Route::get('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'show'])->name('substitute.attendance.show');
+Route::post('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'store'])->name('substitute.attendance.store');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');

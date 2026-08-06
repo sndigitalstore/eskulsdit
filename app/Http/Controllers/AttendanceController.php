@@ -9,13 +9,33 @@ use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
+    private function getAllowedEskulIds($user)
+    {
+        $eskulIds = [];
+        if ($user->eskul_id) {
+            $eskulIds[] = $user->eskul_id;
+        }
+
+        // Find delegated Eskuls for this user (where user was assigned as substitute)
+        $delegatedEskulIds = \App\Models\TeacherAttendance::where('substitute_user_id', $user->id)
+            ->whereIn('status', ['sick', 'permission'])
+            ->with('user')
+            ->get()
+            ->map(function ($ta) {
+                return $ta->user ? $ta->user->eskul_id : null;
+            })
+            ->filter()
+            ->toArray();
+
+        return array_unique(array_merge($eskulIds, $delegatedEskulIds));
+    }
+
     public function index()
     {
         $user = auth()->user();
         if ($user->role == 'teacher') {
-            $eskuls = $user->eskul_id 
-                ? Eskul::activeYear()->has('students')->where('id', $user->eskul_id)->get()
-                : collect();
+            $allowedIds = $this->getAllowedEskulIds($user);
+            $eskuls = Eskul::activeYear()->has('students')->whereIn('id', $allowedIds)->get();
         } else {
             $eskuls = Eskul::activeYear()->has('students')->get();
         }
@@ -33,7 +53,8 @@ class AttendanceController extends Controller
         ]);
 
         if (auth()->user()->role == 'teacher') {
-            if (!auth()->user()->eskul_id || auth()->user()->eskul_id != $request->eskul_id) {
+            $allowedIds = $this->getAllowedEskulIds(auth()->user());
+            if (!in_array($request->eskul_id, $allowedIds)) {
                 abort(403, 'Anda tidak memiliki akses ke eskul ini.');
             }
         }
@@ -86,7 +107,8 @@ class AttendanceController extends Controller
         ]);
 
         if (auth()->user()->role == 'teacher') {
-            if (!auth()->user()->eskul_id || auth()->user()->eskul_id != $request->eskul_id) {
+            $allowedIds = $this->getAllowedEskulIds(auth()->user());
+            if (!in_array($request->eskul_id, $allowedIds)) {
                 abort(403, 'Anda tidak memiliki akses ke eskul ini.');
             }
         }

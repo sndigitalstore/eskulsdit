@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TeacherAttendance;
 use App\Models\AcademicYear;
+use App\Models\User;
+use App\Models\SubstituteToken;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TeacherAttendanceExport;
 
@@ -25,7 +28,7 @@ class TeacherAttendanceController extends Controller
             $attendances = TeacherAttendance::where('academic_year_id', $activeYear->id)
                 ->whereYear('date', $yearStr)
                 ->whereMonth('date', $monthStr)
-                ->with('user')
+                ->with(['user', 'substituteUser'])
                 ->orderBy('date', 'desc')
                 ->get();
                 
@@ -34,6 +37,7 @@ class TeacherAttendanceController extends Controller
             // Teacher View: My Attendance
             $myAttendances = TeacherAttendance::where('user_id', $user->id)
                 ->where('academic_year_id', $activeYear->id)
+                ->with('substituteUser')
                 ->orderBy('date', 'desc')
                 ->paginate(10);
                 
@@ -41,8 +45,21 @@ class TeacherAttendanceController extends Controller
                 ->where('academic_year_id', $activeYear->id)
                 ->where('date', now()->toDateString())
                 ->first();
+
+            $teachersList = User::where('role', 'teacher')
+                ->where('id', '!=', $user->id)
+                ->orderBy('name')
+                ->get();
+
+            $substituteToken = null;
+            if ($todayAttendance && in_array($todayAttendance->status, ['sick', 'permission']) && $user->eskul_id) {
+                $substituteToken = SubstituteToken::where('user_id', $user->id)
+                    ->where('date', now()->toDateString())
+                    ->latest()
+                    ->first();
+            }
                 
-            return view('teacher_attendance.index', compact('myAttendances', 'todayAttendance', 'activeYear'));
+            return view('teacher_attendance.index', compact('myAttendances', 'todayAttendance', 'activeYear', 'teachersList', 'substituteToken'));
         }
     }
 
@@ -51,14 +68,18 @@ class TeacherAttendanceController extends Controller
         $activeYear = AcademicYear::where('is_active', true)->first();
         if (!$activeYear) return back()->with('error', 'Tidak ada tahun ajaran aktif.');
 
+        $user = Auth::user();
+
         $request->validate([
             'status' => 'required|in:present,sick,permission',
             'note' => 'nullable|string|max:255',
+            'substitute_type' => 'nullable|in:registered,manual',
+            'substitute_user_id' => 'nullable|exists:users,id',
             'substitute_name' => 'nullable|string|max:255',
         ]);
 
         // Check double
-        $exists = TeacherAttendance::where('user_id', Auth::id())
+        $exists = TeacherAttendance::where('user_id', $user->id)
             ->where('date', now()->toDateString())
             ->exists();
             
@@ -66,15 +87,42 @@ class TeacherAttendanceController extends Controller
             return back()->with('error', 'Anda sudah melakukan absensi hari ini.');
         }
 
-        TeacherAttendance::create([
-            'user_id' => Auth::id(),
+        $substituteName = null;
+        $substituteUserId = null;
+
+        if (in_array($request->status, ['sick', 'permission'])) {
+            if ($request->substitute_type === 'registered' && $request->substitute_user_id) {
+                $substituteUser = User::find($request->substitute_user_id);
+                if ($substituteUser) {
+                    $substituteUserId = $substituteUser->id;
+                    $substituteName = $substituteUser->name;
+                }
+            } else {
+                $substituteName = $request->substitute_name;
+            }
+        }
+
+        $attendance = TeacherAttendance::create([
+            'user_id' => $user->id,
             'academic_year_id' => $activeYear->id,
             'date' => now()->toDateString(),
             'clock_in_time' => now()->toTimeString(),
             'status' => $request->status,
             'note' => $request->note,
-            'substitute_name' => in_array($request->status, ['sick', 'permission']) ? $request->substitute_name : null,
+            'substitute_name' => $substituteName,
+            'substitute_user_id' => $substituteUserId,
         ]);
+
+        // Create substitute token for public link if teacher is absent and has an eskul assigned
+        if (in_array($request->status, ['sick', 'permission']) && $user->eskul_id) {
+            SubstituteToken::create([
+                'token' => Str::random(32),
+                'eskul_id' => $user->eskul_id,
+                'user_id' => $user->id,
+                'date' => now()->toDateString(),
+                'expires_at' => now()->endOfDay(),
+            ]);
+        }
 
         return back()->with('success', 'Terima kasih, absensi berhasil disimpan.');
     }
