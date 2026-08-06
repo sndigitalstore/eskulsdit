@@ -20,32 +20,14 @@ class EskulSelectionController extends Controller
 
         $title = Setting::where('key', 'form_title')->value('value') ?? 'Pilihan Ekstrakurikuler';
         $description = Setting::where('key', 'form_description')->value('value') ?? 'Silakan lengkapi data ananda untuk memilih kegiatan.';
-        $quota = Setting::where('key', 'eskul_quota')->value('value') ?? 25;
-
-        $allowedJson = Setting::where('key', 'allowed_eskuls')->value('value');
-        $allowedIds = $allowedJson ? json_decode($allowedJson, true) : null;
-
-        if ($allowedIds !== null) {
-             // If setting exists, filter by it.
-             $eskuls = Eskul::withCount(['students' => function($q) {
-                  $activeYear = AcademicYear::where('is_active', true)->first();
-                  if ($activeYear) {
-                      $q->where('student_eskul.academic_year_id', $activeYear->id)
-                        ->where('student_eskul.semester', $activeYear->active_semester)
-                        ->where('status', '!=', 'graduated');
-                  }
-             }])->where('is_active', true)->whereIn('id', $allowedIds)->get();
-        } else {
-             // If no setting, default to all.
-             $eskuls = Eskul::withCount(['students' => function($q) {
-                  $activeYear = AcademicYear::where('is_active', true)->first();
-                  if ($activeYear) {
-                      $q->where('student_eskul.academic_year_id', $activeYear->id)
-                        ->where('student_eskul.semester', $activeYear->active_semester)
-                        ->where('status', '!=', 'graduated');
-                  }
-             }])->where('is_active', true)->get();
-        }
+        $eskuls = Eskul::withCount(['students' => function($q) {
+             $activeYear = AcademicYear::where('is_active', true)->first();
+             if ($activeYear) {
+                 $q->where('student_eskul.academic_year_id', $activeYear->id)
+                   ->where('student_eskul.semester', $activeYear->active_semester)
+                   ->where('status', '!=', 'graduated');
+             }
+        }])->where('is_active', true)->get();
         
         $classes = Student::activeYear()
             ->where(function($q) {

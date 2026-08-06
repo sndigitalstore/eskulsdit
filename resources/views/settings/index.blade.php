@@ -75,38 +75,6 @@
                     </select>
                 </div>
             </div>
-
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Kuota Maksimal Per Eskul</label>
-                <input type="number" name="eskul_quota" class="form-control" value="{{ $settings['eskul_quota'] ?? 25 }}" required min="1">
-            </div>
-
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="margin: 0; font-weight: 600;">Eskul yang Ditampilkan di Formulir</label>
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" onclick="selectAllEskuls(true)" style="background: #e2e8f0; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; color: #475569;">Pilih Semua</button>
-                        <button type="button" onclick="selectAllEskuls(false)" style="background: #e2e8f0; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; color: #475569;">Hapus Semua</button>
-                    </div>
-                </div>
-                <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;">
-                    @php
-                        $allowed = json_decode($settings['allowed_eskuls'] ?? '[]', true);
-                    @endphp
-                    @foreach($eskuls as $eskul)
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" class="eskul-checkbox" id="eskul_{{ $eskul->id }}" name="allowed_eskuls[]" value="{{ $eskul->id }}" 
-                            {{ in_array($eskul->id, $allowed) ? 'checked' : '' }}>
-                        <label for="eskul_{{ $eskul->id }}" style="cursor: pointer; font-size: 0.9rem;">{{ $eskul->name }}</label>
-                    </div>
-                    @endforeach
-                </div>
-                <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
-                     <a href="{{ route('eskuls.index') }}" style="font-size: 0.85rem; color: #2980b9; text-decoration: none; font-weight: 500;">
-                         <i class="fas fa-plus-circle"></i> Tambah Data Eskul Baru
-                     </a>
-                </div>
-            </div>
         </div>
 
         <!-- SECTION 1.5: WHATSAPP GATEWAY -->
@@ -231,13 +199,6 @@
 </div>
 
 <script>
-// Fungsi pilih / hapus semua eskul
-function selectAllEskuls(status) {
-    document.querySelectorAll('.eskul-checkbox').forEach(cb => {
-        cb.checked = status;
-    });
-}
-
 // Fungsi konfirmasi hapus log aktivitas
 function confirmClearLogs() {
     if (confirm('Apakah Anda yakin ingin menghapus SELURUH riwayat log aktivitas? Tindakan ini tidak dapat dibatalkan.')) {

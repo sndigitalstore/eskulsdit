@@ -45,9 +45,6 @@ class SettingController extends Controller
         // 2. Update Settings
         // Exclude tokens, methods, and the profile specific fields
         $data = $request->except(['_token', '_method', 'admin_name', 'change_password', 'active_academic_year_id']);
-
-        // Handle allowed_eskuls specifically because if unrestricted/unchecked it might be missing
-        $data['allowed_eskuls'] = json_encode($request->input('allowed_eskuls', []));
         
         foreach ($data as $key => $value) {
             Setting::updateOrCreate(
