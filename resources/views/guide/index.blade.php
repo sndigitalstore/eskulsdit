@@ -83,6 +83,23 @@
             </div>
         </div>
 
+        <!-- Step 5 -->
+        <div class="card" style="border-top: 5px solid #10b981;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div style="background: #dcfce7; color: #10b981; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">5</div>
+                <div>
+                    <h3 style="margin: 0 0 10px 0;">Absensi & Delegasi Guru Pengganti</h3>
+                    <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                        Guru Pembina yang berhalangan hadir (Sakit/Izin) bisa menunjuk guru pengganti dengan 2 cara:
+                    </p>
+                    <ul style="font-size: 0.85rem; color: #555; padding-left: 20px; margin-top: 10px;">
+                        <li><b>Delegasi Akun:</b> Pilih guru terdaftar. Eskul Anda otomatis muncul sementara di menu Absensi Siswa mereka hari itu.</li>
+                        <li><b>Tautan WhatsApp:</b> Salin atau bagikan link akses sementara ke WhatsApp guru pengganti dari luar sekolah agar mereka bisa langsung mengabsen tanpa login.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Tips Section -->
