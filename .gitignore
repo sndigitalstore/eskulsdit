@@ -30,3 +30,8 @@ debug_counts.php
 cleanup_eskuls.php
 quick_setup.php
 .agent/
+
+# Hafalan files (ignored to prevent accidental commits)
+/hafalan/
+/app/Models/Hafalan.php
+/database/migrations/*_create_hafalans_table.php
