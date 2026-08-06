@@ -102,75 +102,71 @@ class EskulSelectionController extends Controller
                     $hasCurrentEnrollment = $student->eskuls->where('pivot.semester', $activeYear->active_semester)->isNotEmpty();
                     if ($hasCurrentEnrollment) {
                         $isAlreadyRegistered = true;
-                        if ($activeYear->active_semester == '1') {
-                            $alreadyRegisteredMsg = 'Ananda sudah terdaftar di eskul semester ini. Pendaftaran dikunci.';
-                        } else {
-                            $alreadyRegisteredMsg = 'Ananda sudah terdaftar. Mengisi kembali akan memindahkan pilihan eskul sebelumnya.';
-                        }
+                        $alreadyRegisteredMsg = 'Ananda saat ini sudah terdaftar di eskul ' . ($student->eskuls->where('pivot.semester', $activeYear->active_semester)->first()->name ?? '') . '. Mengisi kembali formulir ini akan memindahkan pilihan eskul sebelumnya.';
                     }
+                }
 
-                    // 1. Try to find CURRENT semester enrollment
-                    $eskulPivot = $student->eskuls->where('pivot.semester', $activeYear->active_semester)->first();
+                // 1. Try to find CURRENT semester enrollment
+                $eskulPivot = $student->eskuls->where('pivot.semester', $activeYear->active_semester)->first();
 
-                    $enrollmentSource = 'current';
+                $enrollmentSource = 'current';
 
-                    // 2. If not found, try ANY semester in this active year (e.g. History from Sem 1)
-                    if (!$eskulPivot) {
-                        $eskulPivot = $student->eskuls->sortByDesc('pivot.semester')->first();
-                        $enrollmentSource = 'history';
-                    }
+                // 2. If not found, try ANY semester in this active year (e.g. History from Sem 1)
+                if (!$eskulPivot) {
+                    $eskulPivot = $student->eskuls->sortByDesc('pivot.semester')->first();
+                    $enrollmentSource = 'history';
+                }
 
-                    if ($eskulPivot) {
-                        $currentEskul = $eskulPivot->name . ($enrollmentSource === 'history' ? ' (Semester Lalu)' : '');
-                        
-                        if ($eskulPivot->is_lockable) {
-                            // Get Grade (Optimized via Eager Loading)
-                            $grade = $student->grades->where('eskul_id', $eskulPivot->id)->first();
-                                
+                if ($eskulPivot) {
+                    $currentEskul = $eskulPivot->name . ($enrollmentSource === 'history' ? ' (Semester Lalu)' : '');
+                    
+                    if ($eskulPivot->is_lockable) {
+                        // Get Grade (Optimized via Eager Loading)
+                        $grade = $student->grades->where('eskul_id', $eskulPivot->id)->first();
+                            
+                        $achievements = [];
+                        if ($grade) {
+                            $scoreStr = $grade->score;
                             $achievements = [];
-                            if ($grade) {
-                                $scoreStr = $grade->score;
-                                $achievements = [];
-                                $json = json_decode($scoreStr, true);
-                                
-                                if (is_array($json)) {
-                                    if (isset($json['reading']) && strtoupper(trim($json['reading'])) === 'A') $achievements[] = 'Membaca';
-                                    if (isset($json['writing']) && strtoupper(trim($json['writing'])) === 'A') $achievements[] = 'Menulis';
-                                    if (isset($json['counting']) && strtoupper(trim($json['counting'])) === 'A') $achievements[] = 'Berhitung';
+                            $json = json_decode($scoreStr, true);
+                            
+                            if (is_array($json)) {
+                                if (isset($json['reading']) && strtoupper(trim($json['reading'])) === 'A') $achievements[] = 'Membaca';
+                                if (isset($json['writing']) && strtoupper(trim($json['writing'])) === 'A') $achievements[] = 'Menulis';
+                                if (isset($json['counting']) && strtoupper(trim($json['counting'])) === 'A') $achievements[] = 'Berhitung';
+                            } else {
+                                $scoreStrUpper = strtoupper($scoreStr);
+                                if (trim($scoreStrUpper) === 'A') {
+                                    $achievements = ['Membaca', 'Menulis', 'Berhitung'];
                                 } else {
-                                    $scoreStrUpper = strtoupper($scoreStr);
-                                    if (trim($scoreStrUpper) === 'A') {
-                                        $achievements = ['Membaca', 'Menulis', 'Berhitung'];
-                                    } else {
-                                        if (preg_match('/(?:MEMBACA|B)\s*[:=]?\s*A/i', $scoreStrUpper)) $achievements[] = 'Membaca';
-                                        if (preg_match('/(?:MENULIS|T)\s*[:=]?\s*A/i', $scoreStrUpper)) $achievements[] = 'Menulis';
-                                        if (preg_match('/(?:BERHITUNG|H)\s*[:=]?\s*A/i', $scoreStrUpper)) $achievements[] = 'Berhitung';
-                                    }
+                                    if (preg_match('/(?:MEMBACA|B)\s*[:=]?\s*A/i', $scoreStrUpper)) $achievements[] = 'Membaca';
+                                    if (preg_match('/(?:MENULIS|T)\s*[:=]?\s*A/i', $scoreStrUpper)) $achievements[] = 'Menulis';
+                                    if (preg_match('/(?:BERHITUNG|H)\s*[:=]?\s*A/i', $scoreStrUpper)) $achievements[] = 'Berhitung';
                                 }
                             }
-                            
-                            // Lock if not all A
-                            if (count($achievements) < 3) {
-                                $isLockedCalistung = true;
-                                $calistungMsg = 'Mohon maaf ananda belum bisa pindah eskul karena harus fokus pada calistung.';
-                            }
+                        }
+                        
+                        // Lock if not all A
+                        if (count($achievements) < 3) {
+                            $isLockedCalistung = true;
+                            $calistungMsg = 'Mohon maaf ananda belum bisa pindah eskul karena harus fokus pada calistung.';
                         }
                     }
+                }
 
-                    $isGrade6Lock = false;
-                    $grade6Msg = "";
-                    if ($activeYear && $activeYear->active_semester == '2' && str_starts_with($student->class, '6')) {
-                        $isGrade6Lock = true;
-                        $grade6Msg = "Khusus Kelas 6 di Semester 2 berfokus pada Program Tahfidz per kelas dan tidak perlu mengisi pilihan eskul lagi.";
-                    }
+                $isGrade6Lock = false;
+                $grade6Msg = "";
+                if ($activeYear && $activeYear->active_semester == '2' && str_starts_with($student->class, '6')) {
+                    $isGrade6Lock = true;
+                    $grade6Msg = "Khusus Kelas 6 di Semester 2 berfokus pada Program Tahfidz per kelas dan tidak perlu mengisi pilihan eskul lagi.";
                 }
                 
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
                     'current_eskul' => $currentEskul,
-                    'is_locked' => $isLockedCalistung || $isGrade6Lock || ($isAlreadyRegistered && $activeYear && $activeYear->active_semester == '1'),
-                    'lock_message' => $isGrade6Lock ? $grade6Msg : ($isLockedCalistung ? $calistungMsg : ($isAlreadyRegistered && $activeYear && $activeYear->active_semester == '1' ? $alreadyRegisteredMsg : '')),
+                    'is_locked' => $isLockedCalistung || $isGrade6Lock,
+                    'lock_message' => $isGrade6Lock ? $grade6Msg : ($isLockedCalistung ? $calistungMsg : ''),
                     'is_already_registered' => $isAlreadyRegistered,
                     'already_registered_msg' => $alreadyRegisteredMsg,
                     'can_choose_sesi_2' => ($activeYear && $activeYear->active_semester == '2' && !$isLockedCalistung && str_starts_with($student->class, '1'))
@@ -198,7 +194,7 @@ class EskulSelectionController extends Controller
                 ->count();
                 
             if ($count >= $quota) {
-                $fail('Mohon Maaf Eskul "' . $eskulToCheck->name . '" sudah memenuhi kuota silahkan pilih eskul lain Terimakasih.');
+                $fail('Terima kasih atas ketertarikan Anda. Mohon maaf, kuota untuk eskul "' . $eskulToCheck->name . '" saat ini sudah penuh. Silakan pilih eskul alternatif lain yang masih tersedia.');
             }
         };
 
@@ -291,19 +287,6 @@ class EskulSelectionController extends Controller
 
         // Determine active semester logic (Year Based now)
         $semester = $activeYear ? $activeYear->active_semester : '1';
-
-        // --- FIXED LOGIC: Strict Backend Check for Semester 1 (Prevent overwrite) ---
-        if ($activeYear && $activeYear->active_semester == '1') {
-            $existingEskul = \Illuminate\Support\Facades\DB::table('student_eskul')
-                ->where('student_id', $student->id)
-                ->where('academic_year_id', $activeYear->id)
-                ->where('semester', '1')
-                ->first();
-                
-            if ($existingEskul) {
-                return back()->withErrors(['eskul_1' => 'Gagal: Ananda sudah terdaftar di eskul. Pilihan awal di Semester 1 tidak dapat diganti lewat form ini. Silakan hubungi wali kelas.']);
-            }
-        }
 
         $chosenEskul = Eskul::find($request->eskul_1);
 

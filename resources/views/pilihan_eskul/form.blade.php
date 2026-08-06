@@ -878,26 +878,13 @@
                 
             } else if (s.is_already_registered) {
                  infoDiv.style.display = 'block';
-                 infoDiv.style.backgroundColor = '#e0f7fa';
-                 infoDiv.style.color = '#006064';
-                 infoDiv.style.border = '1px solid #b2ebf2';
-                 infoDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + s.already_registered_msg;
-
-                 var radios = document.querySelectorAll('input[name="eskul_1"]');
-                 radios.forEach(r => {
-                    r.disabled = true;
-                    r.checked = false;
-                    r.parentElement.style.opacity = '0.5';
-                    r.parentElement.style.cursor = 'not-allowed';
-                 });
+                 infoDiv.style.backgroundColor = '#e8f0fe';
+                 infoDiv.style.color = '#1967d2';
+                 infoDiv.style.border = 'none';
+                 infoDiv.innerHTML = '<i class="fas fa-info-circle"></i> ' + s.already_registered_msg;
                  
-                 var submitBtn = document.querySelector('.btn-submit');
-                 if (submitBtn) {
-                     submitBtn.disabled = true;
-                     submitBtn.style.opacity = '0.5';
-                     submitBtn.innerHTML = 'Sudah Terdaftar';
-                 }
-
+                 // Do not disable inputs, allow overwriting/updating
+            
             } else if (s.current_eskul) {
                  infoDiv.style.display = 'block';
                  infoDiv.style.backgroundColor = '#e8f0fe';
@@ -923,6 +910,47 @@
             if (result.isConfirmed) {
                 document.getElementById('wizard-form').reset();
                 location.reload();
+            }
+        });
+    });
+
+    document.getElementById('wizard-form').addEventListener('submit', function(e) {
+        if (this.dataset.confirmed) {
+            delete this.dataset.confirmed;
+            return;
+        }
+
+        e.preventDefault();
+
+        var studentSelect = document.getElementById('student-select');
+        var studentName = studentSelect.options[studentSelect.selectedIndex].text;
+        
+        var checkedRadio = document.querySelector('input[name="eskul_1"]:checked');
+        if (!checkedRadio) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Eskul',
+                text: 'Silakan pilih kegiatan ekstrakurikuler terlebih dahulu.',
+                confirmButtonColor: '#10b981'
+            });
+            return;
+        }
+        var eskulName = checkedRadio.closest('.radio-option').querySelector('.eskul-title-text').innerText;
+
+        Swal.fire({
+            title: 'Konfirmasi Pilihan',
+            html: `Apakah Anda yakin ingin mendaftarkan <b>${studentName}</b> ke kegiatan eskul <b>${eskulName}</b>?<br><br><small style="color: #64748b;">Pastikan pilihan ini sudah sesuai dengan minat Ananda.</small>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Ya, Kirim Pendaftaran!',
+            cancelButtonText: 'Periksa Kembali',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.dataset.confirmed = true;
+                this.submit();
             }
         });
     });
