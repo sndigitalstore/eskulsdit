@@ -16,11 +16,11 @@ return new class extends Migration
         
         if (!$exists) {
             DB::table('users')->insert([
-                'name' => 'Kepala Sekolah SDIT AN NADZIR',
+                'name' => "Nur'asiah, S.Pd.I",
                 'username' => 'kepsek',
                 'role' => 'headmaster',
                 'email' => 'kepsek@school.com',
-                'password' => Hash::make('AnNadzirKepsek123'),
+                'password' => Hash::make('sditannadzir'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
