@@ -10,9 +10,11 @@
             <h2>Daftar Tahun Ajaran</h2>
             <p style="color: #888;">Kelola tahun ajaran aktif sistem.</p>
         </div>
+        @if(Auth::user()->role == 'admin')
         <button onclick="document.getElementById('addYearModal').style.display='flex'" class="btn-action-header btn-blue">
             <i class="fas fa-plus"></i> Tambah Tahun Ajaran
         </button>
+        @endif
     </div>
 
     @if(session('success'))
@@ -33,7 +35,9 @@
                 <th>Semester Aktif</th>
                 <th>Status</th>
                 <th>Periode</th>
+                @if(Auth::user()->role == 'admin')
                 <th>Aksi</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -47,15 +51,19 @@
                 </td>
                 <td>
                     @if($year->is_active)
-                        <form action="{{ route('academic-years.update', $year->id) }}" method="POST" style="display: flex; align-items: center; gap: 5px;">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="name" value="{{ $year->name }}">
-                            <select name="active_semester" onchange="this.form.submit()" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background: white; cursor: pointer;">
-                                <option value="1" {{ $year->active_semester == '1' ? 'selected' : '' }}>Semester 1 (Ganjil)</option>
-                                <option value="2" {{ $year->active_semester == '2' ? 'selected' : '' }}>Semester 2 (Genap)</option>
-                            </select>
-                        </form>
+                        @if(Auth::user()->role == 'admin')
+                            <form action="{{ route('academic-years.update', $year->id) }}" method="POST" style="display: flex; align-items: center; gap: 5px;">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="name" value="{{ $year->name }}">
+                                <select name="active_semester" onchange="this.form.submit()" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background: white; cursor: pointer;">
+                                    <option value="1" {{ $year->active_semester == '1' ? 'selected' : '' }}>Semester 1 (Ganjil)</option>
+                                    <option value="2" {{ $year->active_semester == '2' ? 'selected' : '' }}>Semester 2 (Genap)</option>
+                                </select>
+                            </form>
+                        @else
+                            {{ $year->active_semester == '1' ? 'Semester 1 (Ganjil)' : 'Semester 2 (Genap)' }}
+                        @endif
                     @else
                         <span style="color: #999;">-</span>
                     @endif
@@ -72,6 +80,7 @@
                     s/d 
                     {{ $year->end_date ? date('d M Y', strtotime($year->end_date)) : '-' }}
                 </td>
+                @if(Auth::user()->role == 'admin')
                 <td>
                     <div style="display: flex; gap: 5px;">
                         <form action="{{ route('academic-years.activate', $year->id) }}" method="POST" style="display:inline;">
@@ -103,6 +112,7 @@
                         @endif
                     </div>
                 </td>
+                @endif
             </tr>
             @endforeach
         </tbody>

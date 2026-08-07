@@ -9,6 +9,10 @@ class SettingController extends Controller
 {
     public function index()
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Akses ditolak. Pengaturan hanya dapat diakses oleh Administrator Utama.');
+        }
+
         $settings = Setting::all()->pluck('value', 'key');
         $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
         $activeYear = $academicYears->where('is_active', true)->first();

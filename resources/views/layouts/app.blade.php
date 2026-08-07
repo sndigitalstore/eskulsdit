@@ -515,7 +515,7 @@
                     <i class="fas fa-th-large"></i> Dashboard
                 </a>
             </li>
-            @if(Auth::user()->role == 'admin')
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
             <li class="nav-item">
                 <a href="/students" class="nav-link {{ request()->is('students*') ? 'active' : '' }}">
                     <i class="fas fa-users"></i> Data Siswa
@@ -542,14 +542,12 @@
                     <span>Ekstrakurikuler</span>
                 </a>
             </li>
-            @else
-            <!-- Teacher only sees "My Eskul" info? Actually teacher doesn't need Eskul Management. -->
             @endif
 
             <li class="nav-item">
                 <a href="{{ route('teacher-attendance.index') }}" class="nav-link {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
                     <i class="fas fa-user-clock"></i>
-                    <span>{{ Auth::user()->role == 'admin' ? 'Absensi Guru' : 'Absensi Saya' }}</span>
+                    <span>{{ in_array(Auth::user()->role, ['admin', 'headmaster']) ? 'Absensi Guru' : 'Absensi Saya' }}</span>
                 </a>
             </li>
             
@@ -566,11 +564,11 @@
                 </a>
             </li>
 
-            @if(Auth::user()->role == 'admin' || (Auth::user()->role == 'teacher' && !empty(Auth::user()->homeroom_class)))
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role == 'teacher' && !empty(Auth::user()->homeroom_class)))
             <li class="nav-item">
                 <a href="/reports" class="nav-link {{ request()->is('reports*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
-                    <span>{{ Auth::user()->role == 'admin' ? 'Laporan' : 'Laporan Kelas Saya' }}</span>
+                    <span>{{ in_array(Auth::user()->role, ['admin', 'headmaster']) ? 'Laporan' : 'Laporan Kelas Saya' }}</span>
                 </a>
             </li>
             @endif
@@ -582,45 +580,49 @@
                 </a>
             </li>
 
-            @if(Auth::user()->role == 'admin')
-            <li class="nav-item">
-                <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
-                    <i class="fas fa-cog"></i>
-                    <span>Pengaturan Form</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->is('announcements*') ? 'active' : '' }}">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Pengumuman</span>
-                </a>
-            </li>
-            @if(Auth::user()->username === 'admin')
-            <li class="nav-item">
-                <a href="{{ route('logs.index') }}" class="nav-link {{ request()->is('logs*') ? 'active' : '' }}">
-                    <i class="fas fa-history"></i>
-                    <span>Riwayat Log</span>
-                </a>
-            </li>
-            @endif
-            <li class="nav-item">
-                <a href="{{ route('guide.index') }}" class="nav-link {{ request()->is('guide*') ? 'active' : '' }}">
-                    <i class="fas fa-book-open"></i>
-                    <span>Panduan Admin</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('pilihan-eskul.form') }}" target="_blank" class="nav-link">
-                    <i class="fas fa-link"></i>
-                    <span>Form Pilihan Eskul</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('import-portal.index') }}" class="nav-link {{ request()->is('import-portal*') ? 'active' : '' }}">
-                    <i class="fas fa-file-import"></i>
-                    <span>Import Excel</span>
-                </a>
-            </li>
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                @if(Auth::user()->role == 'admin')
+                <li class="nav-item">
+                    <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span>Pengaturan Form</span>
+                    </a>
+                </li>
+                @endif
+                <li class="nav-item">
+                    <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->is('announcements*') ? 'active' : '' }}">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Pengumuman</span>
+                    </a>
+                </li>
+                @if(Auth::user()->username === 'admin')
+                <li class="nav-item">
+                    <a href="{{ route('logs.index') }}" class="nav-link {{ request()->is('logs*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i>
+                        <span>Riwayat Log</span>
+                    </a>
+                </li>
+                @endif
+                <li class="nav-item">
+                    <a href="{{ route('guide.index') }}" class="nav-link {{ request()->is('guide*') ? 'active' : '' }}">
+                        <i class="fas fa-book-open"></i>
+                        <span>Panduan Admin</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('pilihan-eskul.form') }}" target="_blank" class="nav-link">
+                        <i class="fas fa-link"></i>
+                        <span>Form Pilihan Eskul</span>
+                    </a>
+                </li>
+                @if(Auth::user()->role == 'admin')
+                <li class="nav-item">
+                    <a href="{{ route('import-portal.index') }}" class="nav-link {{ request()->is('import-portal*') ? 'active' : '' }}">
+                        <i class="fas fa-file-import"></i>
+                        <span>Import Excel</span>
+                    </a>
+                </li>
+                @endif
             @endif
         </ul>
         <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>

@@ -10,6 +10,7 @@
             <a href="{{ route('teachers.print') }}" target="_blank" class="btn-action-header btn-dark">
                 <i class="fas fa-print"></i> Cetak Akun
             </a>
+            @if(Auth::user()->role == 'admin')
             <a href="{{ route('teachers.bulk') }}" class="btn-action-header btn-green">
                 <i class="fas fa-file-import"></i> Import Masal
             </a>
@@ -23,6 +24,7 @@
             <a href="{{ route('teachers.create') }}" class="btn-action-header btn-blue">
                 <i class="fas fa-plus"></i> Tambah Akun
             </a>
+            @endif
         </div>
     </div>
     
@@ -41,7 +43,9 @@
                 <th>No WA</th>
                 <th>Eskul Binaan</th>
                 <th>Wali Kelas</th>
+                @if(Auth::user()->role == 'admin')
                 <th width="15%" class="text-center">Aksi</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -65,6 +69,7 @@
                         <span style="color: #999;">-</span>
                     @endif
                 </td>
+                @if(Auth::user()->role == 'admin')
                 <td class="text-center">
                     <div style="display: flex; gap: 5px; justify-content: center;">
                         <button type="button" class="btn-action" style="color: #e67e22; border: none; background: none; cursor: pointer;" title="Reset Password Guru Ini" onclick="promptResetSingle('{{ $teacher->id }}', '{{ addslashes($teacher->name) }}')">
@@ -82,10 +87,11 @@
                         </form>
                     </div>
                 </td>
+                @endif
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center" style="padding: 20px; color: #999;">
+                <td colspan="{{ Auth::user()->role == 'admin' ? 7 : 6 }}" class="text-center" style="padding: 20px; color: #999;">
                     Belum ada akun guru pembina.
                 </td>
             </tr>

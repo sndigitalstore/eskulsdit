@@ -958,7 +958,7 @@
                             <th>Kelas</th>
                             <th>Ekstrakurikuler</th>
                             <th>Pembina</th>
-                            @if(Auth::user()->role == 'admin')
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
                             <th style="text-align:center;">Aksi</th>
                             @endif
                         </tr>
@@ -1043,13 +1043,14 @@
                             </td>
 
                             {{-- Aksi --}}
-                            @if(Auth::user()->role == 'admin')
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
                             <td>
                                 <div class="row-actions">
                                     <a href="{{ route('students.show', $student->id) }}"
                                        class="row-btn row-btn-view" title="Lihat Riwayat">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @if(Auth::user()->role == 'admin')
                                     <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}"
                                        class="row-btn row-btn-edit" title="Edit">
                                         <i class="fas fa-pen"></i>
@@ -1059,13 +1060,14 @@
                                             class="row-btn row-btn-delete" title="Hapus">
                                         <i class="fas fa-trash"></i>
                                     </button>
+                                    @endif
                                 </div>
                             </td>
                             @endif
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="{{ Auth::user()->role == 'admin' ? 8 : 7 }}">
+                            <td colspan="{{ in_array(Auth::user()->role, ['admin', 'headmaster']) ? 8 : 7 }}">
                                 <div class="empty-state">
                                     <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
                                     <h4>Tidak ada data siswa</h4>

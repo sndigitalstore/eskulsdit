@@ -14,12 +14,14 @@
             <a href="{{ route('achievements.print') }}" target="_blank" class="btn-action-header btn-dark">
                 <i class="fas fa-print"></i> Cetak Laporan
             </a>
+            @if(Auth::user()->role == 'admin')
             <a href="{{ route('achievements.bulk') }}" class="btn-action-header btn-green">
                 <i class="fas fa-file-import"></i> Input Masal
             </a>
             <a href="{{ route('achievements.create') }}" class="btn-action-header btn-blue">
                 <i class="fas fa-plus"></i> Tambah Prestasi
             </a>
+            @endif
         </div>
     </div>
 
@@ -39,7 +41,9 @@
                         <th>Tingkat</th>
                         <th>Periode</th>
                         <th>Penyelenggara</th>
+                        @if(Auth::user()->role == 'admin')
                         <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -87,6 +91,7 @@
                             </div>
                         </td>
                         <td>{{ $achievement->organizer ?? '-' }}</td>
+                        @if(Auth::user()->role == 'admin')
                         <td>
                             <div style="display: flex; gap: 5px;">
                                 <a href="{{ route('achievements.edit', $achievement->id) }}" class="btn-submit" style="padding: 5px 10px; font-size: 0.8rem; background: #3498db; width: auto;" title="Edit">
@@ -101,6 +106,7 @@
                                 </form>
                             </div>
                         </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>

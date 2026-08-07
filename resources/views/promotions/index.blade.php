@@ -75,18 +75,24 @@
                             }
                         @endphp
 
-                        @if($level == 6)
-                            <button type="button" onclick="confirmPromotion('{{ $confirmTitle }}', '{{ $confirmText }}', '{{ $confirmColor }}')" class="btn-edit" style="background: #2ecc71; padding: 10px 20px; color: white; border: none; font-weight: bold;">
-                                <i class="fas fa-graduation-cap"></i> {{ $actionText }}
-                            </button>
-                        @elseif($level > 0 && $level < 6)
-                            <button type="button" onclick="confirmPromotion('{{ $confirmTitle }}', '{{ $confirmText }}', '{{ $confirmColor }}')" class="btn-view" style="background: #3498db; padding: 10px 20px; color: white; border: none; font-weight: bold;">
-                                <i class="fas fa-level-up-alt"></i> {{ $actionText }}
-                            </button>
+                        @if(Auth::user()->role == 'admin')
+                            @if($level == 6)
+                                <button type="button" onclick="confirmPromotion('{{ $confirmTitle }}', '{{ $confirmText }}', '{{ $confirmColor }}')" class="btn-edit" style="background: #2ecc71; padding: 10px 20px; color: white; border: none; font-weight: bold;">
+                                    <i class="fas fa-graduation-cap"></i> {{ $actionText }}
+                                </button>
+                            @elseif($level > 0 && $level < 6)
+                                <button type="button" onclick="confirmPromotion('{{ $confirmTitle }}', '{{ $confirmText }}', '{{ $confirmColor }}')" class="btn-view" style="background: #3498db; padding: 10px 20px; color: white; border: none; font-weight: bold;">
+                                    <i class="fas fa-level-up-alt"></i> {{ $actionText }}
+                                </button>
+                            @else
+                                 <button type="button" onclick="confirmPromotion('{{ $confirmTitle }}', '{{ $confirmText }}', '{{ $confirmColor }}')" class="btn-view" style="background: #95a5a6; padding: 10px 20px; color: white; border: none; font-weight: bold;">
+                                    PROSES (Level Tidak Terdeteksi)
+                                </button>
+                            @endif
                         @else
-                             <button type="button" onclick="confirmPromotion('{{ $confirmTitle }}', '{{ $confirmText }}', '{{ $confirmColor }}')" class="btn-view" style="background: #95a5a6; padding: 10px 20px; color: white; border: none; font-weight: bold;">
-                                PROSES (Level Tidak Terdeteksi)
-                            </button>
+                            <div style="background: #fff3cd; color: #856404; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+                                <i class="fas fa-exclamation-triangle"></i> Hanya Administrator Utama yang dapat memproses kenaikan kelas.
+                            </div>
                         @endif
                     </div>
                 </div>

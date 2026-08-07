@@ -88,6 +88,7 @@
                 <h2>Kegiatan Ekstrakurikuler</h2>
                 <p style="color: #888; margin: 0;">Daftar kegiatan, jadwal, dan pembina.</p>
             </div>
+            @if(Auth::user()->role == 'admin')
             <div style="display: flex; gap: 8px;">
                 <button onclick="openModal('create-eskul-modal')" class="btn-action-header btn-blue">
                     <i class="fas fa-plus"></i> Tambah
@@ -96,6 +97,7 @@
                     <i class="fas fa-clock"></i> Atur Jadwal
                 </button>
             </div>
+            @endif
         </div>
     </div>
 
@@ -191,6 +193,7 @@
                 <button onclick="openModal('view-{{ $eskul->id }}')" style="flex: 1; padding: 6px; background: white; border: 1px solid #cbd5e1; color: #475569; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;">
                      <i class="fas fa-eye" style="color: #3498db;"></i> Detail
                 </button>
+                @if(Auth::user()->role == 'admin')
                 <button onclick="openModal('edit-{{ $eskul->id }}')" style="padding: 6px 10px; background: #fffbeb; border: 1px solid #fcd34d; color: #d97706; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" title="Edit">
                      <i class="fas fa-edit"></i>
                 </button>
@@ -201,6 +204,7 @@
                     style="padding: 6px 10px; background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" title="Hapus">
                      <i class="fas fa-trash"></i>
                 </button>
+                @endif
                 <a href="{{ route('eskuls.export', $eskul->id) }}" style="flex: 1; padding: 6px; background: #10b981; border: none; color: white; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 4px;">
                     <i class="fas fa-file-excel"></i> Excel
                 </a>
