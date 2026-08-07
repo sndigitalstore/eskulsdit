@@ -258,6 +258,50 @@
 </div>
 @endif
 
+@if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+<!-- Grafik Analisis & Statistik -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
+    <!-- Card 1: Popular Eskul (Bar Chart) -->
+    <div class="card" style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; padding: 24px; display: flex; flex-direction: column; height: 350px; margin-bottom: 0;">
+        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-chart-bar" style="color: #6366f1;"></i> Peminatan Ekstrakurikuler (Top 5)
+        </h3>
+        <div style="flex: 1; position: relative;">
+            <canvas id="eskulChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Card 2: Attendance Distribution (Doughnut Chart) -->
+    <div class="card" style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; padding: 24px; display: flex; flex-direction: column; height: 350px; margin-bottom: 0; position: relative;">
+        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-chart-pie" style="color: #10b981;"></i> Statistik Kehadiran Siswa
+        </h3>
+        @php
+            $presentCount = $chartAttendanceData[0] ?? 0;
+            $totalAttendance = array_sum($chartAttendanceData ?? []);
+            $attendancePercentage = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0;
+        @endphp
+        <div style="flex: 1; position: relative;">
+            <canvas id="attendanceChart"></canvas>
+            <div style="position: absolute; top: 58%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                <span style="font-size: 1.6rem; font-weight: 850; color: #0f172a; display: block; line-height: 1;">{{ $attendancePercentage }}%</span>
+                <span style="font-size: 0.65rem; color: #64748b; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">Hadir</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Category Distribution (Polar Chart) -->
+    <div class="card" style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; padding: 24px; display: flex; flex-direction: column; height: 350px; margin-bottom: 0;">
+        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-chart-area" style="color: #ff9f43;"></i> Sebaran Bidang Eskul
+        </h3>
+        <div style="flex: 1; position: relative;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+@endif
+
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
     <!-- Left Column -->
     <div style="display: flex; flex-direction: column; gap: 2rem;">
@@ -503,21 +547,7 @@
             </div>
         </div>
 
-        <!-- Population / Eskul Chart -->
-        <div class="card">
-            <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Eskul Terpopuler</h3>
-            <div style="height: 200px; position: relative;">
-                <canvas id="eskulChart"></canvas>
-            </div>
-        </div>
 
-        <!-- Attendance Chart -->
-        <div class="card">
-            <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Distribusi Kehadiran</h3>
-            <div style="height: 200px; position: relative;">
-                <canvas id="attendanceChart"></canvas>
-            </div>
-        </div>
 
         <div class="card">
             <h3 style="margin-bottom: 1rem;">Aksi Cepat</h3>
@@ -620,91 +650,142 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // --- Eskul Popularity Chart ---
-        const ctxEskul = document.getElementById('eskulChart').getContext('2d');
-        
-        // Gradient for Bar Chart
-        let gradientBlue = ctxEskul.createLinearGradient(0, 0, 0, 400);
-        gradientBlue.addColorStop(0, '#34d399'); // Green transition
-        gradientBlue.addColorStop(1, '#059669');
-
-        new Chart(ctxEskul, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($chartEskulLabels) !!},
-                datasets: [{
-                    label: 'Jumlah Siswa',
-                    data: {!! json_encode($chartEskulData) !!},
-                    backgroundColor: [
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(5, 150, 105, 0.8)',
-                        'rgba(4, 120, 87, 0.8)',
-                        'rgba(52, 211, 153, 0.8)',
-                        'rgba(110, 231, 183, 0.8)'
-                    ],
-                    borderColor: 'transparent',
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    barPercentage: 0.6,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        padding: 10,
-                        cornerRadius: 8,
-                    }
+        const elEskul = document.getElementById('eskulChart');
+        if (elEskul) {
+            const ctxEskul = elEskul.getContext('2d');
+            new Chart(ctxEskul, {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode($chartEskulLabels ?? []) !!},
+                    datasets: [{
+                        label: 'Jumlah Siswa',
+                        data: {!! json_encode($chartEskulData ?? []) !!},
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.85)',   // Indigo
+                            'rgba(16, 185, 129, 0.85)',  // Emerald
+                            'rgba(245, 158, 11, 0.85)',   // Amber
+                            'rgba(239, 68, 68, 0.85)',    // Rose
+                            'rgba(168, 85, 247, 0.85)'    // Purple
+                        ],
+                        borderColor: 'transparent',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        barPercentage: 0.5,
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#f0f0f0' },
-                        ticks: { stepSize: 1 }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 10,
+                            bodyFont: { family: 'Inter, sans-serif', size: 12 }
+                        }
                     },
-                    x: {
-                        grid: { display: false }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { stepSize: 1, font: { family: 'Inter, sans-serif', size: 11 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter, sans-serif', size: 11 } }
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // --- Attendance Chart ---
-        const ctxAtt = document.getElementById('attendanceChart').getContext('2d');
-        new Chart(ctxAtt, {
-            type: 'doughnut',
-            data: {
-                labels: ['Hadir', 'Sakit', 'Izin', 'Alpa'],
-                datasets: [{
-                    data: {!! json_encode($chartAttendanceData) !!},
-                    backgroundColor: [
-                        '#2ecc71', // Green
-                        '#f1c40f', // Yellow
-                        '#3498db', // Blue
-                        '#e74c3c'  // Red
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { usePointStyle: true, padding: 20 }
+        const elAtt = document.getElementById('attendanceChart');
+        if (elAtt) {
+            const ctxAtt = elAtt.getContext('2d');
+            new Chart(ctxAtt, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hadir', 'Sakit', 'Izin', 'Alpa'],
+                    datasets: [{
+                        data: {!! json_encode($chartAttendanceData ?? []) !!},
+                        backgroundColor: [
+                            '#10b981', // Emerald
+                            '#f59e0b', // Amber
+                            '#3b82f6', // Blue
+                            '#ef4444'  // Red
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, boxWidth: 8, padding: 15, font: { family: 'Inter, sans-serif', size: 11 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 10
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
+        // --- Category Chart ---
+        const elCat = document.getElementById('categoryChart');
+        if (elCat) {
+            const ctxCat = elCat.getContext('2d');
+            new Chart(ctxCat, {
+                type: 'polarArea',
+                data: {
+                    labels: {!! json_encode(array_keys($categoryCounts ?? [])) !!},
+                    datasets: [{
+                        data: {!! json_encode(array_values($categoryCounts ?? [])) !!},
+                        backgroundColor: [
+                            'rgba(251, 113, 133, 0.75)',  // Rose/Olahraga
+                            'rgba(52, 211, 153, 0.75)',   // Emerald/Sains
+                            'rgba(96, 165, 250, 0.75)',   // Blue/Bahasa
+                            'rgba(251, 191, 36, 0.75)',   // Amber/Seni
+                            'rgba(156, 163, 175, 0.75)'   // Gray/Lainnya
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, boxWidth: 8, padding: 15, font: { family: 'Inter, sans-serif', size: 11 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 10
+                        }
+                    },
+                    scales: {
+                        r: {
+                            ticks: { display: false },
+                            grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 
