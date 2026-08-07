@@ -9,6 +9,10 @@ class ActivityLogController extends Controller
 {
     public function index(Request $request)
     {
+        if (auth()->user()->username !== 'admin') {
+            abort(403, 'Akses ditolak. Hanya Administrator Utama (Admin 1) yang dapat mengakses riwayat log.');
+        }
+
         $query = ActivityLog::with('user')->latest();
 
         if ($request->filled('module')) {
@@ -27,6 +31,10 @@ class ActivityLogController extends Controller
 
     public function clear(Request $request)
     {
+        if (auth()->user()->username !== 'admin') {
+            abort(403, 'Akses ditolak. Hanya Administrator Utama (Admin 1) yang dapat mengosongkan riwayat log.');
+        }
+
         $days = $request->input('days', 30);
         
         if ($days == 'all') {

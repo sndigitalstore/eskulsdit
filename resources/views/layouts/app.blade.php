@@ -595,12 +595,14 @@
                     <span>Pengumuman</span>
                 </a>
             </li>
+            @if(Auth::user()->username === 'admin')
             <li class="nav-item">
                 <a href="{{ route('logs.index') }}" class="nav-link {{ request()->is('logs*') ? 'active' : '' }}">
                     <i class="fas fa-history"></i>
                     <span>Riwayat Log</span>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <a href="{{ route('guide.index') }}" class="nav-link {{ request()->is('guide*') ? 'active' : '' }}">
                     <i class="fas fa-book-open"></i>

@@ -72,6 +72,10 @@ class SettingController extends Controller
 
     public function clearLogs()
     {
+        if (auth()->user()->username !== 'admin') {
+            abort(403, 'Akses ditolak. Hanya Administrator Utama (Admin 1) yang dapat mengosongkan riwayat log.');
+        }
+
         \App\Models\ActivityLog::truncate();
         \App\Models\ActivityLog::log('Settings', 'Delete', 'Membersihkan semua riwayat log aktivitas sistem.');
         return redirect()->back()->with('success', 'Semua riwayat log aktivitas berhasil dibersihkan!');
