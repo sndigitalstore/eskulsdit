@@ -151,6 +151,10 @@ class AttendanceController extends Controller
             );
         }
 
+        $eskul = Eskul::find($eskulId);
+        $eskulName = $eskul ? $eskul->name : 'Unknown';
+        \App\Models\ActivityLog::log('Attendance', 'Create', "Mencatat absensi eskul {$eskulName} untuk tanggal {$date}.");
+
         return redirect()->route('attendance.index')->with('success', 'Absensi berhasil disimpan!');
     }
 

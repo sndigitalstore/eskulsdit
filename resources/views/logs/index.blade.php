@@ -29,10 +29,16 @@
             <div style="flex: 1; min-width: 200px;">
                 <select name="module" class="form-control" onchange="this.form.submit()">
                     <option value="">-- Semua Modul --</option>
-                    <option value="Students" {{ request('module') == 'Students' ? 'selected' : '' }}>Students</option>
-                    <option value="Grades" {{ request('module') == 'Grades' ? 'selected' : '' }}>Grades</option>
-                    <option value="Achievements" {{ request('module') == 'Achievements' ? 'selected' : '' }}>Achievements</option>
-                    <option value="System" {{ request('module') == 'System' ? 'selected' : '' }}>System</option>
+                    <option value="Students" {{ request('module') == 'Students' ? 'selected' : '' }}>Siswa (Students)</option>
+                    <option value="Eskul" {{ request('module') == 'Eskul' ? 'selected' : '' }}>Eskul (Ekstrakurikuler)</option>
+                    <option value="Teacher" {{ request('module') == 'Teacher' ? 'selected' : '' }}>Guru (Teacher)</option>
+                    <option value="Attendance" {{ request('module') == 'Attendance' ? 'selected' : '' }}>Absensi Siswa (Attendance)</option>
+                    <option value="Teacher Attendance" {{ request('module') == 'Teacher Attendance' ? 'selected' : '' }}>Absensi Guru (Teacher Attendance)</option>
+                    <option value="Grades" {{ request('module') == 'Grades' ? 'selected' : '' }}>Nilai (Grades)</option>
+                    <option value="Achievements" {{ request('module') == 'Achievements' ? 'selected' : '' }}>Prestasi (Achievements)</option>
+                    <option value="Promotion" {{ request('module') == 'Promotion' ? 'selected' : '' }}>Kenaikan Kelas (Promotion)</option>
+                    <option value="Academic Year" {{ request('module') == 'Academic Year' ? 'selected' : '' }}>Tahun Ajaran (Academic Year)</option>
+                    <option value="System" {{ request('module') == 'System' ? 'selected' : '' }}>Sistem (System)</option>
                 </select>
             </div>
             <div style="flex: 1; min-width: 200px;">

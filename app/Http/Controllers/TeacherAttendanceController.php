@@ -124,13 +124,24 @@ class TeacherAttendanceController extends Controller
             ]);
         }
 
+        \App\Models\ActivityLog::create([
+            'user_id' => $user->id,
+            'module' => 'Teacher Attendance',
+            'action' => 'Create',
+            'description' => "Guru {$user->name} melakukan absensi hari ini: " . strtoupper($request->status) . ($substituteName ? " (Guru Pengganti: {$substituteName})" : ""),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
         return back()->with('success', 'Terima kasih, absensi berhasil disimpan.');
     }
     
     public function destroy(TeacherAttendance $teacherAttendance)
     {
-        // Only admin
         if (Auth::user()->role !== 'admin') abort(403);
+        
+        $teacherName = $teacherAttendance->user ? $teacherAttendance->user->name : 'Unknown';
+        \App\Models\ActivityLog::log('Teacher Attendance', 'Delete', "Menghapus absensi guru tanggal {$teacherAttendance->date} untuk guru {$teacherName}.");
         
         $teacherAttendance->delete();
         return back()->with('success', 'Data absensi guru berhasil dihapus.');

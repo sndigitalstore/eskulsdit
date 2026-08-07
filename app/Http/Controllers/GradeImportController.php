@@ -69,6 +69,9 @@ class GradeImportController extends Controller
         try {
             // Smart Import: Detect everything from the file
             Excel::import(new GradesImport(), $file);
+            
+            \App\Models\ActivityLog::log('Grades', 'Import', "Melakukan smart-import nilai masal dari file Excel: " . $file->getClientOriginalName() . ".");
+            
             return back()->with('success', 'Smart Import Berhasil! Data nilai telah masuk ke sistem.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal import: ' . $e->getMessage());

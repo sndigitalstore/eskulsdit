@@ -82,6 +82,17 @@ class SubstituteAttendanceController extends Controller
             );
         }
 
+        $eskul = Eskul::find($eskulId);
+        $eskulName = $eskul ? $eskul->name : 'Unknown';
+        \App\Models\ActivityLog::create([
+            'user_id' => null,
+            'module' => 'Attendance',
+            'action' => 'Create',
+            'description' => "Absensi eskul {$eskulName} tanggal {$date} diisi oleh Guru Pengganti ({$token->substitute_name}) melalui tautan publik.",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
         return redirect()->route('substitute.attendance.show', $tokenStr)->with('success', 'Absensi siswa berhasil disimpan oleh Guru Pengganti!');
     }
 }

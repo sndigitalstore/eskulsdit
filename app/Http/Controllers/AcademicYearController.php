@@ -27,6 +27,8 @@ class AcademicYearController extends Controller
 
         AcademicYear::create($data);
 
+        \App\Models\ActivityLog::log('Academic Year', 'Create', "Menambahkan tahun ajaran baru: {$request->name}.");
+
         return back()->with('success', 'Tahun ajaran berhasil ditambahkan.');
     }
 
@@ -41,6 +43,9 @@ class AcademicYearController extends Controller
         
         // Prevent accidental is_active update via this method
         $academicYear->update($request->except('is_active'));
+        
+        \App\Models\ActivityLog::log('Academic Year', 'Update', "Memperbarui tahun ajaran: {$academicYear->name}.");
+
         return back()->with('success', 'Tahun ajaran berhasil diperbarui.');
     }
 
@@ -52,6 +57,8 @@ class AcademicYearController extends Controller
         // Activate selected
         $academicYear->update(['is_active' => true]);
         
+        \App\Models\ActivityLog::log('Academic Year', 'Update', "Mengaktifkan tahun ajaran: {$academicYear->name}.");
+
         return back()->with('success', 'Tahun ajaran aktif berhasil diubah ke ' . $academicYear->name);
     }
 
@@ -113,6 +120,8 @@ class AcademicYearController extends Controller
             \App\Models\Achievement::where('academic_year_id', $academicYear->id)->delete();
             \App\Models\EskulHistory::where('academic_year_id', $academicYear->id)->delete();
             \App\Models\TeacherAttendance::where('academic_year_id', $academicYear->id)->delete();
+            
+            \App\Models\ActivityLog::log('Academic Year', 'Delete', "Menghapus tahun ajaran {$academicYear->name} beserta seluruh datanya.");
             
             $academicYear->delete();
         });

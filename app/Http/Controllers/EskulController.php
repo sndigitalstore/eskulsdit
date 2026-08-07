@@ -90,6 +90,8 @@ class EskulController extends Controller
             ]);
         }
 
+        \App\Models\ActivityLog::log('Eskul', 'Create', "Menambahkan eskul baru: {$eskul->name} dengan kuota {$eskul->quota}.");
+
         return back()->with('success', 'Ekstrakurikuler berhasil ditambahkan!');
     }
 
@@ -143,6 +145,8 @@ class EskulController extends Controller
             );
         }
 
+        \App\Models\ActivityLog::log('Eskul', 'Update', "Memperbarui data eskul: {$eskul->name} (Kuota: {$eskul->quota}).");
+
         return back()->with('success', 'Data ekstrakurikuler berhasil diperbarui!');
     }
 
@@ -163,6 +167,8 @@ class EskulController extends Controller
               ->where('student_eskul.semester', $activeYear->active_semester)
               ->where('status', '!=', 'graduated');
         })->update(['schedule' => $validated['schedule']]);
+
+        \App\Models\ActivityLog::log('Eskul', 'Update', "Memperbarui jadwal seluruh eskul aktif menjadi: {$validated['schedule']}.");
 
         return back()->with('success', 'Jadwal ekskul yang AKTIF berhasil diperbarui!');
     }
@@ -269,6 +275,9 @@ class EskulController extends Controller
         $eskul->histories()->delete();
         \App\Models\Attendance::where('eskul_id', $eskul->id)->delete();
         \App\Models\Grade::where('eskul_id', $eskul->id)->delete();
+        
+        \App\Models\ActivityLog::log('Eskul', 'Delete', "Menghapus eskul: {$eskul->name} beserta seluruh datanya.");
+        
         $eskul->delete();
         return back()->with('success', 'Ekstrakurikuler berhasil dihapus!');
     }
@@ -293,6 +302,8 @@ class EskulController extends Controller
         }
 
         $eskul->save();
+
+        \App\Models\ActivityLog::log('Eskul', 'Update', "Memperbarui cepat eskul {$eskul->name} (Kuota: {$eskul->quota}, Tampil di form: " . ($eskul->is_active ? 'Ya' : 'Tidak') . ").");
 
         return response()->json(['success' => true, 'message' => 'Ekstrakurikuler berhasil diperbarui!']);
     }

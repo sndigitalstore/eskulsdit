@@ -153,6 +153,11 @@ class GradeController extends Controller
             );
         }
 
+        $eskul = Eskul::find($eskulId);
+        $eskulName = $eskul ? $eskul->name : 'Unknown';
+        $typeLabel = $type === 'daily' ? 'Harian' : ($type === 'sas1' ? 'SAS 1' : 'SAS 2');
+        \App\Models\ActivityLog::log('Grades', 'Create', "Mengisi nilai {$typeLabel} eskul {$eskulName} untuk tanggal " . ($date ?? date('Y-m-d')) . ".");
+
         return redirect()->route('grades.index')->with('success', 'Nilai berhasil disimpan!');
     }
 

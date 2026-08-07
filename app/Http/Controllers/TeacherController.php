@@ -51,9 +51,11 @@ class TeacherController extends Controller
             'homeroom_class' => $request->homeroom_class,
         ]);
 
+        \App\Models\ActivityLog::log('Teacher', 'Create', "Membuat akun guru baru: {$request->name} (Username: {$request->username}).");
+
         return redirect()->route('teachers.index')->with('success', 'Akun Guru Pembina berhasil dibuat.');
     }
-
+ 
     public function edit(User $teacher)
     {
         if ($teacher->role !== 'teacher') return redirect()->route('teachers.index');
@@ -61,12 +63,12 @@ class TeacherController extends Controller
         $classes = \App\Models\SchoolClass::orderBy('name')->get();
         return view('teachers.edit', compact('teacher', 'eskuls', 'classes'));
     }
-
+ 
     public function update(Request $request, User $teacher)
     {
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $activeYearId = $activeYear ? $activeYear->id : null;
-
+ 
         $request->validate([
             'name' => 'required|string|max:255',
             'username' => [
@@ -80,7 +82,7 @@ class TeacherController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'homeroom_class' => 'nullable|string|max:50',
         ]);
-
+ 
         $data = [
             'name' => $request->name,
             'username' => $request->username,
@@ -88,19 +90,23 @@ class TeacherController extends Controller
             'phone' => $request->phone,
             'homeroom_class' => $request->homeroom_class,
         ];
-
+ 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
-
+ 
         $teacher->update($data);
-
+ 
+        \App\Models\ActivityLog::log('Teacher', 'Update', "Memperbarui data akun guru: {$teacher->name}.");
+ 
         return redirect()->route('teachers.index')->with('success', 'Data akun berhasil diperbarui.');
     }
-
+ 
     public function destroy(User $teacher)
     {
         if ($teacher->role !== 'teacher') return back()->with('error', 'Tidak bisa menghapus user ini.');
+        
+        \App\Models\ActivityLog::log('Teacher', 'Delete', "Menghapus akun guru: {$teacher->name}.");
         
         $teacher->delete();
         return redirect()->route('teachers.index')->with('success', 'Akun berhasil dihapus.');

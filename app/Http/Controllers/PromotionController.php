@@ -95,6 +95,8 @@ class PromotionController extends Controller
             $message = $promotedCount . " siswa berhasil naik ke kelas " . $nextClass . " di Tahun Ajaran " . $activeYear->name . "!";
         }
 
+        \App\Models\ActivityLog::log('Promotion', 'Create', "Proses kenaikan kelas/kelulusan dari kelas {$classFrom}: {$message}");
+
         return redirect()->route('promotions.index', [
             'class' => $classFrom,
             'source_academic_year_id' => $sourceYearId
