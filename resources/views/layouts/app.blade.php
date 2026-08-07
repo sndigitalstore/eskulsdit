@@ -659,7 +659,15 @@
                     </div>
                     <div style="display: flex; flex-direction: column;">
                         <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a; line-height: 1.2;">{{ Auth::user()->name }}</span>
-                        <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">{{ Auth::user()->role == 'admin' ? 'Administrator' : 'Guru / Wali Kelas' }}</span>
+                        <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                            @if(Auth::user()->role == 'admin')
+                                Administrator
+                            @elseif(Auth::user()->role == 'headmaster')
+                                Kepala Sekolah
+                            @else
+                                Guru / Wali Kelas
+                            @endif
+                        </span>
                     </div>
                     <i class="fas fa-chevron-right" style="font-size: 0.7rem; color: #94a3b8; margin-left: 4px;"></i>
                 </a>
