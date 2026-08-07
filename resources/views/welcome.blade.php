@@ -650,11 +650,14 @@
             .stats { grid-template-columns: 1fr; gap: 16px; }
             .features-grid { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+            .hero-visual { display: none !important; }
         }
 
         @media (max-width: 768px) {
             nav { padding: 1rem 5%; }
             .nav-links { display: none; }
+            .logo { font-size: 1.1rem; }
+            .logo-img { height: 34px; }
             
             .mobile-login-btn {
                 display: block !important;
