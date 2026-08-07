@@ -49,7 +49,7 @@ class User extends Authenticatable
         if ($activeYear) {
             return $query->where(function($q) use ($activeYear) {
                 $q->where('users.academic_year_id', $activeYear->id)
-                  ->orWhere('users.role', 'admin');
+                  ->orWhereIn('users.role', ['admin', 'headmaster']);
             });
         }
         return $query;
@@ -59,7 +59,7 @@ class User extends Authenticatable
     {
         return $query->where(function($q) use ($yearId) {
             $q->where('users.academic_year_id', $yearId)
-              ->orWhere('users.role', 'admin');
+              ->orWhereIn('users.role', ['admin', 'headmaster']);
         });
     }
 

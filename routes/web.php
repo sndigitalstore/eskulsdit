@@ -35,7 +35,7 @@ Route::post('/login', function (Request $request) {
 
     $user = \App\Models\User::where('username', $request->username)
         ->where(function($query) use ($activeYearId) {
-            $query->where('role', 'admin')
+            $query->whereIn('role', ['admin', 'headmaster'])
                   ->orWhere('academic_year_id', $activeYearId);
         })
         ->first();
