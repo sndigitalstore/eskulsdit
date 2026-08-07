@@ -7,6 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- PWA Manifest & Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/logo.png">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
@@ -85,6 +92,14 @@
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(25px);
             border-right: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .brand {
@@ -531,49 +546,51 @@
     <div class="login-wrapper">
         <!-- Left: Login Form -->
         <div class="login-section">
-            <div class="brand">
-                <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
-                <h1>SDIT AN NADZIR</h1>
-            </div>
-
-            <div class="welcome-text">
-                <h2>Selamat Datang!</h2>
-                <p>Sistem Informasi Manajemen Ekstrakurikuler yang cerdas, efisien, dan modern.</p>
-            </div>
-
-            @if ($errors->any())
-            <div class="error-msg">
-                <i class="fas fa-exclamation-circle"></i>
-                <div>
-                    @foreach ($errors->all() as $error)
-                        <div style="margin-bottom: 4px;">{{ $error }}</div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
-            <form action="{{ url('/login') }}" method="POST">
-                @csrf
-                
-                <div class="input-group">
-                    <input type="text" id="username" name="username" placeholder=" " value="{{ old('username') }}" required autocomplete="off">
-                    <label for="username">Nama Pengguna (Username)</label>
-                    <i class="fas fa-user input-icon-right" style="cursor: default;"></i>
+            <div class="login-box">
+                <div class="brand">
+                    <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
+                    <h1>SDIT AN NADZIR</h1>
                 </div>
 
-                <div class="input-group">
-                    <input type="password" id="password" name="password" placeholder=" " required>
-                    <label for="password">Kata Sandi</label>
-                    <i class="fas fa-eye input-icon-right" id="togglePassword"></i>
+                <div class="welcome-text">
+                    <h2>Selamat Datang!</h2>
+                    <p>Sistem Informasi Manajemen Ekstrakurikuler yang cerdas, efisien, dan modern.</p>
                 </div>
 
-                <button type="submit" class="btn-login">
-                    <span>Masuk Sekarang</span> <i class="fas fa-sign-in-alt"></i>
-                </button>
-            </form>
+                @if ($errors->any())
+                <div class="error-msg">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        @foreach ($errors->all() as $error)
+                            <div style="margin-bottom: 4px;">{{ $error }}</div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
 
-            <div class="footer-text">
-                &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Aplikasi Manajemen Terpadu.
+                <form action="{{ url('/login') }}" method="POST">
+                    @csrf
+                    
+                    <div class="input-group">
+                        <input type="text" id="username" name="username" placeholder=" " value="{{ old('username') }}" required autocomplete="off">
+                        <label for="username">Nama Pengguna (Username)</label>
+                        <i class="fas fa-user input-icon-right" style="cursor: default;"></i>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" placeholder=" " required>
+                        <label for="password">Kata Sandi</label>
+                        <i class="fas fa-eye input-icon-right" id="togglePassword"></i>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <span>Masuk Sekarang</span> <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </form>
+
+                <div class="footer-text">
+                    &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Aplikasi Manajemen Terpadu.
+                </div>
             </div>
         </div>
 
@@ -670,9 +687,17 @@
             this.style.transform = 'translateY(-50%) scale(0.85)';
             setTimeout(() => {
                 this.style.transform = 'translateY(-50%) scale(1)';
-            }, 150);
+        }, 150);
+    });
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered successfully!', reg))
+                .catch(err => console.log('Service Worker registration failed:', err));
         });
-    </script>
+    }
+</script>
 </body>
 </html>
-
