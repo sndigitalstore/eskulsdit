@@ -10,7 +10,7 @@ class BlockHeadmasterWrite
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->role === 'headmaster' && !$request->isMethod('get')) {
+        if (auth()->check() && auth()->user()->role === 'headmaster' && !$request->isMethod('get') && !$request->is('login') && !$request->is('logout')) {
             abort(403, 'Akses ditolak. Kepala Sekolah hanya diperbolehkan membaca data (Read-Only).');
         }
         return $next($request);
