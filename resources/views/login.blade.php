@@ -12,7 +12,7 @@
         
         body {
             min-height: 100vh;
-            width: 100vw;
+            width: 100%;
             overflow-x: hidden;
             display: flex;
             background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 50%, #f8fafc 100%);
@@ -452,7 +452,7 @@
 
         .error-msg i { margin-top: 3px; font-size: 1.1rem; }
 
-        /* Responsiveness */
+         /* Responsiveness */
         @media (max-width: 1024px) {
             .login-wrapper {
                 grid-template-columns: 1fr;
@@ -462,6 +462,59 @@
                 padding: 3rem 8vw;
                 background: rgba(255, 255, 255, 0.85);
                 min-height: 100vh;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 0;
+            }
+            .login-section {
+                padding: 2.5rem 1.5rem;
+                justify-content: flex-start;
+                min-height: 100vh;
+            }
+            .brand {
+                margin-bottom: 2rem;
+                gap: 12px;
+            }
+            .brand img {
+                width: 44px;
+                height: 44px;
+            }
+            .brand h1 {
+                font-size: 1.3rem;
+            }
+            .welcome-text h2 {
+                font-size: 1.7rem;
+                line-height: 1.3;
+            }
+            .welcome-text p {
+                font-size: 0.92rem;
+                margin-bottom: 1.8rem;
+                line-height: 1.5;
+            }
+            .input-group {
+                margin-bottom: 1.4rem;
+            }
+            .input-group input {
+                padding: 14px 44px 14px 16px;
+                font-size: 0.92rem;
+                border-radius: 12px;
+            }
+            .input-group label {
+                font-size: 0.88rem;
+                left: 16px;
+            }
+            .btn-login {
+                padding: 14px;
+                font-size: 0.98rem;
+                border-radius: 12px;
+            }
+            .footer-text {
+                margin-top: 2rem;
+                font-size: 0.78rem;
+                line-height: 1.4;
             }
         }
     </style>
