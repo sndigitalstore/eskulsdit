@@ -127,4 +127,66 @@ class Eskul extends Model
             ->first();
         return ($history && $history->alias_name) ? $history->alias_name : $this->name;
     }
+
+    public function getMissingAttendanceDates(int $daysLimit = 30): array
+    {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) return [];
+
+        $scheduleStr = $this->schedule;
+        if (empty($scheduleStr)) return [];
+
+        $daysMap = [
+            'senin'   => 'Monday',
+            'selasa'  => 'Tuesday',
+            'rabu'    => 'Wednesday',
+            'kamis'   => 'Thursday',
+            'jumat'   => 'Friday',
+            'sabtu'   => 'Saturday',
+            'minggu'  => 'Sunday',
+        ];
+
+        // Find which day of the week this eskul runs on
+        $targetDayEnglish = null;
+        $scheduleLower = strtolower($scheduleStr);
+        foreach ($daysMap as $indo => $eng) {
+            if (str_contains($scheduleLower, $indo)) {
+                $targetDayEnglish = $eng;
+                break;
+            }
+        }
+
+        if (!$targetDayEnglish) return [];
+
+        $missingDates = [];
+        $startDate = now()->subDays($daysLimit);
+        if ($activeYear->created_at && $startDate->lt($activeYear->created_at)) {
+            $startDate = $activeYear->created_at->copy()->startOfDay();
+        }
+        $endDate = now(); // Check up to today
+
+        // Loop through dates from startDate to endDate
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            if ($date->format('l') === $targetDayEnglish) {
+                $formattedDate = $date->toDateString();
+                
+                $exists = \App\Models\Attendance::where('eskul_id', $this->id)
+                    ->whereDate('date', $formattedDate)
+                    ->exists();
+
+                if (!$exists) {
+                    $hasStudents = $this->students()
+                        ->wherePivot('academic_year_id', $activeYear->id)
+                        ->wherePivot('semester', $activeYear->active_semester)
+                        ->exists();
+
+                    if ($hasStudents) {
+                        $missingDates[] = $formattedDate;
+                    }
+                }
+            }
+        }
+
+        return $missingDates;
+    }
 }

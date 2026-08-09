@@ -342,6 +342,41 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        // 6. Eskul Attendance Compliance Check (Missing Dates)
+        $missingDates = [];
+        $teacherEskul = null;
+        if ($isTeacher && $teacherEskulId) {
+            $teacherEskul = Eskul::find($teacherEskulId);
+            if ($teacherEskul) {
+                $missingDates = $teacherEskul->getMissingAttendanceDates(30);
+            }
+        }
+
+        $eskulComplianceList = [];
+        if (!$isTeacher) {
+            $activeEskuls = Eskul::activeYear()->get();
+            foreach ($activeEskuls as $esk) {
+                $eskMissing = $esk->getMissingAttendanceDates(30);
+                $pembinaUser = \App\Models\User::where('role', 'teacher')
+                    ->activeYear()
+                    ->where('eskul_id', $esk->id)
+                    ->first();
+                
+                if (!$pembinaUser && !empty($esk->instructor_name)) {
+                    $pembinaUser = \App\Models\User::where('role', 'teacher')
+                        ->activeYear()
+                        ->where('name', 'LIKE', "%{$esk->instructor_name}%")
+                        ->first();
+                }
+
+                $eskulComplianceList[] = [
+                    'eskul' => $esk,
+                    'missing_dates' => $eskMissing,
+                    'pembina' => $pembinaUser,
+                ];
+            }
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -352,7 +387,9 @@ class DashboardController extends Controller
             
             'homeroomClass', 'isHomeroomTeacher', 'homeroomStudentCount', 
             'homeroomRegisteredCount', 'homeroomUnregisteredCount', 
-            'homeroomUnregisteredList', 'homeroomEskulDistribution'
+            'homeroomUnregisteredList', 'homeroomEskulDistribution',
+            
+            'missingDates', 'teacherEskul', 'eskulComplianceList'
         ));
     }
 }

@@ -4,6 +4,50 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+
+@if(Auth::user()->role === 'teacher' && !empty($missingDates))
+    <!-- Overlay Lock Dashboard -->
+    <div id="attendanceLockOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 99999; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(12px); padding: 20px;">
+        <div style="background: white; padding: 3rem 2.5rem; border-radius: 24px; max-width: 550px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #f1f5f9; text-align: center; border-top: 5px solid #ef4444;">
+            <div style="width: 80px; height: 80px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem; font-size: 2.5rem; box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.2); animation: pulse 2s infinite;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 12px; letter-spacing: -0.5px;">Kewajiban Absensi Tertunda!</h2>
+            <p style="color: #64748b; font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+                Anda memiliki <strong>{{ count($missingDates) }} sesi absensi</strong> untuk eskul <strong>{{ $teacherEskul->name ?? '-' }}</strong> yang belum diisi dalam 30 hari terakhir. Silakan isi terlebih dahulu untuk membuka akses penuh ke dasbor Anda.
+            </p>
+            <div style="max-height: 220px; overflow-y: auto; margin-bottom: 2rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; padding: 10px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 8px; color: #475569; font-weight: 700; text-align: left;">Tanggal</th>
+                            <th style="padding: 8px; text-align: right; color: #475569; font-weight: 700;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($missingDates as $date)
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 10px; color: #334155; font-weight: 600; text-align: left;">
+                                    <i class="far fa-calendar-alt" style="margin-right: 6px; color: #64748b;"></i>
+                                    {{ \Carbon\Carbon::parse($date)->isoFormat('D MMMM Y') }}
+                                </td>
+                                <td style="padding: 10px; text-align: right;">
+                                    <a href="/attendance/create?eskul_id={{ $teacherEskul->id }}&date={{ $date }}" class="btn-submit" style="padding: 6px 14px; font-size: 0.8rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); text-decoration: none; display: inline-block;">
+                                        Isi Absen
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size: 0.8rem; color: #94a3b8; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 6px;">
+                <i class="fas fa-lock"></i> Sistem Penguncian Otomatis - SIM Eskul
+            </p>
+        </div>
+    </div>
+@endif
+
 <!-- Hero Section -->
 <div class="dashboard-hero responsive-flex" style="background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); padding: 28px 32px; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;">
     <div style="z-index: 2;">
@@ -300,6 +344,86 @@
         </div>
     </div>
 </div>
+@endif
+
+@if(Auth::user()->role === 'admin' && !empty($eskulComplianceList))
+    <!-- Widget Kepatuhan Absensi Guru Pembina -->
+    <div class="card" style="margin-bottom: 30px; border-top: 4px solid #10b981;">
+        <h3 style="margin-bottom: 1.25rem; font-size: 1.15rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-clipboard-check" style="color: #10b981;"></i> Status Kepatuhan Absensi Pembina (30 Hari Terakhir)
+        </h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #cbd5e1; background: #f8fafc;">
+                        <th style="padding: 12px 16px; color: #475569; font-weight: 700;">Nama Ekstrakurikuler</th>
+                        <th style="padding: 12px 16px; color: #475569; font-weight: 700;">Guru Pembina</th>
+                        <th style="padding: 12px 16px; color: #475569; font-weight: 700;">Jadwal</th>
+                        <th style="padding: 12px 16px; color: #475569; font-weight: 700; text-align: center;">Kehadiran</th>
+                        <th style="padding: 12px 16px; color: #475569; font-weight: 700; text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($eskulComplianceList as $item)
+                        @php
+                            $esk = $item['eskul'];
+                            $missing = $item['missing_dates'];
+                            $pembina = $item['pembina'];
+                            $isComplete = empty($missing);
+                        @endphp
+                        <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;">
+                            <td style="padding: 14px 16px; font-weight: 700; color: #1e293b;">
+                                {{ $esk->name }}
+                            </td>
+                            <td style="padding: 14px 16px; color: #475569; font-weight: 500;">
+                                {{ $esk->instructor_name ?? '-' }}
+                                @if($pembina && $pembina->phone)
+                                    <br><span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">(WA: {{ $pembina->phone }})</span>
+                                @endif
+                            </td>
+                            <td style="padding: 14px 16px; color: #64748b; font-weight: 600;">
+                                <i class="far fa-clock" style="margin-right: 4px;"></i> {{ $esk->schedule ?? '-' }}
+                            </td>
+                            <td style="padding: 14px 16px; text-align: center;">
+                                @if($isComplete)
+                                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-check-circle"></i> Lengkap
+                                    </span>
+                                @else
+                                    <span style="background: #fde8e8; color: #e74c3c; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Tanggal terlewat: {{ implode(', ', $missing) }}">
+                                        <i class="fas fa-times-circle"></i> {{ count($missing) }} Terlewat
+                                    </span>
+                                @endif
+                            </td>
+                            <td style="padding: 14px 16px; text-align: center;">
+                                @if(!$isComplete && $pembina && $pembina->phone)
+                                    @php
+                                        $phone = trim($pembina->phone);
+                                        if (strpos($phone, '0') === 0) {
+                                            $phone = '62' . substr($phone, 1);
+                                        }
+                                        $formattedDates = array_map(function($d) {
+                                            return \Carbon\Carbon::parse($d)->isoFormat('D MMMM Y');
+                                        }, $missing);
+                                        $datesStr = implode(', ', $formattedDates);
+                                        $waText = rawurlencode("Assalamualaikum Wr. Wb. Yth. Ust/Ustazah {$pembina->name}, mohon segera mengisi absensi siswa ekstrakurikuler *{$esk->name}* yang terlewat pada tanggal: *{$datesStr}*. Terima kasih. - SIM Eskul SDIT AN NADZIR");
+                                        $waUrl = "https://api.whatsapp.com/send?phone={$phone}&text={$waText}";
+                                    @endphp
+                                    <a href="{{ $waUrl }}" target="_blank" class="btn-action-header btn-green" style="padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2); display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                                        <i class="fab fa-whatsapp" style="font-size: 0.95rem;"></i> Hubungi
+                                    </a>
+                                @elseif(!$isComplete)
+                                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; font-style: italic;">No. WA tidak terdaftar</span>
+                                @else
+                                    <span style="font-size: 0.75rem; color: #10b981; font-weight: 700;"><i class="fas fa-heart"></i> Tertib</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endif
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
