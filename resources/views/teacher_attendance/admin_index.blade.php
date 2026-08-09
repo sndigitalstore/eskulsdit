@@ -188,5 +188,28 @@
 
     manualTypeRegistered.addEventListener('change', toggleManualSubstituteFields);
     manualTypeManual.addEventListener('change', toggleManualSubstituteFields);
+
+    // Parse URL Query Parameters and Pre-fill form if open_modal=1
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const openModal = urlParams.get('open_modal');
+        const userId = urlParams.get('user_id');
+        const date = urlParams.get('date');
+
+        if (openModal === '1') {
+            const modal = document.getElementById('manualAttendanceModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+            if (userId) {
+                const userSelect = document.querySelector('select[name="user_id"]');
+                if (userSelect) userSelect.value = userId;
+            }
+            if (date) {
+                const dateInput = document.querySelector('input[name="date"]');
+                if (dateInput) dateInput.value = date;
+            }
+        }
+    });
 </script>
 @endsection

@@ -285,15 +285,43 @@
                 Perlu Tindakan: Absensi Minggu Ini
             </h3>
             <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">
-                Eskul berikut belum melakukan input absensi untuk minggu ini ({{ now()->startOfWeek()->format('d M') }} - {{ now()->endOfWeek()->format('d M') }}).
+                Eskul berikut belum melengkapi data absensi pada jadwal pelaksanaannya minggu ini ({{ now()->startOfWeek()->format('d M') }} - {{ now()->endOfWeek()->format('d M') }}).
             </p>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                @foreach($eskulMissingAttendance as $eskul)
-                    <div style="background: white; border: 1px solid #ffcc80; color: #e67e22; padding: 6px 12px; border-radius: 8px; font-weight: 500; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                        <span>{{ $eskul->name }}</span>
-                        <a href="{{ route('attendance.create', ['eskul_id' => $eskul->id, 'date' => now()->toDateString()]) }}" title="Input Absensi Sekarang" style="background: #e67e22; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; text-decoration: none; transition: transform 0.2s;">
-                            <i class="fas fa-plus" style="font-size: 0.7rem;"></i>
-                        </a>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                @foreach($eskulMissingAttendance as $item)
+                    <div style="background: white; border: 1px solid #ffcc80; padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <strong style="color: #2d3748; font-size: 0.95rem;">{{ $item->name }}</strong>
+                            <span style="font-size: 0.8rem; color: #718096; background: #edf2f7; padding: 2px 8px; border-radius: 6px;">
+                                <i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($item->date)->isoFormat('D MMMM Y') }}
+                            </span>
+                            
+                            <!-- Badges -->
+                            @if($item->student_missing)
+                                <span style="font-size: 0.75rem; background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-users"></i> Siswa Belum
+                                </span>
+                            @endif
+                            @if($item->teacher_missing)
+                                <span style="font-size: 0.75rem; background: #ffedd5; color: #f97316; padding: 2px 8px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-chalkboard-teacher"></i> Guru Belum
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 8px;">
+                            @if($item->student_missing)
+                                <a href="{{ route('attendance.create', ['eskul_id' => $item->id, 'date' => $item->date]) }}" class="btn-submit" style="font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; background: #3b82f6;">
+                                    <i class="fas fa-plus"></i> Absen Siswa
+                                </a>
+                            @endif
+                            @if($item->teacher_missing && $item->pembina)
+                                <a href="/teacher-attendance?user_id={{ $item->pembina->id }}&date={{ $item->date }}&open_modal=1" class="btn-submit" style="font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; background: #f97316;">
+                                    <i class="fas fa-plus"></i> Absen Guru
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 @endforeach
             </div>

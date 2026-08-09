@@ -113,24 +113,95 @@ class DashboardController extends Controller
         ksort($gradeStatistics);
 
         // 3. Actionable: Eskuls Missing Attendance This Week (Active Year/Semester Only)
-        $startOfWeek = now()->startOfWeek();
-        $endOfWeek = now()->endOfWeek();
-        
-        $eskulMissingAttendance = Eskul::activeYear()->whereHas('students', function($q) use ($activeYear) {
+        $daysMap = [
+            'senin'   => 'Monday',
+            'selasa'  => 'Tuesday',
+            'rabu'    => 'Wednesday',
+            'kamis'   => 'Thursday',
+            'jumat'   => 'Friday',
+            'sabtu'   => 'Saturday',
+            'minggu'  => 'Sunday',
+        ];
+
+        $activeEskuls = Eskul::activeYear()->whereHas('students', function($q) use ($activeYear) {
              if ($activeYear) {
                 $q->where('student_eskul.academic_year_id', $activeYear->id)
                   ->where('student_eskul.semester', $activeYear->active_semester);
             }
         })
         ->when($isTeacher, function($q) use ($teacherEskulId) {
-            // If teacher, only show their eskul
             return $q->where('id', $teacherEskulId);
         })
-        ->whereDoesntHave('attendances', function($q) use ($startOfWeek, $endOfWeek) {
-            $q->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
-        })
-        ->limit(5)
         ->get();
+
+        $eskulMissingAttendance = [];
+        $todayStr = now()->toDateString();
+
+        foreach ($activeEskuls as $eskul) {
+            if (empty($eskul->schedule)) continue;
+
+            // Find target day in schedule
+            $targetDayEnglish = null;
+            $scheduleLower = strtolower($eskul->schedule);
+            foreach ($daysMap as $indo => $eng) {
+                if (str_contains($scheduleLower, $indo)) {
+                    $targetDayEnglish = $eng;
+                    break;
+                }
+            }
+
+            if (!$targetDayEnglish) continue;
+
+            // Resolve target date in the current week
+            $scheduleDate = null;
+            for ($d = 0; $d < 7; $d++) {
+                $dateInWeek = now()->startOfWeek()->addDays($d);
+                if ($dateInWeek->format('l') === $targetDayEnglish) {
+                    $scheduleDate = $dateInWeek->toDateString();
+                    break;
+                }
+            }
+
+            // Only check if schedule date is today or in the past
+            if ($scheduleDate && $scheduleDate <= $todayStr) {
+                // Check student attendance
+                $studentAttendanceExists = \App\Models\Attendance::where('eskul_id', $eskul->id)
+                    ->whereDate('date', $scheduleDate)
+                    ->exists();
+
+                // Find pembina
+                $pembina = \App\Models\User::where('role', 'teacher')
+                    ->where('eskul_id', $eskul->id)
+                    ->activeYear()
+                    ->first();
+
+                // Check teacher attendance
+                $teacherAttendanceExists = true;
+                if ($pembina) {
+                    $teacherAttendanceExists = \App\Models\TeacherAttendance::where('user_id', $pembina->id)
+                        ->whereDate('date', $scheduleDate)
+                        ->exists();
+                }
+
+                $studentMissing = !$studentAttendanceExists;
+                $teacherMissing = !$teacherAttendanceExists;
+
+                if ($studentMissing || $teacherMissing) {
+                    $eskulMissingAttendance[] = (object)[
+                        'id' => $eskul->id,
+                        'name' => $eskul->name,
+                        'schedule' => $eskul->schedule,
+                        'date' => $scheduleDate,
+                        'pembina' => $pembina,
+                        'student_missing' => $studentMissing,
+                        'teacher_missing' => $teacherMissing,
+                    ];
+                }
+            }
+        }
+
+        // Limit to 5 items to keep dashboard clean
+        $eskulMissingAttendance = array_slice($eskulMissingAttendance, 0, 5);
 
         // --- CHART DATA PREPARATION ---
 
