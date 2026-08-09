@@ -367,33 +367,66 @@
                 grid-template-columns: 1fr !important;
             }
             
-            /* Adjust table readability or overflow */
-            .card { overflow-x: auto; }
+            /* Adjust table readability or overflow and reduce padding */
+            .card { 
+                overflow-x: auto; 
+                padding: 1.25rem !important;
+            }
             
-            /* Hide User Name on Mobile */
-            .user-name-display { display: none; }
+            /* Keep avatar clickable but hide details on Mobile */
+            .user-name-display div:nth-child(2),
+            .user-name-display i { 
+                display: none !important; 
+            }
+            .user-name-display {
+                padding: 0 !important;
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            /* Shrink help button on mobile to save space */
+            button[onclick="showContextualHelp()"] span {
+                display: none !important;
+            }
+            button[onclick="showContextualHelp()"] {
+                padding: 0 !important;
+                border-radius: 50% !important;
+                width: 34px;
+                height: 34px;
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+            }
             
             /* Truncate Title on Mobile */
             .header-title {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 200px;
+                max-width: 150px;
             }
         }
         @media (max-width: 768px) {
             .desktop-only { display: none !important; }
             
             .header {
-                flex-direction: column;
-                align-items: stretch; /* Stretch to fill width */
-                gap: 15px;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 10px;
+            }
+            
+            /* Hide Year Badge on very small mobile screens to prevent wrapping */
+            @media (max-width: 576px) {
+                .header .user-profile span {
+                    display: none !important;
+                }
             }
             
             .header > div {
                  display: flex;
-                 justify-content: space-between;
-                 width: 100%;
+                 align-items: center;
             }
 
             .search-container {

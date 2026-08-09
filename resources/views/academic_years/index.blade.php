@@ -28,95 +28,97 @@
         </div>
     @endif
 
-    <table>
-        <thead>
-            <tr>
-                <th>Tahun Ajaran</th>
-                <th>Semester Aktif</th>
-                <th>Status</th>
-                <th>Periode</th>
-                @if(Auth::user()->role == 'admin')
-                <th>Aksi</th>
-                @endif
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($years as $year)
-            <tr style="{{ $year->is_active ? 'background-color: #f0fdf4;' : '' }}">
-                <td style="font-weight: bold;">
-                    {{ $year->name }}
-                    @if($year->is_active)
-                        <span style="font-size: 0.8em; background: #2ecc71; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Aktif</span>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tahun Ajaran</th>
+                    <th>Semester Aktif</th>
+                    <th>Status</th>
+                    <th>Periode</th>
+                    @if(Auth::user()->role == 'admin')
+                    <th>Aksi</th>
                     @endif
-                </td>
-                <td>
-                    @if($year->is_active)
-                        @if(Auth::user()->role == 'admin')
-                            <form action="{{ route('academic-years.update', $year->id) }}" method="POST" style="display: flex; align-items: center; gap: 5px;">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="name" value="{{ $year->name }}">
-                                <select name="active_semester" onchange="this.form.submit()" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background: white; cursor: pointer;">
-                                    <option value="1" {{ $year->active_semester == '1' ? 'selected' : '' }}>Semester 1 (Ganjil)</option>
-                                    <option value="2" {{ $year->active_semester == '2' ? 'selected' : '' }}>Semester 2 (Genap)</option>
-                                </select>
-                            </form>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($years as $year)
+                <tr style="{{ $year->is_active ? 'background-color: #f0fdf4;' : '' }}">
+                    <td style="font-weight: bold;">
+                        {{ $year->name }}
+                        @if($year->is_active)
+                            <span style="font-size: 0.8em; background: #2ecc71; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Aktif</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($year->is_active)
+                            @if(Auth::user()->role == 'admin')
+                                <form action="{{ route('academic-years.update', $year->id) }}" method="POST" style="display: flex; align-items: center; gap: 5px;">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="name" value="{{ $year->name }}">
+                                    <select name="active_semester" onchange="this.form.submit()" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background: white; cursor: pointer;">
+                                        <option value="1" {{ $year->active_semester == '1' ? 'selected' : '' }}>Semester 1 (Ganjil)</option>
+                                        <option value="2" {{ $year->active_semester == '2' ? 'selected' : '' }}>Semester 2 (Genap)</option>
+                                    </select>
+                                </form>
+                            @else
+                                {{ $year->active_semester == '1' ? 'Semester 1 (Ganjil)' : 'Semester 2 (Genap)' }}
+                            @endif
                         @else
-                            {{ $year->active_semester == '1' ? 'Semester 1 (Ganjil)' : 'Semester 2 (Genap)' }}
+                            <span style="color: #999;">-</span>
                         @endif
-                    @else
-                        <span style="color: #999;">-</span>
+                    </td>
+                    <td>
+                        @if($year->is_active)
+                            <span style="color: #2ecc71; font-weight: bold;">Sedang Berjalan</span>
+                        @else
+                            <span style="color: #888;">Tidak Aktif</span>
+                        @endif
+                    </td>
+                    <td>
+                        {{ $year->start_date ? date('d M Y', strtotime($year->start_date)) : '-' }} 
+                        s/d 
+                        {{ $year->end_date ? date('d M Y', strtotime($year->end_date)) : '-' }}
+                    </td>
+                    @if(Auth::user()->role == 'admin')
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            <form action="{{ route('academic-years.activate', $year->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn-view" style="background: #2ecc71; opacity: {{ $year->is_active ? '0.5' : '1' }};" title="{{ $year->is_active ? 'Sudah Aktif' : 'Aktifkan' }}">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            
+                            <!-- Copy Semester 1 Data to 2 (Only if Active Semester is 2) -->
+                            @if($year->is_active && $year->active_semester == '2')
+                            <form action="{{ route('academic-years.copy-semester', $year->id) }}" method="POST" style="display:inline;" data-confirm="Salin semua data pilihan eskul siswa dari Semester 1 ke Semester 2? Siswa yang sudah punya data di Sem 2 tidak akan ditimpa.">
+                                @csrf
+                                <button type="submit" class="btn-edit" style="background: #7367f0;" title="Salin Data dari Sem 1">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </form>
+                            @endif
+    
+                            <!-- Delete (Only if not active) -->
+                            @if(!$year->is_active)
+                            <form action="{{ route('academic-years.destroy', $year->id) }}" method="POST" style="display:inline;" data-confirm="PERINGATAN KRITIS: Menghapus tahun ajaran akan menghapus SELURUH data absensi dan nilai pada tahun tersebut. Yakin ingin melanjutkan?">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-edit" style="background: #e74c3c;" title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    </td>
                     @endif
-                </td>
-                <td>
-                    @if($year->is_active)
-                        <span style="color: #2ecc71; font-weight: bold;">Sedang Berjalan</span>
-                    @else
-                        <span style="color: #888;">Tidak Aktif</span>
-                    @endif
-                </td>
-                <td>
-                    {{ $year->start_date ? date('d M Y', strtotime($year->start_date)) : '-' }} 
-                    s/d 
-                    {{ $year->end_date ? date('d M Y', strtotime($year->end_date)) : '-' }}
-                </td>
-                @if(Auth::user()->role == 'admin')
-                <td>
-                    <div style="display: flex; gap: 5px;">
-                        <form action="{{ route('academic-years.activate', $year->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn-view" style="background: #2ecc71; opacity: {{ $year->is_active ? '0.5' : '1' }};" title="{{ $year->is_active ? 'Sudah Aktif' : 'Aktifkan' }}">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </form>
-                        
-                        <!-- Copy Semester 1 Data to 2 (Only if Active Semester is 2) -->
-                        @if($year->is_active && $year->active_semester == '2')
-                        <form action="{{ route('academic-years.copy-semester', $year->id) }}" method="POST" style="display:inline;" data-confirm="Salin semua data pilihan eskul siswa dari Semester 1 ke Semester 2? Siswa yang sudah punya data di Sem 2 tidak akan ditimpa.">
-                            @csrf
-                            <button type="submit" class="btn-edit" style="background: #7367f0;" title="Salin Data dari Sem 1">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </form>
-                        @endif
-
-                        <!-- Delete (Only if not active) -->
-                        @if(!$year->is_active)
-                        <form action="{{ route('academic-years.destroy', $year->id) }}" method="POST" style="display:inline;" data-confirm="PERINGATAN KRITIS: Menghapus tahun ajaran akan menghapus SELURUH data absensi dan nilai pada tahun tersebut. Yakin ingin melanjutkan?">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-edit" style="background: #e74c3c;" title="Hapus">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                        @endif
-                    </div>
-                </td>
-                @endif
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Modal Add Year -->

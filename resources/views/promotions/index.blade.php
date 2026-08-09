@@ -97,28 +97,30 @@
                     </div>
                 </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="40" style="text-align: center;"><input type="checkbox" id="selectAll"></th>
-                            <th>Nama Siswa</th>
-                            <th>Kelas Saat Ini</th>
-                            <th>Status saat ini</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($students as $student)
-                        <tr>
-                            <td style="text-align: center;">
-                                <input type="checkbox" name="ids[]" value="{{ $student->id }}" class="student-checkbox">
-                            </td>
-                            <td>{{ $student->name }}</td>
-                            <td>{{ $student->class }}</td>
-                            <td><span class="badge" style="background: #eef2ff; color: #5381ff;">Aktif</span></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="40" style="text-align: center;"><input type="checkbox" id="selectAll"></th>
+                                <th>Nama Siswa</th>
+                                <th>Kelas Saat Ini</th>
+                                <th>Status saat ini</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($students as $student)
+                            <tr>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" name="ids[]" value="{{ $student->id }}" class="student-checkbox">
+                                </td>
+                                <td>{{ $student->name }}</td>
+                                <td>{{ $student->class }}</td>
+                                <td><span class="badge" style="background: #eef2ff; color: #5381ff;">Aktif</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </form>
         @else
             <div style="text-align: center; padding: 40px; color: #666;">

@@ -8,6 +8,17 @@
     .form-row { display: flex; gap: 20px; align-items: flex-end; }
     .form-group { flex: 1; }
     
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .form-group {
+            width: 100%;
+        }
+    }
+    
     @media print {
         .filter-section, .btn-print { display: none; }
         .card { box-shadow: none; border: none; padding: 0; }

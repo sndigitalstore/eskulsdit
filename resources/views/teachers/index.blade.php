@@ -34,70 +34,72 @@
         <div class="alert success">{{ session('success') }}</div>
     @endif
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th width="5%">No</th>
-                <th>Nama Guru</th>
-                <th>Username</th>
-                <th>No WA</th>
-                <th>Eskul Binaan</th>
-                <th>Wali Kelas</th>
-                @if(Auth::user()->role == 'admin')
-                <th width="15%" class="text-center">Aksi</th>
-                @endif
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($teachers as $index => $teacher)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $teacher->name }}</td>
-                <td>{{ $teacher->username }}</td>
-                <td>{{ $teacher->phone ?? '-' }}</td>
-                <td>
-                    <span class="badge" style="background: #e3f2fd; color: #1976d2;">
-                        {{ $teacher->eskul->name ?? '-' }}
-                    </span>
-                </td>
-                <td>
-                    @if($teacher->homeroom_class)
-                        <span class="badge" style="background: #e8f5e9; color: #2e7d32;">
-                            Kelas {{ $teacher->homeroom_class }}
-                        </span>
-                    @else
-                        <span style="color: #999;">-</span>
+    <div style="overflow-x: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="5%">No</th>
+                    <th>Nama Guru</th>
+                    <th>Username</th>
+                    <th>No WA</th>
+                    <th>Eskul Binaan</th>
+                    <th>Wali Kelas</th>
+                    @if(Auth::user()->role == 'admin')
+                    <th width="15%" class="text-center">Aksi</th>
                     @endif
-                </td>
-                @if(Auth::user()->role == 'admin')
-                <td class="text-center">
-                    <div style="display: flex; gap: 5px; justify-content: center;">
-                        <button type="button" class="btn-action" style="color: #e67e22; border: none; background: none; cursor: pointer;" title="Reset Password Guru Ini" onclick="promptResetSingle('{{ $teacher->id }}', '{{ addslashes($teacher->name) }}')">
-                            <i class="fas fa-key"></i>
-                        </button>
-                        <a href="{{ route('teachers.edit', $teacher->id) }}" class="btn-action" style="color: #f39c12;" title="Edit Akun">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('teachers.destroy', $teacher->id) }}" method="POST" data-confirm="Yakin ingin menghapus akun guru pembina ini? Data absensi dan nilai yang pernah diinput guru ini akan tetap ada." style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-action" style="color: #e74c3c; border: none; background: none; cursor: pointer;" title="Hapus Akun">
-                                <i class="fas fa-trash"></i>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($teachers as $index => $teacher)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $teacher->name }}</td>
+                    <td>{{ $teacher->username }}</td>
+                    <td>{{ $teacher->phone ?? '-' }}</td>
+                    <td>
+                        <span class="badge" style="background: #e3f2fd; color: #1976d2;">
+                            {{ $teacher->eskul->name ?? '-' }}
+                        </span>
+                    </td>
+                    <td>
+                        @if($teacher->homeroom_class)
+                            <span class="badge" style="background: #e8f5e9; color: #2e7d32;">
+                                Kelas {{ $teacher->homeroom_class }}
+                            </span>
+                        @else
+                            <span style="color: #999;">-</span>
+                        @endif
+                    </td>
+                    @if(Auth::user()->role == 'admin')
+                    <td class="text-center">
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <button type="button" class="btn-action" style="color: #e67e22; border: none; background: none; cursor: pointer;" title="Reset Password Guru Ini" onclick="promptResetSingle('{{ $teacher->id }}', '{{ addslashes($teacher->name) }}')">
+                                <i class="fas fa-key"></i>
                             </button>
-                        </form>
-                    </div>
-                </td>
-                @endif
-            </tr>
-            @empty
-            <tr>
-                <td colspan="{{ Auth::user()->role == 'admin' ? 7 : 6 }}" class="text-center" style="padding: 20px; color: #999;">
-                    Belum ada akun guru pembina.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                            <a href="{{ route('teachers.edit', $teacher->id) }}" class="btn-action" style="color: #f39c12;" title="Edit Akun">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ route('teachers.destroy', $teacher->id) }}" method="POST" data-confirm="Yakin ingin menghapus akun guru pembina ini? Data absensi dan nilai yang pernah diinput guru ini akan tetap ada." style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-action" style="color: #e74c3c; border: none; background: none; cursor: pointer;" title="Hapus Akun">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                    @endif
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="{{ Auth::user()->role == 'admin' ? 7 : 6 }}" class="text-center" style="padding: 20px; color: #999;">
+                        Belum ada akun guru pembina.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Hidden Form for Single Teacher Password Reset -->

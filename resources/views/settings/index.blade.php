@@ -3,6 +3,31 @@
 @section('title', 'Pengaturan Sistem')
 @section('page-title', 'Pengaturan Sistem')
 
+@push('styles')
+<style>
+    @media (max-width: 768px) {
+        .settings-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 15px !important;
+        }
+        .settings-grid-3, .settings-grid-2 {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+        }
+        .danger-zone-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 15px !important;
+        }
+        .danger-zone-row button {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="card" style="max-width: 900px; margin: 0 auto;">
     
@@ -15,7 +40,7 @@
     <form action="{{ route('settings.update') }}" method="POST">
         @csrf
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+        <div class="settings-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
             <div>
                 <h3 style="margin: 0; font-size: 1.5rem;">Konfigurasi Aplikasi</h3>
                 <p style="margin: 5px 0 0; color: #888; font-size: 0.9rem;">Kelola semua pengaturan formulir dan akun dalam satu halaman.</p>
@@ -42,7 +67,7 @@
             </div>
 
             <!-- TIGA KOLOM UNTUK KEMUDAHAN UNIT WAKTU AKADEMIS & STATUS FORM -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="settings-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="form-group">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <label style="margin: 0; font-weight: 600;">Tahun Ajaran Aktif</label>
@@ -83,7 +108,7 @@
                 <i class="fab fa-whatsapp" style="margin-right: 8px; color: #25d366; font-size: 1.2rem;"></i> Integrasi WhatsApp Gateway (Notifikasi Pendaftaran)
             </h4>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="settings-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Status WhatsApp Gateway</label>
                     <select name="wa_gateway_enabled" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
@@ -101,7 +126,7 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="settings-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Token API / API Key</label>
                     <input type="text" name="wa_gateway_token" class="form-control" value="{{ $settings['wa_gateway_token'] ?? '' }}" placeholder="Masukkan Token API Fonnte / Wablas">
@@ -123,7 +148,7 @@
         </div>
 
         <!-- SECTION 2: IDENTITAS & PROFIL -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div class="settings-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
             <div style="background: #fafafa; padding: 20px; border-radius: 12px;">
                 <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
                     <i class="fas fa-id-card" style="margin-right: 8px; color: var(--accent-color);"></i> Identitas Aplikasi
@@ -181,7 +206,7 @@
             <i class="fas fa-exclamation-triangle"></i> Zona Bahaya (Danger Zone)
         </h4>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px; margin-top: 0;">Tindakan di bawah ini bersifat permanen dan tidak dapat dibatalkan di database.</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ffccd2;">
+        <div class="danger-zone-row" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ffccd2;">
             <div>
                 <h5 style="margin: 0; font-size: 1rem; color: #2c3e50;">Bersihkan Riwayat Log Aktivitas</h5>
                 <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 0.85rem;">Menghapus seluruh catatan log aktivitas audit sistem yang tercatat di database.</p>
