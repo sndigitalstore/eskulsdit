@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
     Route::get('/attendance/create', [\App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
     Route::post('/attendance', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
+    Route::delete('/attendance/delete-date', [\App\Http\Controllers\AttendanceController::class, 'destroyDate'])->name('attendance.destroy-date');
 
     Route::get('/grades/import', [\App\Http\Controllers\GradeImportController::class, 'index'])->name('grades.import');
     Route::post('/grades/import/template', [\App\Http\Controllers\GradeImportController::class, 'downloadTemplate'])->name('grades.import.template');

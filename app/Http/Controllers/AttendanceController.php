@@ -218,9 +218,38 @@ class AttendanceController extends Controller
              return $student;
         });
 
-        // Get dates for column headers (optional, maybe detailed view later)
-        // For now, user requested "recap" similar to grades index "Report", which is usually a summary table.
+        // Get recorded dates for this eskul & year/semester
+        $recordedDates = Attendance::where('eskul_id', $eskulId)
+            ->where('academic_year_id', $yearId)
+            ->where('semester', $semester)
+            ->select('date', \DB::raw('count(*) as student_count'))
+            ->groupBy('date')
+            ->orderBy('date', 'desc')
+            ->get();
         
-        return view('attendance.report', compact('eskul', 'students', 'year'));
+        return view('attendance.report', compact('eskul', 'students', 'year', 'recordedDates'));
+    }
+
+    public function destroyDate(Request $request)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya Kesiswaan / Admin yang dapat menghapus data absensi.');
+        }
+
+        $request->validate([
+            'eskul_id' => 'required|exists:eskuls,id',
+            'date' => 'required|date',
+        ]);
+
+        $eskul = Eskul::find($request->eskul_id);
+        $eskulName = $eskul ? $eskul->name : 'Unknown';
+
+        Attendance::where('eskul_id', $request->eskul_id)
+            ->where('date', $request->date)
+            ->delete();
+
+        \App\Models\ActivityLog::log('Attendance', 'Delete', "Menghapus data absensi eskul {$eskulName} pada tanggal {$request->date}.");
+
+        return back()->with('success', 'Data absensi pada tanggal tersebut berhasil dihapus!');
     }
 }
