@@ -13,7 +13,7 @@
                 ['title' => 'Eskul Hari Ini', 'desc' => 'Jadwal ekstrakurikuler yang menyelenggarakan kegiatan pada hari ini.'],
                 ['title' => 'Kunci Dasbor Guru (Lock)', 'desc' => 'Guru pembina yang belum absen dalam 30 hari terakhir akan mendapati dasbor terkunci hingga absensi diisi.'],
                 ['title' => 'Kepatuhan Absensi (Admin)', 'desc' => 'Tabel pemantauan kedisiplinan guru pembina dengan pintasan kirim WA manual secara instan dan gratis.'],
-                ['title' => 'Papan Pengumuman', 'desc' => 'Informasi dan instruksi resmi dari Administrator Sekolah.'],
+                ['title' => 'Papan Pengumuman', 'desc' => 'Informasi dan instruksi resmi dari Kesiswaan Sekolah.'],
             ],
             'tips' => 'Sistem PWA kami kini mendukung Offline Mode jika koneksi internet terputus di tengah jalan!'
         ],

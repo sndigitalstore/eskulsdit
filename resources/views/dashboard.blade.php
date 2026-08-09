@@ -59,7 +59,7 @@
                  Tahun Ajaran <b style="color: #0f172a;">{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b style="color: #0f172a;">{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
             </p>
             @if(Auth::user()->role === 'admin')
-                <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Administrator</span>
+                <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Kesiswaan</span>
             @else
                 @if($isHomeroomTeacher)
                     <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>

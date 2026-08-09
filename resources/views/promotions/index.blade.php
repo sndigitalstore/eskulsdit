@@ -91,7 +91,7 @@
                             @endif
                         @else
                             <div style="background: #fff3cd; color: #856404; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
-                                <i class="fas fa-exclamation-triangle"></i> Hanya Administrator Utama yang dapat memproses kenaikan kelas.
+                                <i class="fas fa-exclamation-triangle"></i> Hanya Kesiswaan Utama yang dapat memproses kenaikan kelas.
                             </div>
                         @endif
                     </div>

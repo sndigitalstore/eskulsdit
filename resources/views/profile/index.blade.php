@@ -23,7 +23,7 @@
                 <h3 style="margin: 0 0 5px 0; color: #1e293b; font-size: 1.3rem;">{{ $user->name }}</h3>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                     <span class="badge" style="background: #e0e7ff; color: #3730a3; padding: 4px 12px; font-weight: 600;">
-                        <i class="fas fa-user-tag"></i> {{ $user->role == 'admin' ? 'Administrator' : 'Guru Pembina' }}
+                        <i class="fas fa-user-tag"></i> {{ $user->role == 'admin' ? 'Kesiswaan' : 'Guru Pembina' }}
                     </span>
                     @if($user->eskul)
                         <span class="badge" style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; font-weight: 600;">
