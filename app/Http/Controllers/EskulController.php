@@ -161,16 +161,36 @@ class EskulController extends Controller
             return back()->with('error', 'Tidak ada tahun ajaran aktif.');
         }
 
-        // Update ONLY eskuls that have active students in the active academic year
-        Eskul::whereHas('students', function($q) use ($activeYear) {
-            $q->where('student_eskul.academic_year_id', $activeYear->id)
-              ->where('student_eskul.semester', $activeYear->active_semester)
-              ->where('status', '!=', 'graduated');
-        })->update(['schedule' => $validated['schedule']]);
+        $scheduleText = trim($validated['schedule']);
 
-        \App\Models\ActivityLog::log('Eskul', 'Update', "Memperbarui jadwal seluruh eskul aktif menjadi: {$validated['schedule']}.");
+        // Update all eskuls belonging to active academic year or active state
+        $eskuls = Eskul::where('academic_year_id', $activeYear->id)->get();
+        if ($eskuls->isEmpty()) {
+            $eskuls = Eskul::where('is_active', true)->get();
+        }
 
-        return back()->with('success', 'Jadwal ekskul yang AKTIF berhasil diperbarui!');
+        foreach ($eskuls as $eskul) {
+            $eskul->schedule = $scheduleText;
+            $eskul->save();
+
+            // Also synchronize History for current Active Semester
+            \App\Models\EskulHistory::updateOrCreate(
+                [
+                    'eskul_id' => $eskul->id,
+                    'academic_year_id' => $activeYear->id,
+                    'semester' => $activeYear->active_semester
+                ],
+                [
+                    'alias_name' => $eskul->name,
+                    'instructor_name' => $eskul->instructor_name,
+                    'schedule' => $scheduleText
+                ]
+            );
+        }
+
+        \App\Models\ActivityLog::log('Eskul', 'Update', "Memperbarui jadwal seluruh eskul aktif menjadi: {$scheduleText}.");
+
+        return back()->with('success', "Jadwal seluruh ekskul berhasil diperbarui menjadi: {$scheduleText}");
     }
 
     public function export(Eskul $eskul)

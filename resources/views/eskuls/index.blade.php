@@ -113,9 +113,9 @@
         <div class="card" style="padding: 0; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; background: white;">
             @php
                 $currentHistory = $eskul->histories->first();
-                $displayName = ($currentHistory && $currentHistory->alias_name) ? $currentHistory->alias_name : $eskul->name;
-                $displayInstructor = $currentHistory ? $currentHistory->instructor_name : $eskul->instructor_name;
-                $displaySchedule = $currentHistory ? $currentHistory->schedule : $eskul->schedule;
+                $displayName = ($currentHistory && !empty($currentHistory->alias_name)) ? $currentHistory->alias_name : $eskul->name;
+                $displayInstructor = ($currentHistory && !empty($currentHistory->instructor_name)) ? $currentHistory->instructor_name : $eskul->instructor_name;
+                $displaySchedule = ($currentHistory && !empty($currentHistory->schedule)) ? $currentHistory->schedule : $eskul->schedule;
             @endphp
 
             <!-- Card Header with Gradient -->
