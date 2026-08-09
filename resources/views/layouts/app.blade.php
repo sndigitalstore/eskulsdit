@@ -734,6 +734,15 @@
             });
         @endif
 
+        @if(session('warning_html'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Catatan / Peringatan',
+                html: `{!! session('warning_html') !!}`,
+                confirmButtonColor: '#10b981'
+            });
+        @endif
+
         // Modern Confirmation Handler
         document.addEventListener('submit', function(e) {
             const form = e.target;

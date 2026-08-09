@@ -74,6 +74,14 @@ class ImportPortalController extends Controller
                 "Import Excel Satu Pintu: {$summary}"
             );
 
+            $warnings = StudentsImport::$warnings;
+            if (!empty($warnings)) {
+                $warningMsg = implode("<br>", array_map(function($w) { return "• " . htmlspecialchars($w); }, $warnings));
+                return redirect()->route('import-portal.index')
+                    ->with('success', "✅ Import selesai! Data: {$summary}")
+                    ->with('warning_html', $warningMsg);
+            }
+
             return redirect()->route('import-portal.index')
                 ->with('success', "✅ Import berhasil! Data yang diproses: {$summary}.");
 

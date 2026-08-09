@@ -9,11 +9,19 @@ use Illuminate\Support\Str;
 
 class StudentsImport
 {
+    public static array $warnings = [];
+
     /**
      * Process the array data from Excel::toArray()
      */
     public static function processArrays($sheets)
     {
+        self::$warnings = [];
+        $skippedSheets = [];
+        $unregisteredTeachers = [];
+        $missingEskuls = [];
+        $skippedRowsCount = 0;
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         if (!$activeYear) {
             throw new \Exception('Tidak ada tahun ajaran aktif.');
@@ -91,7 +99,20 @@ class StudentsImport
                 }
             }
             
-            if ($headerRowIndex === -1) continue; 
+            if ($headerRowIndex === -1) {
+                $hasData = false;
+                foreach ($rows as $row) {
+                    if (count(array_filter($row)) > 0) {
+                        $hasData = true;
+                        break;
+                    }
+                }
+                if ($hasData) {
+                    $sheetName = is_numeric($sheetIndex) ? "Lembar ke-" . ($sheetIndex + 1) : "Sheet '{$sheetIndex}'";
+                    $skippedSheets[] = $sheetName;
+                }
+                continue;
+            } 
             
             // 2. Process Data Rows
             $headers = array_map(function($h) { return strtolower(trim($h ?? '')); }, $rows[$headerRowIndex]);
@@ -191,6 +212,11 @@ class StudentsImport
                         // Fallback: Try matching username or partial name
                         if (!$user) {
                              $user = \App\Models\User::where('role', 'teacher')->activeYear()->where('name', 'LIKE', "%{$name}%")->first();
+                        }
+
+                        if (!$user) {
+                            $unregisteredTeachers[$name] = true;
+                            continue;
                         }
 
                         if ($user) {
@@ -300,7 +326,12 @@ class StudentsImport
                 if (!isset($row[$colName])) continue;
                 
                 $name = trim($row[$colName]);
-                if ($name === '' || $name === '-') continue;
+                if ($name === '' || $name === '-') {
+                    if (count(array_filter($row)) > 0) {
+                        $skippedRowsCount++;
+                    }
+                    continue;
+                }
                 if (strtolower($name) === 'nama lengkap' || strtolower($name) === 'nama siswa') continue;
 
                 // Determine Class for this row
@@ -309,7 +340,10 @@ class StudentsImport
                     $rowClass = self::normalizeClass(trim($row[$colClass]));
                 }
                 
-                if (!$rowClass) continue; // Skip if no class context
+                if (!$rowClass) {
+                    $skippedRowsCount++;
+                    continue; // Skip if no class context
+                }
 
                 $nis = ($colNis !== -1 && isset($row[$colNis])) ? trim($row[$colNis]) : null;
                 
@@ -400,6 +434,8 @@ class StudentsImport
                                 );
                                 $counts['attendance']++;
                             }
+                        } else {
+                            $missingEskuls[$eskulName] = true;
                         }
                      }
                      // Continue to process Eskul/Enrollment/Grades if applicable in the same row
@@ -611,6 +647,19 @@ class StudentsImport
             // End Achievement Processing
         }
         
+        if (!empty($skippedSheets)) {
+            self::$warnings[] = "Beberapa sheet dilewati karena header tidak cocok: " . implode(', ', $skippedSheets);
+        }
+        if (!empty($unregisteredTeachers)) {
+            self::$warnings[] = "Guru Pembina berikut tidak terdaftar sehingga absensinya dilewati: " . implode(', ', array_slice(array_keys($unregisteredTeachers), 0, 5)) . (count($unregisteredTeachers) > 5 ? '... (dan ' . (count($unregisteredTeachers) - 5) . ' lainnya)' : '');
+        }
+        if (!empty($missingEskuls)) {
+            self::$warnings[] = "Eskul berikut tidak ditemukan pada Tahun Ajaran aktif sehingga absensi/nilai dilewati: " . implode(', ', array_slice(array_keys($missingEskuls), 0, 5)) . (count($missingEskuls) > 5 ? '... (dan ' . (count($missingEskuls) - 5) . ' lainnya)' : '');
+        }
+        if ($skippedRowsCount > 0) {
+            self::$warnings[] = "Ada {$skippedRowsCount} baris data siswa/nilai/absensi dilewati karena nama atau kelas kosong.";
+        }
+
         return $counts;
     }
 

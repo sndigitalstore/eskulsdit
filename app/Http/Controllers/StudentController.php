@@ -271,6 +271,14 @@ class StudentController extends Controller
             $msg .= "- {$counts['achievements']} Data Prestasi <br>";
             $msg .= "- {$counts['teacher_attendance']} Absensi Guru";
 
+            $warnings = \App\Imports\StudentsImport::$warnings;
+            if (!empty($warnings)) {
+                $warningMsg = implode("<br>", array_map(function($w) { return "• " . htmlspecialchars($w); }, $warnings));
+                return redirect()->route('students.index')
+                    ->with('success', $msg)
+                    ->with('warning_html', $warningMsg);
+            }
+
             return redirect()->route('students.index')->with('success', $msg);
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal import: ' . $e->getMessage());

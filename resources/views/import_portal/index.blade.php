@@ -180,8 +180,7 @@
     .log-table tr:hover td { background: #f7fbff; }
     .log-empty { text-align: center; color: #aaa; padding: 1.5rem; }
 
-    /* Alerts */
-    .alert-success, .alert-danger {
+    .alert-success, .alert-danger, .alert-warning {
         padding: .85rem 1.2rem;
         border-radius: 10px;
         margin-bottom: 1rem;
@@ -192,6 +191,7 @@
     }
     .alert-success { background: #d5f5e3; color: #1a5e38; border: 1px solid #a9dfbf; }
     .alert-danger  { background: #fadbd8; color: #922b21; border: 1px solid #f1948a; }
+    .alert-warning { background: #fef9e7; color: #7d6608; border: 1px solid #f9e79f; }
 </style>
 @endpush
 
@@ -199,7 +199,13 @@
 
 {{-- Alerts --}}
 @if(session('success'))
-<div class="alert-success"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>
+<div class="alert-success"><i class="fas fa-check-circle"></i> {!! session('success') !!}</div>
+@endif
+@if(session('warning_html'))
+<div class="alert-warning">
+    <i class="fas fa-exclamation-triangle" style="margin-top: 3px;"></i>
+    <div><strong>Catatan Penting:</strong><br>{!! session('warning_html') !!}</div>
+</div>
 @endif
 @if(session('error'))
 <div class="alert-danger"><i class="fas fa-times-circle"></i> {{ session('error') }}</div>

@@ -199,6 +199,7 @@
 
     .alert-success { background: #eafaf1; color: #1a7a4a; border: 1px solid #b7eacf; }
     .alert-danger  { background: #fef2f2; color: #c0392b; border: 1px solid #fbc8c8; }
+    .alert-warning { background: #fef9e7; color: #7d6608; border: 1px solid #f9e79f; }
     .alert i { margin-top: 2px; }
 
     /* ===== STATS ROW ===== */
@@ -871,6 +872,13 @@
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
             <div>{!! session('success') !!}</div>
+        </div>
+    @endif
+
+    @if(session('warning_html'))
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div><strong>Catatan Penting:</strong><br>{!! session('warning_html') !!}</div>
         </div>
     @endif
 
