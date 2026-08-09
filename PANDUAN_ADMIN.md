@@ -104,6 +104,23 @@ Sifatnya sangat kuat, bisa memindahkan/mengembalikan seluruh data sekaligus.
 2. Copy-Paste data dari Excel dengan urutan: `Nama Siswa | Nama Prestasi | Tingkat | Tanggal | Penyelenggara`.
 3. Klik **Proses**, dan sistem akan mencocokkan nama siswa secara cerdas (Fuzzy Match).
 
+### ⚠️ Validasi Terperinci Import Excel (Cerdas)
+Untuk mencegah kegagalan impor data secara misterius, sistem kini dilengkapi pendeteksi kesalahan format yang cerdas:
+1. **Deteksi Sheet Salah Header:** Jika lembar kerja (sheet) pada file Excel memiliki kolom header yang tidak cocok, sistem akan melewati sheet tersebut dan memberi peringatan spesifik.
+2. **Deteksi Data Fiktif:** Melacak jika ada nama Guru Pembina atau Nama Eskul yang tertulis di file Excel tetapi belum terdaftar dalam database sekolah.
+3. **Modal Ringkasan Warning:** Setelah impor selesai, sistem akan menampilkan jendela *SweetAlert2* berisi rincian peringatan dalam format HTML yang mudah dibaca, serta memunculkan kotak alert kuning pada halaman daftar siswa dan impor.
+
+### 📱 PWA (Progressive Web App) & Halaman Offline
+Aplikasi dapat dipasang (*install*) di perangkat Anda layaknya aplikasi native dari App Store/Play Store:
+1. **Cara Pasang:** Di browser Chrome/Edge laptop/Android, klik tombol instal pada kolom alamat web. Di iOS (Safari), gunakan menu *Share* lalu pilih *Add to Home Screen*.
+2. **Halaman Offline Mandiri:** Apabila di tengah kegiatan sekolah koneksi internet terputus, aplikasi tidak akan menampilkan halaman eror browser. Sistem akan otomatis menampilkan halaman **Offline Fallback** khusus SIM Eskul yang cantik dengan animasi menarik untuk mencoba memuat ulang halaman ketika internet kembali stabil.
+
+### 🔒 Kedisiplinan Absensi: Kunci Dasbor & Pantau Kepatuhan
+Sistem baru ini menggabungkan penegakan disiplin administrasi bagi guru pembina dan monitoring mudah bagi admin tanpa biaya tambahan:
+1. **Kunci Dasbor Guru (In-App Lock):** Jika Guru Pembina memiliki jadwal eskul aktif dalam 30 hari terakhir namun belum melakukan absensi pertemuan siswa, halaman Dasbor utama mereka akan **terkunci otomatis**. Guru wajib menyelesaikan absensi terlewat melalui link yang disediakan pada layar kunci agar dasbor terbuka kembali.
+2. **Dasbor Kepatuhan Admin:** Admin dapat memantau status absensi seluruh eskul secara real-time pada tabel khusus di dasbor admin.
+3. **Pintasan WA Gratis (WhatsApp Nudge):** Jika ada eskul yang absennya terlewat, Admin cukup menekan tombol berlogo WhatsApp pada tabel kepatuhan. Browser akan otomatis membuka chat WhatsApp personal guru pembina bersangkutan dengan pesan pengingat tanggal yang terlewat (gratis via protokol `wa.me`).
+
 
 ## 3. Manajemen Kenaikan Kelas & Kelulusan (Semester/Tahun Baru)
 Sistem memiliki fitur pintar untuk memproses kenaikan kelas masal.

@@ -7,14 +7,15 @@
             'subtitle' => 'Pusat Kendali & Ringkasan Informasi Sistem',
             'icon' => 'fas fa-th-large',
             'color' => '#6366f1',
-            'description' => 'Halaman ini menampilkan gambaran umum aktivitas sekolah, statistik siswa & eskul, serta pengumuman terbaru.',
+            'description' => 'Halaman ini menampilkan gambaran umum aktivitas sekolah, statistik siswa & eskul, peringatan kepatuhan absensi, dan pengumuman terbaru.',
             'features' => [
                 ['title' => 'Statistik Ringkas', 'desc' => 'Jumlah total siswa aktif, total eskul, dan rekapitulasi kehadiran guru hari ini.'],
                 ['title' => 'Eskul Hari Ini', 'desc' => 'Jadwal ekstrakurikuler yang menyelenggarakan kegiatan pada hari ini.'],
-                ['title' => 'Peringatan Absen Mingguan', 'desc' => 'Daftar eskul yang belum mengisi presensi pertemuan minggu ini.'],
+                ['title' => 'Kunci Dasbor Guru (Lock)', 'desc' => 'Guru pembina yang belum absen dalam 30 hari terakhir akan mendapati dasbor terkunci hingga absensi diisi.'],
+                ['title' => 'Kepatuhan Absensi (Admin)', 'desc' => 'Tabel pemantauan kedisiplinan guru pembina dengan pintasan kirim WA manual secara instan dan gratis.'],
                 ['title' => 'Papan Pengumuman', 'desc' => 'Informasi dan instruksi resmi dari Administrator Sekolah.'],
             ],
-            'tips' => 'Guru Pembina & Wali Kelas dapat langsung melihat ringkasan tugas mereka di halaman ini setelah login.'
+            'tips' => 'Sistem PWA kami kini mendukung Offline Mode jika koneksi internet terputus di tengah jalan!'
         ],
         'students' => [
             'title' => 'Manajemen Data Siswa',
@@ -25,7 +26,7 @@
             'features' => [
                 ['title' => 'Tambah / Edit Siswa', 'desc' => 'Menambahkan data siswa baru secara manual atau mengubah informasi siswa yang ada.'],
                 ['title' => 'Mega Import Excel', 'desc' => 'Mengunggah file Excel data siswa massal sekaligus otomatis memetakan kelas & eskul.'],
-                ['title' => 'Filter Kelas & Status', 'desc' => 'Menyaring daftar siswa berdasarkan kelas (1-6) atau status keaktifan.'],
+                ['title' => 'Peringatan Validasi Excel', 'desc' => 'Menampilkan info warning terperinci (sheet tidak cocok, guru/eskul fiktif) agar data tidak asal terlewat.'],
                 ['title' => 'Cetak Kartu Siswa', 'desc' => 'Mencetak kartu anggota ekstrakurikuler siswa dalam format siap cetak.'],
             ],
             'tips' => 'Gunakan tombol "Mega Import" untuk memasukkan data siswa awal tahun ajaran secara cepat.'
@@ -180,9 +181,10 @@
             'description' => 'Fasilitas mengunggah berbagai jenis data (Siswa, Guru, Nilai, Absen) dari satu tempat.',
             'features' => [
                 ['title' => 'Unduh Template Excel', 'desc' => 'Menyediakan berkas template Excel resmi yang sudah disesuaikan formatnya.'],
+                ['title' => 'Peringatan Validasi Terperinci', 'desc' => 'Mendeteksi baris kosong, header yang salah, atau guru pembina & eskul fiktif dan menampilkannya sebagai warning.'],
                 ['title' => 'Proses Import Cepat', 'desc' => 'Sistem akan otomatis mengecek validasi baris data sebelum memasukkannya ke database.'],
             ],
-            'tips' => 'Selalu gunakan template resmi agar format kolom dibaca dengan benar oleh sistem.'
+            'tips' => 'Selalu perhatikan laporan warning setelah proses import selesai untuk memastikan keselarasan data.'
         ],
         'profile' => [
             'title' => 'Profil Saya & Ubah Password',

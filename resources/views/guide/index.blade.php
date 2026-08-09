@@ -100,6 +100,40 @@
             </div>
         </div>
 
+        <!-- Step 6 -->
+        <div class="card" style="border-top: 5px solid #f39c12;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div style="background: #fef5e7; color: #f39c12; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">6</div>
+                <div>
+                    <h3 style="margin: 0 0 10px 0;">PWA (Progressive Web App) & Offline Mode</h3>
+                    <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                        Aplikasi dapat diinstal langsung di smartphone (Android & iOS) atau laptop tanpa melalui Play Store / App Store.
+                    </p>
+                    <ul style="font-size: 0.85rem; color: #555; padding-left: 20px; margin-top: 10px;">
+                        <li><b>Instalasi Instan:</b> Klik ikon unduh/instal di kolom alamat browser Chrome/Edge, atau pilih "Add to Home Screen" pada browser Safari di iOS.</li>
+                        <li><b>Dukungan Offline:</b> Jika koneksi internet terputus di tengah jalan, aplikasi akan otomatis beralih ke halaman khusus "Koneksi Terputus" yang interaktif, menjaga agar pengguna tahu status jaringan mereka secara jelas.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="card" style="border-top: 5px solid #e74c3c;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div style="background: #fde8e8; color: #e74c3c; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">7</div>
+                <div>
+                    <h3 style="margin: 0 0 10px 0;">Sistem Kunci Absensi & Pantau Kepatuhan</h3>
+                    <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                        Untuk kedisiplinan administrasi, sistem secara otomatis melacak kepatuhan guru dalam mengisi absensi eskul.
+                    </p>
+                    <ul style="font-size: 0.85rem; color: #555; padding-left: 20px; margin-top: 10px;">
+                        <li><b>Kunci Dasbor Guru (In-App Lock):</b> Guru Pembina yang belum mengabsen dalam 30 hari terakhir akan mendapati dasbor utama terkunci. Akses dasbor akan terbuka setelah seluruh absen terlewat berhasil diisi.</li>
+                        <li><b>Pemantauan Admin:</b> Admin dapat memantau status absensi per eskul langsung dari dasbor utama. Tersedia tombol <b>"Hubungi"</b> berlogo WhatsApp untuk menegur guru yang lalai dengan pesan template otomatis secara instan & gratis.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Tips Section -->
@@ -117,6 +151,9 @@
             </div>
             <div style="font-size: 0.9rem; line-height: 1.6;">
                 <b>4. Cetak Akun:</b> Di menu Guru Pembina, ada tombol **Cetak Akun** untuk menghasilkan slip kecil berisi username/password bagi setiap guru.
+            </div>
+            <div style="font-size: 0.9rem; line-height: 1.6; grid-column: span 2;">
+                <b>5. Validasi Excel Cerdas & Warning Terperinci:</b> Saat menggunakan import portal, sistem tidak lagi menolak/eror secara misterius jika format data salah. Sistem akan menampilkan rangkuman peringatan (warning) terperinci tentang baris/lembar mana saja yang tidak cocok.
             </div>
         </div>
     </div>
