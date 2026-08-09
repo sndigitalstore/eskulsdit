@@ -163,7 +163,7 @@ class Eskul extends Model
         if ($activeYear->created_at && $startDate->lt($activeYear->created_at)) {
             $startDate = $activeYear->created_at->copy()->startOfDay();
         }
-        $endDate = now(); // Check up to today
+        $endDate = now()->subDay(); // Check up to yesterday to allow the teacher to submit today's attendance without premature dashboard locking
 
         // Loop through dates from startDate to endDate
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
