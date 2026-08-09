@@ -127,6 +127,15 @@
         <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
         <input type="hidden" name="semester" value="{{ $semester }}">
 
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;">
+            <button type="button" onclick="setAllAttendance('present')" style="padding: 6px 12px; font-size: 0.8rem; background: #e0fbef; color: #27ae60; border: 1px solid #a3e9c5; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-check-double"></i> Set Semua Hadir
+            </button>
+            <button type="button" onclick="setAllAttendance('permission', 'Eskul Diliburkan')" style="padding: 6px 12px; font-size: 0.8rem; background: #cce5ff; color: #004085; border: 1px solid #99c2ff; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-umbrella-beach"></i> Set Semua Libur / Izin
+            </button>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -179,4 +188,17 @@
         @endif
     </form>
 </div>
+
+<script>
+    function setAllAttendance(status, defaultNote = '') {
+        const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+        radios.forEach(r => r.checked = true);
+        if (defaultNote) {
+            const noteInputs = document.querySelectorAll('.note-input');
+            noteInputs.forEach(n => {
+                if (!n.value) n.value = defaultNote;
+            });
+        }
+    }
+</script>
 @endsection
