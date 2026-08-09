@@ -107,6 +107,11 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 1.2rem;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4a5568;">Jam Masuk (Waktu Masuk)</label>
+                <input type="time" name="clock_in_time" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" value="14:00">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.2rem;">
                 <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4a5568;">Status Kehadiran</label>
                 <select name="status" id="manualStatus" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
                     <option value="present">Hadir</option>

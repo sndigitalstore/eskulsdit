@@ -84,6 +84,7 @@ class TeacherAttendanceController extends Controller
         if ($isAdmin) {
             $rules['user_id'] = 'required|exists:users,id';
             $rules['date'] = 'required|date';
+            $rules['clock_in_time'] = 'nullable|string';
         }
 
         $request->validate($rules);
@@ -120,11 +121,19 @@ class TeacherAttendanceController extends Controller
             }
         }
 
+        $clockInTime = now()->toTimeString();
+        if ($isAdmin && $request->filled('clock_in_time')) {
+            $clockInTime = $request->clock_in_time;
+            if (strlen($clockInTime) === 5) {
+                $clockInTime .= ':00'; // Format HH:MM to HH:MM:SS
+            }
+        }
+
         $attendance = TeacherAttendance::create([
             'user_id' => $targetUserId,
             'academic_year_id' => $activeYear->id,
             'date' => $targetDate,
-            'clock_in_time' => $isAdmin ? '08:00:00' : now()->toTimeString(),
+            'clock_in_time' => $clockInTime,
             'status' => $request->status,
             'note' => $request->note,
             'substitute_name' => $substituteName,
