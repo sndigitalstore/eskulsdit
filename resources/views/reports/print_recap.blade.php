@@ -4,21 +4,22 @@
     <meta charset="UTF-8">
     <title>Rekap Eskul Kelas {{ $class }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 10pt; color: #000; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        body { font-family: 'Times New Roman', serif; font-size: 10pt; color: #000; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-family: 'Times New Roman', serif; font-size: 9.5pt; }
         th, td { border: 1px solid #333; padding: 6px; vertical-align: middle; }
         th { background-color: #f0f0f0; text-align: center; font-weight: bold; }
         .text-center { text-align: center; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
         h2, h3, p { margin: 2px 0; }
-        .no-print { margin: 20px 0; padding: 10px; background: #eee; border: 1px solid #ddd; text-align: right; }
+        .no-print { margin: 20px 0; padding: 10px; background: #eee; border: 1px solid #ddd; text-align: right; font-family: sans-serif; }
         .btn { padding: 8px 15px; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 10pt; text-decoration: none; display: inline-block;}
         .btn-close { background: #d32f2f; }
         .btn-print { background: #27ae60; }
         
         @media print {
             .no-print { display: none; }
-            @page { margin: 1cm; size: A4; }
+            @page { margin: 1.2cm; size: A4; }
+            tr { page-break-inside: avoid; }
         }
     </style>
 </head>

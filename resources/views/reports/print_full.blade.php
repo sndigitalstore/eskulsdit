@@ -8,14 +8,15 @@
         /* Reset for Print */
         @media print {
             .no-print { display: none; }
-            @page { margin: 1cm; size: A4; }
+            @page { margin: 1.2cm; size: A4; }
+            tr { page-break-inside: avoid; }
         }
         
         /* Table Styles from Index */
-        table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9pt; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt; margin-top: 15px; }
         table, th, td { border: 1px solid #333; }
-        th { background-color: #f8f9fa; color: #333; font-weight: bold; text-align: center; padding: 4px; }
-        td { padding: 4px; vertical-align: middle; line-height: 1.2; }
+        th { background-color: #f8f9fa; color: #333; font-weight: bold; text-align: center; padding: 6px; }
+        td { padding: 6px; vertical-align: middle; line-height: 1.3; }
         
         .no-print { margin: 20px 0; padding: 10px; background: #eee; border: 1px solid #ddd; text-align: right; font-family: sans-serif; }
         .btn { padding: 8px 15px; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 10pt; text-decoration: none; display: inline-block;}
@@ -30,8 +31,8 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            font-family: Arial, sans-serif; 
-            font-size: 9pt;
+            font-family: 'Times New Roman', serif; 
+            font-size: 10pt;
             margin-bottom: 5px;
         }
     </style>
