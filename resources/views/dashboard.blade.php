@@ -381,7 +381,7 @@
             <i class="fas fa-clipboard-check" style="color: #10b981;"></i> Status Kepatuhan Absensi Pembina (30 Hari Terakhir)
         </h3>
         <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem; text-align: left;">
+            <table style="width: 100%; min-width: 700px; border-collapse: collapse; font-size: 0.92rem; text-align: left;">
                 <thead>
                     <tr style="border-bottom: 2px solid #cbd5e1; background: #f8fafc;">
                         <th style="padding: 12px 16px; color: #475569; font-weight: 700;">Nama Ekstrakurikuler</th>
