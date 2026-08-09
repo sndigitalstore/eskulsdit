@@ -180,7 +180,7 @@
 
             <div style="background: #fafafa; padding: 20px; border-radius: 12px;">
                 <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                    <i class="fas fa-user-shield" style="margin-right: 8px; color: var(--accent-color);"></i> Profil Admin
+                    <i class="fas fa-user-shield" style="margin-right: 8px; color: var(--accent-color);"></i> Profil Admin Utama
                 </h4>
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nama Lengkap</label>
@@ -190,6 +190,55 @@
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Ganti Password</label>
                     <input type="password" name="change_password" class="form-control" placeholder="Kosongkan jika tidak ubah">
                 </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2.5: MANAGE STAFF ACCOUNTS (ADMIN 2 & HEADMASTER) -->
+        <div class="settings-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            <!-- Admin 2 -->
+            <div style="background: #fafafa; padding: 20px; border-radius: 12px;">
+                <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                    <i class="fas fa-users-cog" style="margin-right: 8px; color: var(--accent-color);"></i> Kelola Akun Admin 2
+                </h4>
+                @if($admin2)
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nama Lengkap</label>
+                        <input type="text" name="admin2_name" class="form-control" value="{{ $admin2->name }}" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username</label>
+                        <input type="text" name="admin2_username" class="form-control" value="{{ $admin2->username }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Ganti Password</label>
+                        <input type="password" name="admin2_password" class="form-control" placeholder="Kosongkan jika tidak ubah">
+                    </div>
+                @else
+                    <p style="color: #e74c3c;"><i class="fas fa-exclamation-circle"></i> Akun Admin 2 tidak ditemukan di database.</p>
+                @endif
+            </div>
+
+            <!-- Headmaster (Kepala Sekolah) -->
+            <div style="background: #fafafa; padding: 20px; border-radius: 12px;">
+                <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                    <i class="fas fa-user-tie" style="margin-right: 8px; color: var(--accent-color);"></i> Kelola Akun Kepala Sekolah
+                </h4>
+                @if($headmaster)
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nama Lengkap</label>
+                        <input type="text" name="headmaster_user_name" class="form-control" value="{{ $headmaster->name }}" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username</label>
+                        <input type="text" name="headmaster_user_username" class="form-control" value="{{ $headmaster->username }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Ganti Password</label>
+                        <input type="password" name="headmaster_user_password" class="form-control" placeholder="Kosongkan jika tidak ubah">
+                    </div>
+                @else
+                    <p style="color: #e74c3c;"><i class="fas fa-exclamation-circle"></i> Akun Kepala Sekolah tidak ditemukan di database.</p>
+                @endif
             </div>
         </div>
 

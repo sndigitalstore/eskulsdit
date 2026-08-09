@@ -17,7 +17,12 @@ class SettingController extends Controller
         $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
         $activeYear = $academicYears->where('is_active', true)->first();
         $eskuls = \App\Models\Eskul::activeYear()->get();
-        return view('settings.index', compact('settings', 'eskuls', 'academicYears', 'activeYear'));
+
+        // Load Admin 2 and Headmaster users
+        $admin2 = \App\Models\User::where('username', 'admin2')->first();
+        $headmaster = \App\Models\User::where('role', 'headmaster')->first();
+
+        return view('settings.index', compact('settings', 'eskuls', 'academicYears', 'activeYear', 'admin2', 'headmaster'));
     }
 
     public function update(Request $request)
@@ -39,6 +44,56 @@ class SettingController extends Controller
             $user->save();
         }
 
+        // 1.5 Update Admin 2 Profile
+        if ($request->has('admin2_name')) {
+            $request->validate([
+                'admin2_name' => 'required|string|max:255',
+                'admin2_username' => 'required|string|max:255',
+                'admin2_password' => 'nullable|string|min:6',
+            ]);
+
+            $admin2 = \App\Models\User::where('username', 'admin2')->first();
+            if ($admin2) {
+                // Check uniqueness of username if it changed
+                if ($request->admin2_username !== $admin2->username) {
+                    $request->validate([
+                        'admin2_username' => 'unique:users,username,' . $admin2->id,
+                    ]);
+                }
+                $admin2->name = $request->admin2_name;
+                $admin2->username = $request->admin2_username;
+                if ($request->filled('admin2_password')) {
+                    $admin2->password = \Illuminate\Support\Facades\Hash::make($request->admin2_password);
+                }
+                $admin2->save();
+            }
+        }
+
+        // 1.6 Update Headmaster Profile
+        if ($request->has('headmaster_user_name')) {
+            $request->validate([
+                'headmaster_user_name' => 'required|string|max:255',
+                'headmaster_user_username' => 'required|string|max:255',
+                'headmaster_user_password' => 'nullable|string|min:6',
+            ]);
+
+            $headmaster = \App\Models\User::where('role', 'headmaster')->first();
+            if ($headmaster) {
+                // Check uniqueness of username if it changed
+                if ($request->headmaster_user_username !== $headmaster->username) {
+                    $request->validate([
+                        'headmaster_user_username' => 'unique:users,username,' . $headmaster->id,
+                    ]);
+                }
+                $headmaster->name = $request->headmaster_user_name;
+                $headmaster->username = $request->headmaster_user_username;
+                if ($request->filled('headmaster_user_password')) {
+                    $headmaster->password = \Illuminate\Support\Facades\Hash::make($request->headmaster_user_password);
+                }
+                $headmaster->save();
+            }
+        }
+
         // SYNC: Update active academic year if changed
         if ($request->has('active_academic_year_id')) {
             $yearId = $request->active_academic_year_id;
@@ -48,7 +103,12 @@ class SettingController extends Controller
 
         // 2. Update Settings
         // Exclude tokens, methods, and the profile specific fields
-        $data = $request->except(['_token', '_method', 'admin_name', 'change_password', 'active_academic_year_id']);
+        $data = $request->except([
+            '_token', '_method', 'admin_name', 'change_password', 
+            'admin2_name', 'admin2_username', 'admin2_password',
+            'headmaster_user_name', 'headmaster_user_username', 'headmaster_user_password',
+            'active_academic_year_id'
+        ]);
         
         foreach ($data as $key => $value) {
             Setting::updateOrCreate(
@@ -65,8 +125,8 @@ class SettingController extends Controller
              }
         }
 
-        if ($request->has('admin_name')) {
-            \App\Models\ActivityLog::log('Settings', 'Update', 'Memperbarui profil administrator');
+        if ($request->has('admin_name') || $request->has('admin2_name') || $request->has('headmaster_user_name')) {
+            \App\Models\ActivityLog::log('Settings', 'Update', 'Memperbarui profil staf/administrator/kepala sekolah');
         } else {
             \App\Models\ActivityLog::log('Settings', 'Update', 'Memperbarui konfigurasi sistem');
         }
