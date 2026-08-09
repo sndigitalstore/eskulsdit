@@ -174,7 +174,22 @@ class Eskul extends Model
                     ->whereDate('date', $formattedDate)
                     ->exists();
 
-                if (!$exists) {
+                // Find the assigned pembina user for this eskul
+                $pembina = \App\Models\User::where('role', 'teacher')
+                    ->where('eskul_id', $this->id)
+                    ->activeYear()
+                    ->first();
+
+                $teacherExists = true;
+                if ($pembina) {
+                    $teacherExists = \App\Models\TeacherAttendance::where('user_id', $pembina->id)
+                        ->whereDate('date', $formattedDate)
+                        ->exists();
+                }
+
+                $isCompliant = $exists && $teacherExists;
+
+                if (!$isCompliant) {
                     $hasStudents = $this->students()
                         ->wherePivot('academic_year_id', $activeYear->id)
                         ->wherePivot('semester', $activeYear->active_semester)

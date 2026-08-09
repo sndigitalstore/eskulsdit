@@ -31,8 +31,10 @@ class TeacherAttendanceController extends Controller
                 ->with(['user', 'substituteUser'])
                 ->orderBy('date', 'desc')
                 ->get();
+
+            $teachers = User::where('role', 'teacher')->orderBy('name')->get();
                 
-            return view('teacher_attendance.admin_index', compact('attendances', 'activeYear', 'month'));
+            return view('teacher_attendance.admin_index', compact('attendances', 'activeYear', 'month', 'teachers'));
         } else {
             // Teacher View: My Attendance
             $myAttendances = TeacherAttendance::where('user_id', $user->id)
@@ -69,22 +71,38 @@ class TeacherAttendanceController extends Controller
         if (!$activeYear) return back()->with('error', 'Tidak ada tahun ajaran aktif.');
 
         $user = Auth::user();
+        $isAdmin = ($user->role === 'admin');
 
-        $request->validate([
+        $rules = [
             'status' => 'required|in:present,sick,permission',
             'note' => 'nullable|string|max:255',
             'substitute_type' => 'nullable|in:registered,manual',
             'substitute_user_id' => 'nullable|exists:users,id',
             'substitute_name' => 'nullable|string|max:255',
-        ]);
+        ];
+
+        if ($isAdmin) {
+            $rules['user_id'] = 'required|exists:users,id';
+            $rules['date'] = 'required|date';
+        }
+
+        $request->validate($rules);
+
+        $targetUserId = $isAdmin ? $request->user_id : $user->id;
+        $targetDate = $isAdmin ? $request->date : now()->toDateString();
+
+        $targetUser = User::find($targetUserId);
+        if (!$targetUser) {
+            return back()->with('error', 'User Guru tidak ditemukan.');
+        }
 
         // Check double
-        $exists = TeacherAttendance::where('user_id', $user->id)
-            ->where('date', now()->toDateString())
+        $exists = TeacherAttendance::where('user_id', $targetUserId)
+            ->where('date', $targetDate)
             ->exists();
             
         if ($exists) {
-            return back()->with('error', 'Anda sudah melakukan absensi hari ini.');
+            return back()->with('error', 'Absensi untuk Guru ini pada tanggal tersebut sudah tercatat.');
         }
 
         $substituteName = null;
@@ -103,10 +121,10 @@ class TeacherAttendanceController extends Controller
         }
 
         $attendance = TeacherAttendance::create([
-            'user_id' => $user->id,
+            'user_id' => $targetUserId,
             'academic_year_id' => $activeYear->id,
-            'date' => now()->toDateString(),
-            'clock_in_time' => now()->toTimeString(),
+            'date' => $targetDate,
+            'clock_in_time' => $isAdmin ? '08:00:00' : now()->toTimeString(),
             'status' => $request->status,
             'note' => $request->note,
             'substitute_name' => $substituteName,
@@ -114,13 +132,13 @@ class TeacherAttendanceController extends Controller
         ]);
 
         // Create substitute token for public link if teacher is absent and has an eskul assigned
-        if (in_array($request->status, ['sick', 'permission']) && $user->eskul_id) {
+        if (in_array($request->status, ['sick', 'permission']) && $targetUser->eskul_id) {
             SubstituteToken::create([
                 'token' => Str::random(32),
-                'eskul_id' => $user->eskul_id,
-                'user_id' => $user->id,
-                'date' => now()->toDateString(),
-                'expires_at' => now()->endOfDay(),
+                'eskul_id' => $targetUser->eskul_id,
+                'user_id' => $targetUser->id,
+                'date' => $targetDate,
+                'expires_at' => \Carbon\Carbon::parse($targetDate)->endOfDay(),
             ]);
         }
 
@@ -128,12 +146,14 @@ class TeacherAttendanceController extends Controller
             'user_id' => $user->id,
             'module' => 'Teacher Attendance',
             'action' => 'Create',
-            'description' => "Guru {$user->name} melakukan absensi hari ini: " . strtoupper($request->status) . ($substituteName ? " (Guru Pengganti: {$substituteName})" : ""),
+            'description' => $isAdmin 
+                ? "Admin memasukkan absensi guru {$targetUser->name} secara manual untuk tanggal {$targetDate}: " . strtoupper($request->status) . ($substituteName ? " (Guru Pengganti: {$substituteName})" : "")
+                : "Guru {$user->name} melakukan absensi hari ini: " . strtoupper($request->status) . ($substituteName ? " (Guru Pengganti: {$substituteName})" : ""),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
 
-        return back()->with('success', 'Terima kasih, absensi berhasil disimpan.');
+        return back()->with('success', 'Absensi berhasil disimpan.');
     }
     
     public function destroy(TeacherAttendance $teacherAttendance)
