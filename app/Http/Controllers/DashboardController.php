@@ -152,10 +152,15 @@ class DashboardController extends Controller
 
             if (!$targetDayEnglish) continue;
 
-            // Resolve target date in the current week
+            // Resolve target date in the current Friday-Thursday cycle
             $scheduleDate = null;
+            $nowCarbon = now();
+            $cycleStart = ($nowCarbon->dayOfWeek === \Carbon\Carbon::FRIDAY)
+                ? $nowCarbon->copy()
+                : $nowCarbon->copy()->previous(\Carbon\Carbon::FRIDAY);
+
             for ($d = 0; $d < 7; $d++) {
-                $dateInWeek = now()->startOfWeek()->addDays($d);
+                $dateInWeek = $cycleStart->copy()->addDays($d);
                 if ($dateInWeek->format('l') === $targetDayEnglish) {
                     $scheduleDate = $dateInWeek->toDateString();
                     break;

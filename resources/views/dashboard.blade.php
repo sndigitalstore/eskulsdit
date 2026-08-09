@@ -284,8 +284,13 @@
             <h3 style="color: #e67e22; font-size: 1.1rem; margin-bottom: 5px;">
                 Perlu Tindakan: Absensi Minggu Ini
             </h3>
+            @php
+                $nowCarbon = now();
+                $cycleStart = ($nowCarbon->dayOfWeek === \Carbon\Carbon::FRIDAY) ? $nowCarbon->copy() : $nowCarbon->copy()->previous(\Carbon\Carbon::FRIDAY);
+                $cycleEnd = $cycleStart->copy()->addDays(6);
+            @endphp
             <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">
-                Eskul berikut belum melengkapi data absensi pada jadwal pelaksanaannya minggu ini ({{ now()->startOfWeek()->format('d M') }} - {{ now()->endOfWeek()->format('d M') }}).
+                Eskul berikut belum melengkapi data absensi pada jadwal pelaksanaannya pekan ini ({{ $cycleStart->format('d M') }} - {{ $cycleEnd->format('d M') }}).
             </p>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 @foreach($eskulMissingAttendance as $item)

@@ -118,19 +118,21 @@ class AttendanceController extends Controller
         $attendanceData = $request->attendance;
         $notes = $request->notes ?? [];
 
-        // Enforce once-per-week student attendance check
+        // Enforce once-per-week student attendance check (Friday - Thursday cycle)
         $carbonDate = \Carbon\Carbon::parse($date);
-        $startOfWeek = $carbonDate->copy()->startOfWeek()->toDateString();
-        $endOfWeek = $carbonDate->copy()->endOfWeek()->toDateString();
+        $startOfWeek = ($carbonDate->dayOfWeek === \Carbon\Carbon::FRIDAY)
+            ? $carbonDate->copy()
+            : $carbonDate->copy()->previous(\Carbon\Carbon::FRIDAY);
+        $endOfWeek = $startOfWeek->copy()->addDays(6);
 
         $existingInWeek = Attendance::where('eskul_id', $eskulId)
-            ->whereBetween('date', [$startOfWeek, $endOfWeek])
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
             ->where('date', '!=', $date)
             ->first();
 
         if ($existingInWeek) {
             $formattedExistingDate = \Carbon\Carbon::parse($existingInWeek->date)->isoFormat('D MMMM Y');
-            return back()->with('error', "Absensi eskul ini sudah pernah diisi pada tanggal {$formattedExistingDate} di minggu yang sama. Absensi siswa hanya diperbolehkan 1 kali per pekan.");
+            return back()->with('error', "Absensi eskul ini sudah pernah diisi pada tanggal {$formattedExistingDate} di periode pekan berjalan (Jum'at - Kamis). Absensi siswa hanya diperbolehkan 1 kali per pekan.");
         }
 
         // Determine context (Use request input for history support)

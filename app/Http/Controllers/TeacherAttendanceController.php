@@ -106,19 +106,21 @@ class TeacherAttendanceController extends Controller
             return back()->with('error', 'Absensi untuk Guru ini pada tanggal tersebut sudah tercatat.');
         }
 
-        // Enforce once-per-week teacher attendance check
+        // Enforce once-per-week teacher attendance check (Friday - Thursday cycle)
         $carbonDate = \Carbon\Carbon::parse($targetDate);
-        $startOfWeek = $carbonDate->copy()->startOfWeek()->toDateString();
-        $endOfWeek = $carbonDate->copy()->endOfWeek()->toDateString();
+        $startOfWeek = ($carbonDate->dayOfWeek === \Carbon\Carbon::FRIDAY)
+            ? $carbonDate->copy()
+            : $carbonDate->copy()->previous(\Carbon\Carbon::FRIDAY);
+        $endOfWeek = $startOfWeek->copy()->addDays(6);
 
         $existingInWeek = TeacherAttendance::where('user_id', $targetUserId)
-            ->whereBetween('date', [$startOfWeek, $endOfWeek])
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
             ->where('date', '!=', $targetDate)
             ->first();
 
         if ($existingInWeek) {
             $formattedExistingDate = \Carbon\Carbon::parse($existingInWeek->date)->isoFormat('D MMMM Y');
-            return back()->with('error', "Guru ini sudah melakukan absensi pada tanggal {$formattedExistingDate} di minggu yang sama. Absensi guru hanya diperbolehkan 1 kali per pekan.");
+            return back()->with('error', "Guru ini sudah melakukan absensi pada tanggal {$formattedExistingDate} di periode pekan berjalan (Jum'at - Kamis). Absensi guru hanya diperbolehkan 1 kali per pekan.");
         }
 
         $substituteName = null;
