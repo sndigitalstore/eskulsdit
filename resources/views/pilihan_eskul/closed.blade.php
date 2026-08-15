@@ -39,7 +39,7 @@
         <div class="icon"><i class="fas fa-clock"></i></div>
         <h1>Pendaftaran Ditutup</h1>
         <p>Mohon maaf, formulir pemilihan ekstrakurikuler saat ini sedang tidak menerima respons.</p>
-        <p style="font-size: 0.9rem; color: #888; margin-top: 20px;">Silakan hubungi admin sekolah jika ada pertanyaan.</p>
+        <p style="font-size: 0.9rem; color: #888; margin-top: 20px;">Silakan hubungi kesiswaan sekolah jika ada pertanyaan.</p>
     </div>
 </body>
 </html>

@@ -573,7 +573,7 @@
                             <option value="">-- Pilih Kelas Terlebih Dahulu --</option>
                         </select>
                         <div style="font-size: 0.82rem; color: #64748b; margin-top: 8px;">
-                            <i class="fas fa-info-circle"></i> Jika nama siswa tidak ditemukan, silakan hubungi admin sekolah.
+                            <i class="fas fa-info-circle"></i> Jika nama siswa tidak ditemukan, silakan hubungi kesiswaan sekolah.
                         </div>
                         <div id="current-eskul-info" style="display: none; margin-top: 12px; padding: 14px 18px; border-radius: 16px; font-size: 0.88rem; line-height: 1.6;">
                         </div>
