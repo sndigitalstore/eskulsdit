@@ -243,7 +243,7 @@
                 <div class="kop-text">
                     <h1>AN NADZIR ISLAMIC SCHOOL</h1>
                     <h2>SDIT AN NADZIR</h2>
-                    <p>Jl. Raya Cinangka - Sirih KM. 03, Desa Cinangka, Kec. Cinangka, Kab. Serang, Banten</p>
+                    <p>Bendungan Karet Cisirih, Kp. Cukang RT.09/RW.02, Desa Kamasan, Kecamatan Cinangka, Kabupaten Serang, Provinsi Banten 42167</p>
                 </div>
             </div>
 

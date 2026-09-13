@@ -179,7 +179,8 @@
                 <div class="kop-text">
                     <h1>AN NADZIR ISLAMIC SCHOOL</h1>
                     <h2>SDIT AN NADZIR</h2>
-                    <p style="margin: 2px 0 0 0; font-size: 8.5pt; font-weight: bold;">REKAPITULASI PILIHAN EKSTRAKURIKULER SISWA</p>
+                    <p style="margin: 2px 0 0 0; font-size: 8pt; color: #475569;">Bendungan Karet Cisirih, Kp. Cukang RT.09/RW.02, Desa Kamasan, Kecamatan Cinangka, Kabupaten Serang, Provinsi Banten 42167</p>
+                    <p style="margin: 4px 0 0 0; font-size: 8.5pt; font-weight: bold;">REKAPITULASI PILIHAN EKSTRAKURIKULER SISWA</p>
                     <p style="margin: 2px 0 0 0; font-size: 8.5pt;">Tahun Pelajaran {{ $yearName }} — Kelas {{ $className }}</p>
                 </div>
             </div>
