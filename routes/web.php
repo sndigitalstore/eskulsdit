@@ -107,6 +107,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/grades', [\App\Http\Controllers\GradeController::class, 'store'])->name('grades.store');
     Route::get('/grades/report', [\App\Http\Controllers\GradeController::class, 'report'])->name('grades.report');
     
+    Route::get('/reports/print-all', [\App\Http\Controllers\ReportController::class, 'printAll'])->name('reports.print-all');
+    Route::get('/reports/print-all-recap', [\App\Http\Controllers\ReportController::class, 'printAllRecap'])->name('reports.print-all-recap');
     Route::get('/reports/calistung-graduates-print', [\App\Http\Controllers\ReportController::class, 'printCalistungGraduates'])->name('reports.print-calistung-graduates');
     Route::get('/reports/print-full', [\App\Http\Controllers\ReportController::class, 'printFullClass'])->name('reports.print-full');
     Route::get('/reports/print-recap-class', [\App\Http\Controllers\ReportController::class, 'printRecapClass'])->name('reports.print-recap-class');

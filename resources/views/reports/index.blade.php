@@ -115,8 +115,13 @@
                     <label style="display: block; margin-bottom: 8px; color: #888;">Kelas</label>
                     <select name="class" class="form-control" required>
                         <option value="">-- Pilih Kelas --</option>
+                        @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                            <option value="ALL" {{ $selectedClass == 'ALL' ? 'selected' : '' }} style="font-weight: bold; color: #2563eb;">
+                                🌟 -- CETAK SEMUA KELAS (LAPORAN KESELURAHAN) --
+                            </option>
+                        @endif
                         @foreach($classes as $class)
-                            <option value="{{ $class }}" {{ $selectedClass == $class ? 'selected' : '' }}>{{ $class }}</option>
+                            <option value="{{ $class }}" {{ $selectedClass == $class ? 'selected' : '' }}>Kelas {{ $class }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -129,11 +134,10 @@
 
     <!-- Special Feature: Calistung Export -->
     <div class="card no-print" style="margin-bottom: 20px; border-left: 5px solid #2ecc71;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div>
                 <h4 style="margin-bottom: 5px;"><i class="fas fa-graduation-cap" style="color: #2ecc71;"></i> Lulusan Calistung</h4>
                 <p style="font-size: 0.9rem; color: #666; margin: 0;">Unduh data siswa yang mendapatkan nilai A pada Calistung (Membaca/Menulis/Berhitung).</p>
-            </div>
             </div>
             <div style="display: flex; gap: 8px;">
                 <a href="{{ route('reports.print-calistung-graduates') }}" target="_blank" class="btn-action-header btn-orange">
@@ -146,7 +150,36 @@
         </div>
     </div>
 
-    @if($selectedClass && isset($students))
+    @if($selectedClass === 'ALL')
+    <!-- Action Buttons for ALL Classes -->
+    <div class="no-print" style="margin: 20px 0; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+        <a href="{{ route('reports.print-all-recap', ['year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-green">
+            <i class="fas fa-print"></i> Cetak Rekap Wali Kelas (Semua Kelas)
+        </a>
+        <a href="{{ route('reports.print-all', ['year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-dark" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+            <i class="fas fa-print"></i> Cetak Laporan Keseluruhan (All Classes)
+        </a>
+    </div>
+
+    <div class="card no-print" style="border-top: 4px solid #2563eb; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 54px; height: 54px; border-radius: 14px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                <i class="fas fa-print"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b;">Mode Cetak Laporan Keseluruhan (All Classes)</h3>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.92rem;">
+                    Sistem siap mencetak laporan untuk seluruh kelas <strong>({{ count($allClassesData) }} Kelas)</strong> pada Tahun Ajaran <strong>{{ \App\Models\AcademicYear::find($selectedYearId)->name ?? '-' }}</strong>. Setiap kelas didesain A4 terpaginasi secara rapi.
+                </p>
+            </div>
+        </div>
+        <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+            <a href="{{ route('reports.print-all', ['year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-blue" style="padding: 10px 20px; font-weight: 700;">
+                <i class="fas fa-external-link-alt"></i> Buka Jendela Cetak Masal (A4)
+            </a>
+        </div>
+    </div>
+    @elseif($selectedClass && isset($students))
     
     <!-- Action Buttons -->
     <div class="no-print" style="margin: 20px 0; display: flex; gap: 8px; justify-content: flex-end;">

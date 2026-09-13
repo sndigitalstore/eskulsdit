@@ -31,26 +31,49 @@ class ReportController extends Controller
         }
         
         $students = [];
+        $allClassesData = [];
         
         if ($selectedClass && $selectedYearId) {
-            $students = Student::where('class', $selectedClass)
-                ->with([
-                    // Load current active enrollments
-                    'eskuls' => function($query) use ($selectedYearId) {
-                        $query->wherePivot('academic_year_id', $selectedYearId);
-                    }, 
-                    // Load all grades for this year (with Eskul info) - to catch history
-                    'grades' => function($query) use ($selectedYearId) {
-                        $query->where('academic_year_id', $selectedYearId)
-                              ->whereIn('type', ['sas1', 'sas2'])
-                              ->with('eskul'); 
-                    }
-                ])
-                ->orderBy('name')
-                ->get();
+            if ($selectedClass === 'ALL') {
+                foreach ($classes as $cls) {
+                    $clsStudents = Student::forYear($selectedYearId)
+                        ->where('class', $cls)
+                        ->where(function($q) {
+                            $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                        })
+                        ->with([
+                            'eskuls' => function($query) use ($selectedYearId) {
+                                $query->wherePivot('academic_year_id', $selectedYearId);
+                            }, 
+                            'grades' => function($query) use ($selectedYearId) {
+                                $query->where('academic_year_id', $selectedYearId)
+                                      ->whereIn('type', ['sas1', 'sas2'])
+                                      ->with('eskul'); 
+                            }
+                        ])
+                        ->orderBy('name')
+                        ->get();
+
+                    $allClassesData[$cls] = $clsStudents;
+                }
+            } else {
+                $students = Student::where('class', $selectedClass)
+                    ->with([
+                        'eskuls' => function($query) use ($selectedYearId) {
+                            $query->wherePivot('academic_year_id', $selectedYearId);
+                        }, 
+                        'grades' => function($query) use ($selectedYearId) {
+                            $query->where('academic_year_id', $selectedYearId)
+                                  ->whereIn('type', ['sas1', 'sas2'])
+                                  ->with('eskul'); 
+                        }
+                    ])
+                    ->orderBy('name')
+                    ->get();
+            }
         }
 
-        return view('reports.index', compact('classes', 'students', 'selectedClass', 'selectedPeriod', 'selectedYearId', 'academicYears', 'activeYear'));
+        return view('reports.index', compact('classes', 'students', 'allClassesData', 'selectedClass', 'selectedPeriod', 'selectedYearId', 'academicYears', 'activeYear'));
     }
     public function exportCalistung()
     {
@@ -265,5 +288,99 @@ class ReportController extends Controller
         $graduates = collect(array_values($graduates))->sortBy('name');
 
         return view('reports.print_calistung', compact('graduates', 'yearName'));
+    }
+
+    public function printAll(Request $request)
+    {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
+        $period = $request->query('period') ?? 'all';
+
+        if (!$yearId) {
+            return back()->with('error', 'Tahun Ajaran harus dipilih.');
+        }
+
+        $yearObj = \App\Models\AcademicYear::find($yearId);
+        $yearName = $yearObj ? $yearObj->name : '-';
+
+        $classes = Student::forYear($yearId)
+            ->select('class')->distinct()->orderBy('class')->pluck('class');
+
+        $reportsByClass = [];
+        foreach ($classes as $cls) {
+            $students = Student::forYear($yearId)
+                ->where('class', $cls)
+                ->where(function($q) {
+                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                })
+                ->with(['eskuls' => function($q) use ($yearId, $period) {
+                    $q->wherePivot('academic_year_id', $yearId);
+                    if ($period != 'all') {
+                        $q->wherePivot('semester', $period);
+                    }
+                }, 'grades' => function($q) use ($yearId) {
+                    $q->where('academic_year_id', $yearId)
+                      ->whereIn('type', ['sas1', 'sas2'])
+                      ->with('eskul');
+                }])
+                ->orderBy('name')
+                ->get();
+
+            $homeroomTeacher = \App\Models\User::where('role', 'teacher')
+                ->where('homeroom_class', $cls)
+                ->first();
+
+            $reportsByClass[$cls] = [
+                'students' => $students,
+                'homeroom_teacher' => $homeroomTeacher ? $homeroomTeacher->name : null,
+            ];
+        }
+
+        return view('reports.print_all', compact('reportsByClass', 'yearName', 'yearId', 'period', 'activeYear'));
+    }
+
+    public function printAllRecap(Request $request)
+    {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
+        $period = $request->query('period') ?? 'all';
+
+        if (!$yearId) {
+            return back()->with('error', 'Tahun Ajaran harus dipilih.');
+        }
+
+        $yearObj = \App\Models\AcademicYear::find($yearId);
+        $yearName = $yearObj ? $yearObj->name : '-';
+
+        $classes = Student::forYear($yearId)
+            ->select('class')->distinct()->orderBy('class')->pluck('class');
+
+        $recapByClass = [];
+        foreach ($classes as $cls) {
+            $students = Student::forYear($yearId)
+                ->where('class', $cls)
+                ->where(function($q) {
+                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                })
+                ->with(['eskuls' => function($q) use ($yearId, $period) {
+                    $q->wherePivot('academic_year_id', $yearId);
+                    if ($period != 'all') {
+                        $q->wherePivot('semester', $period);
+                    }
+                }])
+                ->orderBy('name')
+                ->get();
+
+            $homeroomTeacher = \App\Models\User::where('role', 'teacher')
+                ->where('homeroom_class', $cls)
+                ->first();
+
+            $recapByClass[$cls] = [
+                'students' => $students,
+                'homeroom_teacher' => $homeroomTeacher ? $homeroomTeacher->name : null,
+            ];
+        }
+
+        return view('reports.print_all_recap', compact('recapByClass', 'yearName', 'yearId', 'period', 'activeYear'));
     }
 }
