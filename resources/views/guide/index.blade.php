@@ -134,6 +134,40 @@
             </div>
         </div>
 
+        <!-- Step 8 -->
+        <div class="card" style="border-top: 5px solid #f59e0b;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div style="background: #fef3c7; color: #f59e0b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">8</div>
+                <div>
+                    <h3 style="margin: 0 0 10px 0;">Cetak Piagam Digital & Laporan Massal A4</h3>
+                    <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                        Sistem menyediakan fasilitas pencetakan dokumen resmi sekolah berstandar A4 secara cepat dan elegan.
+                    </p>
+                    <ul style="font-size: 0.85rem; color: #555; padding-left: 20px; margin-top: 10px;">
+                        <li><b>Piagam Digital A4 Landscape:</b> Pada tabel Data Siswa atau Data Prestasi, klik ikon pita kuning untuk mencetak Piagam Keikutsertaan / Penghargaan lengkap dengan Kop <b>AN NADZIR ISLAMIC SCHOOL</b>, Gold Seal Badge, & Tanda Tangan Ganda.</li>
+                        <li><b>Cetak Semua Laporan Kelas:</b> Pada menu Laporan, pilih <i>"-- CETAK SEMUA KELAS (LAPORAN KESELURAHAN) --"</i> untuk mencetak seluruh kelas sekaligus tanpa terpotong halaman.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 9 -->
+        <div class="card" style="border-top: 5px solid #059669;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div style="background: #d1fae5; color: #059669; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">9</div>
+                <div>
+                    <h3 style="margin: 0 0 10px 0;">Halaman Kepatuhan Pembina & Sapa WA</h3>
+                    <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                        Melalui menu <b>Kepatuhan Pembina</b> (`/compliance`), Admin & Kepala Sekolah dapat mengecek secara terpusat:
+                    </p>
+                    <ul style="font-size: 0.85rem; color: #555; padding-left: 20px; margin-top: 10px;">
+                        <li><b>3 Kategori Pantauan:</b> Kehadiran Guru, Pengisian Absensi Siswa, dan Pengisian Nilai Akhir Semester.</li>
+                        <li><b>Badge BUTUH TINDAKAN:</b> Menampilkan nama eskul/guru yang belum melengkapi administrasi dengan tombol <i>"Sapa via WA"</i> langsung ke obrolan guru.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Tips Section -->
