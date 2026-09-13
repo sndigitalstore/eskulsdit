@@ -129,6 +129,7 @@
     <div class="page-header">
         <img src="{{ asset('logo.png') }}" class="header-logo" alt="Logo">
         <div style="display: inline-block; width: 100%;"> <!-- Wrap text to center distinct from logo -->
+            <div style="font-size: 11pt; font-weight: bold; color: #047857; text-transform: uppercase; letter-spacing: 1px;">AN NADZIR ISLAMIC SCHOOL</div>
             <h1>Laporan Prestasi Siswa</h1>
             <p>SDIT AN NADZIR - Tahun Ajaran {{ $activeYear ? $activeYear->name : '...' }}</p>
             <div style="font-size: 10pt; margin-top: 5px; color: #888;">Dicetak pada: {{ now()->translatedFormat('d F Y') }}</div>

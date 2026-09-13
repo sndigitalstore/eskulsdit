@@ -52,8 +52,9 @@
                     <img src="{{ asset('logo.png') }}" style="height: 70px; width: auto;">
                 </td>
                 <td style="border: none; text-align: left; vertical-align: middle; padding-left: 15px;">
+                    <h3 style="margin: 0; font-size: 11pt; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 1px;">AN NADZIR ISLAMIC SCHOOL</h3>
                     <h2 style="margin: 0; font-size: 20pt; font-weight: bold; color: #333; line-height: 1.2;">SDIT AN NADZIR</h2>
-                    <p style="margin: 5px 0 0; font-size: 12pt; color: #000; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Laporan Ekstrakurikuler</p>
+                    <p style="margin: 5px 0 0; font-size: 12pt; color: #000; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Laporan Ekstrakurikuler Siswa</p>
                     <p style="margin: 0; font-size: 11pt; color: #555;">
                         @php
                             $semesterText = 'Semester 1 & 2';

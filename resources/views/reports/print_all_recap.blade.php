@@ -177,8 +177,9 @@
             <div class="kop-surat">
                 <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo SDIT AN NADZIR" onerror="this.style.display='none'">
                 <div class="kop-text">
-                    <h1>SDIT AN NADZIR</h1>
-                    <h2>REKAPITULASI PILIHAN EKSTRAKURIKULER SISWA</h2>
+                    <h1>AN NADZIR ISLAMIC SCHOOL</h1>
+                    <h2>SDIT AN NADZIR</h2>
+                    <p style="margin: 2px 0 0 0; font-size: 8.5pt; font-weight: bold;">REKAPITULASI PILIHAN EKSTRAKURIKULER SISWA</p>
                     <p style="margin: 2px 0 0 0; font-size: 8.5pt;">Tahun Pelajaran {{ $yearName }} — Kelas {{ $className }}</p>
                 </div>
             </div>

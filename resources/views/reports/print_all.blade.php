@@ -241,7 +241,7 @@
             <div class="kop-surat">
                 <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo SDIT AN NADZIR" onerror="this.style.display='none'">
                 <div class="kop-text">
-                    <h1>YAYASAN AN NADZIR CINANGKA</h1>
+                    <h1>AN NADZIR ISLAMIC SCHOOL</h1>
                     <h2>SDIT AN NADZIR</h2>
                     <p>Jl. Raya Cinangka - Sirih KM. 03, Desa Cinangka, Kec. Cinangka, Kab. Serang, Banten</p>
                 </div>
