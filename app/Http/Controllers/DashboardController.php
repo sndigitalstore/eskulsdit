@@ -428,31 +428,6 @@ class DashboardController extends Controller
             }
         }
 
-        $eskulComplianceList = [];
-        if (!$isTeacher) {
-            $activeEskuls = Eskul::activeYear()->get();
-            foreach ($activeEskuls as $esk) {
-                $eskMissing = $esk->getMissingAttendanceDates(30);
-                $pembinaUser = \App\Models\User::where('role', 'teacher')
-                    ->activeYear()
-                    ->where('eskul_id', $esk->id)
-                    ->first();
-                
-                if (!$pembinaUser && !empty($esk->instructor_name)) {
-                    $pembinaUser = \App\Models\User::where('role', 'teacher')
-                        ->activeYear()
-                        ->where('name', 'LIKE', "%{$esk->instructor_name}%")
-                        ->first();
-                }
-
-                $eskulComplianceList[] = [
-                    'eskul' => $esk,
-                    'missing_dates' => $eskMissing,
-                    'pembina' => $pembinaUser,
-                ];
-            }
-        }
-
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -465,7 +440,7 @@ class DashboardController extends Controller
             'homeroomRegisteredCount', 'homeroomUnregisteredCount', 
             'homeroomUnregisteredList', 'homeroomEskulDistribution',
             
-            'missingDates', 'teacherEskul', 'eskulComplianceList'
+            'missingDates', 'teacherEskul'
         ));
     }
 }

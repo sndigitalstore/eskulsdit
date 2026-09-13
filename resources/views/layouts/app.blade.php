@@ -575,6 +575,12 @@
                     <span>Ekstrakurikuler</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('compliance.index') }}" class="nav-link {{ request()->is('compliance*') ? 'active' : '' }}">
+                    <i class="fas fa-user-check"></i>
+                    <span>Kepatuhan Pembina</span>
+                </a>
+            </li>
             @endif
 
             <li class="nav-item">

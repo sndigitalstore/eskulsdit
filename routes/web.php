@@ -112,8 +112,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/print-recap-class', [\App\Http\Controllers\ReportController::class, 'printRecapClass'])->name('reports.print-recap-class');
     Route::get('/reports/export-class', [\App\Http\Controllers\ReportController::class, 'exportClass'])->name('reports.export-class');
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/calistung-graduates', [\App\Http\Controllers\ReportController::class, 'exportCalistung'])->name('reports.calistung-graduates');
-    
+    Route::get('/compliance', [\App\Http\Controllers\ComplianceController::class, 'index'])->name('compliance.index');
+
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/run-migration', function () {
             try {
