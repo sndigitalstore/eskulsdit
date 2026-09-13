@@ -275,7 +275,7 @@
                     </div>
 
                     <h2 class="cert-main-title">PIAGAM PENGHARGAAN</h2>
-                    <p class="cert-subtitle">PRESTASI BERGENGSI SISWA</p>
+                    <p class="cert-subtitle">PRESTASI SISWA</p>
                 </div>
 
                 <!-- Body -->
