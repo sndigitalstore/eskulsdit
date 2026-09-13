@@ -251,10 +251,22 @@
         </tbody>
     </table>
     
-    <!-- Footer -->
-    <div style="margin-top: 30px; display: flex; justify-content: flex-end; font-family: Arial, sans-serif;">
+    <!-- Footer Tanda Tangan -->
+    @php
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : 'Nur\'asiah, S.Pd.I');
+        $currentDateIndo = \Carbon\Carbon::now()->isoFormat('D MMMM Y');
+    @endphp
+    <div style="margin-top: 30px; display: flex; justify-content: space-between; font-family: 'Times New Roman', serif; font-size: 10pt;">
         <div style="text-align: center; width: 220px;">
-            <p style="margin-bottom: 60px;">Wali Kelas {{ $class }}</p>
+            <p style="margin-bottom: 50px;">Mengetahui,<br><b>Kepala SDIT AN NADZIR</b></p>
+            <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">
+                {{ $headmasterName }}
+            </p>
+        </div>
+        <div style="text-align: center; width: 220px;">
+            <p style="margin-bottom: 50px;">Cinangka, {{ $currentDateIndo }}<br><b>Wali Kelas {{ $class }}</b></p>
             <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">
                 {{ $homeroomTeacherName ?? '_________________________' }}
             </p>

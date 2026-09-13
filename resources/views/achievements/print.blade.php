@@ -121,7 +121,9 @@
 
     @php
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
-        $headmaster = \App\Models\Setting::where('key', 'headmaster_name')->value('value') ?? 'Nur\'asiah, S.Pd.I';
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : 'Nur\'asiah, S.Pd.I');
     @endphp
 
     <div class="page-header">
@@ -178,9 +180,9 @@
     <div class="footer" style="text-align: right; margin-top: 50px; padding-right: 50px;">
         <p>Cinangka, {{ now()->translatedFormat('d F Y') }}</p>
         <p>Mengetahui,</p>
-        <p style="margin-bottom: 80px;"><strong>Kepala Sekolah</strong></p>
+        <p style="margin-bottom: 80px;"><strong>Kepala SDIT AN NADZIR</strong></p>
         
-        <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ $headmaster }}</p>
+        <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ $headmasterName }}</p>
     </div>
 
 </body>

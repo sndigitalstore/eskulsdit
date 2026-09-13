@@ -96,14 +96,29 @@
         </tbody>
     </table>
     
-    <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
-        <div style="text-align: center; width: 220px;">
-            <p>Wali Kelas {{ $class }}</p>
-            <br><br><br>
-            <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">
-                {{ $homeroomTeacherName ?? '_________________________' }}
-            </p>
-        </div>
+    @php
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : 'Nur\'asiah, S.Pd.I');
+    @endphp
+
+    <div style="margin-top: 30px; font-family: 'Times New Roman', serif;">
+        <table style="border: none; width: 100%; margin-top: 20px;">
+            <tr style="border: none;">
+                <td style="border: none; width: 50%; text-align: center; vertical-align: top;">
+                    Mengetahui,<br>
+                    <strong>Kepala SDIT AN NADZIR</strong>
+                    <br><br><br><br><br>
+                    <strong><u>{{ $headmasterName }}</u></strong>
+                </td>
+                <td style="border: none; width: 50%; text-align: center; vertical-align: top;">
+                    Cinangka, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                    <strong>Wali Kelas {{ $class }}</strong>
+                    <br><br><br><br><br>
+                    <strong><u>{{ $homeroomTeacherName ?? '_________________________' }}</u></strong>
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

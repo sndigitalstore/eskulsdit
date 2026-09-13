@@ -223,6 +223,11 @@
                 </tbody>
             </table>
 
+            @php
+                $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+                $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+                $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : 'Nur\'asiah, S.Pd.I');
+            @endphp
             <div class="signature-section">
                 <table class="signature-table">
                     <tr>
@@ -230,7 +235,7 @@
                             Mengetahui,<br>
                             <strong>Kepala SDIT AN NADZIR</strong>
                             <br><br><br><br><br>
-                            <strong><u>H. SUPANDI, S.Pd.I</u></strong>
+                            <strong><u>{{ $headmasterName }}</u></strong>
                         </td>
                         <td>
                             Cinangka, {{ $currentDateIndo }}<br>

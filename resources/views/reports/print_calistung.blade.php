@@ -82,14 +82,16 @@
     </table>
     
     @php
-        $headmaster = \App\Models\Setting::where('key', 'headmaster_name')->value('value') ?? 'Nur\'asiah, S.Pd.I';
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : 'Nur\'asiah, S.Pd.I');
     @endphp
     <!-- Footer -->
-    <div style="margin-top: 30px; display: flex; justify-content: flex-end; font-family: Arial, sans-serif;">
-        <div style="text-align: center; width: 220px;">
-            <p>Mengetahui,</p>
-            <p style="margin-bottom: 60px;">Kepala Sekolah</p>
-            <p style="font-weight: bold; text-decoration: underline; margin: 0;">{{ $headmaster }}</p>
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end; font-family: 'Times New Roman', serif;">
+        <div style="text-align: center; width: 240px;">
+            <p style="margin: 0;">Mengetahui,</p>
+            <p style="margin: 5px 0 60px 0; font-weight: bold;">Kepala SDIT AN NADZIR</p>
+            <p style="font-weight: bold; text-decoration: underline; margin: 0;">{{ $headmasterName }}</p>
         </div>
     </div>
     
