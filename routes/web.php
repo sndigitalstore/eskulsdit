@@ -15,14 +15,7 @@ Route::get('/offline', function () {
     return view('offline');
 })->name('offline');
 
-Route::get('/run-migration', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return 'Migrasi berhasil dijalankan!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
+
 
 Route::get('/login', function () {
     return view('login');
@@ -121,28 +114,44 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/calistung-graduates', [\App\Http\Controllers\ReportController::class, 'exportCalistung'])->name('reports.calistung-graduates');
     
-    Route::resource('academic-years', \App\Http\Controllers\AcademicYearController::class);
-    Route::post('academic-years/{academic_year}/activate', [\App\Http\Controllers\AcademicYearController::class, 'activate'])->name('academic-years.activate');
-    Route::post('academic-years/{academic_year}/copy-semester', [\App\Http\Controllers\AcademicYearController::class, 'copySemesterData'])->name('academic-years.copy-semester');
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/run-migration', function () {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                return 'Migrasi berhasil dijalankan!';
+            } catch (\Exception $e) {
+                return 'Error: ' . $e->getMessage();
+            }
+        })->name('admin.run-migration');
 
-    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
-    Route::post('/settings/clear-logs', [\App\Http\Controllers\SettingController::class, 'clearLogs'])->name('settings.clear-logs');
-    Route::post('/settings/profile', [\App\Http\Controllers\SettingController::class, 'updateProfile'])->name('settings.update-profile');
+        Route::resource('academic-years', \App\Http\Controllers\AcademicYearController::class);
+        Route::post('academic-years/{academic_year}/activate', [\App\Http\Controllers\AcademicYearController::class, 'activate'])->name('academic-years.activate');
+        Route::post('academic-years/{academic_year}/copy-semester', [\App\Http\Controllers\AcademicYearController::class, 'copySemesterData'])->name('academic-years.copy-semester');
+
+        Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/clear-logs', [\App\Http\Controllers\SettingController::class, 'clearLogs'])->name('settings.clear-logs');
+        Route::post('/settings/profile', [\App\Http\Controllers\SettingController::class, 'updateProfile'])->name('settings.update-profile');
+
+        Route::get('teachers/print', [\App\Http\Controllers\TeacherController::class, 'print'])->name('teachers.print');
+        Route::get('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'bulk'])->name('teachers.bulk');
+        Route::post('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'storeBulk'])->name('teachers.store_bulk');
+        Route::post('teachers/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetAllPasswords'])->name('teachers.reset-all');
+        Route::post('teachers/{teacher}/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetSinglePassword'])->name('teachers.reset-single');
+        Route::resource('teachers', \App\Http\Controllers\TeacherController::class);
+
+        Route::get('/logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('logs.index');
+        Route::delete('/logs/clear', [\App\Http\Controllers\ActivityLogController::class, 'clear'])->name('logs.clear');
+
+        Route::get('/import-portal', [\App\Http\Controllers\ImportPortalController::class, 'index'])->name('import-portal.index');
+        Route::get('/import-portal/template', [\App\Http\Controllers\ImportPortalController::class, 'downloadTemplate'])->name('import-portal.template');
+        Route::post('/import-portal/import', [\App\Http\Controllers\ImportPortalController::class, 'import'])->name('import-portal.import');
+    });
 
     Route::get('/global-search', [\App\Http\Controllers\GlobalSearchController::class, 'index'])->name('global-search');
-    
-    Route::get('teachers/print', [\App\Http\Controllers\TeacherController::class, 'print'])->name('teachers.print');
-    Route::get('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'bulk'])->name('teachers.bulk');
-    Route::post('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'storeBulk'])->name('teachers.store_bulk');
-    Route::post('teachers/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetAllPasswords'])->name('teachers.reset-all');
-    Route::post('teachers/{teacher}/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetSinglePassword'])->name('teachers.reset-single');
-    Route::resource('teachers', \App\Http\Controllers\TeacherController::class);
     Route::get('/achievements/print', [\App\Http\Controllers\AchievementController::class, 'print'])->name('achievements.print');
     
-    // Activity Logs & Announcements
-    Route::get('/logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('logs.index');
-    Route::delete('/logs/clear', [\App\Http\Controllers\ActivityLogController::class, 'clear'])->name('logs.clear');
+    // Announcements & Guide
     Route::resource('announcements', \App\Http\Controllers\AnnouncementController::class)->only(['index', 'store', 'destroy']);
     Route::get('/guide', [\App\Http\Controllers\GuideController::class, 'index'])->name('guide.index');
     
@@ -152,10 +161,5 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/teacher-attendance/export', [\App\Http\Controllers\TeacherAttendanceController::class, 'export'])->name('teacher-attendance.export');
     Route::resource('teacher-attendance', \App\Http\Controllers\TeacherAttendanceController::class)->only(['index', 'store', 'destroy']);
-
-    // Import Portal Satu Pintu
-    Route::get('/import-portal', [\App\Http\Controllers\ImportPortalController::class, 'index'])->name('import-portal.index');
-    Route::get('/import-portal/template', [\App\Http\Controllers\ImportPortalController::class, 'downloadTemplate'])->name('import-portal.template');
-    Route::post('/import-portal/import', [\App\Http\Controllers\ImportPortalController::class, 'import'])->name('import-portal.import');
 
 });
