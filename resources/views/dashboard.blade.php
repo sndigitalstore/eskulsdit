@@ -243,6 +243,29 @@
     @endif
 </div>
 
+    <!-- Grafik Visualisasi Analytics -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
+        <div class="card" style="margin-bottom: 0; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 22px;">
+            <h3 style="margin-bottom: 1.2rem; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; color: #1e293b;">
+                <span><i class="fas fa-fire" style="color: #f59e0b; margin-right: 8px;"></i>Top 5 Eskul Terfavorit</span>
+                <span style="font-size: 0.8rem; color: #64748b; font-weight: 500; background: #f1f5f9; padding: 3px 10px; border-radius: 12px;">Jumlah Siswa</span>
+            </h3>
+            <div style="position: relative; height: 230px;">
+                <canvas id="eskulPopularityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 22px;">
+            <h3 style="margin-bottom: 1.2rem; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; color: #1e293b;">
+                <span><i class="fas fa-chart-pie" style="color: #10b981; margin-right: 8px;"></i>Distribusi Kehadiran Siswa</span>
+                <span style="font-size: 0.8rem; color: #64748b; font-weight: 500; background: #f1f5f9; padding: 3px 10px; border-radius: 12px;">Tahun Ajaran Aktif</span>
+            </h3>
+            <div style="position: relative; height: 230px;">
+                <canvas id="attendanceDistChart"></canvas>
+            </div>
+        </div>
+    </div>
+
 @if(isset($todaySchedule) && count($todaySchedule) > 0)
     <div class="card" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -915,5 +938,68 @@
         
         if(document.getElementById('greeting')) document.getElementById('greeting').innerText = greeting;
     }, 1000);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const eskulLabels = {!! json_encode($chartEskulLabels ?? []) !!};
+        const eskulData   = {!! json_encode($chartEskulData ?? []) !!};
+
+        if (document.getElementById('eskulPopularityChart')) {
+            new Chart(document.getElementById('eskulPopularityChart'), {
+                type: 'bar',
+                data: {
+                    labels: eskulLabels,
+                    datasets: [{
+                        label: 'Siswa',
+                        data: eskulData,
+                        backgroundColor: [
+                            '#7367f0', '#28c76f', '#ff9f43', '#00cfe8', '#ea5455'
+                        ],
+                        borderRadius: 8,
+                        barThickness: 28
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        const attData = {!! json_encode($chartAttendanceData ?? []) !!};
+        if (document.getElementById('attendanceDistChart')) {
+            new Chart(document.getElementById('attendanceDistChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hadir', 'Sakit', 'Izin', 'Alpha'],
+                    datasets: [{
+                        data: attData,
+                        backgroundColor: [
+                            '#10b981', '#f59e0b', '#3b82f6', '#ef4444'
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+    });
 </script>
 @endsection

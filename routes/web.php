@@ -165,4 +165,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/teacher-attendance/export', [\App\Http\Controllers\TeacherAttendanceController::class, 'export'])->name('teacher-attendance.export');
     Route::resource('teacher-attendance', \App\Http\Controllers\TeacherAttendanceController::class)->only(['index', 'store', 'destroy']);
 
+    // Digital Certificate Routes
+    Route::get('/students/{student}/certificate', [\App\Http\Controllers\CertificateController::class, 'studentCertificate'])->name('students.certificate');
+    Route::get('/achievements/{achievement}/certificate', [\App\Http\Controllers\CertificateController::class, 'achievementCertificate'])->name('achievements.certificate');
+
 });

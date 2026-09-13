@@ -41,9 +41,7 @@
                         <th>Tingkat</th>
                         <th>Periode</th>
                         <th>Penyelenggara</th>
-                        @if(Auth::user()->role == 'admin')
                         <th>Aksi</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -91,9 +89,12 @@
                             </div>
                         </td>
                         <td>{{ $achievement->organizer ?? '-' }}</td>
-                        @if(Auth::user()->role == 'admin')
                         <td>
                             <div style="display: flex; gap: 5px;">
+                                <a href="{{ route('achievements.certificate', $achievement->id) }}" target="_blank" class="btn-submit" style="padding: 5px 10px; font-size: 0.8rem; background: #f59e0b; width: auto; color: white;" title="Cetak Piagam Digital">
+                                    <i class="fas fa-certificate"></i>
+                                </a>
+                                @if(Auth::user()->role == 'admin')
                                 <a href="{{ route('achievements.edit', $achievement->id) }}" class="btn-submit" style="padding: 5px 10px; font-size: 0.8rem; background: #3498db; width: auto;" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -104,9 +105,9 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
-                        @endif
                     </tr>
                     @endforeach
                 </tbody>

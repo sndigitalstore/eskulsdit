@@ -1058,6 +1058,11 @@
                                        class="row-btn row-btn-view" title="Lihat Riwayat">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <a href="{{ route('students.certificate', $student->id) }}"
+                                       target="_blank"
+                                       class="row-btn" style="background: #f59e0b; color: white;" title="Cetak Piagam Digital">
+                                        <i class="fas fa-certificate"></i>
+                                    </a>
                                     @if(Auth::user()->role == 'admin')
                                     <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}"
                                        class="row-btn row-btn-edit" title="Edit">
@@ -1169,11 +1174,16 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
                            style="display:none;" onchange="updateFileName(this)">
                     <p id="fileNameDisplay"></p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" onclick="closeImportModal()" class="btn-cancel">Batal</button>
-                    <button type="submit" class="btn-submit green">
-                        <i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Upload & Import
-                    </button>
+                <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                    <a href="{{ route('import-portal.template') }}" class="btn-cancel" style="text-decoration:none; color:#7367f0; border:1.5px solid #7367f0; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fas fa-download"></i> Unduh Template Excel
+                    </a>
+                    <div>
+                        <button type="button" onclick="closeImportModal()" class="btn-cancel">Batal</button>
+                        <button type="submit" class="btn-submit green">
+                            <i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Upload & Import
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
