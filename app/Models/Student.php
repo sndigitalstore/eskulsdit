@@ -108,4 +108,9 @@ class Student extends Model
                     ->when($yearId, fn($q) => $q->wherePivot('academic_year_id', $yearId))
                     ->first();
     }
+
+    public function tahfidzRecords()
+    {
+        return $this->hasMany(TahfidzRecord::class);
+    }
 }

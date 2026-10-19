@@ -133,6 +133,11 @@
                 <a href="{{ route('mentoring-groups.print-group', $group->id) }}" target="_blank" class="btn-action-header btn-dark" style="background: #334155;">
                     <i class="fas fa-print"></i> Cetak Daftar Kelompok
                 </a>
+                @if($type === 'tahfidz')
+                    <a href="{{ route('tahfidz.print-group-recap', ['group' => $group->id]) }}" target="_blank" class="btn-action-header btn-dark" style="background: #0f766e;">
+                        <i class="fas fa-quran"></i> Rekap Hafalan Kelompok
+                    </a>
+                @endif
                 <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange">
                     <i class="fas fa-edit"></i> Edit
                 </a>
@@ -205,13 +210,23 @@
                                 {{ $student->pivot->created_at ? $student->pivot->created_at->format('d/m/Y') : '-' }}
                             </td>
                             <td style="padding: 14px 16px; text-align: center;">
-                                <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 5px 10px; font-size: 0.78rem;" title="Keluarkan dari Kelompok">
-                                    <i class="fas fa-user-minus"></i> Hapus
-                                </button>
-                                <form id="remove-form-{{ $student->id }}" action="{{ route('mentoring-groups.remove-student', ['group' => $group->id, 'student' => $student->id]) }}" method="POST" style="display: none;">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    @if($type === 'tahfidz')
+                                        <a href="{{ route('tahfidz.student-card', ['group' => $group->id, 'student' => $student->id]) }}" 
+                                           class="btn-action-header" 
+                                           style="padding: 5px 10px; font-size: 0.78rem; background: #0f766e; color: white; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;"
+                                           title="Lihat Kartu Hafalan">
+                                            <i class="fas fa-quran"></i> Hafalan
+                                        </a>
+                                    @endif
+                                    <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 5px 10px; font-size: 0.78rem;" title="Keluarkan dari Kelompok">
+                                        <i class="fas fa-user-minus"></i> Hapus
+                                    </button>
+                                    <form id="remove-form-{{ $student->id }}" action="{{ route('mentoring-groups.remove-student', ['group' => $group->id, 'student' => $student->id]) }}" method="POST" style="display: none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

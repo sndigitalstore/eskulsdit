@@ -181,5 +181,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mentoring-groups/{group}/print', [\App\Http\Controllers\MentoringGroupController::class, 'printGroup'])->name('mentoring-groups.print-group');
     Route::get('/api/mentoring/students-by-class', [\App\Http\Controllers\MentoringGroupController::class, 'getStudentsByClass'])->name('mentoring.api.students-by-class');
 
+    // Tahfidz Records (Kartu Hafalan Siswa)
+    Route::get('/tahfidz-groups/{group}/students/{student}/card',   [\App\Http\Controllers\TahfidzRecordController::class, 'studentCard'])->name('tahfidz.student-card');
+    Route::post('/tahfidz-groups/{group}/students/{student}/store', [\App\Http\Controllers\TahfidzRecordController::class, 'store'])->name('tahfidz.store');
+    Route::delete('/tahfidz-records/{record}',                      [\App\Http\Controllers\TahfidzRecordController::class, 'destroy'])->name('tahfidz.destroy');
+    Route::get('/tahfidz-groups/{group}/students/{student}/print',  [\App\Http\Controllers\TahfidzRecordController::class, 'printCard'])->name('tahfidz.print-card');
+    Route::get('/tahfidz-groups/{group}/recap/print',               [\App\Http\Controllers\TahfidzRecordController::class, 'printGroup'])->name('tahfidz.print-group-recap');
+
 });
 
