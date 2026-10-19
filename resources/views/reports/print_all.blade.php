@@ -273,20 +273,19 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th style="width: 4%;">No</th>
-                        <th style="width: 24%; text-align: left; padding-left: 8px;">Nama Siswa</th>
-                        <th style="width: 7%;">NIS</th>
-                        <th style="width: 22%; text-align: left; padding-left: 8px;">Ekstrakurikuler</th>
-                        <th style="width: 11%;">Nilai Sm 1</th>
-                        <th style="width: 11%;">Nilai Sm 2</th>
-                        <th style="width: 21%;">Absensi (Hadir / Sakit / Izin / Alpa)</th>
+                        <th style="width: 4%; white-space: nowrap;">No</th>
+                        <th style="width: 28%; text-align: left; padding-left: 8px;">Nama Siswa</th>
+                        <th style="width: 10%; white-space: nowrap;">NIS</th>
+                        <th style="width: 20%; text-align: left; padding-left: 8px;">Ekstrakurikuler</th>
+                        <th style="width: 6%; white-space: nowrap;">Sm 1</th>
+                        <th style="width: 6%; white-space: nowrap;">Sm 2</th>
+                        <th style="width: 26%; white-space: nowrap;">Absensi (H | S | I | A)</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($students as $index => $student)
                         @php
                             $studentEskuls = $student->eskuls;
-                            $firstEskul = $studentEskuls->first();
                             
                             $sas1Grade = $student->grades->where('type', 'sas1')->first();
                             $sas2Grade = $student->grades->where('type', 'sas2')->first();
@@ -296,7 +295,7 @@
                             if ($sas1Grade) {
                                 $scoreVal = $sas1Grade->score;
                                 if (is_string($scoreVal) && (str_contains($scoreVal, ':') || str_contains($scoreVal, '{'))) {
-                                    $val1 = 'Terisi (Detail)';
+                                    $val1 = 'Detail';
                                 } else {
                                     $val1 = $scoreVal;
                                 }
@@ -307,7 +306,7 @@
                             if ($sas2Grade) {
                                 $scoreVal2 = $sas2Grade->score;
                                 if (is_string($scoreVal2) && (str_contains($scoreVal2, ':') || str_contains($scoreVal2, '{'))) {
-                                    $val2 = 'Terisi (Detail)';
+                                    $val2 = 'Detail';
                                 } else {
                                     $val2 = $scoreVal2;
                                 }
@@ -337,106 +336,45 @@
                                     return false;
                                 })->count();
                             };
+
+                            $hadir = $countStatus($attendances, 'present');
+                            $sakit = $countStatus($attendances, 'sick');
+                            $izin = $countStatus($attendances, 'permission');
+                            $alpa = $countStatus($attendances, 'absent');
+                            $totAtt = $hadir + $sakit + $izin + $alpa;
                         @endphp
                         <tr>
-                            <td style="text-align: center; font-weight: bold;">{{ $index + 1 }}</td>
+                            <td style="text-align: center; font-weight: bold; white-space: nowrap;">{{ $index + 1 }}</td>
                             <td style="font-weight: bold; color: #0f172a;">{{ $student->name }}</td>
-                            <td style="text-align: center; color: #475569;">{{ $student->nis ?? '-' }}</td>
-                            <td>
+                            <td style="text-align: center; color: #475569; white-space: nowrap;">{{ $student->nis ?? '-' }}</td>
+                            <td style="color: #1e293b;">
                                 @if($studentEskuls->isNotEmpty())
-                                    <ul style="margin: 0; padding-left: 14px;">
-                                        @foreach($studentEskuls as $esk)
-                                            <li>{{ $esk->name }}</li>
-                                        @endforeach
-                                    </ul>
+                                    {{ $studentEskuls->pluck('name')->implode(', ') }}
                                 @else
                                     <span style="color: #94a3b8; font-style: italic;">Belum daftar eskul</span>
                                 @endif
                             </td>
-                            <td style="text-align: center;">
-                                @if($studentEskuls->count() > 1)
-                                    <div style="font-size: 8pt; line-height: 1.4; text-align: left;">
-                                        @foreach($studentEskuls as $esk)
-                                            @php
-                                                $g1 = $student->grades->where('eskul_id', $esk->id)->where('type', 'sas1')->first();
-                                                $v1 = '-';
-                                                if ($g1) {
-                                                    $sc = $g1->score;
-                                                    $v1 = (is_string($sc) && (str_contains($sc, ':') || str_contains($sc, '{'))) ? 'Detail' : $sc;
-                                                }
-                                            @endphp
-                                            <div style="margin-bottom: 2px;">
-                                                <span style="color: #64748b;">{{ $esk->name }}:</span> 
-                                                <strong>{{ $v1 }}</strong>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                            <td style="text-align: center; white-space: nowrap;">
+                                @if($val1 !== '-')
+                                    <span class="badge-grade {{ str_contains(strtoupper($val1), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val1 }}</span>
                                 @else
-                                    @if($val1 !== '-')
-                                        <span class="badge-grade {{ str_contains(strtoupper($val1), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val1 }}</span>
-                                    @else
-                                        <span style="color: #cbd5e1;">-</span>
-                                    @endif
+                                    <span style="color: #cbd5e1;">-</span>
                                 @endif
                             </td>
-                            <td style="text-align: center;">
-                                @if($studentEskuls->count() > 1)
-                                    <div style="font-size: 8pt; line-height: 1.4; text-align: left;">
-                                        @foreach($studentEskuls as $esk)
-                                            @php
-                                                $g2 = $student->grades->where('eskul_id', $esk->id)->where('type', 'sas2')->first();
-                                                $v2 = '-';
-                                                if ($g2) {
-                                                    $sc2 = $g2->score;
-                                                    $v2 = (is_string($sc2) && (str_contains($sc2, ':') || str_contains($sc2, '{'))) ? 'Detail' : $sc2;
-                                                }
-                                            @endphp
-                                            <div style="margin-bottom: 2px;">
-                                                <span style="color: #64748b;">{{ $esk->name }}:</span> 
-                                                <strong>{{ $v2 }}</strong>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                            <td style="text-align: center; white-space: nowrap;">
+                                @if($val2 !== '-')
+                                    <span class="badge-grade {{ str_contains(strtoupper($val2), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val2 }}</span>
                                 @else
-                                    @if($val2 !== '-')
-                                        <span class="badge-grade {{ str_contains(strtoupper($val2), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val2 }}</span>
-                                    @else
-                                        <span style="color: #cbd5e1;">-</span>
-                                    @endif
+                                    <span style="color: #cbd5e1;">-</span>
                                 @endif
                             </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                @if($studentEskuls->count() > 1)
-                                    <div style="font-size: 8pt; line-height: 1.4; text-align: left;">
-                                        @foreach($studentEskuls as $esk)
-                                            @php
-                                                $eskAtt = $attendances->where('eskul_id', $esk->id);
-                                                $eh = $countStatus($eskAtt, 'present');
-                                                $es = $countStatus($eskAtt, 'sick');
-                                                $ei = $countStatus($eskAtt, 'permission');
-                                                $ea = $countStatus($eskAtt, 'absent');
-                                            @endphp
-                                            <div style="margin-bottom: 2px;">
-                                                <span style="font-weight: 600; color: #0f172a;">{{ $esk->name }}:</span> 
-                                                <span style="color: #334155;">H:{{ $eh }} S:{{ $es }} I:{{ $ei }} A:{{ $ea }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                            <td style="text-align: center; vertical-align: middle; white-space: nowrap; padding: 5px 6px;">
+                                @if($totAtt > 0 || $studentEskuls->isNotEmpty())
+                                    <span style="font-family: Arial, sans-serif; font-size: 8.5pt; font-weight: bold; color: #1e293b; white-space: nowrap;">
+                                        H: {{ $hadir }} &nbsp;|&nbsp; S: {{ $sakit }} &nbsp;|&nbsp; I: {{ $izin }} &nbsp;|&nbsp; A: {{ $alpa }}
+                                    </span>
                                 @else
-                                    @php
-                                        $hadir = $countStatus($attendances, 'present');
-                                        $sakit = $countStatus($attendances, 'sick');
-                                        $izin = $countStatus($attendances, 'permission');
-                                        $alpa = $countStatus($attendances, 'absent');
-                                        $totAtt = $hadir + $sakit + $izin + $alpa;
-                                    @endphp
-                                    @if($totAtt > 0 || $studentEskuls->isNotEmpty())
-                                        <div style="font-size: 8.5pt; font-weight: bold; color: #1e293b;">
-                                            H: {{ $hadir }} &nbsp;|&nbsp; S: {{ $sakit }} &nbsp;|&nbsp; I: {{ $izin }} &nbsp;|&nbsp; A: {{ $alpa }}
-                                        </div>
-                                    @else
-                                        <span style="color: #94a3b8; font-style: italic;">Belum ada absensi</span>
-                                    @endif
+                                    <span style="color: #cbd5e1;">-</span>
                                 @endif
                             </td>
                         </tr>
