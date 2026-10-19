@@ -576,6 +576,18 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('tilawati-groups.index') }}" class="nav-link {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Kelompok Tilawati</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('tahfidz-groups.index') }}" class="nav-link {{ request()->is('tahfidz-groups*') ? 'active' : '' }}">
+                    <i class="fas fa-quran"></i>
+                    <span>Kelompok Tahfidz</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('compliance.index') }}" class="nav-link {{ request()->is('compliance*') ? 'active' : '' }}">
                     <i class="fas fa-user-check"></i>
                     <span>Kepatuhan Pembina</span>

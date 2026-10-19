@@ -169,4 +169,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/students/{student}/certificate', [\App\Http\Controllers\CertificateController::class, 'studentCertificate'])->name('students.certificate');
     Route::get('/achievements/{achievement}/certificate', [\App\Http\Controllers\CertificateController::class, 'achievementCertificate'])->name('achievements.certificate');
 
+    // Mentoring Tilawati & Tahfidz Groups
+    Route::get('/tilawati-groups/print', [\App\Http\Controllers\MentoringGroupController::class, 'printAll'])->name('tilawati-groups.print');
+    Route::resource('tilawati-groups', \App\Http\Controllers\MentoringGroupController::class);
+
+    Route::get('/tahfidz-groups/print', [\App\Http\Controllers\MentoringGroupController::class, 'printAll'])->name('tahfidz-groups.print');
+    Route::resource('tahfidz-groups', \App\Http\Controllers\MentoringGroupController::class);
+
+    Route::post('/mentoring-groups/{group}/students', [\App\Http\Controllers\MentoringGroupController::class, 'addStudents'])->name('mentoring-groups.add-students');
+    Route::delete('/mentoring-groups/{group}/students/{student}', [\App\Http\Controllers\MentoringGroupController::class, 'removeStudent'])->name('mentoring-groups.remove-student');
+    Route::get('/mentoring-groups/{group}/print', [\App\Http\Controllers\MentoringGroupController::class, 'printGroup'])->name('mentoring-groups.print-group');
+    Route::get('/api/mentoring/students-by-class', [\App\Http\Controllers\MentoringGroupController::class, 'getStudentsByClass'])->name('mentoring.api.students-by-class');
+
 });
+

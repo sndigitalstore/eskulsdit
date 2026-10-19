@@ -85,4 +85,27 @@ class Student extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    public function mentoringGroups()
+    {
+        return $this->belongsToMany(MentoringGroup::class, 'mentoring_group_students')
+                    ->withPivot(['id', 'academic_year_id', 'notes'])
+                    ->withTimestamps();
+    }
+
+    public function tilawatiGroup($yearId = null)
+    {
+        return $this->mentoringGroups()
+                    ->where('type', 'tilawati')
+                    ->when($yearId, fn($q) => $q->wherePivot('academic_year_id', $yearId))
+                    ->first();
+    }
+
+    public function tahfidzGroup($yearId = null)
+    {
+        return $this->mentoringGroups()
+                    ->where('type', 'tahfidz')
+                    ->when($yearId, fn($q) => $q->wherePivot('academic_year_id', $yearId))
+                    ->first();
+    }
 }
