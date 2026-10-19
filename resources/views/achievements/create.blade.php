@@ -8,14 +8,41 @@
     <form action="{{ route('achievements.store') }}" method="POST">
         @csrf
         
+        @if(session('success'))
+            <div style="margin-bottom: 20px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.2rem;"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ route('achievements.index') }}" class="btn-action-header btn-blue" style="font-size: 0.8rem; padding: 5px 10px; text-decoration: none;">
+                        <i class="fas fa-list"></i> Lihat Daftar Prestasi
+                    </a>
+                    @if($student)
+                        <a href="{{ route('students.show', $student->id) }}" class="btn-action-header btn-green" style="font-size: 0.8rem; padding: 5px 10px; text-decoration: none;">
+                            <i class="fas fa-user"></i> Lihat Data Siswa
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         @if($student)
-            <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-left: 4px solid #3498db; border-radius: 4px;">
-                <p style="margin: 0; color: #444;">
-                    Menambahkan prestasi untuk siswa: <br>
-                    <strong style="font-size: 1.1rem; color: #2c3e50;">{{ $student->name }}</strong> 
-                    <span style="color: #666;">({{ $student->class }})</span>
-                </p>
+            <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-left: 4px solid #3498db; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <p style="margin: 0; color: #444;">
+                        Menambahkan prestasi untuk siswa: <br>
+                        <strong style="font-size: 1.1rem; color: #2c3e50;">{{ $student->name }}</strong> 
+                        <span style="color: #666;">({{ $student->class }})</span>
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ route('achievements.create') }}" class="btn-action-header btn-blue" style="font-size: 0.82rem; padding: 6px 12px; text-decoration: none;">
+                        <i class="fas fa-users"></i> Input Siswa Lain
+                    </a>
+                </div>
                 <input type="hidden" name="student_id" value="{{ $student->id }}">
+                <input type="hidden" name="from_student" value="1">
             </div>
         @else
             <div class="form-group" style="margin-bottom: 20px; position: relative;">
@@ -154,12 +181,15 @@
             <textarea name="description" class="form-control" rows="3" placeholder="Catatan tambahan..."></textarea>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn-submit">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" name="action" value="stay" class="btn-submit">
                 <i class="fas fa-save"></i> Simpan Prestasi
             </button>
-            <a href="{{ $student ? route('students.show', $student->id) : route('achievements.index') }}" class="btn-submit" style="background: #ccc; border: 1px solid #bbb; color: #333;">
-                Batal
+            <button type="submit" name="action" value="finish" class="btn-submit" style="background: #475569; border: 1px solid #334155;">
+                <i class="fas fa-check-circle"></i> Simpan & Selesai
+            </button>
+            <a href="{{ $student ? route('students.show', $student->id) : route('achievements.index') }}" class="btn-submit" style="background: #e2e8f0; border: 1px solid #cbd5e1; color: #334155; text-decoration: none; text-align: center; display: inline-flex; align-items: center;">
+                Batal / Kembali
             </a>
         </div>
     </form>

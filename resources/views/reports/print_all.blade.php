@@ -314,16 +314,29 @@
                             }
 
                             // Rekap Absensi Siswa
-                            $attendances = \App\Models\Attendance::where('student_id', $student->id)
-                                ->where('academic_year_id', $yearId)
-                                ->get();
+                            $attendances = $student->relationLoaded('attendances')
+                                ? $student->attendances
+                                : \App\Models\Attendance::where('student_id', $student->id)
+                                    ->where(function($q) use ($yearId) {
+                                        $q->where('academic_year_id', $yearId)->orWhereNull('academic_year_id');
+                                    })
+                                    ->when($period != 'all', function($q) use ($period) {
+                                        $q->where(function($sub) use ($period) {
+                                            $sub->where('semester', $period)->orWhereNull('semester');
+                                        });
+                                    })
+                                    ->get();
 
-                            $hadir = $attendances->where('status', 'Hadir')->count();
-                            $sakit = $attendances->where('status', 'Sakit')->count();
-                            $izin = $attendances->where('status', 'Izin')->count();
-                            $alpa = $attendances->where('status', 'Alpha')->count();
-
-                            $attendanceStr = "H:{$hadir} | S:{$sakit} | I:{$izin} | A:{$alpa}";
+                            $countStatus = function($coll, $statusType) {
+                                return $coll->filter(function($att) use ($statusType) {
+                                    $st = strtolower(trim($att->status ?? ''));
+                                    if ($statusType === 'present') return in_array($st, ['present', 'hadir', 'h']);
+                                    if ($statusType === 'sick') return in_array($st, ['sick', 'sakit', 's']);
+                                    if ($statusType === 'permission') return in_array($st, ['permission', 'izin', 'i']);
+                                    if ($statusType === 'absent') return in_array($st, ['absent', 'alpha', 'alpa', 'a']);
+                                    return false;
+                                })->count();
+                            };
                         @endphp
                         <tr>
                             <td style="text-align: center; font-weight: bold;">{{ $index + 1 }}</td>
@@ -341,21 +354,90 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                @if($val1 !== '-')
-                                    <span class="badge-grade {{ str_contains(strtoupper($val1), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val1 }}</span>
+                                @if($studentEskuls->count() > 1)
+                                    <div style="font-size: 8pt; line-height: 1.4; text-align: left;">
+                                        @foreach($studentEskuls as $esk)
+                                            @php
+                                                $g1 = $student->grades->where('eskul_id', $esk->id)->where('type', 'sas1')->first();
+                                                $v1 = '-';
+                                                if ($g1) {
+                                                    $sc = $g1->score;
+                                                    $v1 = (is_string($sc) && (str_contains($sc, ':') || str_contains($sc, '{'))) ? 'Detail' : $sc;
+                                                }
+                                            @endphp
+                                            <div style="margin-bottom: 2px;">
+                                                <span style="color: #64748b;">{{ $esk->name }}:</span> 
+                                                <strong>{{ $v1 }}</strong>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @else
-                                    <span style="color: #cbd5e1;">-</span>
+                                    @if($val1 !== '-')
+                                        <span class="badge-grade {{ str_contains(strtoupper($val1), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val1 }}</span>
+                                    @else
+                                        <span style="color: #cbd5e1;">-</span>
+                                    @endif
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                @if($val2 !== '-')
-                                    <span class="badge-grade {{ str_contains(strtoupper($val2), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val2 }}</span>
+                                @if($studentEskuls->count() > 1)
+                                    <div style="font-size: 8pt; line-height: 1.4; text-align: left;">
+                                        @foreach($studentEskuls as $esk)
+                                            @php
+                                                $g2 = $student->grades->where('eskul_id', $esk->id)->where('type', 'sas2')->first();
+                                                $v2 = '-';
+                                                if ($g2) {
+                                                    $sc2 = $g2->score;
+                                                    $v2 = (is_string($sc2) && (str_contains($sc2, ':') || str_contains($sc2, '{'))) ? 'Detail' : $sc2;
+                                                }
+                                            @endphp
+                                            <div style="margin-bottom: 2px;">
+                                                <span style="color: #64748b;">{{ $esk->name }}:</span> 
+                                                <strong>{{ $v2 }}</strong>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @else
-                                    <span style="color: #cbd5e1;">-</span>
+                                    @if($val2 !== '-')
+                                        <span class="badge-grade {{ str_contains(strtoupper($val2), 'A') ? 'badge-a' : 'badge-b' }}">{{ $val2 }}</span>
+                                    @else
+                                        <span style="color: #cbd5e1;">-</span>
+                                    @endif
                                 @endif
                             </td>
-                            <td style="text-align: center; font-size: 8pt; font-weight: bold; color: #334155;">
-                                {{ $attendanceStr }}
+                            <td style="text-align: center; vertical-align: middle;">
+                                @if($studentEskuls->count() > 1)
+                                    <div style="font-size: 8pt; line-height: 1.4; text-align: left;">
+                                        @foreach($studentEskuls as $esk)
+                                            @php
+                                                $eskAtt = $attendances->where('eskul_id', $esk->id);
+                                                $eh = $countStatus($eskAtt, 'present');
+                                                $es = $countStatus($eskAtt, 'sick');
+                                                $ei = $countStatus($eskAtt, 'permission');
+                                                $ea = $countStatus($eskAtt, 'absent');
+                                            @endphp
+                                            <div style="margin-bottom: 2px;">
+                                                <span style="font-weight: 600; color: #0f172a;">{{ $esk->name }}:</span> 
+                                                <span style="color: #334155;">H:{{ $eh }} S:{{ $es }} I:{{ $ei }} A:{{ $ea }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    @php
+                                        $hadir = $countStatus($attendances, 'present');
+                                        $sakit = $countStatus($attendances, 'sick');
+                                        $izin = $countStatus($attendances, 'permission');
+                                        $alpa = $countStatus($attendances, 'absent');
+                                        $totAtt = $hadir + $sakit + $izin + $alpa;
+                                    @endphp
+                                    @if($totAtt > 0 || $studentEskuls->isNotEmpty())
+                                        <div style="font-size: 8.5pt; font-weight: bold; color: #1e293b;">
+                                            H: {{ $hadir }} &nbsp;|&nbsp; S: {{ $sakit }} &nbsp;|&nbsp; I: {{ $izin }} &nbsp;|&nbsp; A: {{ $alpa }}
+                                        </div>
+                                    @else
+                                        <span style="color: #94a3b8; font-style: italic;">Belum ada absensi</span>
+                                    @endif
+                                @endif
                             </td>
                         </tr>
                     @empty

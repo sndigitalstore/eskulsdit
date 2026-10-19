@@ -63,8 +63,23 @@ class AchievementController extends Controller
 
         \App\Models\ActivityLog::log('Achievements', 'Create', "Menambahkan prestasi: {$achievement->name} untuk siswa ID: {$achievement->student_id}");
 
-        return redirect()->route('students.show', $request->student_id)
-            ->with('success', 'Prestasi berhasil ditambahkan!');
+        if ($request->input('action') === 'finish') {
+            if ($request->has('from_student') && $request->from_student) {
+                return redirect()->route('students.show', $request->student_id)
+                    ->with('success', 'Prestasi berhasil ditambahkan!');
+            }
+            return redirect()->route('achievements.index')
+                ->with('success', 'Prestasi berhasil ditambahkan!');
+        }
+
+        // Tetap di halaman input data prestasi untuk memudahkan penginputan berlanjut
+        if ($request->has('from_student') && $request->from_student) {
+            return redirect()->route('achievements.create', ['student_id' => $request->student_id, 'from_student' => 1])
+                ->with('success', 'Prestasi berhasil ditambahkan! Silakan input data prestasi berikutnya.');
+        }
+
+        return redirect()->route('achievements.create')
+            ->with('success', 'Prestasi berhasil ditambahkan! Silakan input data prestasi berikutnya.');
     }
 
     public function edit(Achievement $achievement)

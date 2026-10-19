@@ -322,6 +322,17 @@ class ReportController extends Controller
                     $q->where('academic_year_id', $yearId)
                       ->whereIn('type', ['sas1', 'sas2'])
                       ->with('eskul');
+                }, 'attendances' => function($q) use ($yearId, $period) {
+                    $q->where(function($sub) use ($yearId) {
+                        $sub->where('academic_year_id', $yearId)
+                            ->orWhereNull('academic_year_id');
+                    });
+                    if ($period != 'all') {
+                        $q->where(function($sub) use ($period) {
+                            $sub->where('semester', $period)
+                                ->orWhereNull('semester');
+                        });
+                    }
                 }])
                 ->orderBy('name')
                 ->get();

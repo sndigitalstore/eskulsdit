@@ -295,9 +295,19 @@
                                 $grade2 = $student->grades->where('eskul_id', $eskul->id)->where('type', 'sas2')->first();
 
                                 // Calculate Attendance
-                                $attendanceCounts = \App\Models\Attendance::where('student_id', $student->id)
+                                $attQuery = \App\Models\Attendance::where('student_id', $student->id)
                                     ->where('eskul_id', $eskul->id)
-                                    ->where('academic_year_id', $selectedYearId)
+                                    ->where(function($q) use ($selectedYearId) {
+                                        $q->where('academic_year_id', $selectedYearId)->orWhereNull('academic_year_id');
+                                    });
+
+                                if ($selectedPeriod != 'all') {
+                                    $attQuery->where(function($q) use ($selectedPeriod) {
+                                        $q->where('semester', $selectedPeriod)->orWhereNull('semester');
+                                    });
+                                }
+
+                                $attendanceCounts = $attQuery
                                     ->selectRaw('status, count(*) as count')
                                     ->groupBy('status')
                                     ->pluck('count', 'status');
