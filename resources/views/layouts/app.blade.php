@@ -822,7 +822,37 @@
                 </ul>
             </li>
 
-            {{-- 5. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
+            {{-- 5. SMILE Kurikulum (Dropdown - Raport Akademik Kurikulum Merdeka) --}}
+            @php
+                $isKurikulumActive = request()->is('curriculum*');
+            @endphp
+            <li class="nav-dropdown {{ $isKurikulumActive ? 'open active-parent' : '' }}" id="dropdown-kurikulum">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-graduation-cap main-icon" style="color: #0284c7;"></i>
+                        <span>SMILE Kurikulum</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index') }}" class="nav-sublink {{ request()->is('curriculum/academic-reports*') ? 'active' : '' }}">
+                            <i class="fas fa-file-invoice" style="color: #0284c7;"></i>
+                            <span>Raport Akademik</span>
+                        </a>
+                    </li>
+                    @if($isAdminOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="{{ route('subjects.index') }}" class="nav-sublink {{ request()->is('curriculum/subjects*') ? 'active' : '' }}">
+                            <i class="fas fa-book" style="color: #10b981;"></i>
+                            <span>Mata Pelajaran</span>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
+            </li>
+
+            {{-- 6. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
             @if($isAdminOrHeadmaster)
             @php
                 $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*');

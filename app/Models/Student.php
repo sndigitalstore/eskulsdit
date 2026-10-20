@@ -123,4 +123,14 @@ class Student extends Model
     {
         return $this->hasMany(CharacterAppreciation::class);
     }
+
+    public function academicScores()
+    {
+        return $this->hasMany(AcademicScore::class);
+    }
+
+    public function academicSummaries()
+    {
+        return $this->hasMany(AcademicSummary::class);
+    }
 }

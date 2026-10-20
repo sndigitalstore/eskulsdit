@@ -211,6 +211,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/character-appreciations/print',     [\App\Http\Controllers\CharacterAppreciationController::class, 'print'])->name('character-appreciations.print');
     Route::resource('character-appreciations',       \App\Http\Controllers\CharacterAppreciationController::class);
 
+    // SMILE KURIKULUM (Raport Akademik STS 1, SAS 1, STS 2, SAS 2 & Mata Pelajaran)
+    Route::get('/curriculum/academic-reports',                          [\App\Http\Controllers\AcademicReportController::class, 'index'])->name('academic-reports.index');
+    Route::post('/curriculum/academic-reports/scores',                  [\App\Http\Controllers\AcademicReportController::class, 'storeScores'])->name('academic-reports.store-scores');
+    Route::post('/curriculum/academic-reports/summaries',               [\App\Http\Controllers\AcademicReportController::class, 'storeSummaries'])->name('academic-reports.store-summaries');
+    Route::get('/curriculum/academic-reports/students/{student}/print', [\App\Http\Controllers\AcademicReportController::class, 'printStudent'])->name('academic-reports.print-student');
+    Route::get('/curriculum/academic-reports/recap/print',              [\App\Http\Controllers\AcademicReportController::class, 'printClassRecap'])->name('academic-reports.print-recap');
+
+    Route::resource('curriculum/subjects',                              \App\Http\Controllers\SubjectController::class)->names('subjects');
+
 });
 
 
