@@ -113,4 +113,14 @@ class Student extends Model
     {
         return $this->hasMany(TahfidzRecord::class);
     }
+
+    public function characterCases()
+    {
+        return $this->hasMany(CharacterCase::class);
+    }
+
+    public function characterAppreciations()
+    {
+        return $this->hasMany(CharacterAppreciation::class);
+    }
 }

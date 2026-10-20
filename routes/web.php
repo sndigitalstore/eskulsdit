@@ -200,6 +200,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahfidz-groups/{group}/attendance/session/print',         [\App\Http\Controllers\TahfidzAttendanceController::class, 'printSession'])->name('tahfidz.attendance.print-session');
     Route::get('/tahfidz-groups/{group}/attendance/recap/print',           [\App\Http\Controllers\TahfidzAttendanceController::class, 'printRecap'])->name('tahfidz.attendance.print-recap');
 
+    // SMILE KARAKTER (Pemantauan Karakter Siswa)
+    Route::get('/character',                         [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');
+    Route::get('/character/report',                  [\App\Http\Controllers\CharacterDashboardController::class, 'report'])->name('character.report');
+    Route::get('/character/report/print',            [\App\Http\Controllers\CharacterDashboardController::class, 'printClassReport'])->name('character.report.print');
+
+    Route::get('/character-cases/print',             [\App\Http\Controllers\CharacterCaseController::class, 'print'])->name('character-cases.print');
+    Route::resource('character-cases',               \App\Http\Controllers\CharacterCaseController::class);
+
+    Route::get('/character-appreciations/print',     [\App\Http\Controllers\CharacterAppreciationController::class, 'print'])->name('character-appreciations.print');
+    Route::resource('character-appreciations',       \App\Http\Controllers\CharacterAppreciationController::class);
+
 });
 
 

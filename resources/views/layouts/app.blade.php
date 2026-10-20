@@ -782,7 +782,47 @@
                 </ul>
             </li>
 
-            {{-- 4. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
+            {{-- 4. SMILE KARAKTER (Dropdown - Pemantauan Karakter Siswa) --}}
+            @php
+                $isCharacterActive = request()->is('character*', 'character-cases*', 'character-appreciations*');
+            @endphp
+            <li class="nav-dropdown {{ $isCharacterActive ? 'open active-parent' : '' }}" id="dropdown-karakter">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-smile-beam main-icon" style="color: #f59e0b;"></i>
+                        <span>SMILE KARAKTER</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    <li class="nav-subitem">
+                        <a href="{{ route('character.dashboard') }}" class="nav-sublink {{ request()->is('character') ? 'active' : '' }}">
+                            <i class="fas fa-chart-pie" style="color: #6366f1;"></i>
+                            <span>Pantauan Karakter</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('character-cases.index') }}" class="nav-sublink {{ request()->is('character-cases*') ? 'active' : '' }}">
+                            <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+                            <span>Data Kasus</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('character-appreciations.index') }}" class="nav-sublink {{ request()->is('character-appreciations*') ? 'active' : '' }}">
+                            <i class="fas fa-award" style="color: #10b981;"></i>
+                            <span>Data Apresiasi</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('character.report') }}" class="nav-sublink {{ request()->is('character/report*') ? 'active' : '' }}">
+                            <i class="fas fa-file-signature" style="color: #0284c7;"></i>
+                            <span>Laporan & Rekap</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- 5. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
             @if($isAdminOrHeadmaster)
             @php
                 $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*');
