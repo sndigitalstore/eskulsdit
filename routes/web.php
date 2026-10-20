@@ -188,5 +188,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahfidz-groups/{group}/students/{student}/print',  [\App\Http\Controllers\TahfidzRecordController::class, 'printCard'])->name('tahfidz.print-card');
     Route::get('/tahfidz-groups/{group}/recap/print',               [\App\Http\Controllers\TahfidzRecordController::class, 'printGroup'])->name('tahfidz.print-group-recap');
 
+    // Tahfidz Attendance (Absensi Kehadiran Sesi)
+    Route::get('/tahfidz-groups/{group}/attendance',                       [\App\Http\Controllers\TahfidzAttendanceController::class, 'index'])->name('tahfidz.attendance.index');
+    Route::get('/tahfidz-groups/{group}/attendance/create',                [\App\Http\Controllers\TahfidzAttendanceController::class, 'create'])->name('tahfidz.attendance.create');
+    Route::post('/tahfidz-groups/{group}/attendance/store',                [\App\Http\Controllers\TahfidzAttendanceController::class, 'store'])->name('tahfidz.attendance.store');
+    Route::get('/tahfidz-groups/{group}/attendance/session',               [\App\Http\Controllers\TahfidzAttendanceController::class, 'showSession'])->name('tahfidz.attendance.session');
+    Route::delete('/tahfidz-groups/{group}/attendance/session',            [\App\Http\Controllers\TahfidzAttendanceController::class, 'destroySession'])->name('tahfidz.attendance.destroy-session');
+    Route::get('/tahfidz-groups/{group}/attendance/session/print',         [\App\Http\Controllers\TahfidzAttendanceController::class, 'printSession'])->name('tahfidz.attendance.print-session');
+    Route::get('/tahfidz-groups/{group}/attendance/recap/print',           [\App\Http\Controllers\TahfidzAttendanceController::class, 'printRecap'])->name('tahfidz.attendance.print-recap');
+
 });
+
+
+
 

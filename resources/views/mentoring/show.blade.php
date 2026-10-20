@@ -130,14 +130,17 @@
                 <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
                     <i class="fas fa-user-plus"></i> + Tambah Siswa
                 </button>
+                @if($type === 'tahfidz')
+                    <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #7c3aed; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                        <i class="fas fa-clipboard-check"></i> Absensi Sesi
+                    </a>
+                    <a href="{{ route('tahfidz.print-group-recap', ['group' => $group->id]) }}" target="_blank" class="btn-action-header btn-dark" style="background: #0f766e;">
+                        <i class="fas fa-quran"></i> Rekap Hafalan
+                    </a>
+                @endif
                 <a href="{{ route('mentoring-groups.print-group', $group->id) }}" target="_blank" class="btn-action-header btn-dark" style="background: #334155;">
                     <i class="fas fa-print"></i> Cetak Daftar Kelompok
                 </a>
-                @if($type === 'tahfidz')
-                    <a href="{{ route('tahfidz.print-group-recap', ['group' => $group->id]) }}" target="_blank" class="btn-action-header btn-dark" style="background: #0f766e;">
-                        <i class="fas fa-quran"></i> Rekap Hafalan Kelompok
-                    </a>
-                @endif
                 <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange">
                     <i class="fas fa-edit"></i> Edit
                 </a>
