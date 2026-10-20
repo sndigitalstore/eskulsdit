@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan & Rekapitulasi Karakter Santri – SMILE KARAKTER')
+@section('title', 'Laporan & Rekapitulasi Karakter Santri – SMILE Karakter')
 @section('page-title', 'Laporan & Rekapitulasi Karakter')
 
 @section('content')
@@ -71,7 +71,7 @@
                         Daftar Evaluasi Karakter: {{ $selectedClass === 'ALL' ? 'Seluruh Kelas' : 'Kelas ' . $selectedClass }} ({{ $students->count() }} Santri)
                     </h4>
                     <span style="font-size: 0.8rem; color: #64748b;">
-                        Format SMILE KARAKTER SDIT AN NADZIR
+                        Format SMILE Karakter SDIT AN NADZIR
                     </span>
                 </div>
 

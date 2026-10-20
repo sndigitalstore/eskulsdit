@@ -163,7 +163,7 @@
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
                 <h1>SDIT AN NADZIR</h1>
-                <h2>SISTEM PEMANTAUAN AKHLAK & KARAKTER (SMILE KARAKTER)</h2>
+                <h2>SISTEM PEMANTAUAN AKHLAK & KARAKTER (SMILE Karakter)</h2>
                 <p>Membentuk Generasi Qur'ani yang Berakhlak Mulia, Cerdas, Mandiri, dan Berkarakter</p>
             </div>
         </div>

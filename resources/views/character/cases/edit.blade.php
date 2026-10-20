@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Catatan Kasus Santri – SMILE KARAKTER')
+@section('title', 'Edit Catatan Kasus Santri – SMILE Karakter')
 @section('page-title', 'Edit Catatan Kasus')
 
 @section('content')

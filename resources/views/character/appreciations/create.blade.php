@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Beri Apresiasi Santri – SMILE KARAKTER')
+@section('title', 'Beri Apresiasi Santri – SMILE Karakter')
 @section('page-title', 'Beri Apresiasi Santri')
 
 @section('content')

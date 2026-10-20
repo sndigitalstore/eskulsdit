@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Pantauan Karakter – SMILE KARAKTER')
-@section('page-title', 'SMILE KARAKTER')
+@section('title', 'Pantauan Karakter – SMILE Karakter')
+@section('page-title', 'SMILE Karakter')
 
 @section('content')
 <div style="max-width: 1400px; margin: 0 auto;">
@@ -17,7 +17,7 @@
                 <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.15); padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
                     <i class="fas fa-heart" style="color: #fca5a5;"></i> Modul Pembinaan Karakter Siswa
                 </div>
-                <h2 style="margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em;">SMILE KARAKTER SDIT AN NADZIR</h2>
+                <h2 style="margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em;">SMILE Karakter SDIT AN NADZIR</h2>
                 <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 0.92rem; max-width: 650px;">
                     Pemantauan holistik pembiasaan karakter santri berlandaskan nilai <strong>SMILE</strong>: <strong>Sholeh</strong>, <strong>Muslih</strong>, <strong>Intellectual Curiosity</strong>, <strong>Leadership</strong>, dan <strong>Environmentally Friendly</strong> secara akuntabel.
                 </p>

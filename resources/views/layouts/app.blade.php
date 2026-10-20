@@ -782,7 +782,7 @@
                 </ul>
             </li>
 
-            {{-- 4. SMILE KARAKTER (Dropdown - Pemantauan Karakter Siswa) --}}
+            {{-- 4. SMILE Karakter (Dropdown - Pemantauan Karakter Siswa) --}}
             @php
                 $isCharacterActive = request()->is('character*', 'character-cases*', 'character-appreciations*');
             @endphp
@@ -790,7 +790,7 @@
                 <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
                     <div class="toggle-content">
                         <i class="fas fa-smile-beam main-icon" style="color: #f59e0b;"></i>
-                        <span>SMILE KARAKTER</span>
+                        <span>SMILE Karakter</span>
                     </div>
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </div>
