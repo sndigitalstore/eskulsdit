@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Ekstrakurikuler - SDIT AN NADZIR</title>
+    <title>Q-Talent - Sistem Pembinaan Qur'an & Prestasi SDIT AN NADZIR</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="/logo.png">
     
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="Sistem Informasi Manajemen Ekstrakurikuler SDIT AN NADZIR. Pantau kehadiran, nilai, dan perkembangan ekstrakurikuler siswa dalam satu platform cerdas.">
+    <meta name="description" content="Q-Talent SDIT AN NADZIR - Sistem Terpadu Manajemen Pembinaan Al-Qur'an (Tilawati & Tahfidz), Ekstrakurikuler, dan Prestasi Siswa.">
     
     <style>
         @php
@@ -702,7 +702,7 @@
     <nav>
         <a href="/" class="logo">
             <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" class="logo-img">
-            <span>SIM ESKUL</span>
+            <span>Q-TALENT</span>
         </a>
         <div class="nav-links">
             <a href="#fitur" class="nav-link">Fitur Unggulan</a>
@@ -724,8 +724,8 @@
     <!-- Hero Section -->
     <header class="hero">
         <div class="hero-text">
-            <h1>Kelola Potensi Siswa <br> <span>Lebih Cerdas.</span></h1>
-            <p>Sistem Informasi Manajemen Ekstrakurikuler SDIT AN NADZIR. Platform modern untuk memantau bakat, kehadiran, dan prestasi siswa secara real-time.</p>
+            <h1>Bina Karakter Qur'ani & <br> <span>Potensi Prestasi.</span></h1>
+            <p>Q-Talent SDIT AN NADZIR. Platform cerdas terintegrasi untuk pembinaan Tilawati, setoran Tahfidz, kegiatan ekstrakurikuler, dan rekam jejak prestasi siswa secara real-time.</p>
             <div class="cta-group">
                 <a href="{{ route('login') }}" class="btn-primary">
                     Mulai Sekarang <i class="fas fa-chevron-right"></i>
@@ -741,11 +741,14 @@
                     <!-- Left Pastel Sidebar -->
                     <div class="ui-sidebar">
                         <div class="ui-sidebar-brand">
-                            <div class="ui-sidebar-avatar">.D</div>
-                            <span>Dashboard</span>
+                            <div class="ui-sidebar-avatar">Q</div>
+                            <span>Q-Talent</span>
                         </div>
                         <div class="ui-menu-item active">
                             <i class="fas fa-home"></i> Beranda
+                        </div>
+                        <div class="ui-menu-item">
+                            <i class="fas fa-quran"></i> Qur'an
                         </div>
                         <div class="ui-menu-item">
                             <i class="fas fa-running"></i> Eskul
@@ -901,9 +904,9 @@
             <div class="footer-brand">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                     <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" style="height: 38px; width: auto; object-fit: contain;">
-                    <h3 style="margin: 0;">SIM ESKUL AN NADZIR</h3>
+                    <h3 style="margin: 0;">Q-TALENT SDIT AN NADZIR</h3>
                 </div>
-                <p>Membentuk generasi Qur'ani yang unggul dalam akademik dan berbakat dalam minat. SDIT AN NADZIR terus berinovasi untuk memberikan pendidikan berkualitas terbaik.</p>
+                <p>Membentuk generasi Qur'ani yang unggul dalam akhlak, akademik, dan berbakat dalam minat. SDIT AN NADZIR terus berinovasi untuk memberikan pendidikan berkualitas terbaik.</p>
             </div>
             <div class="footer-links">
                 <h4>Akses Cepat</h4>

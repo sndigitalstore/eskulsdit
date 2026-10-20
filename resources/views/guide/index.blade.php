@@ -9,8 +9,8 @@
     <!-- Hero Section -->
     <div class="card" style="background: var(--accent-gradient); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; text-align: center;">
         <i class="fas fa-book-open" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.9;"></i>
-        <h2 style="font-size: 2.2rem; margin-bottom: 10px;">Selamat Datang di Sistem Eskul</h2>
-        <p style="font-size: 1.1rem; opacity: 0.9; max-width: 700px; margin: 0 auto;">Panduan singkat ini akan membantu Anda menguasai seluruh fitur sistem manajemen ekstrakurikuler SDIT AN NADZIR dengan cepat dan efektif.</p>
+        <h2 style="font-size: 2.2rem; margin-bottom: 10px;">Selamat Datang di Q-Talent</h2>
+        <p style="font-size: 1.1rem; opacity: 0.9; max-width: 700px; margin: 0 auto;">Panduan lengkap ini akan membantu Anda menguasai seluruh fitur sistem pembinaan Qur'an (Tilawati & Tahfidz), ekstrakurikuler, dan rekam prestasi SDIT AN NADZIR dengan cepat dan efektif.</p>
     </div>
 
     <!-- Guide Grid -->

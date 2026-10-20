@@ -208,7 +208,7 @@
                 ['title' => 'Panduan Alur Kerja', 'desc' => 'Langkah persiapan awal tahun ajaran, pengisian absen, hingga pencetakan rapor.'],
                 ['title' => 'Tips & Solusi Problem', 'desc' => 'Jawaban atas pertanyaan umum dan solusi jika mengalami kendala teknis.'],
             ],
-            'tips' => 'Pelajari halaman panduan ini untuk memahami seluruh ekosistem fitur sistem eskul.'
+            'tips' => 'Pelajari halaman panduan ini untuk memahami seluruh ekosistem fitur Q-Talent.'
         ]
     ];
 

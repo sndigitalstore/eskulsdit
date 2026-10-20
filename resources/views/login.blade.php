@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SIM Ekstrakurikuler SDIT AN NADZIR</title>
+    <title>Login - Q-Talent SDIT AN NADZIR</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -549,12 +549,15 @@
             <div class="login-box">
                 <div class="brand">
                     <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
-                    <h1>SDIT AN NADZIR</h1>
+                    <div style="display: flex; flex-direction: column;">
+                        <h1 style="line-height: 1.1; margin: 0; font-size: 1.75rem;">Q-TALENT</h1>
+                        <span style="font-size: 0.78rem; font-weight: 700; color: #059669; letter-spacing: 0.05em; text-transform: uppercase;">SDIT AN NADZIR</span>
+                    </div>
                 </div>
 
                 <div class="welcome-text">
                     <h2>Selamat Datang!</h2>
-                    <p>Sistem Informasi Manajemen Ekstrakurikuler yang cerdas, efisien, dan modern.</p>
+                    <p>Sistem Terpadu Pembinaan Al-Qur'an (Tilawati & Tahfidz), Ekstrakurikuler, dan Prestasi Siswa.</p>
                 </div>
 
                 @if ($errors->any())
@@ -601,11 +604,14 @@
                     <!-- Left Pastel Sidebar -->
                     <div class="ui-sidebar">
                         <div class="ui-sidebar-brand">
-                            <div class="ui-sidebar-avatar">.D</div>
-                            <span>Dashboard</span>
+                            <div class="ui-sidebar-avatar">Q</div>
+                            <span>Q-Talent</span>
                         </div>
                         <div class="ui-menu-item active">
                             <i class="fas fa-home"></i> Beranda
+                        </div>
+                        <div class="ui-menu-item">
+                            <i class="fas fa-quran"></i> Qur'an
                         </div>
                         <div class="ui-menu-item">
                             <i class="fas fa-running"></i> Eskul
@@ -663,8 +669,8 @@
 
                         <!-- Text Quote Card inside Mockup -->
                         <div class="visual-text-card">
-                            <h4>Eksplorasi Potensi Siswa</h4>
-                            <p>Pantau rekap nilai, absensi, dan prestasi siswa dalam satu platform cerdas.</p>
+                            <h4>Qur'an & Talent Platform</h4>
+                            <p>Pantau perkembangan Tilawati, hafalan Tahfidz, absensi eskul, serta capaian prestasi siswa dalam satu sistem terpadu.</p>
                         </div>
                     </div>
                 </div>

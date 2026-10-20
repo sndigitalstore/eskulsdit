@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Eskul - @yield('title', 'Dashboard')</title>
+    <title>Q-Talent - @yield('title', 'Dashboard')</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -537,7 +537,10 @@
     <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="{{ asset('logo.png') }}" alt="Logo">
-            <h2>SDIT AN NADZIR</h2>
+            <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                <h2 style="font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; color: #ffffff;">Q-TALENT</h2>
+                <span style="font-size: 0.68rem; font-weight: 600; color: #a7f3d0; letter-spacing: 0.04em;">SDIT AN NADZIR</span>
+            </div>
             <div style="margin-left: auto; display: none;" class="close-sidebar-btn" onclick="toggleSidebar()">
                 <i class="fas fa-times"></i>
             </div>

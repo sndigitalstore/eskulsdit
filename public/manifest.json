@@ -1,7 +1,7 @@
 {
-  "name": "SIM Eskul SDIT AN NADZIR",
-  "short_name": "SIM Eskul",
-  "description": "Sistem Informasi Manajemen Ekstrakurikuler SDIT AN NADZIR",
+  "name": "Q-Talent SDIT AN NADZIR",
+  "short_name": "Q-Talent",
+  "description": "Sistem Informasi Terpadu Qur'an, Bakat & Minat SDIT AN NADZIR",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
