@@ -13,7 +13,7 @@
                 <i class="fas fa-award" style="color: #10b981;"></i> Catatan Apresiasi & Perilaku Terpuji Santri
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Dokumentasi pembiasaan karakter unggul santri berlandaskan nilai <strong>SMILE (Shiddiq, Mandiri, Inisiatif/Ibadah, Leadership, Empati)</strong>.
+                Dokumentasi pembiasaan karakter unggul santri berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly)</strong>.
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">

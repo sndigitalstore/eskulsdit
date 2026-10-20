@@ -57,16 +57,16 @@ class CharacterAppreciation extends Model
     public function getCategoryThemeAttribute()
     {
         $cat = strtolower($this->category);
-        if (str_contains($cat, 'shiddiq') || str_contains($cat, 'jujur')) {
-            return ['bg' => '#dcfce7', 'color' => '#15803d', 'icon' => 'fa-check-double'];
-        } elseif (str_contains($cat, 'mandiri')) {
-            return ['bg' => '#e0e7ff', 'color' => '#4338ca', 'icon' => 'fa-hiking'];
-        } elseif (str_contains($cat, 'ibadah') || str_contains($cat, 'inovatif')) {
-            return ['bg' => '#e0f2fe', 'color' => '#0369a1', 'icon' => 'fa-pray'];
+        if (str_contains($cat, 'sholeh')) {
+            return ['bg' => '#dcfce7', 'color' => '#15803d', 'icon' => 'fa-pray'];
+        } elseif (str_contains($cat, 'muslih')) {
+            return ['bg' => '#fef3c7', 'color' => '#b45309', 'icon' => 'fa-hands-helping'];
+        } elseif (str_contains($cat, 'intellectual') || str_contains($cat, 'curiosity') || str_contains($cat, 'intelektual') || str_contains($cat, 'rasa ingin tahu')) {
+            return ['bg' => '#e0f2fe', 'color' => '#0369a1', 'icon' => 'fa-brain'];
         } elseif (str_contains($cat, 'leader') || str_contains($cat, 'pemimpin')) {
-            return ['bg' => '#fef3c7', 'color' => '#b45309', 'icon' => 'fa-crown'];
-        } elseif (str_contains($cat, 'empati') || str_contains($cat, 'peduli')) {
-            return ['bg' => '#fce7f3', 'color' => '#be185d', 'icon' => 'fa-heart'];
+            return ['bg' => '#ede9fe', 'color' => '#7c3aed', 'icon' => 'fa-crown'];
+        } elseif (str_contains($cat, 'environ') || str_contains($cat, 'lingkungan')) {
+            return ['bg' => '#d1fae5', 'color' => '#065f46', 'icon' => 'fa-leaf'];
         }
         return ['bg' => '#f1f5f9', 'color' => '#334155', 'icon' => 'fa-star'];
     }

@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->foreignId('academic_year_id')->nullable()->constrained('academic_years')->nullOnDelete();
                 $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
                 $table->date('date');
-                $table->string('category', 100); // Shiddiq (Kejujuran), Mandiri, Inovatif & Ibadah, Leadership (Kepemimpinan), Empati & Peduli, Adab & Sopan Santun, Prestasi Karakter
+                $table->string('category', 100); // Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly, Adab & Kesopanan, Prestasi Karakter
                 $table->string('title'); // Ringkasan Apresiasi / Kebaikan
                 $table->text('description')->nullable(); // Detail Perilaku Positif
                 $table->integer('point')->default(10); // Poin Kebaikan

@@ -80,11 +80,11 @@ class CharacterAppreciationController extends Controller
         $appreciations = $query->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(20)->withQueryString();
 
         $categories = [
-            'Shiddiq (Kejujuran)',
-            'Mandiri (Kemandirian)',
-            'Inisiatif & Ibadah',
+            'Sholeh (Keshalehan Pribadi)',
+            'Muslih (Pembawa Kebaikan)',
+            'Intellectual Curiosity (Rasa Ingin Tahu)',
             'Leadership (Kepemimpinan)',
-            'Empati & Kepedulian',
+            'Environmentally Friendly (Peduli Lingkungan)',
             'Adab & Kesopanan',
             'Prestasi Karakter',
             'Lainnya',
@@ -127,11 +127,11 @@ class CharacterAppreciationController extends Controller
         $selectedStudent = $selectedStudentId ? Student::find($selectedStudentId) : null;
 
         $categories = [
-            'Shiddiq (Kejujuran)' => 'S - Shiddiq (Jujur, amanah, mengakui kesalahan)',
-            'Mandiri (Kemandirian)' => 'M - Mandiri (Bertanggung jawab, rapi, tepat waktu)',
-            'Inisiatif & Ibadah' => 'I - Inisiatif / Ibadah (Muadzin, dzikir, membantu tanpa diminta)',
-            'Leadership (Kepemimpinan)' => 'L - Leadership (Memimpin doa, membimbing adik kelas, tertib)',
-            'Empati & Kepedulian' => 'E - Empati (Menolong teman, berbagi, santun, pemaaf)',
+            'Sholeh (Keshalehan Pribadi)' => 'S - Sholeh (Taat ibadah, dzikir, adab mulia, berbakti)',
+            'Muslih (Pembawa Kebaikan)' => 'M - Muslih (Membawa kebaikan, mengajak kebaikan, mendamaikan)',
+            'Intellectual Curiosity (Rasa Ingin Tahu)' => 'I - Intellectual Curiosity (Rasa ingin tahu ilmiah, gemar literasi, tekun, inovatif)',
+            'Leadership (Kepemimpinan)' => 'L - Leadership (Kepemimpinan, tanggung jawab, inisiatif, keteladanan)',
+            'Environmentally Friendly (Peduli Lingkungan)' => 'E - Environmentally Friendly (Peduli kebersihan, kerapian, kelestarian lingkungan)',
             'Adab & Kesopanan' => 'Adab & Akhlak Mulia Terpuji',
             'Prestasi Karakter' => 'Prestasi & Bintang Karakter Sekolah',
             'Lainnya' => 'Lainnya',
@@ -199,11 +199,11 @@ class CharacterAppreciationController extends Controller
             ->get();
 
         $categories = [
-            'Shiddiq (Kejujuran)' => 'S - Shiddiq (Jujur, amanah, mengakui kesalahan)',
-            'Mandiri (Kemandirian)' => 'M - Mandiri (Bertanggung jawab, rapi, tepat waktu)',
-            'Inisiatif & Ibadah' => 'I - Inisiatif / Ibadah (Muadzin, dzikir, membantu tanpa diminta)',
-            'Leadership (Kepemimpinan)' => 'L - Leadership (Memimpin doa, membimbing adik kelas, tertib)',
-            'Empati & Kepedulian' => 'E - Empati (Menolong teman, berbagi, santun, pemaaf)',
+            'Sholeh (Keshalehan Pribadi)' => 'S - Sholeh (Taat ibadah, dzikir, adab mulia, berbakti)',
+            'Muslih (Pembawa Kebaikan)' => 'M - Muslih (Membawa kebaikan, mengajak kebaikan, mendamaikan)',
+            'Intellectual Curiosity (Rasa Ingin Tahu)' => 'I - Intellectual Curiosity (Rasa ingin tahu ilmiah, gemar literasi, tekun, inovatif)',
+            'Leadership (Kepemimpinan)' => 'L - Leadership (Kepemimpinan, tanggung jawab, inisiatif, keteladanan)',
+            'Environmentally Friendly (Peduli Lingkungan)' => 'E - Environmentally Friendly (Peduli kebersihan, kerapian, kelestarian lingkungan)',
             'Adab & Kesopanan' => 'Adab & Akhlak Mulia Terpuji',
             'Prestasi Karakter' => 'Prestasi & Bintang Karakter Sekolah',
             'Lainnya' => 'Lainnya',

@@ -12,7 +12,7 @@
                 <i class="fas fa-plus-circle" style="color: #10b981;"></i> Form Pemberian Apresiasi & Kebaikan
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Apresiasi perilaku mulia, inisiatif terpuji, dan akhlak unggul santri berlandaskan nilai <strong>SMILE</strong>.
+                Apresiasi perilaku mulia, inisiatif terpuji, dan akhlak unggul santri berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly)</strong>.
             </p>
         </div>
         <a href="{{ route('character-appreciations.index') }}" class="btn-action-header btn-dark" style="text-decoration: none;">

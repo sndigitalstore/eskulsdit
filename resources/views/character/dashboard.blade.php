@@ -19,7 +19,7 @@
                 </div>
                 <h2 style="margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em;">SMILE KARAKTER SDIT AN NADZIR</h2>
                 <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 0.92rem; max-width: 650px;">
-                    Pemantauan holistik pembiasaan akhlak santri: <strong>Shiddiq (Jujur)</strong>, <strong>Mandiri</strong>, <strong>Inovatif & Ibadah</strong>, <strong>Leadership</strong>, dan <strong>Empati</strong> secara akuntabel.
+                    Pemantauan holistik pembiasaan karakter santri berlandaskan nilai <strong>SMILE</strong>: <strong>Sholeh</strong>, <strong>Muslih</strong>, <strong>Intellectual Curiosity</strong>, <strong>Leadership</strong>, dan <strong>Environmentally Friendly</strong> secara akuntabel.
                 </p>
             </div>
             
