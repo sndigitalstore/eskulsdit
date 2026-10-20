@@ -260,6 +260,11 @@
             </tbody>
         </table>
 
+        @php
+            $headmasterName = \App\Models\Setting::get('headmaster_name', "Nur'asiah, S.Pd.I");
+            $headmasterNip = \App\Models\Setting::get('headmaster_nip', '-');
+        @endphp
+
         <!-- 3 TIER SIGNATURES -->
         <div class="signatures-grid">
             <div class="sig-block">
@@ -269,8 +274,8 @@
                 </div>
                 <div>
                     <br><br><br>
-                    <strong><u>{{ \App\Models\Setting::get('headmaster_name', 'Kepala Sekolah') }}</u></strong><br>
-                    <span style="font-size: 8pt; color: #555;">NIP/NIY: {{ \App\Models\Setting::get('headmaster_nip', '-') }}</span>
+                    <strong><u>{{ $headmasterName }}</u></strong><br>
+                    <span style="font-size: 8pt; color: #555;">NIP/NIY: {{ $headmasterNip }}</span>
                 </div>
             </div>
 
