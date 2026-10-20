@@ -8,6 +8,7 @@ use App\Models\MentoringGroup;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -64,9 +65,207 @@ class MentoringGroupController extends Controller
         return 'tahfidz';
     }
 
+    /**
+     * Manajemen Kelompok Terpusat untuk Admin
+     */
+    public function management(Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            return redirect()->route('dashboard')->with('error', 'Akses manajemen kelompok hanya untuk Administrator.');
+        }
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $selectedYearId = $request->input('year_id', $activeYear ? $activeYear->id : null);
+        $tab = $request->input('tab', 'all'); // 'all', 'tilawati', 'tahfidz', 'unassigned'
+        $search = $request->input('search');
+        $mentorFilter = $request->input('mentor_user_id');
+
+        $academicYears = AcademicYear::orderBy('name', 'desc')->get();
+        $teachers = User::whereIn('role', ['teacher', 'admin'])->orderBy('name')->get();
+
+        // Query Kelompok
+        $groupsQuery = MentoringGroup::withCount('students')
+            ->with(['academicYear', 'mentorUser'])
+            ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId));
+
+        if ($tab === 'tilawati') {
+            $groupsQuery->where('type', 'tilawati');
+        } elseif ($tab === 'tahfidz') {
+            $groupsQuery->where('type', 'tahfidz');
+        }
+
+        if ($mentorFilter) {
+            $groupsQuery->where('mentor_user_id', $mentorFilter);
+        }
+
+        if ($search) {
+            $groupsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('mentor_name', 'like', "%{$search}%")
+                  ->orWhere('target_level', 'like', "%{$search}%");
+            });
+        }
+
+        $groups = $groupsQuery->orderBy('type')->orderBy('name')->get();
+
+        // Summary KPI
+        $totalTilawatiGroups = MentoringGroup::where('type', 'tilawati')
+            ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))->count();
+        $totalTahfidzGroups = MentoringGroup::where('type', 'tahfidz')
+            ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))->count();
+
+        $totalActiveStudents = Student::forYear($selectedYearId)->where(function($q) {
+            $q->where('status', '!=', 'graduated')->orWhereNull('status');
+        })->count();
+
+        // Siswa terdaftar di Tilawati
+        $assignedTilawatiIds = DB::table('mentoring_group_students')
+            ->join('mentoring_groups', 'mentoring_groups.id', '=', 'mentoring_group_students.mentoring_group_id')
+            ->where('mentoring_groups.type', 'tilawati')
+            ->when($selectedYearId, fn($q) => $q->where('mentoring_groups.academic_year_id', $selectedYearId))
+            ->pluck('student_id')->unique();
+
+        // Siswa terdaftar di Tahfidz
+        $assignedTahfidzIds = DB::table('mentoring_group_students')
+            ->join('mentoring_groups', 'mentoring_groups.id', '=', 'mentoring_group_students.mentoring_group_id')
+            ->where('mentoring_groups.type', 'tahfidz')
+            ->when($selectedYearId, fn($q) => $q->where('mentoring_groups.academic_year_id', $selectedYearId))
+            ->pluck('student_id')->unique();
+
+        $tilawatiAssignedCount = $assignedTilawatiIds->count();
+        $tahfidzAssignedCount  = $assignedTahfidzIds->count();
+
+        $tilawatiUnassignedCount = max(0, $totalActiveStudents - $tilawatiAssignedCount);
+        $tahfidzUnassignedCount  = max(0, $totalActiveStudents - $tahfidzAssignedCount);
+
+        $totalMentors = MentoringGroup::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+            ->whereNotNull('mentor_name')->distinct('mentor_name')->count('mentor_name');
+
+        // Untuk Tab Distribusi / Siswa Belum Terkelompokkan
+        $unassignedType = $request->input('unassigned_type', 'tilawati');
+        $classFilter = $request->input('class_filter');
+
+        $assignedIdsForUnassigned = $unassignedType === 'tilawati' ? $assignedTilawatiIds : $assignedTahfidzIds;
+
+        $unassignedStudentsQuery = Student::forYear($selectedYearId)
+            ->where(function($q) {
+                $q->where('status', '!=', 'graduated')->orWhereNull('status');
+            })
+            ->whereNotIn('id', $assignedIdsForUnassigned);
+
+        if ($classFilter && $classFilter !== 'ALL') {
+            $unassignedStudentsQuery->where('class', $classFilter);
+        }
+
+        $unassignedStudents = $unassignedStudentsQuery->orderBy('class')->orderBy('name')->get();
+
+        // Ambil kelas unik untuk dropdown filter
+        $availableClasses = Student::forYear($selectedYearId)
+            ->where(function($q) {
+                $q->where('status', '!=', 'graduated')->orWhereNull('status');
+            })
+            ->select('class')->distinct()->orderBy('class')->pluck('class');
+
+        // Kelompok yang tersedia untuk target cepat
+        $availableGroups = MentoringGroup::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+            ->orderBy('type')->orderBy('name')->get();
+
+        return view('mentoring.management', compact(
+            'groups',
+            'tab',
+            'activeYear',
+            'academicYears',
+            'selectedYearId',
+            'search',
+            'mentorFilter',
+            'teachers',
+            'totalTilawatiGroups',
+            'totalTahfidzGroups',
+            'totalActiveStudents',
+            'tilawatiAssignedCount',
+            'tahfidzAssignedCount',
+            'tilawatiUnassignedCount',
+            'tahfidzUnassignedCount',
+            'totalMentors',
+            'unassignedType',
+            'classFilter',
+            'unassignedStudents',
+            'availableClasses',
+            'availableGroups'
+        ));
+    }
+
+    /**
+     * Pembagian Siswa Cepat ke Kelompok (Admin)
+     */
+    public function quickAssign(Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            return redirect()->route('dashboard')->with('error', 'Akses hanya untuk Administrator.');
+        }
+
+        $request->validate([
+            'group_id' => 'required|exists:mentoring_groups,id',
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:students,id',
+        ]);
+
+        $group = MentoringGroup::findOrFail($request->group_id);
+        $studentIds = $request->student_ids;
+        $yearId = $group->academic_year_id;
+        $count = 0;
+
+        DB::beginTransaction();
+        try {
+            foreach ($studentIds as $sId) {
+                // Hapus dari kelompok lama di tipe & tahun yang sama jika ada
+                $oldGroupIds = DB::table('mentoring_group_students')
+                    ->join('mentoring_groups', 'mentoring_groups.id', '=', 'mentoring_group_students.mentoring_group_id')
+                    ->where('mentoring_groups.type', $group->type)
+                    ->where('mentoring_groups.academic_year_id', $yearId)
+                    ->where('mentoring_group_students.student_id', $sId)
+                    ->pluck('mentoring_groups.id');
+
+                if ($oldGroupIds->isNotEmpty()) {
+                    DB::table('mentoring_group_students')
+                        ->whereIn('mentoring_group_id', $oldGroupIds)
+                        ->where('student_id', $sId)
+                        ->delete();
+                }
+
+                DB::table('mentoring_group_students')->updateOrInsert(
+                    [
+                        'mentoring_group_id' => $group->id,
+                        'student_id' => $sId,
+                    ],
+                    [
+                        'academic_year_id' => $yearId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
+                $count++;
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membagikan siswa: ' . $e->getMessage());
+        }
+
+        $typeLabel = $group->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
+        ActivityLog::log("Mentoring {$typeLabel}", 'Update', "Distribusi cepat {$count} siswa ke kelompok: {$group->name}");
+
+        return back()->with('success', "Berhasil memasukkan {$count} siswa ke dalam kelompok {$group->name}!");
+    }
+
     public function index(Request $request)
     {
         $type = $this->resolveType($request);
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $request->input('year_id', $activeYear ? $activeYear->id : null);
         $search = $request->input('search');
@@ -76,6 +275,14 @@ class MentoringGroupController extends Controller
         $query = MentoringGroup::where('type', $type)
             ->withCount('students')
             ->with(['academicYear', 'mentorUser']);
+
+        if (!$isAdmin) {
+            // Guru hanya melihat kelompok yang dibimbingnya
+            $query->where(function ($q) use ($user) {
+                $q->where('mentor_user_id', $user->id)
+                  ->orWhere('mentor_name', $user->name);
+            });
+        }
 
         if ($selectedYearId) {
             $query->where('academic_year_id', $selectedYearId);
@@ -92,21 +299,41 @@ class MentoringGroupController extends Controller
         $groups = $query->orderBy('name')->paginate(15)->appends($request->query());
 
         // Statistik
-        $totalStudentsInYear = Student::forYear($selectedYearId)->where(function($q) {
-            $q->where('status', '!=', 'graduated')->orWhereNull('status');
-        })->count();
+        $totalStudentsInYear = 0;
+        $totalAssigned = 0;
+        $totalUnassigned = 0;
 
-        $assignedStudentIds = DB::table('mentoring_group_students')
-            ->join('mentoring_groups', 'mentoring_groups.id', '=', 'mentoring_group_students.mentoring_group_id')
-            ->where('mentoring_groups.type', $type)
-            ->when($selectedYearId, function ($q) use ($selectedYearId) {
-                $q->where('mentoring_group_students.academic_year_id', $selectedYearId);
-            })
-            ->pluck('student_id')
-            ->unique();
+        if ($isAdmin) {
+            $totalStudentsInYear = Student::forYear($selectedYearId)->where(function($q) {
+                $q->where('status', '!=', 'graduated')->orWhereNull('status');
+            })->count();
 
-        $totalAssigned = $assignedStudentIds->count();
-        $totalUnassigned = max(0, $totalStudentsInYear - $totalAssigned);
+            $assignedStudentIds = DB::table('mentoring_group_students')
+                ->join('mentoring_groups', 'mentoring_groups.id', '=', 'mentoring_group_students.mentoring_group_id')
+                ->where('mentoring_groups.type', $type)
+                ->when($selectedYearId, function ($q) use ($selectedYearId) {
+                    $q->where('mentoring_group_students.academic_year_id', $selectedYearId);
+                })
+                ->pluck('student_id')
+                ->unique();
+
+            $totalAssigned = $assignedStudentIds->count();
+            $totalUnassigned = max(0, $totalStudentsInYear - $totalAssigned);
+        } else {
+            // Guru: total siswa dalam kelompok yang dibimbingnya
+            $myGroupIds = MentoringGroup::where('type', $type)
+                ->where(function ($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                ->pluck('id');
+
+            $totalAssigned = DB::table('mentoring_group_students')
+                ->whereIn('mentoring_group_id', $myGroupIds)
+                ->distinct('student_id')
+                ->count('student_id');
+        }
 
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
 
@@ -120,12 +347,18 @@ class MentoringGroupController extends Controller
             'search',
             'totalStudentsInYear',
             'totalAssigned',
-            'totalUnassigned'
+            'totalUnassigned',
+            'isAdmin'
         ));
     }
 
     public function create(Request $request)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            return redirect()->route('dashboard')->with('error', 'Hanya administrator yang dapat membuat kelompok baru.');
+        }
+
         $type = $this->resolveType($request);
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         $activeYear = AcademicYear::where('is_active', true)->first();
@@ -137,23 +370,41 @@ class MentoringGroupController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            return redirect()->route('dashboard')->with('error', 'Hanya administrator yang dapat membuat kelompok baru.');
+        }
+
         $type = $this->resolveType($request);
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'mentor_name' => 'required|string|max:255',
             'academic_year_id' => 'required|exists:academic_years,id',
             'target_level' => 'nullable|string|max:255',
             'schedule' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'mentor_user_id' => 'nullable|exists:users,id',
+            'mentor_name' => 'nullable|string|max:255',
         ]);
+
+        $mentorUserId = $request->mentor_user_id;
+        $mentorName = $request->mentor_name;
+        if ($mentorUserId) {
+            $userObj = User::find($mentorUserId);
+            if ($userObj) {
+                $mentorName = $userObj->name;
+            }
+        }
+
+        if (empty($mentorName)) {
+            $mentorName = 'Belum Ditentukan';
+        }
 
         $group = MentoringGroup::create([
             'type' => $type,
             'name' => $request->name,
-            'mentor_name' => $request->mentor_name,
-            'mentor_user_id' => $request->mentor_user_id,
+            'mentor_name' => $mentorName,
+            'mentor_user_id' => $mentorUserId,
             'academic_year_id' => $request->academic_year_id,
             'target_level' => $request->target_level,
             'schedule' => $request->schedule,
@@ -169,9 +420,19 @@ class MentoringGroupController extends Controller
 
     public function show(Request $request, $id)
     {
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+
         $group = MentoringGroup::with(['students' => function($q) {
             $q->orderBy('class')->orderBy('name');
         }, 'academicYear', 'mentorUser'])->findOrFail($id);
+
+        $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
+
+        // Jika bukan admin dan bukan kelompok bimbingannya, beri pesan peringatan atau batasi
+        if (!$isAdmin && !$isMyGroup) {
+            // Guru tetap bisa melihat atau dibatasi
+        }
 
         $type = $group->type;
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
@@ -199,43 +460,88 @@ class MentoringGroupController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        return view('mentoring.show', compact('group', 'type', 'typeLabel', 'classes', 'enrolledStudentIds', 'studentsInOtherGroups'));
+        return view('mentoring.show', compact('group', 'type', 'typeLabel', 'classes', 'enrolledStudentIds', 'studentsInOtherGroups', 'isAdmin', 'isMyGroup'));
     }
 
     public function edit(Request $request, $id)
     {
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+
         $group = MentoringGroup::with('academicYear')->findOrFail($id);
+        $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
+
+        if (!$isAdmin && !$isMyGroup) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk mengedit kelompok ini.');
+        }
+
         $type = $group->type;
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
         $teachers = User::whereIn('role', ['teacher', 'admin'])->orderBy('name')->get();
 
-        return view('mentoring.edit', compact('group', 'type', 'typeLabel', 'academicYears', 'teachers'));
+        return view('mentoring.edit', compact('group', 'type', 'typeLabel', 'academicYears', 'teachers', 'isAdmin', 'isMyGroup'));
     }
 
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+
         $group = MentoringGroup::findOrFail($id);
+        $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'mentor_name' => 'required|string|max:255',
-            'academic_year_id' => 'required|exists:academic_years,id',
-            'target_level' => 'nullable|string|max:255',
-            'schedule' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
-            'mentor_user_id' => 'nullable|exists:users,id',
-        ]);
+        if (!$isAdmin && !$isMyGroup) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk mengedit kelompok ini.');
+        }
 
-        $group->update($request->only([
-            'name',
-            'mentor_name',
-            'mentor_user_id',
-            'academic_year_id',
-            'target_level',
-            'schedule',
-            'notes',
-        ]));
+        if ($isAdmin) {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'academic_year_id' => 'required|exists:academic_years,id',
+                'target_level' => 'nullable|string|max:255',
+                'schedule' => 'nullable|string|max:255',
+                'notes' => 'nullable|string',
+                'mentor_user_id' => 'nullable|exists:users,id',
+                'mentor_name' => 'nullable|string|max:255',
+            ]);
+
+            $mentorUserId = $request->mentor_user_id;
+            $mentorName = $request->mentor_name;
+            if ($mentorUserId) {
+                $userObj = User::find($mentorUserId);
+                if ($userObj) {
+                    $mentorName = $userObj->name;
+                }
+            }
+
+            if (empty($mentorName)) {
+                $mentorName = $group->mentor_name ?? 'Belum Ditentukan';
+            }
+
+            $group->update([
+                'name' => $request->name,
+                'mentor_name' => $mentorName,
+                'mentor_user_id' => $mentorUserId,
+                'academic_year_id' => $request->academic_year_id,
+                'target_level' => $request->target_level,
+                'schedule' => $request->schedule,
+                'notes' => $request->notes,
+            ]);
+        } else {
+            // Guru mengupdate rincian jadwal/target kelompok sendiri
+            $request->validate([
+                'target_level' => 'nullable|string|max:255',
+                'schedule' => 'nullable|string|max:255',
+                'notes' => 'nullable|string',
+            ]);
+
+            $group->update($request->only([
+                'target_level',
+                'schedule',
+                'notes',
+            ]));
+        }
 
         $typeLabel = $group->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         ActivityLog::log("Mentoring {$typeLabel}", 'Update', "Memperbarui kelompok {$typeLabel}: {$group->name}");
@@ -246,6 +552,11 @@ class MentoringGroupController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            return back()->with('error', 'Hanya administrator yang dapat menghapus kelompok.');
+        }
+
         $group = MentoringGroup::findOrFail($id);
         $type = $group->type;
         $name = $group->name;

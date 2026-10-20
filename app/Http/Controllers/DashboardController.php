@@ -428,6 +428,43 @@ class DashboardController extends Controller
             }
         }
 
+        // 7. Kelompok Mentoring (Tilawati & Tahfidz) untuk Guru
+        $myTilawatiGroups = collect();
+        $myTahfidzGroups = collect();
+        $myMentoringStudentCount = 0;
+
+        if ($isTeacher) {
+            $myTilawatiGroups = \App\Models\MentoringGroup::where('type', 'tilawati')
+                ->where(function($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+                ->withCount('students')
+                ->get();
+
+            $myTahfidzGroups = \App\Models\MentoringGroup::where('type', 'tahfidz')
+                ->where(function($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+                ->withCount('students')
+                ->get();
+
+            $allMyMentoringGroupIds = $myTilawatiGroups->pluck('id')->merge($myTahfidzGroups->pluck('id'))->unique();
+            if ($allMyMentoringGroupIds->isNotEmpty()) {
+                $myMentoringStudentCount = DB::table('mentoring_group_students')
+                    ->whereIn('mentoring_group_id', $allMyMentoringGroupIds)
+                    ->distinct('student_id')
+                    ->count('student_id');
+            }
+
+            if ($studentCount === 0 && $myMentoringStudentCount > 0) {
+                $studentCount = $myMentoringStudentCount;
+            }
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -440,7 +477,9 @@ class DashboardController extends Controller
             'homeroomRegisteredCount', 'homeroomUnregisteredCount', 
             'homeroomUnregisteredList', 'homeroomEskulDistribution',
             
-            'missingDates', 'teacherEskul'
+            'missingDates', 'teacherEskul',
+            
+            'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount'
         ));
     }
 }

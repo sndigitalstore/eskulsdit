@@ -30,50 +30,67 @@
             @csrf
             @method('PUT')
 
-            <!-- TAHUN PELAJARAN -->
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
-                    Tahun Pelajaran <span style="color: #ef4444;">*</span>
-                </label>
-                <select name="academic_year_id" class="form-control" required>
-                    @foreach($academicYears as $year)
-                        <option value="{{ $year->id }}" {{ (old('academic_year_id', $group->academic_year_id) == $year->id) ? 'selected' : '' }}>
-                            {{ $year->name }} {{ $year->is_active ? '(Aktif)' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- NAMA KELOMPOK -->
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
-                    Nama Kelompok <span style="color: #ef4444;">*</span>
-                </label>
-                <input type="text" name="name" class="form-control" value="{{ old('name', $group->name) }}" required>
-            </div>
-
-            <!-- PEMBIMBING / MENTOR -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
-                        Nama Pembimbing / Mentor <span style="color: #ef4444;">*</span>
-                    </label>
-                    <input type="text" id="mentorNameInput" name="mentor_name" class="form-control" value="{{ old('mentor_name', $group->mentor_name) }}" required>
+            @if(!($isAdmin ?? true))
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 0.88rem; color: #1e40af;">
+                    <i class="fas fa-info-circle"></i> Anda sedang memperbarui informasi kelompok bimbingan Anda (Target jenjang, jadwal, dan catatan). Nama kelompok dan penugasan mentor diatur oleh Administrator.
                 </div>
-                <div class="form-group">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #64748b;">Nama Kelompok</label>
+                        <input type="text" class="form-control" value="{{ $group->name }}" disabled style="background: #f8fafc; color: #334155;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #64748b;">Tahun Pelajaran</label>
+                        <input type="text" class="form-control" value="{{ $group->academicYear->name ?? '-' }}" disabled style="background: #f8fafc; color: #334155;">
+                    </div>
+                </div>
+            @else
+                <!-- TAHUN PELAJARAN -->
+                <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
-                        Pautkan dengan Akun Guru (Opsional)
+                        Tahun Pelajaran <span style="color: #ef4444;">*</span>
                     </label>
-                    <select name="mentor_user_id" id="mentorUserSelect" class="form-control" onchange="syncMentorName(this)">
-                        <option value="">-- Pilih Akun Guru Terdaftar (Jika Ada) --</option>
-                        @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->id }}" data-name="{{ $teacher->name }}" {{ (old('mentor_user_id', $group->mentor_user_id) == $teacher->id) ? 'selected' : '' }}>
-                                {{ $teacher->name }} ({{ $teacher->role }})
+                    <select name="academic_year_id" class="form-control" required>
+                        @foreach($academicYears as $year)
+                            <option value="{{ $year->id }}" {{ (old('academic_year_id', $group->academic_year_id) == $year->id) ? 'selected' : '' }}>
+                                {{ $year->name }} {{ $year->is_active ? '(Aktif)' : '' }}
                             </option>
                         @endforeach
                     </select>
                 </div>
-            </div>
+
+                <!-- NAMA KELOMPOK -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
+                        Nama Kelompok <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="name" class="form-control" value="{{ old('name', $group->name) }}" required>
+                </div>
+
+                <!-- PEMBIMBING / MENTOR -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
+                            Nama Pembimbing / Mentor <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" id="mentorNameInput" name="mentor_name" class="form-control" value="{{ old('mentor_name', $group->mentor_name) }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
+                            Pautkan dengan Akun Guru (Opsional)
+                        </label>
+                        <select name="mentor_user_id" id="mentorUserSelect" class="form-control" onchange="syncMentorName(this)">
+                            <option value="">-- Pilih Akun Guru Terdaftar (Jika Ada) --</option>
+                            @foreach($teachers as $teacher)
+                                <option value="{{ $teacher->id }}" data-name="{{ $teacher->name }}" {{ (old('mentor_user_id', $group->mentor_user_id) == $teacher->id) ? 'selected' : '' }}>
+                                    {{ $teacher->name }} ({{ $teacher->role }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            @endif
 
             <!-- TARGET / JENJANG & JADWAL -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">

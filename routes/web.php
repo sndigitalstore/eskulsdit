@@ -170,6 +170,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/achievements/{achievement}/certificate', [\App\Http\Controllers\CertificateController::class, 'achievementCertificate'])->name('achievements.certificate');
 
     // Mentoring Tilawati & Tahfidz Groups
+    Route::get('/mentoring-management', [\App\Http\Controllers\MentoringGroupController::class, 'management'])->name('mentoring.management');
+    Route::post('/mentoring-management/quick-assign', [\App\Http\Controllers\MentoringGroupController::class, 'quickAssign'])->name('mentoring.quick-assign');
     Route::get('/tilawati-groups/print', [\App\Http\Controllers\MentoringGroupController::class, 'printAll'])->name('tilawati-groups.print');
     Route::resource('tilawati-groups', \App\Http\Controllers\MentoringGroupController::class);
 

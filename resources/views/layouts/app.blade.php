@@ -576,6 +576,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('mentoring.management') }}" class="nav-link {{ request()->is('mentoring-management*') ? 'active' : '' }}">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Manajemen Kelompok</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('tilawati-groups.index') }}" class="nav-link {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
                     <i class="fas fa-book-reader"></i>
                     <span>Kelompok Tilawati</span>
@@ -593,6 +599,40 @@
                     <span>Kepatuhan Pembina</span>
                 </a>
             </li>
+            @endif
+
+            @if(Auth::user()->role === 'teacher')
+                @php
+                    $loggedUser = Auth::user();
+                    $hasTilawati = \App\Models\MentoringGroup::where('type', 'tilawati')
+                        ->where(function($q) use ($loggedUser) {
+                            $q->where('mentor_user_id', $loggedUser->id)
+                              ->orWhere('mentor_name', $loggedUser->name);
+                        })->exists();
+                    $hasTahfidz = \App\Models\MentoringGroup::where('type', 'tahfidz')
+                        ->where(function($q) use ($loggedUser) {
+                            $q->where('mentor_user_id', $loggedUser->id)
+                              ->orWhere('mentor_name', $loggedUser->name);
+                        })->exists();
+                @endphp
+
+                @if($hasTilawati)
+                <li class="nav-item">
+                    <a href="{{ route('tilawati-groups.index') }}" class="nav-link {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
+                        <i class="fas fa-book-reader"></i>
+                        <span>Mentoring Tilawati</span>
+                    </a>
+                </li>
+                @endif
+
+                @if($hasTahfidz)
+                <li class="nav-item">
+                    <a href="{{ route('tahfidz-groups.index') }}" class="nav-link {{ request()->is('tahfidz-groups*') ? 'active' : '' }}">
+                        <i class="fas fa-quran"></i>
+                        <span>Mentoring Tahfidz</span>
+                    </a>
+                </li>
+                @endif
             @endif
 
             <li class="nav-item">

@@ -67,6 +67,12 @@
                 @if(Auth::user()->eskul)
                     <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Pembina {{ Auth::user()->eskul->name }}</span>
                 @endif
+                @if(isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty())
+                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-book-reader"></i> Pembimbing Tilawati ({{ $myTilawatiGroups->count() }})</span>
+                @endif
+                @if(isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())
+                    <span style="background: #f0f9ff; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-quran"></i> Pembimbing Tahfidz ({{ $myTahfidzGroups->count() }})</span>
+                @endif
             @endif
         </div>
     </div>
@@ -242,6 +248,95 @@
         @endif
     @endif
 </div>
+
+@if(Auth::user()->role === 'teacher' && ((isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty()) || (isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())))
+    <div class="card" style="margin-bottom: 2rem; padding: 24px; border-top: 4px solid #059669; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-quran" style="color: #059669;"></i> Kelompok Mentoring Saya
+                </h3>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
+                    Akses cepat ke bimbingan Tilawati dan Tahfidz yang Anda ampu pada Tahun Pelajaran ini.
+                </p>
+            </div>
+            <span style="background: #ecfdf5; color: #047857; font-weight: 700; font-size: 0.82rem; padding: 5px 14px; border-radius: 20px; border: 1px solid #a7f3d0;">
+                <i class="fas fa-user-graduate"></i> {{ $myMentoringStudentCount ?? 0 }} Santri Terbina
+            </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+            @foreach($myTilawatiGroups->merge($myTahfidzGroups) as $mGroup)
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div>
+                            @if($mGroup->type === 'tilawati')
+                                <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase;">
+                                    <i class="fas fa-book-reader"></i> Tilawati
+                                </span>
+                            @else
+                                <span style="background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase;">
+                                    <i class="fas fa-quran"></i> Tahfidz
+                                </span>
+                            @endif
+                            <h4 style="margin: 8px 0 2px 0; font-size: 1.1rem; font-weight: 800; color: #0f172a;">
+                                {{ $mGroup->name }}
+                            </h4>
+                            @if($mGroup->target_level)
+                                <small style="color: #64748b; font-size: 0.8rem;">
+                                    <i class="fas fa-bullseye" style="color: #eab308;"></i> Target: <strong>{{ $mGroup->target_level }}</strong>
+                                </small>
+                            @endif
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="display: inline-block; background: #f1f5f9; color: #0f172a; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem;">
+                                {{ $mGroup->students_count }} Siswa
+                            </span>
+                        </div>
+                    </div>
+
+                    @if($mGroup->schedule)
+                        <div style="font-size: 0.82rem; color: #475569; margin-bottom: 14px; background: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+                            <i class="far fa-clock" style="color: #64748b;"></i> {{ $mGroup->schedule }}
+                        </div>
+                    @endif
+
+                    <!-- ACTIONS -->
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                        <a href="{{ $mGroup->type === 'tilawati' ? route('tilawati-groups.show', $mGroup->id) : route('tahfidz-groups.show', $mGroup->id) }}" 
+                           class="btn-action-header btn-blue" 
+                           style="padding: 6px 12px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;">
+                            <i class="fas fa-users"></i> Kelola Siswa
+                        </a>
+
+                        @if($mGroup->type === 'tahfidz')
+                            <a href="{{ route('tahfidz.attendance.index', ['group' => $mGroup->id]) }}" 
+                               class="btn-action-header" 
+                               style="background: #7c3aed; color: white; padding: 6px 12px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;">
+                                <i class="fas fa-clipboard-check"></i> Absensi
+                            </a>
+                            <a href="{{ route('tahfidz.print-group-recap', ['group' => $mGroup->id]) }}" 
+                               target="_blank" 
+                               class="btn-action-header" 
+                               style="background: #0f766e; color: white; padding: 6px 10px; font-size: 0.8rem;" 
+                               title="Rekap Hafalan">
+                                <i class="fas fa-quran"></i> Rekap
+                            </a>
+                        @endif
+
+                        <a href="{{ route('mentoring-groups.print-group', $mGroup->id) }}" 
+                           target="_blank" 
+                           class="btn-action-header btn-dark" 
+                           style="background: #334155; padding: 6px 10px; font-size: 0.8rem;" 
+                           title="Cetak Kelompok">
+                            <i class="fas fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
 
 @if(isset($todaySchedule) && count($todaySchedule) > 0)
     <div class="card" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
