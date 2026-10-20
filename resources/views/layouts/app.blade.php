@@ -95,42 +95,157 @@
 
         .nav-links { list-style: none; padding: 1.25rem 0.85rem; flex: 1; overflow-y: auto; }
         
-        .nav-item { margin-bottom: 0.35rem; animation: slideInLeft 0.4s ease-out forwards; opacity: 0; }
-        .nav-item:nth-child(1) { animation-delay: 0.05s; }
-        .nav-item:nth-child(2) { animation-delay: 0.1s; }
-        .nav-item:nth-child(3) { animation-delay: 0.15s; }
-        .nav-item:nth-child(4) { animation-delay: 0.2s; }
-        .nav-item:nth-child(5) { animation-delay: 0.25s; }
-        .nav-item:nth-child(6) { animation-delay: 0.3s; }
+        .nav-item { margin-bottom: 0.35rem; }
 
         .nav-link { 
             display: flex; 
             align-items: center; 
             padding: 11px 16px; 
             text-decoration: none; 
-            color: rgba(15, 23, 42, 0.75); 
+            color: rgba(15, 23, 42, 0.78); 
             border-radius: 14px; 
             font-weight: 700; 
             font-size: 0.92rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
             position: relative;
             overflow: hidden;
+            border: 1px solid transparent;
         }
 
         .nav-link:hover {
             color: #047857;
             background: rgba(255, 255, 255, 0.45);
-            transform: translateX(5px);
+            transform: translateX(4px);
         }
 
         .nav-link.active { 
-            background: rgba(255, 255, 255, 0.88); 
+            background: rgba(255, 255, 255, 0.90); 
             color: #047857; 
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06); 
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.95);
         }
 
         .nav-link i { margin-right: 12px; font-size: 1.15rem; width: 24px; text-align: center; }
+
+        /* Dropdown Accordion Styles */
+        .nav-dropdown {
+            margin-bottom: 0.35rem;
+            position: relative;
+        }
+
+        .nav-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 16px;
+            text-decoration: none;
+            color: rgba(15, 23, 42, 0.78);
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+        }
+
+        .nav-dropdown-toggle .toggle-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-dropdown-toggle .toggle-content i.main-icon {
+            font-size: 1.15rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-dropdown-toggle .dropdown-chevron {
+            font-size: 0.72rem;
+            color: rgba(15, 23, 42, 0.55);
+            transition: transform 0.25s ease, color 0.25s ease;
+        }
+
+        .nav-dropdown-toggle:hover {
+            color: #047857;
+            background: rgba(255, 255, 255, 0.45);
+            transform: translateX(4px);
+        }
+
+        .nav-dropdown-toggle:hover .dropdown-chevron {
+            color: #047857;
+        }
+
+        .nav-dropdown.active-parent > .nav-dropdown-toggle {
+            background: rgba(255, 255, 255, 0.55);
+            color: #047857;
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-dropdown.open > .nav-dropdown-toggle .dropdown-chevron {
+            transform: rotate(180deg);
+            color: #047857;
+        }
+
+        .nav-submenu {
+            list-style: none;
+            padding: 4px 0 4px 10px;
+            margin: 4px 0 6px 14px;
+            border-left: 2px solid rgba(255, 255, 255, 0.55);
+            display: none;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .nav-dropdown.open > .nav-submenu {
+            display: flex;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .nav-subitem {
+            list-style: none;
+        }
+
+        .nav-sublink {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: rgba(15, 23, 42, 0.72);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.84rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-sublink i {
+            font-size: 0.92rem;
+            width: 18px;
+            text-align: center;
+            opacity: 0.85;
+        }
+
+        .nav-sublink:hover {
+            color: #047857;
+            background: rgba(255, 255, 255, 0.55);
+            transform: translateX(3px);
+        }
+
+        .nav-sublink.active {
+            background: rgba(255, 255, 255, 0.92);
+            color: #047857;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-sublink.active i {
+            color: #059669;
+            opacity: 1;
+        }
 
         .logout-btn { 
             margin: 1.25rem 1rem; 
@@ -546,67 +661,23 @@
             </div>
         </div>
         <ul class="nav-links">
+            {{-- 1. Dashboard (Direct Link) --}}
             <li class="nav-item">
                 <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-th-large"></i> Dashboard
+                    <i class="fas fa-th-large"></i> <span>Dashboard</span>
                 </a>
             </li>
-            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
-            <li class="nav-item">
-                <a href="/students" class="nav-link {{ request()->is('students*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> Data Siswa
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/promotions" class="nav-link {{ request()->is('promotions*') ? 'active' : '' }}">
-                    <i class="fas fa-level-up-alt"></i> Kenaikan Kelas
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('achievements.index') }}" class="nav-link {{ request()->is('achievements*') ? 'active' : '' }}">
-                    <i class="fas fa-trophy"></i> Data Prestasi
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/teachers" class="nav-link {{ request()->is('teachers*') ? 'active' : '' }}">
-                    <i class="fas fa-chalkboard-teacher"></i> Kelola Pembina
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/eskuls" class="nav-link {{ request()->is('eskuls*') ? 'active' : '' }}">
-                    <i class="fas fa-basketball-ball"></i>
-                    <span>Ekstrakurikuler</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('mentoring.management') }}" class="nav-link {{ request()->is('mentoring-management*') ? 'active' : '' }}">
-                    <i class="fas fa-layer-group"></i>
-                    <span>Manajemen Kelompok</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('tilawati-groups.index') }}" class="nav-link {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
-                    <i class="fas fa-book-reader"></i>
-                    <span>Kelompok Tilawati</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('tahfidz-groups.index') }}" class="nav-link {{ request()->is('tahfidz-groups*') ? 'active' : '' }}">
-                    <i class="fas fa-quran"></i>
-                    <span>Kelompok Tahfidz</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('compliance.index') }}" class="nav-link {{ request()->is('compliance*') ? 'active' : '' }}">
-                    <i class="fas fa-user-check"></i>
-                    <span>Kepatuhan Pembina</span>
-                </a>
-            </li>
-            @endif
 
-            @if(Auth::user()->role === 'teacher')
-                @php
-                    $loggedUser = Auth::user();
+            {{-- 2. Pembinaan Qur'an (Dropdown) --}}
+            @php
+                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*');
+                $loggedUser = Auth::user();
+                $isTeacher = $loggedUser->role === 'teacher';
+                $isAdminOrHeadmaster = in_array($loggedUser->role, ['admin', 'headmaster']);
+
+                $hasTilawati = false;
+                $hasTahfidz = false;
+                if ($isTeacher) {
                     $hasTilawati = \App\Models\MentoringGroup::where('type', 'tilawati')
                         ->where(function($q) use ($loggedUser) {
                             $q->where('mentor_user_id', $loggedUser->id)
@@ -617,107 +688,232 @@
                             $q->where('mentor_user_id', $loggedUser->id)
                               ->orWhere('mentor_name', $loggedUser->name);
                         })->exists();
-                @endphp
+                }
+                $showQuranMenu = $isAdminOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz));
+            @endphp
 
-                @if($hasTilawati)
-                <li class="nav-item">
-                    <a href="{{ route('tilawati-groups.index') }}" class="nav-link {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
-                        <i class="fas fa-book-reader"></i>
-                        <span>Mentoring Tilawati</span>
-                    </a>
-                </li>
-                @endif
+            @if($showQuranMenu)
+            <li class="nav-dropdown {{ $isQuranActive ? 'open active-parent' : '' }}" id="dropdown-quran">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-quran main-icon"></i>
+                        <span>Pembinaan Qur'an</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    @if($isAdminOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="{{ route('mentoring.management') }}" class="nav-sublink {{ request()->is('mentoring-management*') ? 'active' : '' }}">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Manajemen Kelompok</span>
+                        </a>
+                    </li>
+                    @endif
 
-                @if($hasTahfidz)
-                <li class="nav-item">
-                    <a href="{{ route('tahfidz-groups.index') }}" class="nav-link {{ request()->is('tahfidz-groups*') ? 'active' : '' }}">
-                        <i class="fas fa-quran"></i>
-                        <span>Mentoring Tahfidz</span>
-                    </a>
-                </li>
-                @endif
-            @endif
+                    @if($isAdminOrHeadmaster || ($isTeacher && $hasTilawati))
+                    <li class="nav-subitem">
+                        <a href="{{ route('tilawati-groups.index') }}" class="nav-sublink {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
+                            <i class="fas fa-book-reader"></i>
+                            <span>{{ $isTeacher ? 'Mentoring Tilawati' : 'Kelompok Tilawati' }}</span>
+                        </a>
+                    </li>
+                    @endif
 
-            <li class="nav-item">
-                <a href="{{ route('teacher-attendance.index') }}" class="nav-link {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
-                    <i class="fas fa-user-clock"></i>
-                    <span>{{ in_array(Auth::user()->role, ['admin', 'headmaster']) ? 'Absensi Guru' : 'Absensi Saya' }}</span>
-                </a>
-            </li>
-            
-            <li class="nav-item">
-                <a href="/attendance" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Absensi</span>
-                </a>
-            </li>
-             <li class="nav-item">
-                <a href="/grades" class="nav-link {{ request()->is('grades*') ? 'active' : '' }}">
-                    <i class="fas fa-star"></i>
-                    <span>Nilai</span>
-                </a>
-            </li>
-
-            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role == 'teacher' && !empty(Auth::user()->homeroom_class)))
-            <li class="nav-item">
-                <a href="/reports" class="nav-link {{ request()->is('reports*') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt"></i>
-                    <span>{{ in_array(Auth::user()->role, ['admin', 'headmaster']) ? 'Laporan' : 'Laporan Kelas Saya' }}</span>
-                </a>
+                    @if($isAdminOrHeadmaster || ($isTeacher && $hasTahfidz))
+                    <li class="nav-subitem">
+                        <a href="{{ route('tahfidz-groups.index') }}" class="nav-sublink {{ request()->is('tahfidz-groups*') ? 'active' : '' }}">
+                            <i class="fas fa-star-and-crescent"></i>
+                            <span>{{ $isTeacher ? 'Mentoring Tahfidz' : 'Kelompok Tahfidz' }}</span>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
             </li>
             @endif
 
-            <li class="nav-item">
-                <a href="{{ route('profile.index') }}" class="nav-link {{ request()->is('profile*') ? 'active' : '' }}">
-                    <i class="fas fa-key"></i>
-                    <span>Ubah Password</span>
-                </a>
+            {{-- 3. Ekstrakurikuler (Dropdown) --}}
+            @php
+                $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*');
+            @endphp
+            <li class="nav-dropdown {{ $isEskulActive ? 'open active-parent' : '' }}" id="dropdown-eskul">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-basketball-ball main-icon"></i>
+                        <span>Ekstrakurikuler</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    @if($isAdminOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="/eskuls" class="nav-sublink {{ request()->is('eskuls*') ? 'active' : '' }}">
+                            <i class="fas fa-shapes"></i>
+                            <span>Kelola Eskul</span>
+                        </a>
+                    </li>
+                    @endif
+                    <li class="nav-subitem">
+                        <a href="/attendance" class="nav-sublink {{ request()->is('attendance*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>Presensi / Absensi</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="/grades" class="nav-sublink {{ request()->is('grades*') ? 'active' : '' }}">
+                            <i class="fas fa-star"></i>
+                            <span>Penilaian Siswa</span>
+                        </a>
+                    </li>
+                    @if($isAdminOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="{{ route('compliance.index') }}" class="nav-sublink {{ request()->is('compliance*') ? 'active' : '' }}">
+                            <i class="fas fa-user-check"></i>
+                            <span>Kepatuhan Pembina</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('pilihan-eskul.form') }}" target="_blank" class="nav-sublink">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>Form Pilihan Siswa</span>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
             </li>
 
-            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
-                @if(Auth::user()->role == 'admin')
-                <li class="nav-item">
-                    <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
-                        <i class="fas fa-cog"></i>
-                        <span>Pengaturan Form</span>
-                    </a>
-                </li>
-                @endif
-                <li class="nav-item">
-                    <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->is('announcements*') ? 'active' : '' }}">
-                        <i class="fas fa-bullhorn"></i>
-                        <span>Pengumuman</span>
-                    </a>
-                </li>
-                @if(Auth::user()->username === 'admin')
-                <li class="nav-item">
-                    <a href="{{ route('logs.index') }}" class="nav-link {{ request()->is('logs*') ? 'active' : '' }}">
-                        <i class="fas fa-history"></i>
-                        <span>Riwayat Log</span>
-                    </a>
-                </li>
-                @endif
-                <li class="nav-item">
-                    <a href="{{ route('guide.index') }}" class="nav-link {{ request()->is('guide*') ? 'active' : '' }}">
-                        <i class="fas fa-book-open"></i>
-                        <span>Panduan Admin</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('pilihan-eskul.form') }}" target="_blank" class="nav-link">
-                        <i class="fas fa-link"></i>
-                        <span>Form Pilihan Eskul</span>
-                    </a>
-                </li>
-                @if(Auth::user()->role == 'admin')
-                <li class="nav-item">
-                    <a href="{{ route('import-portal.index') }}" class="nav-link {{ request()->is('import-portal*') ? 'active' : '' }}">
-                        <i class="fas fa-file-import"></i>
-                        <span>Import Excel</span>
-                    </a>
-                </li>
-                @endif
+            {{-- 4. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
+            @if($isAdminOrHeadmaster)
+            @php
+                $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*');
+            @endphp
+            <li class="nav-dropdown {{ $isKesiswaanActive ? 'open active-parent' : '' }}" id="dropdown-kesiswaan">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-user-graduate main-icon"></i>
+                        <span>Kesiswaan & Guru</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    <li class="nav-subitem">
+                        <a href="/students" class="nav-sublink {{ request()->is('students*') ? 'active' : '' }}">
+                            <i class="fas fa-users"></i>
+                            <span>Data Siswa</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="/promotions" class="nav-sublink {{ request()->is('promotions*') ? 'active' : '' }}">
+                            <i class="fas fa-level-up-alt"></i>
+                            <span>Kenaikan Kelas</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('achievements.index') }}" class="nav-sublink {{ request()->is('achievements*') ? 'active' : '' }}">
+                            <i class="fas fa-trophy"></i>
+                            <span>Data Prestasi</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="/teachers" class="nav-sublink {{ request()->is('teachers*') ? 'active' : '' }}">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Kelola Guru/Pembina</span>
+                        </a>
+                    </li>
+                    @if(Auth::user()->role === 'admin')
+                    <li class="nav-subitem">
+                        <a href="{{ route('import-portal.index') }}" class="nav-sublink {{ request()->is('import-portal*') ? 'active' : '' }}">
+                            <i class="fas fa-file-import"></i>
+                            <span>Import Data Excel</span>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
+            </li>
             @endif
+
+            {{-- 5. Kehadiran & Laporan (Dropdown) --}}
+            @php
+                $isReportRole = $isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class));
+                $isAttendanceReportActive = request()->is('teacher-attendance*', 'reports*');
+            @endphp
+            <li class="nav-dropdown {{ $isAttendanceReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-file-invoice main-icon"></i>
+                        <span>Presensi & Rapor</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    <li class="nav-subitem">
+                        <a href="{{ route('teacher-attendance.index') }}" class="nav-sublink {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
+                            <i class="fas fa-user-clock"></i>
+                            <span>{{ $isAdminOrHeadmaster ? 'Absensi Guru' : 'Absensi Saya' }}</span>
+                        </a>
+                    </li>
+                    @if($isReportRole)
+                    <li class="nav-subitem">
+                        <a href="/reports" class="nav-sublink {{ request()->is('reports*') ? 'active' : '' }}">
+                            <i class="fas fa-file-alt"></i>
+                            <span>{{ $isAdminOrHeadmaster ? 'Laporan & Rapor' : 'Laporan Kelas Saya' }}</span>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
+            </li>
+
+            {{-- 6. Pengaturan & Sistem (Dropdown) --}}
+            @php
+                $isSystemActive = request()->is('settings*', 'announcements*', 'logs*', 'guide*', 'profile*');
+            @endphp
+            <li class="nav-dropdown {{ $isSystemActive ? 'open active-parent' : '' }}" id="dropdown-system">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-sliders-h main-icon"></i>
+                        <span>Sistem & Akun</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    @if($isAdminOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="{{ route('announcements.index') }}" class="nav-sublink {{ request()->is('announcements*') ? 'active' : '' }}">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Pengumuman</span>
+                        </a>
+                    </li>
+                    @if(Auth::user()->role === 'admin')
+                    <li class="nav-subitem">
+                        <a href="/settings" class="nav-sublink {{ request()->is('settings*') ? 'active' : '' }}">
+                            <i class="fas fa-cog"></i>
+                            <span>Pengaturan Form</span>
+                        </a>
+                    </li>
+                    @endif
+                    <li class="nav-subitem">
+                        <a href="{{ route('guide.index') }}" class="nav-sublink {{ request()->is('guide*') ? 'active' : '' }}">
+                            <i class="fas fa-book-open"></i>
+                            <span>Panduan Penggunaan</span>
+                        </a>
+                    </li>
+                    @if(Auth::user()->username === 'admin')
+                    <li class="nav-subitem">
+                        <a href="{{ route('logs.index') }}" class="nav-sublink {{ request()->is('logs*') ? 'active' : '' }}">
+                            <i class="fas fa-history"></i>
+                            <span>Riwayat Log</span>
+                        </a>
+                    </li>
+                    @endif
+                    @endif
+                    <li class="nav-subitem">
+                        <a href="{{ route('profile.index') }}" class="nav-sublink {{ request()->is('profile*') ? 'active' : '' }}">
+                            <i class="fas fa-key"></i>
+                            <span>Ubah Password</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
         <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </aside>
@@ -790,6 +986,13 @@
             const overlay = document.querySelector('.sidebar-overlay');
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
+        }
+
+        function toggleNavDropdown(el) {
+            const dropdown = el.closest('.nav-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('open');
+            }
         }
 
         // SweetAlert2 Toast Mixin
