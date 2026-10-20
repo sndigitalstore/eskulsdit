@@ -652,9 +652,9 @@
     <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="{{ asset('logo.png') }}" alt="Logo">
-            <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                <h2 style="font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; color: #ffffff;">Q-TALENT</h2>
-                <span style="font-size: 0.68rem; font-weight: 600; color: #a7f3d0; letter-spacing: 0.04em;">SDIT AN NADZIR</span>
+            <div style="display: flex; flex-direction: column; line-height: 1.25;">
+                <h2 style="font-size: 1.22rem; font-weight: 900; letter-spacing: 0.02em; margin: 0; color: #064e3b;">Q-TALENT</h2>
+                <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; letter-spacing: 0.05em; text-transform: uppercase;">SDIT AN NADZIR</span>
             </div>
             <div style="margin-left: auto; display: none;" class="close-sidebar-btn" onclick="toggleSidebar()">
                 <i class="fas fa-times"></i>
