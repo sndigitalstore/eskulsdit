@@ -27,12 +27,23 @@ Route::post('/login', function (Request $request) {
         'password' => ['required'],
     ]);
 
+    // Auto-create default curriculum account if it doesn't exist yet on live database
+    if ($request->username === 'kurikulum' && !\App\Models\User::where('username', 'kurikulum')->where('role', 'curriculum')->exists()) {
+        \App\Models\User::create([
+            'name' => 'Tim Kurikulum SDIT AN NADZIR',
+            'username' => 'kurikulum',
+            'role' => 'curriculum',
+            'email' => 'kurikulum@school.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('kurikulum123'),
+        ]);
+    }
+
     $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
     $activeYearId = $activeYear ? $activeYear->id : null;
 
     $user = \App\Models\User::where('username', $request->username)
         ->where(function($query) use ($activeYearId) {
-            $query->whereIn('role', ['admin', 'headmaster'])
+            $query->whereIn('role', ['admin', 'headmaster', 'curriculum'])
                   ->orWhere('academic_year_id', $activeYearId);
         })
         ->first();
