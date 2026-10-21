@@ -466,7 +466,7 @@ class MentoringGroupController extends Controller
     public function edit(Request $request, $id)
     {
         $user = Auth::user();
-        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isAdmin = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
         $group = MentoringGroup::with('academicYear')->findOrFail($id);
         $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
@@ -478,7 +478,7 @@ class MentoringGroupController extends Controller
         $type = $group->type;
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
-        $teachers = User::whereIn('role', ['teacher', 'admin'])->orderBy('name')->get();
+        $teachers = User::whereIn('role', ['teacher', 'admin', 'curriculum'])->orderBy('name')->get();
 
         return view('mentoring.edit', compact('group', 'type', 'typeLabel', 'academicYears', 'teachers', 'isAdmin', 'isMyGroup'));
     }
@@ -486,7 +486,7 @@ class MentoringGroupController extends Controller
     public function update(Request $request, $id)
     {
         $user = Auth::user();
-        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isAdmin = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
         $group = MentoringGroup::findOrFail($id);
         $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));

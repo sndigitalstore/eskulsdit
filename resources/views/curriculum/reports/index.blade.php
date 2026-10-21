@@ -37,7 +37,7 @@
                         <i class="fas fa-table"></i> Rekap Kelas
                     </a>
                 @endif
-                @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
                     <a href="{{ route('subjects.index') }}" class="btn-action-header" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4); font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; color: white;">
                         <i class="fas fa-cog"></i> Kelola Mapel
                     </a>
