@@ -18,4 +18,4 @@ Alhamdulillah, pendaftaran eskul ananda telah berhasil kami terima dengan rincia
 ━━━━━━━━━━━━━━━━━━━━━━
 Terima kasih atas partisipasi Ayah/Bunda. Mohon bimbingan agar ananda istiqomah dalam berkegiatan. 🙏
 
-💡 _Pesan otomatis dari Q-Talent SDIT AN NADZIR_
+💡 _Pesan otomatis dari SIM SMILE SDIT AN NADZIR_

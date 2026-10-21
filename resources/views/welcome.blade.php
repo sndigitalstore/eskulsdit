@@ -3,954 +3,1259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q-Talent - Sistem Pembinaan Qur'an & Prestasi SDIT AN NADZIR</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>SIM SMILE – Sistem Informasi Manajemen Terpadu SDIT AN NADZIR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PWA Manifest & Meta Tags -->
+    <!-- PWA Manifest & Favicon -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#10b981">
+    <meta name="theme-color" content="#064e3b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/logo.png">
     
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="Q-Talent SDIT AN NADZIR - Sistem Terpadu Manajemen Pembinaan Al-Qur'an (Tilawati & Tahfidz), Ekstrakurikuler, dan Prestasi Siswa.">
-    
-    <style>
-        @php
-            $branding = \App\Models\Setting::whereIn('key', ['app_primary_color', 'app_accent_color'])->pluck('value', 'key');
-            $primaryColor = $branding['app_primary_color'] ?? '#059669';
-            $accentColor = $branding['app_accent_color'] ?? '#f59e0b';
+    <meta name="description" content="SIM SMILE SDIT AN NADZIR - Sistem Informasi Manajemen Terpadu Pembinaan Al-Qur'an (Tilawati & Tahfidz), Pembentukan Karakter SMILE, Raport Akademik Kurikulum Merdeka, dan Manajemen Talenta Siswa.">
 
-            // Real Statistics Data
-            $totalEskul = \App\Models\Eskul::count();
+    @php
+        $branding = \App\Models\Setting::whereIn('key', ['app_primary_color', 'app_accent_color'])->pluck('value', 'key');
+        $primaryColor = $branding['app_primary_color'] ?? '#064e3b';
+        $accentColor = $branding['app_accent_color'] ?? '#0284c7';
+
+        // Real Statistics Data
+        $totalEskul = \App\Models\Eskul::count();
+        $totalSiswa = \App\Models\Student::where('status', 'active')->count();
+        if ($totalSiswa == 0) {
             $totalSiswa = \App\Models\Student::count();
-            $totalGuru = \App\Models\User::where('role', 'teacher')->count();
-        @endphp
-        
+        }
+        $totalGuru = \App\Models\User::where('role', 'teacher')->count();
+        $totalKelompok = \App\Models\MentoringGroup::count();
+        $totalPrestasi = \App\Models\Achievement::count();
+    @endphp
+
+    <style>
         :root {
-            --primary: {{ $primaryColor }};
-            --primary-dark: #047857;
+            --primary: #064e3b;
+            --primary-mid: #047857;
             --primary-light: #10b981;
-            --accent: {{ $accentColor }};
-            --bg-light: #f1f5f9;
-            --text-main: #0f172a;
+            --secondary: #0284c7;
+            --secondary-light: #38bdf8;
+            --amber: #f59e0b;
+            --purple: #8b5cf6;
+            --text-dark: #0f172a;
             --text-muted: #64748b;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --card-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.07);
+            --bg-light: #f8fafc;
+            --card-glass: rgba(255, 255, 255, 0.88);
+            --card-border: rgba(226, 232, 240, 0.8);
+            --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-elevated: 0 20px 35px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 50%, #f8fafc 100%);
-            color: var(--text-main);
-            overflow-x: hidden;
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(6, 78, 59, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(2, 132, 199, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+            color: var(--text-dark);
             line-height: 1.6;
+            overflow-x: hidden;
             min-height: 100vh;
         }
 
-        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
-
-        /* Animations */
-        @keyframes float {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-12px) rotate(1deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
+        h1, h2, h3, h4, h5 {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.02em;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* Ambient Pastel Blobs */
-        .bg-shapes {
+        /* Ambient Glow Blobs */
+        .ambient-blobs {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
         }
 
-        .shape {
+        .blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.6;
+            filter: blur(120px);
+            opacity: 0.45;
         }
 
-        .shape-1 { width: 550px; height: 550px; background: #c7d2fe; top: -120px; right: -100px; }
-        .shape-2 { width: 450px; height: 450px; background: #a7f3d0; bottom: -100px; left: -100px; }
-        .shape-3 { width: 350px; height: 350px; background: #fef08a; top: 35%; left: 20%; opacity: 0.4; }
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: #a7f3d0;
+            top: -150px;
+            left: -150px;
+        }
 
-        /* Navigation */
-        nav {
+        .blob-2 {
+            width: 550px;
+            height: 550px;
+            background: #bae6fd;
+            top: 10%;
+            right: -120px;
+        }
+
+        .blob-3 {
+            width: 450px;
+            height: 450px;
+            background: #fde68a;
+            bottom: 5%;
+            left: 20%;
+            opacity: 0.3;
+        }
+
+        /* Header Navigation */
+        nav.main-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.1rem 7%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.25rem 8%;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(18px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 1000;
             border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .logo {
+        nav.scrolled {
+            padding: 0.85rem 7%;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+        }
+
+        .brand-container {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: #0f172a;
-            font-weight: 800;
-            font-size: 1.3rem;
-            letter-spacing: -0.5px;
         }
 
-        .logo-img {
-            height: 42px;
-            width: auto;
+        .brand-logo {
+            width: 44px;
+            height: 44px;
             object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
         }
 
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-        
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        .brand-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #064e3b;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #0284c7;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
         .nav-link {
             text-decoration: none;
-            color: #334155;
+            color: #475569;
             font-weight: 600;
-            font-size: 0.95rem;
-            transition: color 0.3s;
+            font-size: 0.93rem;
+            transition: color 0.2s ease;
+            position: relative;
         }
 
-        .nav-link:hover { color: #10b981; }
+        .nav-link:hover {
+            color: #064e3b;
+        }
 
-        .btn-login-nav {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #047857;
+            transition: width 0.25s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-nav-portal {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
             color: white;
-            padding: 11px 26px;
-            border-radius: 50px;
             text-decoration: none;
+            padding: 9px 20px;
+            border-radius: 30px;
             font-weight: 700;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            font-size: 0.88rem;
+            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .btn-login-nav:hover {
+        .btn-nav-portal:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+            box-shadow: 0 8px 18px rgba(6, 78, 59, 0.35);
+            color: white;
         }
 
         /* Hero Section */
-        header.hero {
-            padding: 160px 8% 90px;
+        header.hero-section {
+            padding: 150px 7% 90px;
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
             align-items: center;
-            gap: 40px;
+            gap: 50px;
+            position: relative;
         }
 
-        .hero-text h1 {
-            font-size: 4.2rem;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(6, 78, 59, 0.08);
+            border: 1px solid rgba(6, 78, 59, 0.2);
+            color: #064e3b;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(6, 78, 59, 0.04);
+        }
+
+        .hero-title {
+            font-size: 3.3rem;
+            line-height: 1.16;
             font-weight: 900;
             color: #0f172a;
-            line-height: 1.08;
-            margin-bottom: 24px;
-            animation: slideIn 0.8s ease-out;
-            letter-spacing: -1.5px;
+            margin-bottom: 20px;
         }
 
-        .hero-text h1 span {
-            background: linear-gradient(135deg, #10b981 0%, #059669 40%, #4338ca 100%);
+        .hero-title span.highlight-green {
+            background: linear-gradient(135deg, #064e3b 0%, #059669 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .hero-text p {
-            font-size: 1.2rem;
+        .hero-title span.highlight-blue {
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
             color: #475569;
-            max-width: 580px;
-            margin-bottom: 38px;
-            animation: fadeIn 0.8s ease-out 0.2s both;
             line-height: 1.7;
+            margin-bottom: 34px;
+            max-width: 620px;
         }
 
-        .cta-group {
-            display: flex;
-            gap: 18px;
-            animation: fadeIn 0.8s ease-out 0.4s both;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            color: white;
-            padding: 18px 36px;
-            border-radius: 18px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.05rem;
+        .hero-cta-group {
             display: flex;
             align-items: center;
-            gap: 12px;
-            transition: all 0.3s;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
-            animation: pulseGlow 2.5s infinite;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5);
-        }
-
-        .btn-outline {
-            border: 2px solid #10b981;
-            color: #047857;
-            background: rgba(255,255,255,0.6);
-            backdrop-filter: blur(10px);
-            padding: 18px 36px;
-            border-radius: 18px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.05rem;
-            transition: all 0.3s;
-        }
-
-        .btn-outline:hover {
-            background: #10b981;
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
-        }
-
-        /* Hero Visual - Inspired directly by Reference Image 2 UI Glass Mockup */
-        .hero-visual {
-            position: relative;
-            animation: fadeIn 1s ease-out 0.5s both;
-        }
-
-        .glass-mockup-frame {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 32px;
-            padding: 14px;
-            box-shadow: 0 30px 70px -15px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(255,255,255,0.5);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        /* Mini Dashboard Mockup matching Image 2 */
-        .ui-mockup-container {
-            background: #f8fafc;
-            border-radius: 24px;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-            border: 1px solid #e2e8f0;
-            min-height: 380px;
-        }
-
-        /* Left Pastel Gradient Sidebar in Mockup */
-        .ui-sidebar {
-            background: linear-gradient(180deg, #a7f3d0 0%, #7dd3fc 50%, #c084fc 100%);
-            padding: 18px 12px;
-            color: #0f172a;
-            display: flex;
-            flex-direction: column;
             gap: 16px;
+            flex-wrap: wrap;
         }
 
-        .ui-sidebar-brand {
-            display: flex;
+        .btn-hero-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #064e3b 0%, #047857 60%, #059669 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            box-shadow: 0 10px 24px -4px rgba(6, 78, 59, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px -4px rgba(6, 78, 59, 0.45);
+            color: white;
+        }
+
+        .btn-hero-secondary {
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            color: #065f46;
-            margin-bottom: 8px;
-        }
-
-        .ui-sidebar-avatar {
-            width: 28px;
-            height: 28px;
-            background: rgba(255,255,255,0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: #047857;
-        }
-
-        .ui-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.75rem;
+            background: white;
+            color: #334155;
+            text-decoration: none;
+            padding: 14px 24px;
+            border-radius: 12px;
             font-weight: 700;
-            color: rgba(15, 23, 42, 0.75);
-            padding: 8px 10px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.25);
+            font-size: 0.95rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: var(--shadow-subtle);
+            transition: all 0.25s ease;
         }
 
-        .ui-menu-item.active {
-            background: rgba(255,255,255,0.85);
-            color: #047857;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        .btn-hero-secondary:hover {
+            background: #f8fafc;
+            color: #064e3b;
+            border-color: #94a3b8;
+            transform: translateY(-2px);
         }
 
-        /* Right Content Area in Mockup */
-        .ui-content {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: #ffffff;
+        /* Hero UI Glass Mockup */
+        .hero-mockup-wrapper {
+            position: relative;
         }
 
-        .ui-header-bar {
+        .hero-mockup-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-elevated), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-mockup-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .mockup-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
         }
 
-        .ui-search-input {
-            background: #f1f5f9;
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 0.72rem;
-            color: #64748b;
-            display: flex;
+        .mockup-badge-live {
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            width: 170px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #047857;
+            background: #dcfce7;
+            padding: 4px 10px;
+            border-radius: 20px;
         }
 
-        /* Widgets Grid inside Mockup */
-        .ui-widgets-grid {
+        .mockup-badge-live .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulseGlow 2s infinite;
+        }
+
+        .mockup-metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .mockup-metric {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .mockup-metric.active-theme {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border-color: #bbf7d0;
+        }
+
+        .mockup-metric .metric-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .mockup-metric .metric-val {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #064e3b;
+            margin-top: 2px;
+        }
+
+        .mockup-feed {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .mockup-feed-left {
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        .ui-widget-card {
-            border-radius: 16px;
-            padding: 12px;
-            color: #0f172a;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ui-widget-card.card-1 {
-            background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-        }
-
-        .ui-widget-card.card-2 {
-            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-        }
-
-        .ui-widget-card h5 {
-            font-size: 0.7rem;
-            color: #475569;
-            margin-bottom: 4px;
-            font-weight: 700;
-        }
-
-        .ui-widget-card .value {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        /* Chart Mockup Widget */
-        .ui-chart-widget {
-            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 12px;
-        }
-
-        .ui-chart-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 8px;
-        }
-
-        /* Mock Progress Circles matching Image 2 */
-        .ui-donuts-flex {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-top: 6px;
-        }
-
-        .ui-donut {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: #0f172a;
-            position: relative;
-        }
-
-        .ui-donut-1 {
-            background: conic-gradient(#10b981 0% 70%, #e2e8f0 70% 100%);
-        }
-        .ui-donut-2 {
-            background: conic-gradient(#6366f1 0% 85%, #e2e8f0 85% 100%);
-        }
-        .ui-donut-3 {
-            background: conic-gradient(#f59e0b 0% 60%, #e2e8f0 60% 100%);
-        }
-
-        .ui-donut-inner {
+        .mockup-feed-icon {
             width: 32px;
             height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        /* 4 Pillars Section */
+        section.section-pillars {
+            padding: 90px 7%;
             background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Table List Row inside Mockup */
-        .ui-table-mini {
-            background: #ffffff;
-            border: 1px solid #f1f5f9;
-            border-radius: 14px;
-            padding: 8px 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.7rem;
-        }
-
-        /* Stats Row Section */
-        .stats {
-            padding: 40px 8% 80px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .stat-card-glass {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            padding: 30px 24px;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
-            transition: all 0.3s;
-        }
-
-        .stat-card-glass:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.1);
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        .stat-icon-wrapper {
-            width: 60px;
-            height: 60px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            flex-shrink: 0;
-        }
-
-        .stat-icon-wrapper.green { background: #d1fae5; color: #059669; }
-        .stat-icon-wrapper.indigo { background: #e0e7ff; color: #4338ca; }
-        .stat-icon-wrapper.amber { background: #fef3c7; color: #d97706; }
-
-        .stat-info-text h3 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #0f172a;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .stat-info-text p {
-            font-size: 0.92rem;
-            color: #64748b;
-            font-weight: 600;
-        }
-
-        /* Features Section */
-        .features {
-            padding: 100px 8%;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .section-header {
             text-align: center;
-            margin-bottom: 70px;
+            max-width: 760px;
+            margin: 0 auto 55px;
         }
 
-        .section-header h2 {
-            font-size: 2.8rem;
-            color: #0f172a;
-            margin-bottom: 16px;
+        .section-tag {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0284c7;
+            padding: 5px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
         }
 
-        .section-header p {
+        .section-title {
+            font-size: 2.35rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .section-desc {
+            font-size: 1.05rem;
             color: #64748b;
-            font-size: 1.15rem;
-            max-width: 750px;
-            margin: 0 auto;
+            line-height: 1.6;
         }
 
-        .features-grid {
+        .pillars-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
         }
 
-        .feature-card {
-            padding: 42px 32px;
+        .pillar-card {
             background: #ffffff;
-            border-radius: 26px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04);
+            border-radius: 18px;
+            padding: 28px 24px;
+            box-shadow: var(--shadow-subtle);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
             position: relative;
             overflow: hidden;
         }
 
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.1);
+        .pillar-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-elevated);
             border-color: #cbd5e1;
         }
 
-        .feature-icon {
-            width: 68px;
-            height: 68px;
-            background: linear-gradient(135deg, #ecfdf5 0%, #e0e7ff 100%);
-            border-radius: 20px;
+        .pillar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--card-color, #047857);
+        }
+
+        .pillar-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: var(--icon-bg, #ecfdf5);
+            color: var(--icon-color, #047857);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            color: #059669;
-            margin-bottom: 24px;
-            transition: all 0.3s;
+            font-size: 1.35rem;
+            margin-bottom: 20px;
         }
 
-        .feature-card:hover .feature-icon {
-            background: linear-gradient(135deg, #10b981 0%, #4338ca 100%);
-            color: white;
-            transform: scale(1.08) rotate(-4deg);
-        }
-
-        .feature-card h3 {
-            font-size: 1.45rem;
-            margin-bottom: 14px;
+        .pillar-title {
+            font-size: 1.25rem;
+            font-weight: 800;
             color: #0f172a;
-            font-weight: 700;
+            margin-bottom: 10px;
         }
 
-        .feature-card p {
+        .pillar-text {
+            font-size: 0.92rem;
             color: #64748b;
-            line-height: 1.7;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .pillar-features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .pillar-features-list li {
+            font-size: 0.84rem;
+            color: #334155;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pillar-features-list li i {
+            color: #10b981;
+            font-size: 0.75rem;
+        }
+
+        /* Stats Row Section */
+        section.section-stats {
+            padding: 70px 7%;
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%);
+            color: white;
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 10px;
+        }
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #fef08a;
+            line-height: 1.1;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            opacity: 0.92;
+            margin-top: 6px;
+        }
+
+        .stat-desc {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        /* Features Grid Section */
+        section.section-features {
+            padding: 90px 7%;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-subtle);
+            transition: all 0.25s ease;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .feature-box:hover {
+            border-color: #0284c7;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .feature-box-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #e0f2fe;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .feature-box-content h4 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .feature-box-content p {
+            font-size: 0.88rem;
+            color: #64748b;
+            line-height: 1.55;
+        }
+
+        /* CTA Banner */
+        section.section-cta {
+            padding: 60px 7% 90px;
+        }
+
+        .cta-banner-card {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border-radius: 22px;
+            padding: 45px 50px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-banner-card::after {
+            content: '';
+            position: absolute;
+            right: -60px;
+            bottom: -60px;
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .cta-banner-content h3 {
+            font-size: 1.85rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .cta-banner-content p {
             font-size: 0.98rem;
+            opacity: 0.9;
+            max-width: 580px;
         }
 
         /* Footer */
-        footer {
-            padding: 90px 8% 40px;
+        footer.main-footer {
             background: #0f172a;
-            color: white;
+            color: #94a3b8;
+            padding: 70px 7% 30px;
+            border-top: 1px solid #1e293b;
         }
 
         .footer-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 80px;
-            margin-bottom: 70px;
+            grid-template-columns: 2fr 1fr 1fr 1.2fr;
+            gap: 40px;
+            margin-bottom: 50px;
         }
 
-        .footer-brand h3 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #a7f3d0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .footer-brand h4 {
+            color: white;
+            font-size: 1.3rem;
             font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .footer-brand p {
-            opacity: 0.7;
-            line-height: 1.8;
-            max-width: 420px;
-            font-size: 1rem;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #94a3b8;
+            max-width: 380px;
         }
 
-        .footer-links h4 {
-            font-size: 1.15rem;
-            margin-bottom: 24px;
-            font-weight: 700;
-            color: #f8fafc;
+        .footer-col h5 {
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .footer-links ul { list-style: none; }
-        .footer-links li { margin-bottom: 14px; }
+        .footer-links-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-        .footer-links a {
-            color: #cbd5e1;
+        .footer-links-list li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links-list a {
+            color: #94a3b8;
             text-decoration: none;
-            transition: all 0.3s;
-            font-size: 0.98rem;
+            font-size: 0.88rem;
+            transition: color 0.2s ease;
         }
 
-        .footer-links a:hover { color: #34d399; padding-left: 4px; }
-
-        .copyright {
-            padding-top: 36px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            opacity: 0.6;
-            font-size: 0.92rem;
+        .footer-links-list a:hover {
+            color: #38bdf8;
         }
 
-        /* Mobile Responsiveness */
-        @media (max-width: 1100px) {
-            .hero-text h1 { font-size: 3.4rem; }
-            header.hero { grid-template-columns: 1fr; text-align: center; gap: 40px; }
-            .hero-text p { margin: 0 auto 30px; }
-            .cta-group { justify-content: center; }
-            .stats { grid-template-columns: 1fr; gap: 16px; }
-            .features-grid { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-            .hero-visual { display: none !important; }
+        .footer-bottom {
+            border-top: 1px solid #1e293b;
+            padding-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            header.hero-section {
+                grid-template-columns: 1fr;
+                padding-top: 130px;
+                text-align: center;
+            }
+
+            .hero-desc {
+                margin: 0 auto 30px;
+            }
+
+            .hero-cta-group {
+                justify-content: center;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 768px) {
-            nav { padding: 1rem 5%; }
-            .nav-links { display: none; }
-            .logo { font-size: 1.1rem; }
-            .logo-img { height: 34px; }
-            
-            .mobile-login-btn {
-                display: block !important;
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                color: white;
-                padding: 8px 18px;
-                border-radius: 50px;
-                text-decoration: none;
-                font-weight: 700;
-                font-size: 0.85rem;
+            nav.main-nav .nav-menu {
+                display: none;
             }
 
-            header.hero { padding: 120px 5% 50px; }
+            .hero-title {
+                font-size: 2.35rem;
+            }
 
-            .hero-text h1 { font-size: 2.3rem; line-height: 1.25; }
+            .section-title {
+                font-size: 1.95rem;
+            }
 
-            .cta-group { flex-direction: column; width: 100%; }
+            .cta-banner-card {
+                padding: 30px 24px;
+                text-align: center;
+            }
 
-            .btn-primary, .btn-outline { width: 100%; justify-content: center; padding: 16px; }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
         }
-
-        .mobile-login-btn { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Pastel Ambient Blobs -->
-    <div class="bg-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
+    <!-- Ambient Blobs -->
+    <div class="ambient-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
 
-    <!-- Navigation -->
-    <nav>
-        <a href="/" class="logo">
-            <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" class="logo-img">
-            <span>Q-TALENT</span>
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav" id="navbar">
+        <a href="/" class="brand-container">
+            <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" class="brand-logo">
+            <div class="brand-text">
+                <span class="brand-title">SIM SMILE</span>
+                <span class="brand-subtitle">SDIT AN NADZIR</span>
+            </div>
         </a>
-        <div class="nav-links">
-            <a href="#fitur" class="nav-link">Fitur Unggulan</a>
+
+        <div class="nav-menu">
+            <a href="#pilar" class="nav-link">4 Pilar SMILE</a>
+            <a href="#keunggulan" class="nav-link">Fitur Terpadu</a>
             <a href="#statistik" class="nav-link">Statistik</a>
+            <a href="{{ route('status.index') }}" class="nav-link">
+                <i class="fas fa-search" style="font-size: 0.8rem; color: #0284c7;"></i> Cek Status Santri
+            </a>
             @auth
-                <a href="{{ url('/dashboard') }}" class="btn-login-nav">Ke Dashboard</a>
+                <a href="{{ url('/dashboard') }}" class="btn-nav-portal">
+                    <i class="fas fa-th-large"></i> Buka Dashboard
+                </a>
             @else
-                <a href="{{ route('login') }}" class="btn-login-nav">Login Admin</a>
+                <a href="{{ route('login') }}" class="btn-nav-portal">
+                    <i class="fas fa-lock"></i> Masuk Portal
+                </a>
             @endauth
         </div>
-        <!-- Mobile Only Login -->
-        @guest
-            <a href="{{ route('login') }}" class="mobile-login-btn">Login</a>
-        @else
-            <a href="{{ url('/dashboard') }}" class="mobile-login-btn">Dashboard</a>
-        @endguest
+
+        <!-- Mobile Login Icon -->
+        <div style="display: none;" class="mobile-only-btn">
+            @auth
+                <a href="{{ url('/dashboard') }}" class="btn-nav-portal" style="padding: 6px 14px; font-size: 0.8rem;">Dashboard</a>
+            @else
+                <a href="{{ route('login') }}" class="btn-nav-portal" style="padding: 6px 14px; font-size: 0.8rem;">Login</a>
+            @endauth
+        </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero">
-        <div class="hero-text">
-            <h1>Bina Karakter Qur'ani & <br> <span>Potensi Prestasi.</span></h1>
-            <p>Q-Talent SDIT AN NADZIR. Platform cerdas terintegrasi untuk pembinaan Tilawati, setoran Tahfidz, kegiatan ekstrakurikuler, dan rekam jejak prestasi siswa secara real-time.</p>
-            <div class="cta-group">
-                <a href="{{ route('login') }}" class="btn-primary">
-                    Mulai Sekarang <i class="fas fa-chevron-right"></i>
+    <header class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-award" style="color: #059669;"></i> Ekosistem Digital Terpadu SDIT AN NADZIR
+            </div>
+            <h1 class="hero-title">
+                Sinergi <span class="highlight-green">Qur'ani</span>, Karakter Unggul & <span class="highlight-blue">Prestasi.</span>
+            </h1>
+            <p class="hero-desc">
+                <strong>SIM SMILE SDIT AN NADZIR</strong> menghadirkan integrasi holistik pembinaan Tilawati & Tahfidz, pemantauan karakter SMILE, rapor akademik Kurikulum Merdeka (STS & SAS), serta manajemen potensi bakat santri dalam satu platform akuntabel.
+            </p>
+            <div class="hero-cta-group">
+                @auth
+                    <a href="{{ url('/dashboard') }}" class="btn-hero-primary">
+                        <i class="fas fa-tachometer-alt"></i> Buka Dashboard Sistem
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="btn-hero-primary">
+                        <i class="fas fa-sign-in-alt"></i> Masuk Portal SIM SMILE
+                    </a>
+                @endauth
+                <a href="#pilar" class="btn-hero-secondary">
+                    <i class="fas fa-layer-group" style="color: #0284c7;"></i> Jelajahi 4 Pilar
                 </a>
-                <a href="#fitur" class="btn-outline">Jelajahi Fitur</a>
             </div>
         </div>
 
-        <!-- Hero Visual Mockup matching Reference Image 2 -->
-        <div class="hero-visual">
-            <div class="glass-mockup-frame">
-                <div class="ui-mockup-container">
-                    <!-- Left Pastel Sidebar -->
-                    <div class="ui-sidebar">
-                        <div class="ui-sidebar-brand">
-                            <div class="ui-sidebar-avatar">Q</div>
-                            <span>Q-Talent</span>
-                        </div>
-                        <div class="ui-menu-item active">
-                            <i class="fas fa-home"></i> Beranda
-                        </div>
-                        <div class="ui-menu-item">
-                            <i class="fas fa-quran"></i> Qur'an
-                        </div>
-                        <div class="ui-menu-item">
-                            <i class="fas fa-running"></i> Eskul
-                        </div>
-                        <div class="ui-menu-item">
-                            <i class="fas fa-users"></i> Siswa
-                        </div>
-                        <div class="ui-menu-item">
-                            <i class="fas fa-chart-pie"></i> Laporan
+        <!-- Hero Visual Mockup -->
+        <div class="hero-mockup-wrapper">
+            <div class="hero-mockup-card">
+                <div class="mockup-header">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <img src="{{ asset('logo.png') }}" style="width: 26px; height: 26px; object-fit: contain;" alt="Logo">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #064e3b; line-height: 1.1;">SIM SMILE DASHBOARD</div>
+                            <div style="font-size: 0.68rem; font-weight: 700; color: #0284c7;">SDIT AN NADZIR</div>
                         </div>
                     </div>
+                    <div class="mockup-badge-live">
+                        <div class="pulse-dot"></div> Live System
+                    </div>
+                </div>
 
-                    <!-- Right Content Mockup -->
-                    <div class="ui-content">
-                        <div class="ui-header-bar">
-                            <div class="ui-search-input">
-                                <i class="fas fa-search"></i> Cari siswa, eskul...
-                            </div>
-                            <div style="display: flex; gap: 6px; align-items: center;">
-                                <i class="fas fa-bell" style="font-size: 0.75rem; color: #94a3b8;"></i>
-                                <div style="width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: #475569;">A</div>
-                            </div>
-                        </div>
-
-                        <!-- Mini Cards Grid -->
-                        <div class="ui-widgets-grid">
-                            <div class="ui-widget-card card-1">
-                                <h5>Total Eskul</h5>
-                                <div class="value">{{ $totalEskul }}</div>
-                            </div>
-                            <div class="ui-widget-card card-2">
-                                <h5>Siswa Aktif</h5>
-                                <div class="value">{{ $totalSiswa }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Donut Charts Widget matching Image 2 -->
-                        <div class="ui-chart-widget">
-                            <div class="ui-chart-header">
-                                <span>Partisipasi Eskul</span>
-                                <span style="color: #10b981; font-weight: 800;">Realtime</span>
-                            </div>
-                            <div class="ui-donuts-flex">
-                                <div class="ui-donut ui-donut-1">
-                                    <div class="ui-donut-inner">70%</div>
-                                </div>
-                                <div class="ui-donut ui-donut-2">
-                                    <div class="ui-donut-inner">85%</div>
-                                </div>
-                                <div class="ui-donut ui-donut-3">
-                                    <div class="ui-donut-inner">60%</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Mini Table Row -->
-                        <div class="ui-table-mini">
-                            <span style="font-weight: 700; color: #334155;">Pramuka & Tahfidz</span>
-                            <span style="background: #d1fae5; color: #047857; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.65rem;">Aktif</span>
+                <div class="mockup-metrics-grid">
+                    <div class="mockup-metric active-theme">
+                        <div class="metric-label">Santri Terdaftar</div>
+                        <div class="metric-val">{{ $totalSiswa }}</div>
+                        <div style="font-size: 0.72rem; color: #047857; font-weight: 600; margin-top: 2px;">
+                            <i class="fas fa-check-circle"></i> Terdata Aktif
                         </div>
                     </div>
+                    <div class="mockup-metric">
+                        <div class="metric-label">Kelompok Qur'an</div>
+                        <div class="metric-val" style="color: #0284c7;">{{ $totalKelompok }}</div>
+                        <div style="font-size: 0.72rem; color: #0284c7; font-weight: 600; margin-top: 2px;">
+                            <i class="fas fa-quran"></i> Tilawati & Tahfidz
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed items inside mockup -->
+                <div class="mockup-feed" style="background: #f0fdf4; border-color: #bbf7d0;">
+                    <div class="mockup-feed-left">
+                        <div class="mockup-feed-icon" style="background: #dcfce7; color: #15803d;">
+                            <i class="fas fa-star-and-crescent"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #166534;">Pembinaan Al-Qur'an</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Mutaba'ah Tilawati & Kartu Hafalan Santri</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #15803d; background: white; padding: 2px 8px; border-radius: 6px;">Aktif</span>
+                </div>
+
+                <div class="mockup-feed" style="background: #fefce8; border-color: #fef08a;">
+                    <div class="mockup-feed-left">
+                        <div class="mockup-feed-icon" style="background: #fef9c3; color: #a16207;">
+                            <i class="fas fa-smile-beam"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #854d0e;">SMILE Karakter Siswa</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Sholeh, Muslih, Curousity, Leadership, Env.</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #a16207; background: white; padding: 2px 8px; border-radius: 6px;">Akuntabel</span>
+                </div>
+
+                <div class="mockup-feed" style="background: #f0f9ff; border-color: #bae6fd;">
+                    <div class="mockup-feed-left">
+                        <div class="mockup-feed-icon" style="background: #e0f2fe; color: #0369a1;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #075985;">Raport Kurikulum Merdeka</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Penilaian Sumatif STS 1, SAS 1, STS 2, SAS 2</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #0369a1; background: white; padding: 2px 8px; border-radius: 6px;">A4 Resmi</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Stats Row Section -->
-    <section class="stats" id="statistik">
-        <div class="stat-card-glass">
-            <div class="stat-icon-wrapper green">
-                <i class="fas fa-basketball-ball"></i>
-            </div>
-            <div class="stat-info-text">
-                <h3>{{ $totalEskul }}</h3>
-                <p>Pilihan Ekstrakurikuler</p>
-            </div>
+    <!-- 4 Core Pillars Section -->
+    <section class="section-pillars" id="pilar">
+        <div class="section-header">
+            <span class="section-tag">Struktur Ekosistem</span>
+            <h2 class="section-title">4 Pilar Utama SIM SMILE</h2>
+            <p class="section-desc">
+                Pondasi terpadu untuk memastikan setiap santri berkembang optimal dalam pemahaman agama, keluhuran budi pekerti, kecakapan akademis, dan potensi bakat.
+            </p>
         </div>
-        <div class="stat-card-glass">
-            <div class="stat-icon-wrapper indigo">
-                <i class="fas fa-user-graduate"></i>
+
+        <div class="pillars-grid">
+            <!-- Pilar 1: Pembinaan Qur'an -->
+            <div class="pillar-card" style="--card-color: #047857;">
+                <div class="pillar-icon-box" style="--icon-bg: #ecfdf5; --icon-color: #047857;">
+                    <i class="fas fa-quran"></i>
+                </div>
+                <h3 class="pillar-title">Pembinaan Al-Qur'an</h3>
+                <p class="pillar-text">
+                    Sistem pemantauan berjenjang untuk pembelajaran Al-Qur'an metode Tilawati dan akselerasi setoran Tahfidz santri.
+                </p>
+                <ul class="pillar-features-list">
+                    <li><i class="fas fa-check"></i> Mentoring Tilawati Berjilid</li>
+                    <li><i class="fas fa-check"></i> Kartu Setoran Hafalan Digital</li>
+                    <li><i class="fas fa-check"></i> Presensi Sesi Halaqah & Mutaba'ah</li>
+                    <li><i class="fas fa-check"></i> Cetak Rekapitulasi Tahfidz & Tilawati</li>
+                </ul>
             </div>
-            <div class="stat-info-text">
-                <h3>{{ $totalSiswa }}</h3>
-                <p>Siswa Terdaftar</p>
+
+            <!-- Pilar 2: SMILE Karakter -->
+            <div class="pillar-card" style="--card-color: #d97706;">
+                <div class="pillar-icon-box" style="--icon-bg: #fffbeb; --icon-color: #d97706;">
+                    <i class="fas fa-smile-beam"></i>
+                </div>
+                <h3 class="pillar-title">SMILE Karakter</h3>
+                <p class="pillar-text">
+                    Pemantauan adab dan akhlak santri berlandaskan nilai Sholeh, Muslih, Intellectual Curiosity, Leadership, & Environmentally Friendly.
+                </p>
+                <ul class="pillar-features-list">
+                    <li><i class="fas fa-check"></i> Buku Saku Apresiasi & Kebaikan</li>
+                    <li><i class="fas fa-check"></i> Pencatatan Kasus & Tindak Lanjut</li>
+                    <li><i class="fas fa-check"></i> Neraca Poin Karakter Santri</li>
+                    <li><i class="fas fa-check"></i> Lembar Evaluasi Karakter per Kelas</li>
+                </ul>
             </div>
-        </div>
-        <div class="stat-card-glass">
-            <div class="stat-icon-wrapper amber">
-                <i class="fas fa-chalkboard-teacher"></i>
+
+            <!-- Pilar 3: SMILE Kurikulum -->
+            <div class="pillar-card" style="--card-color: #0284c7;">
+                <div class="pillar-icon-box" style="--icon-bg: #e0f2fe; --icon-color: #0284c7;">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="pillar-title">SMILE Kurikulum</h3>
+                <p class="pillar-text">
+                    Modul penilaian akademik Kurikulum Merdeka yang akuntabel, transparan, dan terintegrasi langsung dengan cetak lembar rapor resmi.
+                </p>
+                <ul class="pillar-features-list">
+                    <li><i class="fas fa-check"></i> Asesmen STS 1, SAS 1, STS 2, SAS 2</li>
+                    <li><i class="fas fa-check"></i> Input Nilai Cepat & Capaian Belajar</li>
+                    <li><i class="fas fa-check"></i> Rekap Nilai Matriks & Ranking Kelas</li>
+                    <li><i class="fas fa-check"></i> Cetak Lembar Rapor A4 Resmi</li>
+                </ul>
             </div>
-            <div class="stat-info-text">
-                <h3>{{ $totalGuru }}</h3>
-                <p>Guru Pembina</p>
+
+            <!-- Pilar 4: Bakat & Prestasi -->
+            <div class="pillar-card" style="--card-color: #8b5cf6;">
+                <div class="pillar-icon-box" style="--icon-bg: #f5f3ff; --icon-color: #8b5cf6;">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h3 class="pillar-title">Bakat & Prestasi</h3>
+                <p class="pillar-text">
+                    Penyaluran minat bakat melalui kegiatan ekstrakurikuler serta rekam jejak sertifikat digital prestasi santri.
+                </p>
+                <ul class="pillar-features-list">
+                    <li><i class="fas fa-check"></i> Pilihan Ekstrakurikuler Mandiri</li>
+                    <li><i class="fas fa-check"></i> Presensi Latihan & Penilaian Eskul</li>
+                    <li><i class="fas fa-check"></i> Penerbitan Sertifikat Digital Terverifikasi</li>
+                    <li><i class="fas fa-check"></i> Database Portofolio Kejuaraan Siswa</li>
+                </ul>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features" id="fitur">
-        <div class="section-header">
-            <h2>Transformasi Digital Sekolah</h2>
-            <p>Kami menghadirkan solusi komprehensif untuk menjawab tantangan manajemen kegiatan sekolah di era digital.</p>
+    <!-- Realtime School Stats Section -->
+    <section class="section-stats" id="statistik">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">{{ $totalSiswa }}</div>
+                <div class="stat-label">Santri Terdaftar</div>
+                <div class="stat-desc">Peserta Didik Aktif SDIT AN NADZIR</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ $totalKelompok }}</div>
+                <div class="stat-label">Kelompok Qur'an</div>
+                <div class="stat-desc">Halaqah Tilawati & Tahfidz</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ $totalEskul }}</div>
+                <div class="stat-label">Pilihan Eskul</div>
+                <div class="stat-desc">Wadah Minat & Bakat Santri</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ $totalGuru }}</div>
+                <div class="stat-label">Dewan Guru & Pembina</div>
+                <div class="stat-desc">Tenaga Pendidik Profesional</div>
+            </div>
         </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section class="section-features" id="keunggulan">
+        <div class="section-header">
+            <span class="section-tag">Efisiensi & Akuntabilitas</span>
+            <h2 class="section-title">Dirancang untuk Mutu Pendidikan Terbaik</h2>
+            <p class="section-desc">
+                Teknologi pintar yang menyederhanakan birokrasi dan administrasi sekolah sehingga dewan guru dapat lebih fokus membina santri.
+            </p>
+        </div>
+
         <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-user-check"></i>
+            <div class="feature-box">
+                <div class="feature-box-icon">
+                    <i class="fas fa-file-invoice"></i>
                 </div>
-                <h3>Absensi Smart</h3>
-                <p>Pencatatan kehadiran sesi latihan secara digital. Otomatisasi rekapitulasi per semester untuk penilaian raport.</p>
+                <div class="feature-box-content">
+                    <h4>Cetak Rapor & Laporan A4 Resmi</h4>
+                    <p>Format dokumen cetak ber-KOP resmi SDIT AN NADZIR, siap cetak langsung atau disimpan sebagai file PDF tanpa perlu penyesuaian layout ulang.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
+
+            <div class="feature-box">
+                <div class="feature-box-icon" style="background: #ecfdf5; color: #047857;">
+                    <i class="fas fa-user-shield"></i>
                 </div>
-                <h3>Monitoring Nilai</h3>
-                <p>Input nilai SAS (Sumatif Akhir Semester) dengan mudah. Grafik perkembangan kemampuan siswa di setiap bidang eskul.</p>
+                <div class="feature-box-content">
+                    <h4>Hak Akses Berjenjang & Aman</h4>
+                    <p>Pemisahan wewenang yang rapi antara Administrator, Kepala Sekolah, Wali Kelas, dan Pembina Kegiatan untuk integritas data sekolah.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-fingerprint"></i>
+
+            <div class="feature-box">
+                <div class="feature-box-icon" style="background: #fffbeb; color: #d97706;">
+                    <i class="fas fa-id-card"></i>
                 </div>
-                <h3>Keamanan Audit</h3>
-                <p>Setiap aktivitas perubahan data terekam dalam sistem audit trail. Keamanan data siswa adalah prioritas utama kami.</p>
+                <div class="feature-box-content">
+                    <h4>Portal Cek Mandiri Santri</h4>
+                    <p>Wali murid dan santri dapat mengecek status kegiatan, kehadiran, dan capaian pembinaan secara mandiri melalui NIS.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-satellite-dish"></i>
+
+            <div class="feature-box">
+                <div class="feature-box-icon" style="background: #fdf2f8; color: #db2777;">
+                    <i class="fas fa-award"></i>
                 </div>
-                <h3>Broadcasting</h3>
-                <p>Kirim pengumuman penting ke seluruh pembina melalui dashboard. Komunikasi internal jadi lebih cepat dan efektif.</p>
+                <div class="feature-box-content">
+                    <h4>Sertifikat Digital QR Code</h4>
+                    <p>Penerbitan sertifikat digital resmi untuk santri berprestasi yang dilengkapi tautan verifikasi keaslian berbasis QR code.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-file-export"></i>
+
+            <div class="feature-box">
+                <div class="feature-box-icon" style="background: #f5f3ff; color: #7c3aed;">
+                    <i class="fas fa-clock"></i>
                 </div>
-                <h3>Laporan Instan</h3>
-                <p>Ekspor data siswa, absensi, dan nilai ke format Excel dalam hitungan detik. Siap untuk integrasi data dapodik.</p>
+                <div class="feature-box-content">
+                    <h4>Presensi & Kehadiran Guru</h4>
+                    <p>Pencatatan absensi harian dan rekap kehadiran dewan guru dan pembina ekstrakurikuler secara digital dan terpusat.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-magic"></i>
+
+            <div class="feature-box">
+                <div class="feature-box-icon" style="background: #f0fdf4; color: #16a34a;">
+                    <i class="fas fa-mobile-alt"></i>
                 </div>
-                <h3>Branding Kustom</h3>
-                <p>Sesuaikan tampilan dashboard dengan identitas warna sekolah. Fleksibilitas tinggi untuk kenyamanan visual admin.</p>
+                <div class="feature-box-content">
+                    <h4>Dukungan Aplikasi Mobile PWA</h4>
+                    <p>Dapat diinstal langsung di layar utama smartphone Android maupun iOS tanpa membebani penyimpanan perangkat.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section-cta">
+        <div class="cta-banner-card">
+            <div class="cta-banner-content">
+                <h3>Siap Mewujudkan Manajemen Sekolah Modern?</h3>
+                <p>Masuk ke portal SIM SMILE untuk mulai mengelola data akademik, pembinaan Al-Qur'an, dan pembiasaan karakter santri.</p>
+            </div>
+            <div>
+                @auth
+                    <a href="{{ url('/dashboard') }}" class="btn-hero-primary" style="background: white; color: #0284c7; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+                        <i class="fas fa-th-large"></i> Buka Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="btn-hero-primary" style="background: white; color: #0284c7; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+                        <i class="fas fa-lock"></i> Masuk Sekarang
+                    </a>
+                @endauth
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
+    <footer class="main-footer">
         <div class="footer-grid">
             <div class="footer-brand">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                    <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" style="height: 38px; width: auto; object-fit: contain;">
-                    <h3 style="margin: 0;">Q-TALENT SDIT AN NADZIR</h3>
+                <h4>
+                    <img src="{{ asset('logo.png') }}" style="width: 32px; height: 32px; object-fit: contain;" alt="Logo">
+                    SIM SMILE SDIT AN NADZIR
+                </h4>
+                <p>
+                    Sistem Informasi Manajemen Terpadu untuk membina generasi Qur'ani yang berakhlak mulia, cerdas, berkarakter unggul, dan siap berprestasi.
+                </p>
+                <div style="margin-top: 14px; font-size: 0.85rem; color: #cbd5e1;">
+                    <i class="fas fa-map-marker-alt" style="color: #38bdf8; margin-right: 6px;"></i> Komplek Perguruan SDIT An Nadzir, Bandar Lampung
                 </div>
-                <p>Membentuk generasi Qur'ani yang unggul dalam akhlak, akademik, dan berbakat dalam minat. SDIT AN NADZIR terus berinovasi untuk memberikan pendidikan berkualitas terbaik.</p>
             </div>
-            <div class="footer-links">
-                <h4>Akses Cepat</h4>
-                <ul>
-                    <li><a href="#">Beranda</a></li>
-                    <li><a href="#fitur">Fitur Utama</a></li>
-                    <li><a href="#statistik">Statistik</a></li>
-                    <li><a href="{{ route('login') }}">Login Admin</a></li>
+
+            <div class="footer-col">
+                <h5>Pilar Sistem</h5>
+                <ul class="footer-links-list">
+                    <li><a href="#pilar">Pembinaan Qur'an</a></li>
+                    <li><a href="#pilar">SMILE Karakter</a></li>
+                    <li><a href="#pilar">SMILE Kurikulum</a></li>
+                    <li><a href="#pilar">Ekstrakurikuler</a></li>
                 </ul>
             </div>
-            <div class="footer-links">
-                <h4>Dukungan</h4>
-                <ul>
-                    <li><a href="#">Pusat Bantuan</a></li>
-                    <li><a href="#">Panduan Admin</a></li>
-                    <li><a href="#">Kebijakan Privasi</a></li>
+
+            <div class="footer-col">
+                <h5>Navigasi</h5>
+                <ul class="footer-links-list">
+                    <li><a href="/">Beranda</a></li>
+                    <li><a href="#keunggulan">Fitur Utama</a></li>
+                    <li><a href="#statistik">Statistik Sekolah</a></li>
+                    <li><a href="{{ route('status.index') }}">Cek Status Siswa</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h5>Akses Pengguna</h5>
+                <ul class="footer-links-list">
+                    <li><a href="{{ route('login') }}"><i class="fas fa-lock" style="font-size: 0.75rem;"></i> Login Portal Staf / Guru</a></li>
+                    <li><a href="{{ route('guide.index') }}"><i class="fas fa-book" style="font-size: 0.75rem;"></i> Panduan Penggunaan</a></li>
                 </ul>
             </div>
         </div>
-        <div class="copyright">
-            &copy; {{ date('Y') }} SDIT AN NADZIR. Didesain dengan penuh dedikasi untuk kemajuan pendidikan Indonesia.
+
+        <div class="footer-bottom">
+            <div>
+                &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Seluruh Hak Cipta Dilindungi Undang-Undang.
+            </div>
+            <div>
+                SIM SMILE – Solusi Digital Pendidikan Terpadu
+            </div>
         </div>
     </footer>
 
     <script>
-        // Smooth Scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Navbar Scroll Animation
+        // Navbar scroll effect
         window.addEventListener('scroll', function() {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 80) {
-                nav.style.padding = '0.8rem 8%';
-                nav.style.boxShadow = '0 10px 30px rgba(15, 23, 42, 0.08)';
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 40) {
+                nav.classList.add('scrolled');
             } else {
-                nav.style.padding = '1.25rem 8%';
-                nav.style.boxShadow = 'none';
+                nav.classList.remove('scrolled');
             }
         });
 
@@ -965,4 +1270,3 @@
     </script>
 </body>
 </html>
-

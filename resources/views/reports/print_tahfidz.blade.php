@@ -170,7 +170,7 @@
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
                 <h1>SDIT AN NADZIR</h1>
-                <h2>SISTEM PEMBINAAN QUR'AN & PRESTASI TERPADU (Q-TALENT)</h2>
+                <h2>SISTEM PEMBINAAN QUR'AN & PRESTASI TERPADU (SIM SMILE)</h2>
                 <p>Alamat: Jl. Raya Pendidikan No. 01, Cisauk, Kab. Tangerang, Banten • Telp: (021) 5432-1098</p>
             </div>
         </div>
