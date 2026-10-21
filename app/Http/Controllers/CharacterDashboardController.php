@@ -13,16 +13,6 @@ use Illuminate\Support\Facades\Artisan;
 
 class CharacterDashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (Auth::user() && Auth::user()->role === 'curriculum') {
-                abort(403, 'Akses modul pemantauan karakter khusus untuk Kesiswaan dan Guru.');
-            }
-            return $next($request);
-        });
-    }
-
     protected function ensureTablesExist()
     {
         if (!Schema::hasTable('character_cases') || !Schema::hasTable('character_appreciations')) {

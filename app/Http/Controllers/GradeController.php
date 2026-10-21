@@ -10,16 +10,6 @@ use Illuminate\Http\Request;
 
 class GradeController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (auth()->check() && auth()->user()->role === 'curriculum') {
-                abort(403, 'Akses penilaian ekstrakurikuler khusus untuk Kesiswaan dan Pembina.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $user = auth()->user();

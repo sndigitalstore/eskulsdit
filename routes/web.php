@@ -98,28 +98,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/promotions', [\App\Http\Controllers\PromotionController::class, 'index'])->name('promotions.index');
     Route::post('/promotions', [\App\Http\Controllers\PromotionController::class, 'promote'])->name('promotions.promote');
     Route::get('students/{student}/card', [\App\Http\Controllers\StudentController::class, 'card'])->name('students.card');
-    Route::get('/eskuls', [\App\Http\Controllers\EskulController::class, 'index'])->name('eskuls.index');
-    Route::post('/eskuls', [\App\Http\Controllers\EskulController::class, 'store'])->name('eskuls.store');
-    Route::delete('/eskuls/{eskul}', [\App\Http\Controllers\EskulController::class, 'destroy'])->name('eskuls.destroy');
-    Route::post('/eskuls/bulk-update-schedule', [\App\Http\Controllers\EskulController::class, 'bulkUpdateSchedule'])->name('eskuls.bulk-update-schedule');
-    Route::put('/eskuls/{eskul}', [\App\Http\Controllers\EskulController::class, 'update'])->name('eskuls.update');
-    Route::patch('/eskuls/{eskul}/quick-update', [\App\Http\Controllers\EskulController::class, 'quickUpdate'])->name('eskuls.quick-update');
-    Route::get('/eskuls/{eskul}/export', [\App\Http\Controllers\EskulController::class, 'export'])->name('eskuls.export');
+    Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
+        Route::get('/eskuls', [\App\Http\Controllers\EskulController::class, 'index'])->name('eskuls.index');
+        Route::post('/eskuls', [\App\Http\Controllers\EskulController::class, 'store'])->name('eskuls.store');
+        Route::delete('/eskuls/{eskul}', [\App\Http\Controllers\EskulController::class, 'destroy'])->name('eskuls.destroy');
+        Route::post('/eskuls/bulk-update-schedule', [\App\Http\Controllers\EskulController::class, 'bulkUpdateSchedule'])->name('eskuls.bulk-update-schedule');
+        Route::put('/eskuls/{eskul}', [\App\Http\Controllers\EskulController::class, 'update'])->name('eskuls.update');
+        Route::patch('/eskuls/{eskul}/quick-update', [\App\Http\Controllers\EskulController::class, 'quickUpdate'])->name('eskuls.quick-update');
+        Route::get('/eskuls/{eskul}/export', [\App\Http\Controllers\EskulController::class, 'export'])->name('eskuls.export');
 
-    Route::get('/attendance/report', [\App\Http\Controllers\AttendanceController::class, 'report'])->name('attendance.report');
-    Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
-    Route::get('/attendance/create', [\App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
-    Route::post('/attendance', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
-    Route::delete('/attendance/delete-date', [\App\Http\Controllers\AttendanceController::class, 'destroyDate'])->name('attendance.destroy-date');
+        Route::get('/attendance/report', [\App\Http\Controllers\AttendanceController::class, 'report'])->name('attendance.report');
+        Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('/attendance/create', [\App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
+        Route::post('/attendance', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
+        Route::delete('/attendance/delete-date', [\App\Http\Controllers\AttendanceController::class, 'destroyDate'])->name('attendance.destroy-date');
 
-    Route::get('/grades/import', [\App\Http\Controllers\GradeImportController::class, 'index'])->name('grades.import');
-    Route::post('/grades/import/template', [\App\Http\Controllers\GradeImportController::class, 'downloadTemplate'])->name('grades.import.template');
-    Route::post('/grades/import/process', [\App\Http\Controllers\GradeImportController::class, 'import'])->name('grades.import.process');
+        Route::get('/grades/import', [\App\Http\Controllers\GradeImportController::class, 'index'])->name('grades.import');
+        Route::post('/grades/import/template', [\App\Http\Controllers\GradeImportController::class, 'downloadTemplate'])->name('grades.import.template');
+        Route::post('/grades/import/process', [\App\Http\Controllers\GradeImportController::class, 'import'])->name('grades.import.process');
 
-    Route::get('/grades', [\App\Http\Controllers\GradeController::class, 'index'])->name('grades.index');
-    Route::get('/grades/create', [\App\Http\Controllers\GradeController::class, 'create'])->name('grades.create');
-    Route::post('/grades', [\App\Http\Controllers\GradeController::class, 'store'])->name('grades.store');
-    Route::get('/grades/report', [\App\Http\Controllers\GradeController::class, 'report'])->name('grades.report');
+        Route::get('/grades', [\App\Http\Controllers\GradeController::class, 'index'])->name('grades.index');
+        Route::get('/grades/create', [\App\Http\Controllers\GradeController::class, 'create'])->name('grades.create');
+        Route::post('/grades', [\App\Http\Controllers\GradeController::class, 'store'])->name('grades.store');
+        Route::get('/grades/report', [\App\Http\Controllers\GradeController::class, 'report'])->name('grades.report');
+    });
     
     Route::get('/reports/print-all', [\App\Http\Controllers\ReportController::class, 'printAll'])->name('reports.print-all');
     Route::get('/reports/print-all-recap', [\App\Http\Controllers\ReportController::class, 'printAllRecap'])->name('reports.print-all-recap');
@@ -216,15 +218,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahfidz-groups/{group}/attendance/recap/print',           [\App\Http\Controllers\TahfidzAttendanceController::class, 'printRecap'])->name('tahfidz.attendance.print-recap');
 
     // SMILE KARAKTER (Pemantauan Karakter Siswa)
-    Route::get('/character',                         [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');
-    Route::get('/character/report',                  [\App\Http\Controllers\CharacterDashboardController::class, 'report'])->name('character.report');
-    Route::get('/character/report/print',            [\App\Http\Controllers\CharacterDashboardController::class, 'printClassReport'])->name('character.report.print');
+    Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
+        Route::get('/character',                         [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');
+        Route::get('/character/report',                  [\App\Http\Controllers\CharacterDashboardController::class, 'report'])->name('character.report');
+        Route::get('/character/report/print',            [\App\Http\Controllers\CharacterDashboardController::class, 'printClassReport'])->name('character.report.print');
 
-    Route::get('/character-cases/print',             [\App\Http\Controllers\CharacterCaseController::class, 'print'])->name('character-cases.print');
-    Route::resource('character-cases',               \App\Http\Controllers\CharacterCaseController::class);
+        Route::get('/character-cases/print',             [\App\Http\Controllers\CharacterCaseController::class, 'print'])->name('character-cases.print');
+        Route::resource('character-cases',               \App\Http\Controllers\CharacterCaseController::class);
 
-    Route::get('/character-appreciations/print',     [\App\Http\Controllers\CharacterAppreciationController::class, 'print'])->name('character-appreciations.print');
-    Route::resource('character-appreciations',       \App\Http\Controllers\CharacterAppreciationController::class);
+        Route::get('/character-appreciations/print',     [\App\Http\Controllers\CharacterAppreciationController::class, 'print'])->name('character-appreciations.print');
+        Route::resource('character-appreciations',       \App\Http\Controllers\CharacterAppreciationController::class);
+    });
 
     // SMILE KURIKULUM (Raport Akademik STS 1, SAS 1, STS 2, SAS 2 & Mata Pelajaran)
     Route::get('/curriculum/academic-reports',                          [\App\Http\Controllers\AcademicReportController::class, 'index'])->name('academic-reports.index');
@@ -237,7 +241,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/curriculum/academic-reports/import-scores',           [\App\Http\Controllers\AcademicReportController::class, 'importScores'])->name('academic-reports.import-scores');
     Route::get('/curriculum/academic-reports/export-leger',             [\App\Http\Controllers\AcademicReportController::class, 'exportLeger'])->name('academic-reports.export-leger');
 
-    Route::resource('curriculum/subjects',                              \App\Http\Controllers\SubjectController::class)->names('subjects');
+    Route::middleware(['role:admin,headmaster,curriculum'])->group(function () {
+        Route::resource('curriculum/subjects', \App\Http\Controllers\SubjectController::class)->names('subjects');
+    });
 
 });
 

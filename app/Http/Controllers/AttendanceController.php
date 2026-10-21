@@ -9,16 +9,6 @@ use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (auth()->check() && auth()->user()->role === 'curriculum') {
-                abort(403, 'Akses presensi ekstrakurikuler khusus untuk Kesiswaan dan Pembina.');
-            }
-            return $next($request);
-        });
-    }
-
     private function getAllowedEskulIds($user)
     {
         $eskulIds = [];

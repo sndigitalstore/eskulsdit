@@ -7,16 +7,6 @@ use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!in_array(auth()->user()->role, ['admin', 'headmaster', 'curriculum'])) {
-                abort(403, 'Akses ditolak. Pengelolaan mata pelajaran hanya untuk Administrator dan Tim Kurikulum.');
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $subjects = Subject::orderBy('order_num', 'asc')->orderBy('name', 'asc')->get();

@@ -13,16 +13,6 @@ use Illuminate\Support\Facades\Artisan;
 
 class CharacterAppreciationController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (Auth::user() && Auth::user()->role === 'curriculum') {
-                abort(403, 'Akses data apresiasi karakter khusus untuk Kesiswaan dan Guru.');
-            }
-            return $next($request);
-        });
-    }
-
     /**
      * Auto check and migrate tables if missing
      */
