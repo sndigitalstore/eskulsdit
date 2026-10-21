@@ -841,17 +841,39 @@
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </div>
                 <ul class="nav-submenu">
+                    @php
+                        $isReportRoute = request()->is('curriculum/academic-reports*');
+                        $currentAssessment = request()->get('assessment', 'STS_1');
+                    @endphp
                     <li class="nav-subitem">
-                        <a href="{{ route('academic-reports.index') }}" class="nav-sublink {{ request()->is('curriculum/academic-reports*') ? 'active' : '' }}">
-                            <i class="fas fa-file-invoice" style="color: #0284c7;"></i>
-                            <span>Raport Akademik</span>
+                        <a href="{{ route('academic-reports.index', ['assessment' => 'STS_1']) }}" class="nav-sublink {{ $isReportRoute && $currentAssessment === 'STS_1' ? 'active' : '' }}">
+                            <i class="fas fa-calendar-alt" style="color: #0284c7;"></i>
+                            <span>Raport STS 1 (Ganjil)</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index', ['assessment' => 'SAS_1']) }}" class="nav-sublink {{ $isReportRoute && $currentAssessment === 'SAS_1' ? 'active' : '' }}">
+                            <i class="fas fa-check-circle" style="color: #16a34a;"></i>
+                            <span>Raport SAS 1 (Ganjil)</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index', ['assessment' => 'STS_2']) }}" class="nav-sublink {{ $isReportRoute && $currentAssessment === 'STS_2' ? 'active' : '' }}">
+                            <i class="fas fa-calendar-check" style="color: #d97706;"></i>
+                            <span>Raport STS 2 (Genap)</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index', ['assessment' => 'SAS_2']) }}" class="nav-sublink {{ $isReportRoute && $currentAssessment === 'SAS_2' ? 'active' : '' }}">
+                            <i class="fas fa-award" style="color: #7c3aed;"></i>
+                            <span>Raport SAS 2 (Genap)</span>
                         </a>
                     </li>
                     @if($isAdminOrCurriculumOrHeadmaster)
                     <li class="nav-subitem">
                         <a href="{{ route('subjects.index') }}" class="nav-sublink {{ request()->is('curriculum/subjects*') ? 'active' : '' }}">
                             <i class="fas fa-book" style="color: #10b981;"></i>
-                            <span>Mata Pelajaran</span>
+                            <span>Mata Pelajaran & KKTP</span>
                         </a>
                     </li>
                     @endif

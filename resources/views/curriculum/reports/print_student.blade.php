@@ -306,9 +306,115 @@
         </tbody>
     </table>
 
+    <!-- TABLE PEMBINAAN AL-QUR'AN -->
+    <div class="section-title">B. Perkembangan Pembinaan Al-Qur'an</div>
+    <table class="table-data" style="margin-bottom: 12px;">
+        <thead>
+            <tr>
+                <th style="width: 30px;">No</th>
+                <th style="text-align: left; width: 170px;">Program Qur'an</th>
+                <th style="text-align: left; width: 170px;">Kelompok & Pembina</th>
+                <th style="text-align: left; width: 170px;">Capaian / Tingkat</th>
+                <th style="text-align: left;">Keterangan & Catatan Pembina</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center">1</td>
+                <td><strong>Tilawati (Tahsin & Tajwid)</strong></td>
+                <td>
+                    {{ $tilawatiGroup->name ?? 'Belum terplot' }}
+                    @if(!empty($tilawatiGroup?->mentor_name))
+                        <div style="font-size: 7.5pt; color: #555;">Ustadz/ah: {{ $tilawatiGroup->mentor_name }}</div>
+                    @endif
+                </td>
+                <td>
+                    <strong>{{ !empty($tilawatiPivot?->notes) ? $tilawatiPivot->notes : ($tilawatiGroup?->target_level ?? 'Jilid Berjalan') }}</strong>
+                </td>
+                <td style="font-size: 8.5pt;">
+                    Mengikuti bimbingan makharijul huruf, tajwid, dan kelancaran membaca Al-Qur'an dengan tertib.
+                </td>
+            </tr>
+            <tr>
+                <td class="text-center">2</td>
+                <td><strong>Tahfidz Al-Qur'an (Hafalan)</strong></td>
+                <td>
+                    {{ $tahfidzGroup->name ?? 'Belum terplot' }}
+                    @if(!empty($tahfidzGroup?->mentor_name))
+                        <div style="font-size: 7.5pt; color: #555;">Ustadz/ah: {{ $tahfidzGroup->mentor_name }}</div>
+                    @endif
+                </td>
+                <td>
+                    @if($latestTahfidzRecord)
+                        <strong>{{ $latestTahfidzRecord->surah_name }}</strong>
+                        <div style="font-size: 7.5pt; color: #0284c7;">
+                            Ayat {{ $latestTahfidzRecord->start_ayah }}-{{ $latestTahfidzRecord->end_ayah }} (Juz {{ $latestTahfidzRecord->juz }})
+                        </div>
+                    @else
+                        <strong>{{ $tahfidzGroup?->target_level ?? 'Juz 30' }}</strong>
+                    @endif
+                </td>
+                <td style="font-size: 8.5pt;">
+                    @if($latestTahfidzRecord)
+                        Kualitas setoran: <strong>{{ $latestTahfidzRecord->quality ?? 'Lancar' }}</strong>. {{ $latestTahfidzRecord->notes ?? "Terus tingkatkan muraja'ah hafalan di rumah." }}
+                    @else
+                        Aktif menyetorkan hafalan dan muraja'ah bersama kelompok pembinaan tahfidz.
+                    @endif
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- TABLE PEMBIASAAN KARAKTER SMILE -->
+    <div class="section-title">C. Pembiasaan Karakter SMILE SDIT AN NADZIR</div>
+    <table class="table-data" style="margin-bottom: 12px;">
+        <thead>
+            <tr>
+                <th style="width: 30px;">No</th>
+                <th style="text-align: left; width: 220px;">Dimensi Karakter SMILE</th>
+                <th style="width: 80px;">Predikat</th>
+                <th style="text-align: left;">Deskripsi Pembiasaan Perilaku</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $smileDimensions = [
+                    ['code' => 'S', 'name' => 'Sholeh', 'desc' => 'Taat beribadah, tertib shalat fardhu & dhuha, mengamalkan adab Islami sehari-hari.'],
+                    ['code' => 'M', 'name' => 'Muslih', 'desc' => 'Membawa kebaikan, gemar tolong-menolong, peduli sesama, dan mendamaikan lingkungan.'],
+                    ['code' => 'I', 'name' => 'Intellectual Curiosity', 'desc' => 'Memiliki rasa ingin tahu tinggi, gemar membaca/literasi, dan semangat menggali ilmu.'],
+                    ['code' => 'L', 'name' => 'Leadership', 'desc' => 'Bertanggung jawab, berani memimpin, disiplin, dan amanah dalam menjalankan tugas.'],
+                    ['code' => 'E', 'name' => 'Environmentally Friendly', 'desc' => 'Menjaga kebersihan diri, merawat fasilitas kelas, dan mencintai kelestarian lingkungan.'],
+                ];
+            @endphp
+            @foreach($smileDimensions as $idx => $dim)
+                @php
+                    $dimAppreciation = $characterAppreciations->first(function($app) use ($dim) {
+                        return stripos($app->category, $dim['name']) !== false || stripos($app->title, $dim['name']) !== false;
+                    });
+                @endphp
+                <tr>
+                    <td class="text-center">{{ $idx + 1 }}</td>
+                    <td>
+                        <strong>{{ $dim['code'] }} – {{ $dim['name'] }}</strong>
+                    </td>
+                    <td class="text-center font-bold" style="color: #166534;">
+                        {{ $dimAppreciation ? 'A (Sangat Baik)' : 'B (Baik)' }}
+                    </td>
+                    <td style="font-size: 8.5pt;">
+                        @if($dimAppreciation)
+                            <strong>{{ $dimAppreciation->title }}:</strong> {{ $dimAppreciation->description ?? $dim['desc'] }}
+                        @else
+                            {{ $dim['desc'] }}
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
     <!-- TABLE KEGIATAN EKSTRAKURIKULER -->
     @if($eskuls->count() > 0)
-        <div class="section-title">B. Kegiatan Ekstrakurikuler</div>
+        <div class="section-title">D. Kegiatan Ekstrakurikuler</div>
         <table class="table-data" style="margin-bottom: 12px;">
             <thead>
                 <tr>
@@ -335,7 +441,7 @@
     <!-- REKAP KETIDAKHADIRAN & CATATAN WALI KELAS -->
     <div style="display: flex; gap: 16px; margin-bottom: 10px;">
         <div style="width: 38%;">
-            <div class="section-title">C. Ketidakhadiran</div>
+            <div class="section-title">E. Ketidakhadiran</div>
             <table class="table-data">
                 <tr>
                     <td style="width: 70%;">Sakit (S)</td>
@@ -352,7 +458,7 @@
             </table>
         </div>
         <div style="width: 62%;">
-            <div class="section-title">D. Catatan & Motivasi Wali Kelas</div>
+            <div class="section-title">F. Catatan & Motivasi Wali Kelas</div>
             <div class="notes-box">
                 {{ $summary?->homeroom_notes ?? 'Pertahankan semangat belajar dan pembiasaan adab mulia ananda baik di sekolah maupun di rumah.' }}
             </div>

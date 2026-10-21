@@ -365,6 +365,25 @@ class AcademicReportController extends Controller
         // Homeroom teacher
         $homeroomTeacher = User::where('homeroom_class', $student->class)->first();
 
+        // Qur'an Mentoring: Tilawati & Tahfidz
+        $tilawatiGroup = $student->tilawatiGroup($yearId);
+        $tilawatiPivot = $tilawatiGroup ? $student->mentoringGroups()->where('mentoring_groups.id', $tilawatiGroup->id)->first()?->pivot : null;
+
+        $tahfidzGroup = $student->tahfidzGroup($yearId);
+        $latestTahfidzRecord = $student->tahfidzRecords()
+            ->where('academic_year_id', $yearId)
+            ->latest('session_date')
+            ->first();
+        $totalHafalanRecords = $student->tahfidzRecords()
+            ->where('academic_year_id', $yearId)
+            ->count();
+
+        // Karakter SMILE: Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly
+        $characterAppreciations = $student->characterAppreciations()
+            ->where('academic_year_id', $yearId)
+            ->latest('date')
+            ->get();
+
         return view('curriculum.reports.print_student', compact(
             'student',
             'academicYear',
@@ -375,6 +394,101 @@ class AcademicReportController extends Controller
             'summary',
             'eskuls',
             'eskulGrades',
+            'homeroomTeacher',
+            'tilawatiGroup',
+            'tilawatiPivot',
+            'tahfidzGroup',
+            'latestTahfidzRecord',
+            'totalHafalanRecords',
+            'characterAppreciations'
+        ));
+    }
+
+    /**
+     * Print official A4 individual academic report cards for ALL students in a class (Bulk Print).
+     */
+    public function printAllStudents(Request $request)
+    {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
+        $academicYear = AcademicYear::find($yearId);
+
+        $assessmentType = $request->assessment ?? 'STS_1';
+        if (!array_key_exists($assessmentType, self::ASSESSMENT_TYPES)) {
+            $assessmentType = 'STS_1';
+        }
+        $assessmentInfo = self::ASSESSMENT_TYPES[$assessmentType];
+
+        $class = $request->class;
+        $students = Student::forYear($yearId)
+            ->where('class', $class)
+            ->where('status', 'active')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $subjects = Subject::where('is_active', true)->orderBy('order_num', 'asc')->get();
+
+        $scores = AcademicScore::where('academic_year_id', $yearId)
+            ->where('assessment_type', $assessmentType)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get();
+
+        $scoresMap = [];
+        foreach ($scores as $sc) {
+            $scoresMap[$sc->student_id][$sc->subject_id] = $sc;
+        }
+
+        $summaries = AcademicSummary::where('academic_year_id', $yearId)
+            ->where('assessment_type', $assessmentType)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        $homeroomTeacher = User::where('homeroom_class', $class)->first();
+
+        // Preload student specific data
+        $studentData = [];
+        foreach ($students as $stu) {
+            $tilawatiGroup = $stu->tilawatiGroup($yearId);
+            $tilawatiPivot = $tilawatiGroup ? $stu->mentoringGroups()->where('mentoring_groups.id', $tilawatiGroup->id)->first()?->pivot : null;
+
+            $tahfidzGroup = $stu->tahfidzGroup($yearId);
+            $latestTahfidz = $stu->tahfidzRecords()->where('academic_year_id', $yearId)->latest('session_date')->first();
+
+            $eskuls = $stu->eskuls()
+                ->wherePivot('academic_year_id', $yearId)
+                ->wherePivot('semester', $assessmentInfo['semester'])
+                ->get();
+
+            $eskulGrades = Grade::where('student_id', $stu->id)
+                ->where('academic_year_id', $yearId)
+                ->where('semester', $assessmentInfo['semester'])
+                ->get()
+                ->keyBy('eskul_id');
+
+            $appreciations = $stu->characterAppreciations()->where('academic_year_id', $yearId)->latest('date')->get();
+
+            $studentData[$stu->id] = [
+                'scores' => $scoresMap[$stu->id] ?? [],
+                'summary' => $summaries[$stu->id] ?? null,
+                'tilawatiGroup' => $tilawatiGroup,
+                'tilawatiPivot' => $tilawatiPivot,
+                'tahfidzGroup' => $tahfidzGroup,
+                'latestTahfidz' => $latestTahfidz,
+                'eskuls' => $eskuls,
+                'eskulGrades' => $eskulGrades,
+                'appreciations' => $appreciations,
+            ];
+        }
+
+        return view('curriculum.reports.print_all_students', compact(
+            'academicYear',
+            'class',
+            'assessmentType',
+            'assessmentInfo',
+            'subjects',
+            'students',
+            'studentData',
             'homeroomTeacher'
         ));
     }
@@ -425,5 +539,232 @@ class AcademicReportController extends Controller
             'scoresMap',
             'homeroomTeacher'
         ));
+    }
+
+    /**
+     * Download CSV template for grading a specific subject and class.
+     */
+    public function exportTemplate(Request $request)
+    {
+        $yearId = $request->year_id ?? AcademicYear::where('is_active', true)->value('id');
+        $class = $request->class;
+        $subjectId = $request->subject_id;
+        $assessment = $request->assessment ?? 'STS_1';
+
+        $subject = Subject::findOrFail($subjectId);
+        $students = Student::forYear($yearId)
+            ->where('class', $class)
+            ->where('status', 'active')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $existingScores = AcademicScore::where('academic_year_id', $yearId)
+            ->where('subject_id', $subjectId)
+            ->where('assessment_type', $assessment)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        $filename = "Format_Nilai_{$subject->code}_{$class}_{$assessment}.csv";
+
+        return response()->streamDownload(function() use ($students, $existingScores) {
+            $handle = fopen('php://output', 'w');
+            fputs($handle, "\xEF\xBB\xBF"); // UTF-8 BOM for Excel
+            fputcsv($handle, ['NIS', 'Nama Siswa', 'Nilai (0-100)', 'Catatan Capaian Pembelajaran'], ';');
+
+            foreach ($students as $stu) {
+                $sc = $existingScores[$stu->id] ?? null;
+                fputcsv($handle, [
+                    $stu->nis ?? '',
+                    $stu->name,
+                    $sc ? $sc->score : '',
+                    $sc ? $sc->achievement_note : '',
+                ], ';');
+            }
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    /**
+     * Import scores from CSV or Excel file.
+     */
+    public function importScores(Request $request)
+    {
+        $request->validate([
+            'academic_year_id' => 'required|exists:academic_years,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'assessment_type' => 'required|string',
+            'class' => 'required|string',
+            'file' => 'required|file',
+        ]);
+
+        $file = $request->file('file');
+        $yearId = $request->academic_year_id;
+        $subjectId = $request->subject_id;
+        $assessmentType = $request->assessment_type;
+        $class = $request->class;
+
+        $students = Student::forYear($yearId)
+            ->where('class', $class)
+            ->where('status', 'active')
+            ->get();
+        $studentsByNis = $students->whereNotNull('nis')->keyBy('nis');
+        $studentsByName = $students->keyBy(fn($s) => strtolower(trim($s->name)));
+
+        $path = $file->getRealPath();
+        $importedCount = 0;
+
+        if (($handle = fopen($path, 'r')) !== false) {
+            $bom = fread($handle, 3);
+            if ($bom !== "\xEF\xBB\xBF") {
+                rewind($handle);
+            }
+
+            $firstRow = true;
+            $delimiter = ';';
+
+            while (($row = fgetcsv($handle, 2000, $delimiter)) !== false) {
+                if (count($row) === 1 && str_contains($row[0], ',')) {
+                    $row = str_getcsv($row[0], ',');
+                }
+
+                if ($firstRow) {
+                    $firstRow = false;
+                    if (isset($row[0]) && (stripos($row[0], 'nis') !== false || stripos($row[0], 'nama') !== false)) {
+                        continue;
+                    }
+                }
+
+                if (empty($row[0]) && empty($row[1])) {
+                    continue;
+                }
+
+                $nis = trim($row[0] ?? '');
+                $name = trim($row[1] ?? '');
+                $rawScore = isset($row[2]) ? trim($row[2]) : '';
+                $rawNote = isset($row[3]) ? trim($row[3]) : null;
+
+                $matchedStudent = null;
+                if (!empty($nis) && isset($studentsByNis[$nis])) {
+                    $matchedStudent = $studentsByNis[$nis];
+                } elseif (!empty($name) && isset($studentsByName[strtolower($name)])) {
+                    $matchedStudent = $studentsByName[strtolower($name)];
+                }
+
+                if (!$matchedStudent) {
+                    continue;
+                }
+
+                if ($rawScore === '' || $rawScore === null) {
+                    continue;
+                }
+
+                $scoreVal = (float)str_replace(',', '.', $rawScore);
+                $predicate = AcademicScore::calculatePredicate($scoreVal);
+
+                AcademicScore::updateOrCreate(
+                    [
+                        'academic_year_id' => $yearId,
+                        'student_id' => $matchedStudent->id,
+                        'subject_id' => $subjectId,
+                        'assessment_type' => $assessmentType,
+                    ],
+                    [
+                        'score' => $scoreVal,
+                        'predicate' => $predicate,
+                        'achievement_note' => $rawNote,
+                        'created_by' => Auth::id(),
+                    ]
+                );
+                $importedCount++;
+            }
+            fclose($handle);
+        }
+
+        return redirect()->route('academic-reports.index', [
+            'year_id' => $yearId,
+            'class' => $class,
+            'assessment' => $assessmentType,
+            'subject_id' => $subjectId,
+            'tab' => 'input',
+        ])->with('success', "Import nilai berhasil! {$importedCount} nilai siswa telah berhasil diperbarui ke sistem.");
+    }
+
+    /**
+     * Export complete class grade ledger (Leger Nilai) as CSV.
+     */
+    public function exportLeger(Request $request)
+    {
+        $yearId = $request->year_id ?? AcademicYear::where('is_active', true)->value('id');
+        $academicYear = AcademicYear::find($yearId);
+        $class = $request->class;
+        $assessment = $request->assessment ?? 'STS_1';
+        $assessmentInfo = self::ASSESSMENT_TYPES[$assessment] ?? self::ASSESSMENT_TYPES['STS_1'];
+
+        $subjects = Subject::where('is_active', true)->orderBy('order_num', 'asc')->get();
+        $students = Student::forYear($yearId)
+            ->where('class', $class)
+            ->where('status', 'active')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $scores = AcademicScore::where('academic_year_id', $yearId)
+            ->where('assessment_type', $assessment)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get();
+
+        $scoresMap = [];
+        foreach ($scores as $sc) {
+            $scoresMap[$sc->student_id][$sc->subject_id] = $sc;
+        }
+
+        $filename = "Leger_Nilai_Kelas_{$class}_{$assessment}.csv";
+
+        return response()->streamDownload(function() use ($students, $subjects, $scoresMap) {
+            $handle = fopen('php://output', 'w');
+            fputs($handle, "\xEF\xBB\xBF");
+
+            $headers = ['No', 'NIS', 'Nama Siswa'];
+            foreach ($subjects as $sb) {
+                $headers[] = $sb->name . ' (' . ($sb->code ?: substr($sb->name, 0, 4)) . ')';
+            }
+            $headers[] = 'Total Nilai';
+            $headers[] = 'Rata-Rata';
+            $headers[] = 'Predikat Rerata';
+
+            fputcsv($handle, $headers, ';');
+
+            $no = 1;
+            foreach ($students as $stu) {
+                $row = [$no++, $stu->nis ?? '', $stu->name];
+                $sum = 0;
+                $count = 0;
+
+                foreach ($subjects as $sb) {
+                    $sc = $scoresMap[$stu->id][$sb->id] ?? null;
+                    $val = $sc ? (float)$sc->score : null;
+                    $row[] = $val !== null ? $val : '';
+                    if ($val !== null) {
+                        $sum += $val;
+                        $count++;
+                    }
+                }
+
+                $avg = $count > 0 ? round($sum / $count, 2) : 0;
+                $row[] = $count > 0 ? $sum : '';
+                $row[] = $count > 0 ? $avg : '';
+                $row[] = $count > 0 ? AcademicScore::calculatePredicate($avg) : '';
+
+                fputcsv($handle, $row, ';');
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 }

@@ -230,8 +230,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/curriculum/academic-reports',                          [\App\Http\Controllers\AcademicReportController::class, 'index'])->name('academic-reports.index');
     Route::post('/curriculum/academic-reports/scores',                  [\App\Http\Controllers\AcademicReportController::class, 'storeScores'])->name('academic-reports.store-scores');
     Route::post('/curriculum/academic-reports/summaries',               [\App\Http\Controllers\AcademicReportController::class, 'storeSummaries'])->name('academic-reports.store-summaries');
+    Route::get('/curriculum/academic-reports/print-all-students',        [\App\Http\Controllers\AcademicReportController::class, 'printAllStudents'])->name('academic-reports.print-all-students');
     Route::get('/curriculum/academic-reports/students/{student}/print', [\App\Http\Controllers\AcademicReportController::class, 'printStudent'])->name('academic-reports.print-student');
     Route::get('/curriculum/academic-reports/recap/print',              [\App\Http\Controllers\AcademicReportController::class, 'printClassRecap'])->name('academic-reports.print-recap');
+    Route::get('/curriculum/academic-reports/export-template',          [\App\Http\Controllers\AcademicReportController::class, 'exportTemplate'])->name('academic-reports.export-template');
+    Route::post('/curriculum/academic-reports/import-scores',           [\App\Http\Controllers\AcademicReportController::class, 'importScores'])->name('academic-reports.import-scores');
+    Route::get('/curriculum/academic-reports/export-leger',             [\App\Http\Controllers\AcademicReportController::class, 'exportLeger'])->name('academic-reports.export-leger');
 
     Route::resource('curriculum/subjects',                              \App\Http\Controllers\SubjectController::class)->names('subjects');
 

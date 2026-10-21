@@ -27,8 +27,14 @@
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 @if($selectedClass && $students->count() > 0)
-                    <a href="{{ route('academic-reports.print-recap', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn-action-header" style="background: white; color: #0284c7; font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <i class="fas fa-print"></i> Cetak Rekap Kelas (A4)
+                    <a href="{{ route('academic-reports.print-all-students', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn-action-header" style="background: white; color: #0284c7; font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <i class="fas fa-print"></i> Cetak Semua Rapor (A4)
+                    </a>
+                    <a href="{{ route('academic-reports.export-leger', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" class="btn-action-header" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4); font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; color: white;">
+                        <i class="fas fa-file-excel"></i> Unduh Leger
+                    </a>
+                    <a href="{{ route('academic-reports.print-recap', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn-action-header" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4); font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; color: white;">
+                        <i class="fas fa-table"></i> Rekap Kelas
                     </a>
                 @endif
                 @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
@@ -160,9 +166,15 @@
                             Klik nama siswa atau tombol Cetak Rapor untuk mencetak lembar rapor individu A4
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="{{ route('academic-reports.print-all-students', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn btn-sm btn-primary" style="font-weight: 700; background: #0284c7;">
+                            <i class="fas fa-print"></i> Cetak Semua Rapor (A4)
+                        </a>
+                        <a href="{{ route('academic-reports.export-leger', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" class="btn btn-sm btn-success" style="font-weight: 700; background: #16a34a;">
+                            <i class="fas fa-file-excel"></i> Unduh Leger
+                        </a>
                         <a href="{{ route('academic-reports.print-recap', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-weight: 700;">
-                            <i class="fas fa-print"></i> Cetak Rekap Kelas
+                            <i class="fas fa-table"></i> Cetak Rekap Kelas
                         </a>
                     </div>
                 </div>
@@ -274,8 +286,8 @@
                 </div>
 
                 @if($selectedSubject)
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <span style="background: #16a34a; color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.85rem;">
                                 {{ $selectedSubject->code ?: 'MAPEL' }}
                             </span>
@@ -286,9 +298,26 @@
                                 (Kategori: {{ $selectedSubject->category }} | KKTP Minimum: <strong>{{ (int)$selectedSubject->kkm }}</strong>)
                             </span>
                         </div>
-                        <span style="font-size: 0.8rem; color: #15803d; font-weight: 600;">
-                            <i class="fas fa-info-circle"></i> Nilai otomatis menentukan predikat A / B / C / D
-                        </span>
+                        
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="{{ route('academic-reports.export-template', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment, 'subject_id' => $selectedSubject->id]) }}" 
+                               class="btn btn-sm btn-outline-success" 
+                               style="font-weight: 700; background: white; border-color: #16a34a; color: #166534; border-radius: 8px; padding: 6px 12px;">
+                                <i class="fas fa-file-download"></i> Format Excel / CSV
+                            </a>
+                            <button type="button" 
+                                    onclick="openImportScoresModal()" 
+                                    class="btn btn-sm btn-outline-primary" 
+                                    style="font-weight: 700; background: white; border-color: #0284c7; color: #0284c7; border-radius: 8px; padding: 6px 12px;">
+                                <i class="fas fa-file-upload"></i> Import Nilai
+                            </button>
+                            <button type="button" 
+                                    onclick="autoGenerateNotes('{{ addslashes($selectedSubject->name) }}')" 
+                                    class="btn btn-sm" 
+                                    style="font-weight: 700; background: #fef3c7; border: 1px solid #f59e0b; color: #b45309; border-radius: 8px; padding: 6px 12px;">
+                                <i class="fas fa-magic"></i> Auto-Generate Capaian
+                            </button>
+                        </div>
                     </div>
 
                     <form action="{{ route('academic-reports.store-scores') }}" method="POST">
@@ -329,9 +358,11 @@
                                                        min="0" 
                                                        max="100" 
                                                        name="scores[{{ $stu->id }}]" 
+                                                       id="score_{{ $stu->id }}"
+                                                       data-student-id="{{ $stu->id }}"
                                                        value="{{ $val !== null ? (round($val) == $val ? (int)$val : $val) : '' }}" 
                                                        placeholder="0 - 100" 
-                                                       class="form-control" 
+                                                       class="form-control score-input" 
                                                        style="text-align: center; font-weight: 700; height: 38px; border-radius: 8px;"
                                                        oninput="updatePredicate(this, '{{ $stu->id }}')">
                                             </td>
@@ -346,15 +377,14 @@
                                             <td style="padding: 8px 10px;">
                                                 <input type="text" 
                                                        name="notes[{{ $stu->id }}]" 
+                                                       id="note_{{ $stu->id }}"
                                                        value="{{ $sc?->achievement_note ?? '' }}" 
                                                        placeholder="Contoh: Menunjukkan penguasaan sangat baik dalam materi..." 
-                                                       class="form-control" 
+                                                       class="form-control note-input" 
                                                        style="height: 38px; border-radius: 8px; font-size: 0.85rem;">
                                             </td>
                                         </tr>
                                     @endforeach
-                                </tbody>
-                            </table>
                         </div>
 
                         <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
@@ -444,7 +474,90 @@
 
 </div>
 
+<!-- MODAL IMPORT NILAI EXCEL / CSV -->
+<div id="importScoresModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; width: 92%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(15,23,42,0.25); overflow: hidden;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-upload" style="color: #0284c7;"></i> Import Nilai Excel / CSV
+            </h4>
+            <button type="button" onclick="closeImportScoresModal()" style="border: none; background: none; font-size: 1.4rem; color: #64748b; cursor: pointer;">&times;</button>
+        </div>
+        <form action="{{ route('academic-reports.import-scores') }}" method="POST" enctype="multipart/form-data" style="padding: 24px;">
+            @csrf
+            <input type="hidden" name="academic_year_id" value="{{ $selectedYearId }}">
+            <input type="hidden" name="class" value="{{ $selectedClass }}">
+            <input type="hidden" name="assessment_type" value="{{ $selectedAssessment }}">
+            <input type="hidden" name="subject_id" value="{{ $selectedSubject?->id }}">
+
+            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 0.85rem; color: #0369a1;">
+                <div>Target Mapel: <b>{{ $selectedSubject?->name }}</b></div>
+                <div>Kelas: <b>{{ $selectedClass }}</b> | Periode: <b>{{ $assessmentInfo['short'] }}</b></div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 700; color: #334155; font-size: 0.88rem;">
+                    Pilih File Excel / CSV Hasil Rekap Nilai:
+                </label>
+                <input type="file" name="file" accept=".csv,.txt" required class="form-control" style="padding: 8px; height: auto;">
+                <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.78rem;">
+                    Gunakan file yang diunduh dari tombol <b>Format Excel / CSV</b> untuk format kolom yang sesuai.
+                </small>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="closeImportScoresModal()" class="btn btn-secondary" style="border-radius: 8px; font-weight: 700;">Batal</button>
+                <button type="submit" class="btn btn-primary" style="background: #0284c7; border-radius: 8px; font-weight: 800;">
+                    <i class="fas fa-upload"></i> Unggah & Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+function openImportScoresModal() {
+    document.getElementById('importScoresModal').style.display = 'flex';
+}
+
+function closeImportScoresModal() {
+    document.getElementById('importScoresModal').style.display = 'none';
+}
+
+function autoGenerateNotes(subjectName) {
+    if (!confirm('Apakah Anda ingin mengisi otomatis catatan capaian kompetensi untuk seluruh siswa yang memiliki nilai berdasarkan kriteria Kurikulum Merdeka?')) {
+        return;
+    }
+
+    var scoreInputs = document.querySelectorAll('.score-input');
+    var count = 0;
+
+    scoreInputs.forEach(function(input) {
+        var stuId = input.getAttribute('data-student-id');
+        var noteInput = document.getElementById('note_' + stuId);
+        if (!noteInput) return;
+
+        var val = parseFloat(input.value);
+        if (isNaN(val) || val === null || input.value.trim() === '') return;
+
+        var note = '';
+        if (val >= 90) {
+            note = 'Menunjukkan pemahaman yang sangat istimewa dalam menguasai seluruh materi dan capaian pembelajaran ' + subjectName + '.';
+        } else if (val >= 80) {
+            note = 'Menunjukkan penguasaan yang baik dalam mencapai tujuan pembelajaran utama ' + subjectName + '.';
+        } else if (val >= 75) {
+            note = 'Menguasai capaian pembelajaran ' + subjectName + ' dengan cukup baik, perlu pendampingan pengayaan materi.';
+        } else {
+            note = 'Perlu bimbingan dan pendampingan lebih intensif dalam menguasai kompetensi dasar ' + subjectName + '.';
+        }
+
+        noteInput.value = note;
+        count++;
+    });
+
+    alert('Berhasil membuat deskripsi capaian pembelajaran otomatis untuk ' + count + ' siswa!');
+}
+
 function updatePredicate(input, studentId) {
     var val = parseFloat(input.value);
     var select = document.getElementById('predicate_' + studentId);
