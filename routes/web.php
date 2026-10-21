@@ -62,6 +62,7 @@ Route::post('/pilihan-eskul', [\App\Http\Controllers\EskulSelectionController::c
 Route::get('/pilihan-eskul/sukses', [\App\Http\Controllers\EskulSelectionController::class, 'success'])->name('pilihan-eskul.success');
 
 Route::get('/cek-status', [\App\Http\Controllers\StudentStatusController::class, 'index'])->name('student-status.index');
+Route::get('/status', [\App\Http\Controllers\StudentStatusController::class, 'index'])->name('status.index');
 Route::get('/cek-status/students', [\App\Http\Controllers\StudentStatusController::class, 'getStudents'])->name('student-status.students');
 Route::get('/api/students/search', [\App\Http\Controllers\Api\StudentApiController::class, 'search'])->name('api.students.search');
 Route::post('/cek-status/cari', [\App\Http\Controllers\StudentStatusController::class, 'search'])->name('student-status.search');
