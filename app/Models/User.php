@@ -27,6 +27,7 @@ class User extends Authenticatable
         'phone',
         'password',
         'homeroom_class',
+        'teaching_subject_ids',
     ];
 
     protected static function boot()
@@ -98,11 +99,87 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'teaching_subject_ids' => 'array',
         ];
     }
     
     public function eskul()
     {
         return $this->belongsTo(Eskul::class);
+    }
+
+    public function mentoringGroups()
+    {
+        return $this->hasMany(MentoringGroup::class, 'mentor_user_id');
+    }
+
+    public function isHomeroom(): bool
+    {
+        return $this->role === 'teacher' && !empty($this->homeroom_class);
+    }
+
+    public function isEskulCoach(): bool
+    {
+        return $this->role === 'teacher' && !empty($this->eskul_id);
+    }
+
+    public function isQuranMentor(): bool
+    {
+        if ($this->role !== 'teacher') return false;
+        return MentoringGroup::where(function($q) {
+            $q->where('mentor_user_id', $this->id)
+              ->orWhere('mentor_name', $this->name);
+        })->exists();
+    }
+
+    public function isSubjectTeacher(): bool
+    {
+        return $this->role === 'teacher' && !empty($this->teaching_subject_ids);
+    }
+
+    public function teachingSubjects()
+    {
+        if (empty($this->teaching_subject_ids)) {
+            return collect();
+        }
+        return Subject::whereIn('id', $this->teaching_subject_ids)->get();
+    }
+
+    public function getActiveRolesSummary(): array
+    {
+        $roles = [];
+        if ($this->role === 'admin') $roles[] = 'Kesiswaan / Administrator';
+        if ($this->role === 'headmaster') $roles[] = 'Kepala Sekolah';
+        if ($this->role === 'curriculum') $roles[] = 'Tim Kurikulum';
+        
+        if ($this->role === 'teacher') {
+            if ($this->isHomeroom()) {
+                $roles[] = 'Wali Kelas ' . $this->homeroom_class;
+            }
+            if ($this->isEskulCoach() && $this->eskul) {
+                $roles[] = 'Pembina ' . $this->eskul->name;
+            }
+            
+            $groups = MentoringGroup::where(function($q) {
+                $q->where('mentor_user_id', $this->id)
+                  ->orWhere('mentor_name', $this->name);
+            })->get();
+
+            $hasTilawati = $groups->where('type', 'tilawati')->isNotEmpty();
+            $hasTahfidz = $groups->where('type', 'tahfidz')->isNotEmpty();
+            if ($hasTilawati) $roles[] = 'Pembimbing Tilawati';
+            if ($hasTahfidz) $roles[] = 'Pembimbing Tahfidz';
+
+            if ($this->isSubjectTeacher()) {
+                $subjNames = $this->teachingSubjects()->pluck('name')->implode(', ');
+                $roles[] = 'Guru Mapel (' . ($subjNames ?: 'Mapel') . ')';
+            }
+
+            if (empty($roles)) {
+                $roles[] = 'Guru / Pembina';
+            }
+        }
+
+        return $roles;
     }
 }

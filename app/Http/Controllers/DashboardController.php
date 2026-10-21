@@ -465,6 +465,23 @@ class DashboardController extends Controller
             }
         }
 
+        // 8. Penugasan Guru Mapel (Mata Pelajaran Kurikulum Merdeka)
+        $mySubjects = collect();
+        $mySubjectsCount = 0;
+        if ($isTeacher && !empty($user->teaching_subject_ids)) {
+            $mySubjects = \App\Models\Subject::whereIn('id', $user->teaching_subject_ids)->orderBy('order_num')->get();
+            $mySubjectsCount = $mySubjects->count();
+        }
+
+        // 9. Hitung total peran aktif untuk switcher dashboard multi-tugas
+        $teacherRoleCount = 0;
+        if ($isTeacher) {
+            if ($isHomeroomTeacher) $teacherRoleCount++;
+            if ($teacherEskul) $teacherRoleCount++;
+            if ($myTilawatiGroups->isNotEmpty() || $myTahfidzGroups->isNotEmpty()) $teacherRoleCount++;
+            if ($mySubjectsCount > 0) $teacherRoleCount++;
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -479,7 +496,8 @@ class DashboardController extends Controller
             
             'missingDates', 'teacherEskul',
             
-            'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount'
+            'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount',
+            'mySubjects', 'mySubjectsCount', 'teacherRoleCount'
         ));
     }
 }

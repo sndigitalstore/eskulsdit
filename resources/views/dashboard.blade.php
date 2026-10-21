@@ -77,6 +77,9 @@
                 @if(isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())
                     <span style="background: #f0f9ff; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-quran"></i> Pembimbing Tahfidz ({{ $myTahfidzGroups->count() }})</span>
                 @endif
+                @if(isset($mySubjectsCount) && $mySubjectsCount > 0)
+                    <span style="background: #f5f3ff; color: #6d28d9; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Guru Mapel ({{ $mySubjectsCount }})</span>
+                @endif
             @endif
         </div>
     </div>
@@ -87,6 +90,46 @@
     <!-- Decor -->
     <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -15px; bottom: -25px; font-size: 9.5rem; color: rgba(99, 102, 241, 0.05);"></i>
 </div>
+
+@if(Auth::user()->role === 'teacher' && ($teacherRoleCount ?? 0) > 1)
+<!-- Duty Switcher Bar (Untuk Guru dengan Multi-Peran) -->
+<div style="background: #ffffff; border-radius: 16px; padding: 12px 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div>
+            <strong style="color: #0f172a; font-size: 0.92rem; display: block;">Fokus Penugasan Anda ({{ $teacherRoleCount }} Peran Aktif)</strong>
+            <span style="color: #64748b; font-size: 0.78rem;">Saring tampilan data dasbor sesuai tugas yang ingin Anda kerjakan:</span>
+        </div>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="duty-filter-buttons">
+        <button type="button" class="duty-switcher-btn active" onclick="filterDutyDashboard('all', this)" style="padding: 7px 15px; border-radius: 10px; border: 1px solid #3b82f6; background: #3b82f6; color: white; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+            <i class="fas fa-th-large"></i> Semua Tugas
+        </button>
+        @if($isHomeroomTeacher)
+            <button type="button" class="duty-switcher-btn" onclick="filterDutyDashboard('homeroom', this)" style="padding: 7px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                <i class="fas fa-school" style="color: #4f46e5;"></i> Wali Kelas {{ $homeroomClass }}
+            </button>
+        @endif
+        @if(Auth::user()->eskul)
+            <button type="button" class="duty-switcher-btn" onclick="filterDutyDashboard('eskul', this)" style="padding: 7px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                <i class="fas fa-running" style="color: #10b981;"></i> Eskul ({{ Auth::user()->eskul->name }})
+            </button>
+        @endif
+        @if((isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty()) || (isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty()))
+            <button type="button" class="duty-switcher-btn" onclick="filterDutyDashboard('quran', this)" style="padding: 7px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                <i class="fas fa-quran" style="color: #059669;"></i> Pembinaan Qur'an
+            </button>
+        @endif
+        @if(isset($mySubjectsCount) && $mySubjectsCount > 0)
+            <button type="button" class="duty-switcher-btn" onclick="filterDutyDashboard('mapel', this)" style="padding: 7px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                <i class="fas fa-graduation-cap" style="color: #7c3aed;"></i> Guru Mapel ({{ $mySubjectsCount }})
+            </button>
+        @endif
+    </div>
+</div>
+@endif
 
 <!-- Stats Grid (Dinamis Sesuai Peran) -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
@@ -256,10 +299,10 @@
             </div>
         </div>
     @else
-        <!-- Teacher/Wali Kelas/Pembina Stats -->
+        <!-- Teacher/Wali Kelas/Pembina/Qur'an/Mapel Stats -->
         @if($isHomeroomTeacher)
             <!-- Wali Kelas: Total Murid Binaan -->
-            <div class="card" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(79, 70, 229, 0.4);">
+            <div class="card teacher-stat-card" data-duty="homeroom" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(79, 70, 229, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
                         <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $homeroomStudentCount }}</h3>
@@ -277,7 +320,7 @@
             </div>
 
             <!-- Wali Kelas: Terdaftar Eskul -->
-            <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.4);">
+            <div class="card teacher-stat-card" data-duty="homeroom" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
                         <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">
@@ -302,7 +345,7 @@
 
         @if(Auth::user()->eskul_id)
             <!-- Pembina: Jumlah Anggota Eskul (Scoped to Pembina Eskul) -->
-            <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.4);">
+            <div class="card teacher-stat-card" data-duty="eskul" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
                         <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $studentCount }}</h3>
@@ -320,7 +363,7 @@
             </div>
 
             <!-- Pembina: Jadwal Latihan -->
-            <div class="card" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.4);">
+            <div class="card teacher-stat-card" data-duty="eskul" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
                         <h3 style="font-size: 1.3rem; font-weight: 800; margin-top: 5px; margin-bottom: 5px; word-break: break-word; line-height: 1.3;">
@@ -339,15 +382,59 @@
                 </div>
             </div>
         @endif
+
+        @if((isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty()) || (isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty()))
+            <!-- Pembimbing Qur'an: Total Siswa Binaan -->
+            <div class="card teacher-stat-card" data-duty="quran" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(5, 150, 105, 0.4);">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $myMentoringStudentCount ?? 0 }}</h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px;">Siswa Binaan Qur'an</p>
+                        <span style="background: rgba(255,255,255,0.25); font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;">
+                            {{ ($myTilawatiGroups ? $myTilawatiGroups->count() : 0) + ($myTahfidzGroups ? $myTahfidzGroups->count() : 0) }} Halaqah Aktif
+                        </span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="fas fa-quran" style="font-size: 1.25rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,15 C15,15 20,5 35,10 C50,15 65,5 80,10 C90,12 95,5 100,8" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        @endif
+
+        @if(isset($mySubjectsCount) && $mySubjectsCount > 0)
+            <!-- Guru Mapel: Mata Pelajaran Diampu -->
+            <div class="card teacher-stat-card" data-duty="mapel" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(124, 58, 237, 0.4);">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $mySubjectsCount }}</h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px;">Mata Pelajaran Diampu</p>
+                        <a href="{{ route('academic-reports.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Input Rapor <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="fas fa-graduation-cap" style="font-size: 1.25rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,10 C15,0 20,20 35,15 C50,10 65,20 80,5 C90,0 95,15 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        @endif
     @endif
 </div>
 
 @if(Auth::user()->role === 'teacher' && ((isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty()) || (isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())))
-    <div class="card" style="margin-bottom: 2rem; padding: 24px; border-top: 4px solid #059669; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+    <div class="card duty-block" data-duty="quran" style="margin-bottom: 2rem; padding: 24px; border-top: 4px solid #059669; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <div>
                 <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-quran" style="color: #059669;"></i> Kelompok Mentoring Saya
+                    <i class="fas fa-quran" style="color: #059669;"></i> Kelompok Pembinaan Qur'an
                 </h3>
                 <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
                     Akses cepat ke bimbingan Tilawati dan Tahfidz yang Anda ampu pada Tahun Pelajaran ini.
@@ -431,8 +518,50 @@
     </div>
 @endif
 
+@if(Auth::user()->role === 'teacher' && isset($mySubjects) && $mySubjects->isNotEmpty())
+    <!-- Guru Mapel Block -->
+    <div class="card duty-block" data-duty="mapel" style="margin-bottom: 2rem; padding: 24px; border-top: 4px solid #7c3aed; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-graduation-cap" style="color: #7c3aed;"></i> Mata Pelajaran yang Anda Ampu
+                </h3>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
+                    Daftar mata pelajaran Kurikulum Merdeka yang ditugaskan kepada Anda untuk penilaian dan rapor siswa.
+                </p>
+            </div>
+            <a href="{{ route('academic-reports.index') }}" class="btn-action-header" style="background: #7c3aed; color: white; padding: 7px 16px; font-size: 0.82rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-file-invoice"></i> Buka Rapor Akademik
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            @foreach($mySubjects as $subj)
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 44px; height: 44px; background: #f5f3ff; color: #7c3aed; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; border: 1px solid #ddd6fe;">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 4px 0; font-size: 1rem; font-weight: 800; color: #1e1b4b;">{{ $subj->name }}</h4>
+                            <div style="color: #64748b; font-size: 0.8rem; font-weight: 500;">
+                                Kode: <strong style="color: #7c3aed;">{{ $subj->code }}</strong> • {{ $subj->category ?? 'Umum' }}
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('academic-reports.index', ['subject_id' => $subj->id]) }}" 
+                       class="btn-action-header btn-blue" 
+                       style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 14px; font-size: 0.8rem; border-radius: 8px; text-decoration: none; font-weight: 700; white-space: nowrap;">
+                        <i class="fas fa-edit"></i> Rapor
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
 @if(Auth::user()->role !== 'curriculum' && isset($todaySchedule) && count($todaySchedule) > 0)
-    <div class="card" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
+    <div class="card duty-block" data-duty="eskul" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
              <h3 style="color: #064e3b; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
                 <i class="fas fa-calendar-check" style="color: #10b981;"></i> Jadwal Eskul Hari Ini
@@ -463,7 +592,7 @@
 @endif
 
 @if(Auth::user()->role !== 'curriculum' && isset($eskulMissingAttendance) && count($eskulMissingAttendance) > 0)
-<div class="card" style="border-left: 5px solid #ff9f43; margin-bottom: 2rem; background: #fff8f0;">
+<div class="card duty-block" data-duty="eskul" style="border-left: 5px solid #ff9f43; margin-bottom: 2rem; background: #fff8f0;">
     <div style="display: flex; align-items: flex-start; gap: 15px;">
         <div style="background: #ff9f43; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             <i class="fas fa-exclamation-triangle"></i>
@@ -575,71 +704,73 @@
         
         <!-- Wali Kelas Widgets: Belum Daftar & Sebaran Eskul -->
         @if($isHomeroomTeacher)
-            <!-- Siswa Belum Memilih Eskul -->
-            <div class="card" style="border-left: 5px solid #e74c3c;">
-                <h3 style="margin-bottom: 1rem; color: #c0392b; display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem; font-weight: 700;">
-                    <span><i class="fas fa-user-slash" style="margin-right: 10px;"></i> Belum Memilih Eskul (Kelas {{ $homeroomClass }})</span>
-                    <span class="badge" style="background: #fde8e8; color: #e74c3c; font-size: 0.85rem; padding: 5px 12px; border-radius: 15px;">
-                        {{ $homeroomUnregisteredCount }} Anak
-                    </span>
-                </h3>
-                
-                @if($homeroomUnregisteredList->isEmpty())
-                    <div style="background: #e0fbf0; color: #27ae60; padding: 15px; border-radius: 12px; text-align: center; font-weight: 600;">
-                        <i class="fas fa-check-circle"></i> Luar biasa! Semua siswa kelas Anda sudah mendaftar ekskul.
-                    </div>
-                @else
-                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 15px;">
-                        Hubungi orang tua secara langsung melalui WhatsApp untuk mengingatkan pengisian pilihan eskul.
-                    </p>
-                    <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
-                        @foreach($homeroomUnregisteredList as $student)
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px;">
-                                <div>
-                                    <div style="font-weight: 700; color: #2d3748; font-size: 0.95rem;">{{ $student->name }}</div>
-                                    <div style="font-size: 0.8rem; color: #718096; margin-top: 2px;">
-                                        <i class="fas fa-phone-alt"></i> Ortu: {{ $student->parent_phone ?? 'Belum ada nomor WA' }}
+            <div class="duty-block" data-duty="homeroom" style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- Siswa Belum Memilih Eskul -->
+                <div class="card" style="border-left: 5px solid #e74c3c;">
+                    <h3 style="margin-bottom: 1rem; color: #c0392b; display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem; font-weight: 700;">
+                        <span><i class="fas fa-user-slash" style="margin-right: 10px;"></i> Belum Memilih Eskul (Kelas {{ $homeroomClass }})</span>
+                        <span class="badge" style="background: #fde8e8; color: #e74c3c; font-size: 0.85rem; padding: 5px 12px; border-radius: 15px;">
+                            {{ $homeroomUnregisteredCount }} Anak
+                        </span>
+                    </h3>
+                    
+                    @if($homeroomUnregisteredList->isEmpty())
+                        <div style="background: #e0fbf0; color: #27ae60; padding: 15px; border-radius: 12px; text-align: center; font-weight: 600;">
+                            <i class="fas fa-check-circle"></i> Luar biasa! Semua siswa kelas Anda sudah mendaftar ekskul.
+                        </div>
+                    @else
+                        <p style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 15px;">
+                            Hubungi orang tua secara langsung melalui WhatsApp untuk mengingatkan pengisian pilihan eskul.
+                        </p>
+                        <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+                            @foreach($homeroomUnregisteredList as $student)
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px;">
+                                    <div>
+                                        <div style="font-weight: 700; color: #2d3748; font-size: 0.95rem;">{{ $student->name }}</div>
+                                        <div style="font-size: 0.8rem; color: #718096; margin-top: 2px;">
+                                            <i class="fas fa-phone-alt"></i> Ortu: {{ $student->parent_phone ?? 'Belum ada nomor WA' }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        @if($student->parent_phone)
+                                            @php
+                                                $phoneClean = preg_replace('/[^0-9]/', '', $student->parent_phone);
+                                                if (str_starts_with($phoneClean, '0')) {
+                                                    $phoneClean = '62' . substr($phoneClean, 1);
+                                                }
+                                                $waMsg = urlencode("Assalamu'alaikum wr. wb. Halo Bapak/Ibu wali murid dari Ananda " . $student->name . ", kami menginfokan bahwa Ananda belum memilih kegiatan ekstrakurikuler di sekolah untuk semester ini. Silakan segera mengisi formulir pendaftaran eskul melalui tautan berikut ya: " . route('pilihan-eskul.form') . ". Terima kasih.");
+                                            @endphp
+                                            <a href="https://wa.me/{{ $phoneClean }}?text={{ $waMsg }}" target="_blank" class="btn-action-header btn-green" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-radius: 6px;">
+                                                <i class="fab fa-whatsapp"></i> Hubungi
+                                            </a>
+                                        @else
+                                            <span style="font-size: 0.75rem; color: #a0aec0; font-style: italic;">No WA Kosong</span>
+                                        @endif
                                     </div>
                                 </div>
-                                <div>
-                                    @if($student->parent_phone)
-                                        @php
-                                            $phoneClean = preg_replace('/[^0-9]/', '', $student->parent_phone);
-                                            if (str_starts_with($phoneClean, '0')) {
-                                                $phoneClean = '62' . substr($phoneClean, 1);
-                                            }
-                                            $waMsg = urlencode("Assalamu'alaikum wr. wb. Halo Bapak/Ibu wali murid dari Ananda " . $student->name . ", kami menginfokan bahwa Ananda belum memilih kegiatan ekstrakurikuler di sekolah untuk semester ini. Silakan segera mengisi formulir pendaftaran eskul melalui tautan berikut ya: " . route('pilihan-eskul.form') . ". Terima kasih.");
-                                        @endphp
-                                        <a href="https://wa.me/{{ $phoneClean }}?text={{ $waMsg }}" target="_blank" class="btn-action-header btn-green" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-radius: 6px;">
-                                            <i class="fab fa-whatsapp"></i> Hubungi
-                                        </a>
-                                    @else
-                                        <span style="font-size: 0.75rem; color: #a0aec0; font-style: italic;">No WA Kosong</span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
 
-            <!-- Sebaran Eskul Kelas Binaan -->
-            <div class="card">
-                <h3 style="margin-bottom: 1.2rem; font-size: 1.15rem; font-weight: 700; color: #2c3e50;"><i class="fas fa-chart-pie" style="color: #3498db; margin-right: 10px;"></i> Sebaran Pilihan Eskul (Kelas {{ $homeroomClass }})</h3>
-                @if($homeroomEskulDistribution->isEmpty())
-                    <div style="text-align: center; color: #999; padding: 1.5rem; background: #fafafa; border-radius: 12px;">Belum ada siswa yang mendaftar eskul.</div>
-                @else
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
-                        @foreach($homeroomEskulDistribution as $dist)
-                            <div style="padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-weight: 600; color: #334155; font-size: 0.9rem;">{{ $dist->name }}</span>
-                                <span style="background: #3498db; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; flex-shrink: 0;">
-                                    {{ $dist->total }}
-                                </span>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
+                <!-- Sebaran Eskul Kelas Binaan -->
+                <div class="card">
+                    <h3 style="margin-bottom: 1.2rem; font-size: 1.15rem; font-weight: 700; color: #2c3e50;"><i class="fas fa-chart-pie" style="color: #3498db; margin-right: 10px;"></i> Sebaran Pilihan Eskul (Kelas {{ $homeroomClass }})</h3>
+                    @if($homeroomEskulDistribution->isEmpty())
+                        <div style="text-align: center; color: #999; padding: 1.5rem; background: #fafafa; border-radius: 12px;">Belum ada siswa yang mendaftar eskul.</div>
+                    @else
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+                            @foreach($homeroomEskulDistribution as $dist)
+                                <div style="padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-weight: 600; color: #334155; font-size: 0.9rem;">{{ $dist->name }}</span>
+                                    <span style="background: #3498db; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; flex-shrink: 0;">
+                                        {{ $dist->total }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             </div>
         @endif
 
@@ -1132,6 +1263,44 @@
         
         if(document.getElementById('greeting')) document.getElementById('greeting').innerText = greeting;
     }, 1000);
+
+    // Multi-Duty Switcher Function
+    function filterDutyDashboard(duty, btn) {
+        const buttons = document.querySelectorAll('.duty-switcher-btn');
+        buttons.forEach(b => {
+            b.classList.remove('active');
+            b.style.background = '#f8fafc';
+            b.style.color = '#475569';
+            b.style.borderColor = '#e2e8f0';
+        });
+
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#3b82f6';
+            btn.style.color = '#ffffff';
+            btn.style.borderColor = '#3b82f6';
+        }
+
+        // Filter Teacher Stat Cards
+        const statCards = document.querySelectorAll('.teacher-stat-card');
+        statCards.forEach(card => {
+            if (duty === 'all' || card.getAttribute('data-duty') === duty) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Filter Duty Blocks
+        const dutyBlocks = document.querySelectorAll('.duty-block');
+        dutyBlocks.forEach(block => {
+            if (duty === 'all' || block.getAttribute('data-duty') === duty) {
+                block.style.display = 'block';
+            } else {
+                block.style.display = 'none';
+            }
+        });
+    }
 </script>
 
 @endsection

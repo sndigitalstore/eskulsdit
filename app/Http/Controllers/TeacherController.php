@@ -4,27 +4,70 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Eskul;
+use App\Models\Subject;
+use App\Models\MentoringGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
 {
+    protected function ensureColumnExists(): void
+    {
+        if (!Schema::hasColumn('users', 'teaching_subject_ids')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->json('teaching_subject_ids')->nullable()->after('homeroom_class');
+            });
+        }
+    }
+
     public function index()
     {
-        $teachers = User::where('role', 'teacher')->activeYear()->with('eskul')->get();
-        return view('teachers.index', compact('teachers'));
+        $this->ensureColumnExists();
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+
+        $teachers = User::where('role', 'teacher')
+            ->activeYear()
+            ->with(['eskul', 'mentoringGroups' => function($q) use ($activeYearId) {
+                if ($activeYearId) $q->where('academic_year_id', $activeYearId);
+            }])
+            ->orderBy('name')
+            ->get();
+
+        $allSubjects = Subject::pluck('name', 'id');
+
+        return view('teachers.index', compact('teachers', 'allSubjects', 'activeYear'));
     }
 
     public function create()
     {
+        $this->ensureColumnExists();
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+
         $eskuls = Eskul::activeYear()->orderBy('name')->get();
         $classes = \App\Models\SchoolClass::orderBy('name')->get();
-        return view('teachers.create', compact('eskuls', 'classes'));
+        $subjects = Subject::where('is_active', true)->orderBy('order_num')->get();
+
+        $tilawatiGroups = MentoringGroup::where('type', 'tilawati')
+            ->when($activeYearId, fn($q) => $q->where('academic_year_id', $activeYearId))
+            ->orderBy('name')
+            ->get();
+
+        $tahfidzGroups = MentoringGroup::where('type', 'tahfidz')
+            ->when($activeYearId, fn($q) => $q->where('academic_year_id', $activeYearId))
+            ->orderBy('name')
+            ->get();
+
+        return view('teachers.create', compact('eskuls', 'classes', 'subjects', 'tilawatiGroups', 'tahfidzGroups'));
     }
 
     public function store(Request $request)
     {
+        $this->ensureColumnExists();
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $activeYearId = $activeYear ? $activeYear->id : null;
 
@@ -38,9 +81,13 @@ class TeacherController extends Controller
             'eskul_id' => 'nullable|exists:eskuls,id',
             'phone' => 'nullable|string|max:20',
             'homeroom_class' => 'nullable|string|max:50',
+            'teaching_subject_ids' => 'nullable|array',
+            'teaching_subject_ids.*' => 'exists:subjects,id',
+            'mentoring_group_ids' => 'nullable|array',
+            'mentoring_group_ids.*' => 'exists:mentoring_groups,id',
         ]);
 
-        User::create([
+        $user = User::create([
             'academic_year_id' => $activeYearId,
             'name' => $request->name,
             'username' => $request->username,
@@ -49,23 +96,58 @@ class TeacherController extends Controller
             'eskul_id' => $request->eskul_id,
             'phone' => $request->phone,
             'homeroom_class' => $request->homeroom_class,
+            'teaching_subject_ids' => $request->teaching_subject_ids ? array_map('intval', $request->teaching_subject_ids) : null,
         ]);
+
+        // Hubungkan Kelompok Mentoring Qur'an jika dipilih
+        if ($request->has('mentoring_group_ids') && is_array($request->mentoring_group_ids)) {
+            MentoringGroup::whereIn('id', $request->mentoring_group_ids)->update([
+                'mentor_user_id' => $user->id,
+                'mentor_name' => $user->name,
+            ]);
+        }
 
         \App\Models\ActivityLog::log('Teacher', 'Create', "Membuat akun guru baru: {$request->name} (Username: {$request->username}).");
 
-        return redirect()->route('teachers.index')->with('success', 'Akun Guru Pembina berhasil dibuat.');
+        return redirect()->route('teachers.index')->with('success', 'Akun Guru Pembina berhasil dibuat beserta penugasannya.');
     }
  
     public function edit(User $teacher)
     {
         if ($teacher->role !== 'teacher') return redirect()->route('teachers.index');
+        $this->ensureColumnExists();
+
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+
         $eskuls = Eskul::activeYear()->orderBy('name')->get();
         $classes = \App\Models\SchoolClass::orderBy('name')->get();
-        return view('teachers.edit', compact('teacher', 'eskuls', 'classes'));
+        $subjects = Subject::where('is_active', true)->orderBy('order_num')->get();
+
+        $tilawatiGroups = MentoringGroup::where('type', 'tilawati')
+            ->when($activeYearId, fn($q) => $q->where('academic_year_id', $activeYearId))
+            ->orderBy('name')
+            ->get();
+
+        $tahfidzGroups = MentoringGroup::where('type', 'tahfidz')
+            ->when($activeYearId, fn($q) => $q->where('academic_year_id', $activeYearId))
+            ->orderBy('name')
+            ->get();
+
+        $assignedGroupIds = MentoringGroup::where('mentor_user_id', $teacher->id)
+            ->when($activeYearId, fn($q) => $q->where('academic_year_id', $activeYearId))
+            ->pluck('id')
+            ->toArray();
+
+        return view('teachers.edit', compact(
+            'teacher', 'eskuls', 'classes', 'subjects', 
+            'tilawatiGroups', 'tahfidzGroups', 'assignedGroupIds'
+        ));
     }
  
     public function update(Request $request, User $teacher)
     {
+        $this->ensureColumnExists();
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $activeYearId = $activeYear ? $activeYear->id : null;
  
@@ -81,6 +163,10 @@ class TeacherController extends Controller
             'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6|confirmed',
             'homeroom_class' => 'nullable|string|max:50',
+            'teaching_subject_ids' => 'nullable|array',
+            'teaching_subject_ids.*' => 'exists:subjects,id',
+            'mentoring_group_ids' => 'nullable|array',
+            'mentoring_group_ids.*' => 'exists:mentoring_groups,id',
         ]);
  
         $data = [
@@ -89,6 +175,7 @@ class TeacherController extends Controller
             'eskul_id' => $request->eskul_id,
             'phone' => $request->phone,
             'homeroom_class' => $request->homeroom_class,
+            'teaching_subject_ids' => $request->teaching_subject_ids ? array_map('intval', $request->teaching_subject_ids) : null,
         ];
  
         if ($request->filled('password')) {
@@ -96,10 +183,28 @@ class TeacherController extends Controller
         }
  
         $teacher->update($data);
+
+        // Sinkronisasi Kelompok Mentoring Qur'an
+        $newGroupIds = $request->mentoring_group_ids ?? [];
+        
+        // 1. Lepas penugasan kelompok yang sebelumnya dipegang guru ini tapi tidak lagi dicentang
+        MentoringGroup::where('mentor_user_id', $teacher->id)
+            ->whereNotIn('id', $newGroupIds)
+            ->update([
+                'mentor_user_id' => null,
+            ]);
+
+        // 2. Tautkan kelompok yang dipilih ke guru ini
+        if (!empty($newGroupIds)) {
+            MentoringGroup::whereIn('id', $newGroupIds)->update([
+                'mentor_user_id' => $teacher->id,
+                'mentor_name' => $teacher->name,
+            ]);
+        }
  
-        \App\Models\ActivityLog::log('Teacher', 'Update', "Memperbarui data akun guru: {$teacher->name}.");
+        \App\Models\ActivityLog::log('Teacher', 'Update', "Memperbarui data akun & penugasan guru: {$teacher->name}.");
  
-        return redirect()->route('teachers.index')->with('success', 'Data akun berhasil diperbarui.');
+        return redirect()->route('teachers.index')->with('success', 'Data akun dan penugasan guru berhasil diperbarui.');
     }
  
     public function destroy(User $teacher)
