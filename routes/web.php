@@ -113,6 +113,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/attendance', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
         Route::delete('/attendance/delete-date', [\App\Http\Controllers\AttendanceController::class, 'destroyDate'])->name('attendance.destroy-date');
 
+        Route::get('/teacher-attendance/export', [\App\Http\Controllers\TeacherAttendanceController::class, 'export'])->name('teacher-attendance.export');
+        Route::resource('teacher-attendance', \App\Http\Controllers\TeacherAttendanceController::class)->only(['index', 'store', 'destroy']);
+
         Route::get('/grades/import', [\App\Http\Controllers\GradeImportController::class, 'index'])->name('grades.import');
         Route::post('/grades/import/template', [\App\Http\Controllers\GradeImportController::class, 'downloadTemplate'])->name('grades.import.template');
         Route::post('/grades/import/process', [\App\Http\Controllers\GradeImportController::class, 'import'])->name('grades.import.process');
@@ -121,6 +124,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/grades/create', [\App\Http\Controllers\GradeController::class, 'create'])->name('grades.create');
         Route::post('/grades', [\App\Http\Controllers\GradeController::class, 'store'])->name('grades.store');
         Route::get('/grades/report', [\App\Http\Controllers\GradeController::class, 'report'])->name('grades.report');
+
+        Route::get('/compliance', [\App\Http\Controllers\ComplianceController::class, 'index'])->name('compliance.index');
     });
     
     Route::get('/reports/print-all', [\App\Http\Controllers\ReportController::class, 'printAll'])->name('reports.print-all');
@@ -132,7 +137,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/tilawati/print', [\App\Http\Controllers\ReportController::class, 'printTilawati'])->name('reports.tilawati.print');
     Route::get('/reports/tahfidz/print', [\App\Http\Controllers\ReportController::class, 'printTahfidz'])->name('reports.tahfidz.print');
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::get('/compliance', [\App\Http\Controllers\ComplianceController::class, 'index'])->name('compliance.index');
 
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/run-migration', function () {
@@ -179,9 +183,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/achievements/bulk', [\App\Http\Controllers\AchievementController::class, 'bulk'])->name('achievements.bulk');
     Route::post('/achievements/bulk', [\App\Http\Controllers\AchievementController::class, 'storeBulk'])->name('achievements.store_bulk');
     Route::resource('achievements', \App\Http\Controllers\AchievementController::class);
-
-    Route::get('/teacher-attendance/export', [\App\Http\Controllers\TeacherAttendanceController::class, 'export'])->name('teacher-attendance.export');
-    Route::resource('teacher-attendance', \App\Http\Controllers\TeacherAttendanceController::class)->only(['index', 'store', 'destroy']);
 
     // Digital Certificate Routes
     Route::get('/students/{student}/certificate', [\App\Http\Controllers\CertificateController::class, 'studentCertificate'])->name('students.certificate');

@@ -158,12 +158,14 @@
     <!-- 3-Tab Selector: Eskul vs Tilawati vs Tahfidz -->
     <div class="no-print">
         <div class="report-tabs">
+            @if(Auth::user()->role !== 'curriculum')
             <a href="{{ route('reports.index', ['tab' => 'eskul', 'year_id' => $selectedYearId, 'class' => $selectedClass]) }}" 
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'eskul' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'eskul' ? 'color: #2563eb;' : '' }}">
                 <i class="fas fa-futbol" style="{{ ($activeTab ?? 'eskul') === 'eskul' ? 'color: #2563eb;' : '' }}"></i>
                 <span>Ekstrakurikuler</span>
             </a>
+            @endif
             
             <a href="{{ route('reports.index', ['tab' => 'tilawati', 'year_id' => $selectedYearId, 'class' => $selectedClass]) }}" 
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'tilawati' ? 'active' : 'inactive' }}"

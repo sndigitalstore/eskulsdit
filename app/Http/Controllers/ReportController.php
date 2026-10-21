@@ -17,9 +17,20 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $activeTab = $request->query('tab', 'eskul');
+        $user = Auth::user();
+        $isTeacher = $user->role === 'teacher';
+        $isHomeroom = $isTeacher && !empty($user->homeroom_class);
+        $isCurriculum = $user->role === 'curriculum';
+
+        $activeTab = $request->query('tab');
+        if (!$activeTab) {
+            $activeTab = $isCurriculum ? 'tilawati' : 'eskul';
+        }
+        if ($isCurriculum && $activeTab === 'eskul') {
+            $activeTab = 'tilawati';
+        }
         if (!in_array($activeTab, ['eskul', 'tilawati', 'tahfidz'])) {
-            $activeTab = 'eskul';
+            $activeTab = $isCurriculum ? 'tilawati' : 'eskul';
         }
 
         // Get active academic year
@@ -31,10 +42,6 @@ class ReportController extends Controller
         $selectedPeriod = $request->period ?? 'all'; // 1, 2, or all
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $selectedGroupId = $request->group_id;
-
-        $user = Auth::user();
-        $isTeacher = $user->role === 'teacher';
-        $isHomeroom = $isTeacher && !empty($user->homeroom_class);
 
         if ($isHomeroom) {
             $selectedClass = $user->homeroom_class;

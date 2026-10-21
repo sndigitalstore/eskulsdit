@@ -19,8 +19,12 @@ class TeacherAttendanceController extends Controller
         $activeYear = AcademicYear::where('is_active', true)->first();
         $user = Auth::user();
         
-        if (in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
-            // Admin/Curriculum View: Filter by month
+        if ($user->role === 'curriculum') {
+            abort(403, 'Akses presensi pembina ekstrakurikuler khusus untuk Administrator dan Pembina.');
+        }
+
+        if (in_array($user->role, ['admin', 'headmaster'])) {
+            // Admin/Headmaster View: Filter by month
             $month = request('month', now()->format('Y-m'));
             $yearStr = substr($month, 0, 4);
             $monthStr = substr($month, 5, 2);
@@ -195,8 +199,8 @@ class TeacherAttendanceController extends Controller
 
     public function export(Request $request)
     {
-        // Admin, Headmaster, or Curriculum
-        if (!in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum'])) abort(403);
+        // Admin or Headmaster
+        if (!in_array(Auth::user()->role, ['admin', 'headmaster'])) abort(403);
         
         $month = $request->month;
         $query = TeacherAttendance::with('user');

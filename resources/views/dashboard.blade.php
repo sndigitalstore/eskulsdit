@@ -231,18 +231,22 @@
             </div>
         </div>
 
-        <!-- Pantauan Guru Hadir -->
+        <!-- Progres Rapor Akademik (Kurikulum Merdeka) -->
+        @php
+            $activeYearId = $activeYear ? $activeYear->id : null;
+            $academicScoresCount = \App\Models\AcademicScore::where('academic_year_id', $activeYearId)->count();
+        @endphp
         <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.4);">
             <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                 <div>
                     <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">
-                        {{ $teacherAttendancePresent ?? 0 }} <span style="font-size: 1rem; opacity: 0.7;">/ {{ $registeredTeacherAccounts ?? 0 }}</span>
+                        {{ $academicScoresCount }}
                     </h3>
-                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Guru Hadir Hari Ini</p>
-                    <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Presensi Guru <i class="fas fa-arrow-right"></i></a>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Nilai Rapor Terinput</p>
+                    <a href="{{ route('academic-reports.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Raport STS / SAS <i class="fas fa-arrow-right"></i></a>
                 </div>
                  <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
-                     <i class="fas fa-user-clock" style="font-size: 1.25rem;"></i>
+                     <i class="fas fa-clipboard-check" style="font-size: 1.25rem;"></i>
                 </div>
             </div>
             <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
@@ -427,7 +431,7 @@
     </div>
 @endif
 
-@if(isset($todaySchedule) && count($todaySchedule) > 0)
+@if(Auth::user()->role !== 'curriculum' && isset($todaySchedule) && count($todaySchedule) > 0)
     <div class="card" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
              <h3 style="color: #064e3b; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
@@ -458,7 +462,7 @@
     </div>
 @endif
 
-@if(isset($eskulMissingAttendance) && count($eskulMissingAttendance) > 0)
+@if(Auth::user()->role !== 'curriculum' && isset($eskulMissingAttendance) && count($eskulMissingAttendance) > 0)
 <div class="card" style="border-left: 5px solid #ff9f43; margin-bottom: 2rem; background: #fff8f0;">
     <div style="display: flex; align-items: flex-start; gap: 15px;">
         <div style="background: #ff9f43; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -665,7 +669,7 @@
         @endif
 
         <!-- Recent Activity Feed -->
-        @if(isset($recentActivities) && count($recentActivities) > 0)
+        @if(Auth::user()->role !== 'curriculum' && isset($recentActivities) && count($recentActivities) > 0)
         <div class="card">
             <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-history" style="color: #10b981; margin-right: 10px;"></i> Aktivitas Terbaru</h3>
             <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -734,7 +738,7 @@
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
         
         <!-- Top Participating Classes -->
-        @if(isset($topClasses) && count($topClasses) > 0)
+        @if(Auth::user()->role !== 'curriculum' && isset($topClasses) && count($topClasses) > 0)
         <div class="card">
             <h3 style="margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center;">
                 <i class="fas fa-trophy" style="color: #f1c40f; margin-right: 10px;"></i> Kelas Teraktif
@@ -755,6 +759,7 @@
         </div>
         @endif
 
+        @if(Auth::user()->role !== 'curriculum')
         <!-- Kategori Eskul Diminati -->
         <div class="card" style="background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 25px;">
             <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; color: #2c3e50;">
@@ -809,6 +814,7 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
 
 

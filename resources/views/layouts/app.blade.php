@@ -730,6 +730,15 @@
                         </a>
                     </li>
                     @endif
+
+                    @if($isAdminOrCurriculumOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="{{ route('reports.index', ['tab' => 'tilawati']) }}" class="nav-sublink {{ request()->is('reports*') && request()->get('tab') !== 'eskul' ? 'active' : '' }}">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Laporan & Rekap Qur'an</span>
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -737,7 +746,7 @@
             {{-- 3. Ekstrakurikuler (Dropdown - Khusus Kesiswaan, Guru & Kepala Sekolah) --}}
             @if(!$isCurriculum)
             @php
-                $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*');
+                $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*', 'teacher-attendance*');
             @endphp
             <li class="nav-dropdown {{ $isEskulActive ? 'open active-parent' : '' }}" id="dropdown-eskul">
                 <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
@@ -755,11 +764,27 @@
                             <span>Kelola Eskul</span>
                         </a>
                     </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('teacher-attendance.index') }}" class="nav-sublink {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
+                            <i class="fas fa-user-clock"></i>
+                            <span>Absensi Pembina</span>
+                        </a>
+                    </li>
                     @endif
+
+                    @if($isTeacher)
+                    <li class="nav-subitem">
+                        <a href="{{ route('teacher-attendance.index') }}" class="nav-sublink {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
+                            <i class="fas fa-user-clock"></i>
+                            <span>Absensi Saya</span>
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-subitem">
                         <a href="/attendance" class="nav-sublink {{ request()->is('attendance*') ? 'active' : '' }}">
                             <i class="fas fa-clipboard-check"></i>
-                            <span>Presensi / Absensi</span>
+                            <span>Presensi Siswa</span>
                         </a>
                     </li>
                     <li class="nav-subitem">
@@ -930,36 +955,15 @@
             </li>
             @endif
 
-            {{-- 7. Presensi & Rapor (Dropdown) --}}
-            @php
-                $isReportRole = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class));
-                $isAttendanceReportActive = request()->is('teacher-attendance*', 'reports*');
-            @endphp
-            <li class="nav-dropdown {{ $isAttendanceReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
-                    <div class="toggle-content">
-                        <i class="fas fa-file-invoice main-icon"></i>
-                        <span>Presensi & Rapor</span>
-                    </div>
-                    <i class="fas fa-chevron-down dropdown-chevron"></i>
-                </div>
-                <ul class="nav-submenu">
-                    <li class="nav-subitem">
-                        <a href="{{ route('teacher-attendance.index') }}" class="nav-sublink {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
-                            <i class="fas fa-user-clock"></i>
-                            <span>{{ $isAdminOrHeadmaster ? 'Absensi Guru' : ($isCurriculum ? 'Pantauan Presensi Guru' : 'Absensi Saya') }}</span>
-                        </a>
-                    </li>
-                    @if($isReportRole)
-                    <li class="nav-subitem">
-                        <a href="/reports" class="nav-sublink {{ request()->is('reports*') ? 'active' : '' }}">
-                            <i class="fas fa-file-alt"></i>
-                            <span>{{ ($isAdminOrHeadmaster || $isCurriculum) ? 'Laporan & Rapor' : 'Laporan Kelas Saya' }}</span>
-                        </a>
-                    </li>
-                    @endif
-                </ul>
+            {{-- 7. Laporan & Rapor Eskul/Kelas (Khusus Admin, Kepala Sekolah & Wali Kelas) --}}
+            @if(!$isCurriculum && ($isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class))))
+            <li class="nav-item">
+                <a href="/reports" class="nav-link {{ request()->is('reports*') ? 'active' : '' }}">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>{{ $isAdminOrHeadmaster ? 'Laporan & Rapor' : 'Laporan Kelas Saya' }}</span>
+                </a>
             </li>
+            @endif
 
             {{-- 6. Pengaturan & Sistem (Dropdown) --}}
             @php
