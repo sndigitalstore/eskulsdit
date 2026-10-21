@@ -193,10 +193,10 @@
             </div>
         </div>
 
-        <!-- SECTION 2.5: MANAGE STAFF ACCOUNTS (ADMIN 2 & HEADMASTER) -->
-        <div class="settings-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+        <!-- SECTION 2.5: MANAGE STAFF ACCOUNTS (ADMIN 2, HEADMASTER, CURRICULUM) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 30px;">
             <!-- Admin 2 -->
-            <div style="background: #fafafa; padding: 20px; border-radius: 12px;">
+            <div style="background: #fafafa; padding: 20px; border-radius: 12px; border: 1px solid #eee;">
                 <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
                     <i class="fas fa-users-cog" style="margin-right: 8px; color: var(--accent-color);"></i> Kelola Akun Admin 2
                 </h4>
@@ -219,7 +219,7 @@
             </div>
 
             <!-- Headmaster (Kepala Sekolah) -->
-            <div style="background: #fafafa; padding: 20px; border-radius: 12px;">
+            <div style="background: #fafafa; padding: 20px; border-radius: 12px; border: 1px solid #eee;">
                 <h4 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
                     <i class="fas fa-user-tie" style="margin-right: 8px; color: var(--accent-color);"></i> Kelola Akun Kepala Sekolah
                 </h4>
@@ -239,6 +239,28 @@
                 @else
                     <p style="color: #e74c3c;"><i class="fas fa-exclamation-circle"></i> Akun Kepala Sekolah tidak ditemukan di database.</p>
                 @endif
+            </div>
+
+            <!-- Tim Kurikulum -->
+            <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; border: 1px solid #bae6fd;">
+                <h4 style="margin-bottom: 20px; color: #0369a1; border-bottom: 2px solid #e0f2fe; padding-bottom: 10px;">
+                    <i class="fas fa-graduation-cap" style="margin-right: 8px; color: #0284c7;"></i> Kelola Akun Tim Kurikulum
+                </h4>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nama Lengkap</label>
+                    <input type="text" name="curriculum_user_name" class="form-control" value="{{ $curriculum->name ?? 'Tim Kurikulum SDIT AN NADZIR' }}" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username</label>
+                    <input type="text" name="curriculum_user_username" class="form-control" value="{{ $curriculum->username ?? 'kurikulum' }}" required>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Ganti Password</label>
+                    <input type="password" name="curriculum_user_password" class="form-control" placeholder="{{ $curriculum ? 'Kosongkan jika tidak diubah' : 'Default: kurikulum123' }}">
+                </div>
+                <p style="margin: 10px 0 0; font-size: 0.8rem; color: #0284c7; line-height: 1.4;">
+                    <i class="fas fa-info-circle"></i> Akses terbatas: <b>SMILE Kurikulum</b>, <b>Pembinaan Qur'an</b>, dan <b>Presensi/Rapor</b>.
+                </p>
             </div>
         </div>
 

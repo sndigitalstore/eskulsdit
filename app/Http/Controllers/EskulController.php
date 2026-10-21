@@ -7,6 +7,16 @@ use Illuminate\Http\Request;
 
 class EskulController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role === 'curriculum') {
+                abort(403, 'Akses modul ekstrakurikuler khusus untuk Kesiswaan dan Pembina.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();

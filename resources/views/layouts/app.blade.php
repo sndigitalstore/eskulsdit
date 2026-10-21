@@ -673,7 +673,9 @@
                 $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*');
                 $loggedUser = Auth::user();
                 $isTeacher = $loggedUser->role === 'teacher';
+                $isCurriculum = $loggedUser->role === 'curriculum';
                 $isAdminOrHeadmaster = in_array($loggedUser->role, ['admin', 'headmaster']);
+                $isAdminOrCurriculumOrHeadmaster = in_array($loggedUser->role, ['admin', 'headmaster', 'curriculum']);
 
                 $hasTilawati = false;
                 $hasTahfidz = false;
@@ -689,7 +691,7 @@
                               ->orWhere('mentor_name', $loggedUser->name);
                         })->exists();
                 }
-                $showQuranMenu = $isAdminOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz));
+                $showQuranMenu = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz));
             @endphp
 
             @if($showQuranMenu)
@@ -702,7 +704,7 @@
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </div>
                 <ul class="nav-submenu">
-                    @if($isAdminOrHeadmaster)
+                    @if($isAdminOrCurriculumOrHeadmaster)
                     <li class="nav-subitem">
                         <a href="{{ route('mentoring.management') }}" class="nav-sublink {{ request()->is('mentoring-management*') ? 'active' : '' }}">
                             <i class="fas fa-layer-group"></i>
@@ -711,7 +713,7 @@
                     </li>
                     @endif
 
-                    @if($isAdminOrHeadmaster || ($isTeacher && $hasTilawati))
+                    @if($isAdminOrCurriculumOrHeadmaster || ($isTeacher && $hasTilawati))
                     <li class="nav-subitem">
                         <a href="{{ route('tilawati-groups.index') }}" class="nav-sublink {{ request()->is('tilawati-groups*') ? 'active' : '' }}">
                             <i class="fas fa-book-reader"></i>
@@ -720,7 +722,7 @@
                     </li>
                     @endif
 
-                    @if($isAdminOrHeadmaster || ($isTeacher && $hasTahfidz))
+                    @if($isAdminOrCurriculumOrHeadmaster || ($isTeacher && $hasTahfidz))
                     <li class="nav-subitem">
                         <a href="{{ route('tahfidz-groups.index') }}" class="nav-sublink {{ request()->is('tahfidz-groups*') ? 'active' : '' }}">
                             <i class="fas fa-star-and-crescent"></i>
@@ -732,7 +734,8 @@
             </li>
             @endif
 
-            {{-- 3. Ekstrakurikuler (Dropdown) --}}
+            {{-- 3. Ekstrakurikuler (Dropdown - Khusus Kesiswaan, Guru & Kepala Sekolah) --}}
+            @if(!$isCurriculum)
             @php
                 $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*');
             @endphp
@@ -781,8 +784,10 @@
                     @endif
                 </ul>
             </li>
+            @endif
 
-            {{-- 4. SMILE Karakter (Dropdown - Pemantauan Karakter Siswa) --}}
+            {{-- 4. SMILE Karakter (Dropdown - Khusus Kesiswaan & Guru) --}}
+            @if(!$isCurriculum)
             @php
                 $isCharacterActive = request()->is('character*', 'character-cases*', 'character-appreciations*');
             @endphp
@@ -821,6 +826,7 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             {{-- 5. SMILE Kurikulum (Dropdown - Raport Akademik Kurikulum Merdeka) --}}
             @php
@@ -841,7 +847,7 @@
                             <span>Raport Akademik</span>
                         </a>
                     </li>
-                    @if($isAdminOrHeadmaster)
+                    @if($isAdminOrCurriculumOrHeadmaster)
                     <li class="nav-subitem">
                         <a href="{{ route('subjects.index') }}" class="nav-sublink {{ request()->is('curriculum/subjects*') ? 'active' : '' }}">
                             <i class="fas fa-book" style="color: #10b981;"></i>
@@ -902,9 +908,9 @@
             </li>
             @endif
 
-            {{-- 5. Kehadiran & Laporan (Dropdown) --}}
+            {{-- 7. Presensi & Rapor (Dropdown) --}}
             @php
-                $isReportRole = $isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class));
+                $isReportRole = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class));
                 $isAttendanceReportActive = request()->is('teacher-attendance*', 'reports*');
             @endphp
             <li class="nav-dropdown {{ $isAttendanceReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
@@ -919,14 +925,14 @@
                     <li class="nav-subitem">
                         <a href="{{ route('teacher-attendance.index') }}" class="nav-sublink {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
                             <i class="fas fa-user-clock"></i>
-                            <span>{{ $isAdminOrHeadmaster ? 'Absensi Guru' : 'Absensi Saya' }}</span>
+                            <span>{{ $isAdminOrHeadmaster ? 'Absensi Guru' : ($isCurriculum ? 'Pantauan Presensi Guru' : 'Absensi Saya') }}</span>
                         </a>
                     </li>
                     @if($isReportRole)
                     <li class="nav-subitem">
                         <a href="/reports" class="nav-sublink {{ request()->is('reports*') ? 'active' : '' }}">
                             <i class="fas fa-file-alt"></i>
-                            <span>{{ $isAdminOrHeadmaster ? 'Laporan & Rapor' : 'Laporan Kelas Saya' }}</span>
+                            <span>{{ ($isAdminOrHeadmaster || $isCurriculum) ? 'Laporan & Rapor' : 'Laporan Kelas Saya' }}</span>
                         </a>
                     </li>
                     @endif
@@ -946,13 +952,14 @@
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </div>
                 <ul class="nav-submenu">
-                    @if($isAdminOrHeadmaster)
+                    @if($isAdminOrCurriculumOrHeadmaster)
                     <li class="nav-subitem">
                         <a href="{{ route('announcements.index') }}" class="nav-sublink {{ request()->is('announcements*') ? 'active' : '' }}">
                             <i class="fas fa-bullhorn"></i>
                             <span>Pengumuman</span>
                         </a>
                     </li>
+                    @endif
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-subitem">
                         <a href="/settings" class="nav-sublink {{ request()->is('settings*') ? 'active' : '' }}">
@@ -974,7 +981,6 @@
                             <span>Riwayat Log</span>
                         </a>
                     </li>
-                    @endif
                     @endif
                     <li class="nav-subitem">
                         <a href="{{ route('profile.index') }}" class="nav-sublink {{ request()->is('profile*') ? 'active' : '' }}">

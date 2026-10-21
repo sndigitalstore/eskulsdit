@@ -18,11 +18,12 @@ class SettingController extends Controller
         $activeYear = $academicYears->where('is_active', true)->first();
         $eskuls = \App\Models\Eskul::activeYear()->get();
 
-        // Load Admin 2 and Headmaster users
+        // Load Admin 2, Headmaster, and Curriculum users
         $admin2 = \App\Models\User::where('username', 'admin2')->first();
         $headmaster = \App\Models\User::where('role', 'headmaster')->first();
+        $curriculum = \App\Models\User::where('role', 'curriculum')->first();
 
-        return view('settings.index', compact('settings', 'eskuls', 'academicYears', 'activeYear', 'admin2', 'headmaster'));
+        return view('settings.index', compact('settings', 'eskuls', 'academicYears', 'activeYear', 'admin2', 'headmaster', 'curriculum'));
     }
 
     public function update(Request $request)
@@ -94,6 +95,38 @@ class SettingController extends Controller
             }
         }
 
+        // 1.7 Update or Create Curriculum Profile
+        if ($request->has('curriculum_user_name')) {
+            $request->validate([
+                'curriculum_user_name' => 'required|string|max:255',
+                'curriculum_user_username' => 'required|string|max:255',
+                'curriculum_user_password' => 'nullable|string|min:6',
+            ]);
+
+            $curriculum = \App\Models\User::where('role', 'curriculum')->first();
+            if ($curriculum) {
+                if ($request->curriculum_user_username !== $curriculum->username) {
+                    $request->validate([
+                        'curriculum_user_username' => 'unique:users,username,' . $curriculum->id,
+                    ]);
+                }
+                $curriculum->name = $request->curriculum_user_name;
+                $curriculum->username = $request->curriculum_user_username;
+                if ($request->filled('curriculum_user_password')) {
+                    $curriculum->password = \Illuminate\Support\Facades\Hash::make($request->curriculum_user_password);
+                }
+                $curriculum->save();
+            } else {
+                \App\Models\User::create([
+                    'name' => $request->curriculum_user_name,
+                    'username' => $request->curriculum_user_username,
+                    'role' => 'curriculum',
+                    'email' => 'kurikulum@school.com',
+                    'password' => \Illuminate\Support\Facades\Hash::make($request->curriculum_user_password ?? 'kurikulum123'),
+                ]);
+            }
+        }
+
         // SYNC: Update active academic year if changed
         if ($request->has('active_academic_year_id')) {
             $yearId = $request->active_academic_year_id;
@@ -107,6 +140,7 @@ class SettingController extends Controller
             '_token', '_method', 'admin_name', 'change_password', 
             'admin2_name', 'admin2_username', 'admin2_password',
             'headmaster_user_name', 'headmaster_user_username', 'headmaster_user_password',
+            'curriculum_user_name', 'curriculum_user_username', 'curriculum_user_password',
             'active_academic_year_id'
         ]);
         

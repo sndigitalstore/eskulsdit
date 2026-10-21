@@ -71,8 +71,8 @@ class MentoringGroupController extends Controller
     public function management(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'headmaster'])) {
-            return redirect()->route('dashboard')->with('error', 'Akses manajemen kelompok hanya untuk Administrator.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return redirect()->route('dashboard')->with('error', 'Akses manajemen kelompok hanya untuk Administrator dan Tim Kurikulum.');
         }
 
         $activeYear = AcademicYear::where('is_active', true)->first();
@@ -202,8 +202,8 @@ class MentoringGroupController extends Controller
     public function quickAssign(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'headmaster'])) {
-            return redirect()->route('dashboard')->with('error', 'Akses hanya untuk Administrator.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return redirect()->route('dashboard')->with('error', 'Akses hanya untuk Administrator dan Tim Kurikulum.');
         }
 
         $request->validate([
@@ -264,7 +264,7 @@ class MentoringGroupController extends Controller
     {
         $type = $this->resolveType($request);
         $user = Auth::user();
-        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isAdmin = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $request->input('year_id', $activeYear ? $activeYear->id : null);
@@ -355,8 +355,8 @@ class MentoringGroupController extends Controller
     public function create(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'headmaster'])) {
-            return redirect()->route('dashboard')->with('error', 'Hanya administrator yang dapat membuat kelompok baru.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return redirect()->route('dashboard')->with('error', 'Hanya administrator dan kurikulum yang dapat membuat kelompok baru.');
         }
 
         $type = $this->resolveType($request);
@@ -371,8 +371,8 @@ class MentoringGroupController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'headmaster'])) {
-            return redirect()->route('dashboard')->with('error', 'Hanya administrator yang dapat membuat kelompok baru.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return redirect()->route('dashboard')->with('error', 'Hanya administrator dan kurikulum yang dapat membuat kelompok baru.');
         }
 
         $type = $this->resolveType($request);
@@ -421,7 +421,7 @@ class MentoringGroupController extends Controller
     public function show(Request $request, $id)
     {
         $user = Auth::user();
-        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isAdmin = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
         $group = MentoringGroup::with(['students' => function($q) {
             $q->orderBy('class')->orderBy('name');
@@ -553,8 +553,8 @@ class MentoringGroupController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'headmaster'])) {
-            return back()->with('error', 'Hanya administrator yang dapat menghapus kelompok.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return back()->with('error', 'Hanya administrator dan kurikulum yang dapat menghapus kelompok.');
         }
 
         $group = MentoringGroup::findOrFail($id);

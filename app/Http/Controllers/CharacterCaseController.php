@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Artisan;
 
 class CharacterCaseController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (Auth::user() && Auth::user()->role === 'curriculum') {
+                abort(403, 'Akses data kasus siswa khusus untuk Kesiswaan dan Guru.');
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Auto check and migrate tables if missing
      */

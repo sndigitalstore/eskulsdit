@@ -59,7 +59,11 @@
                  Tahun Ajaran <b style="color: #0f172a;">{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b style="color: #0f172a;">{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
             </p>
             @if(Auth::user()->role === 'admin')
-                <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Kesiswaan</span>
+                <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Kesiswaan & Administrator</span>
+            @elseif(Auth::user()->role === 'curriculum')
+                <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Tim Kurikulum</span>
+            @elseif(Auth::user()->role === 'headmaster')
+                <span style="background: #fef3c7; color: #92400e; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-user-tie"></i> Kepala Sekolah</span>
             @else
                 @if($isHomeroomTeacher)
                     <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>
@@ -151,6 +155,91 @@
                     </h3>
                     <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Hadir Hari Ini</p>
                     <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Detail <i class="fas fa-arrow-right"></i></a>
+                </div>
+                 <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-user-clock" style="font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,20 C15,0 20,10 35,5 C50,0 65,15 80,10 C90,5 95,0 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    @elseif(Auth::user()->role === 'curriculum')
+        <!-- Curriculum Stats -->
+        <!-- Total Siswa -->
+        <div class="card" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(2, 132, 199, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $studentCount }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Siswa Terdaftar</p>
+                    <a href="{{ route('academic-reports.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Rapor Akademik <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-user-graduate" style="font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,15 C15,15 20,5 35,10 C50,15 65,5 80,10 C90,12 95,5 100,8" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Kelompok Qur'an -->
+        @php
+            $totalQuranGroups = \App\Models\MentoringGroup::count();
+        @endphp
+        <div class="card" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(5, 150, 105, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $totalQuranGroups }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Kelompok Qur'an</p>
+                    <a href="{{ route('mentoring.management') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Halaqah Qur'an <i class="fas fa-arrow-right"></i></a>
+                </div>
+                 <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-quran" style="font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,10 C15,0 20,20 35,15 C50,10 65,20 80,5 C90,0 95,15 100,10" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Mata Pelajaran -->
+        @php
+            $totalSubjects = \App\Models\Subject::count();
+        @endphp
+        <div class="card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(139, 92, 246, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $totalSubjects }}</h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Mata Pelajaran</p>
+                    <a href="{{ route('subjects.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Kurikulum Merdeka <i class="fas fa-arrow-right"></i></a>
+                </div>
+                 <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                     <i class="fas fa-book-open" style="font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                    <path d="M0,5 C15,20 20,5 35,5 C50,5 65,15 80,10 C90,5 95,15 100,5" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Pantauan Guru Hadir -->
+        <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                <div>
+                    <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">
+                        {{ $teacherAttendancePresent ?? 0 }} <span style="font-size: 1rem; opacity: 0.7;">/ {{ $registeredTeacherAccounts ?? 0 }}</span>
+                    </h3>
+                    <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Guru Hadir Hari Ini</p>
+                    <a href="{{ route('teacher-attendance.index') }}" style="color: white; font-size: 0.78rem; font-weight: 600; text-decoration: none; border-bottom: 1px dotted white; position: relative; z-index: 10;">Presensi Guru <i class="fas fa-arrow-right"></i></a>
                 </div>
                  <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
                      <i class="fas fa-user-clock" style="font-size: 1.25rem;"></i>
@@ -739,8 +828,34 @@
                     </div>
                     <i class="fas fa-arrow-right" style="color: #ccc;"></i>
                 </a>
+                @elseif(auth()->user()->role == 'curriculum')
+                <a href="{{ route('academic-reports.index') }}" style="padding: 15px; background: #f0f9ff; border-radius: 12px; text-decoration: none; color: #0369a1; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-invoice" style="color: #0284c7;"></i> Raport Akademik
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #bae6fd;"></i>
+                </a>
+                <a href="{{ route('mentoring.management') }}" style="padding: 15px; background: #ecfdf5; border-radius: 12px; text-decoration: none; color: #065f46; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-quran" style="color: #059669;"></i> Kelompok Qur'an
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #a7f3d0;"></i>
+                </a>
+                <a href="{{ route('subjects.index') }}" style="padding: 15px; background: #f5f3ff; border-radius: 12px; text-decoration: none; color: #5b21b6; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-book" style="color: #7c3aed;"></i> Mata Pelajaran
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #ddd6fe;"></i>
+                </a>
+                <a href="{{ route('reports.index') }}" style="padding: 15px; background: #fffbeb; border-radius: 12px; text-decoration: none; color: #92400e; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-chart-bar" style="color: #d97706;"></i> Laporan Rekap Nilai
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #fed7aa;"></i>
+                </a>
                 @endif
                 
+                @if(auth()->user()->role !== 'curriculum')
                 <!-- Share Form Button -->
                 <button onclick="document.getElementById('shareModal').style.display='flex'; generateQRCode();" style="border:none; cursor: pointer; padding: 15px; background: #e0f2fe; border: 1px dashed #3498db; border-radius: 12px; text-decoration: none; color: #0c4a6e; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; width: 100%; font-size: 1rem; text-align: left;">
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -756,6 +871,7 @@
                     </div>
                     <i class="fas fa-chevron-right" style="color: #6ee7b7;"></i>
                 </button>
+                @endif
             </div>
         </div>
     
