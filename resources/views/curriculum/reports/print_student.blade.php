@@ -315,7 +315,7 @@
                     <th style="width: 30px;">No</th>
                     <th style="text-align: left; width: 220px;">Kegiatan Ekstrakurikuler</th>
                     <th style="width: 70px;">Predikat</th>
-                    <th style="text-align: left;">Keterangan / Perkembangan Santri</th>
+                    <th style="text-align: left;">Keterangan / Perkembangan Siswa</th>
                 </tr>
             </thead>
             <tbody>
@@ -368,7 +368,7 @@
     <div class="signatures-grid">
         <div class="sig-col">
             <div>Mengetahui,</div>
-            <div><strong>Orang Tua / Wali Santri</strong></div>
+            <div><strong>Orang Tua / Wali Siswa</strong></div>
             <div class="sig-space"></div>
             <div>( .................................................. )</div>
         </div>

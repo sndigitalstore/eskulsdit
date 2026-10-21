@@ -690,7 +690,7 @@
         </div>
 
         <div class="footer-branding">
-            SDIT AN NADZIR &copy; {{ date('Y') }}
+            &copy; {{ date('Y') }} SDIT AN NADZIR (Najibudin, S.Pd).
         </div>
     </form>
 </div>

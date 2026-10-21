@@ -153,7 +153,7 @@
         <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
         <div class="kop-text">
             <h1>SDIT AN NADZIR</h1>
-            <h2>REKAPITULASI NILAI RAPOR AKADEMIK SANTRI – SMILE KURIKULUM</h2>
+            <h2>REKAPITULASI NILAI RAPOR AKADEMIK SISWA – SMILE KURIKULUM</h2>
             <p>Membentuk Generasi Qur'ani, Cerdas, Mandiri, dan Berakhlak Mulia</p>
         </div>
     </div>
@@ -170,7 +170,7 @@
             <tr>
                 <th style="width: 25px;">No</th>
                 <th style="width: 70px;">NIS</th>
-                <th style="text-align: left; min-width: 150px;">Nama Santri</th>
+                <th style="text-align: left; min-width: 150px;">Nama Siswa</th>
                 @foreach($subjects as $sb)
                     <th style="width: 48px;" title="{{ $sb->name }}">
                         <div>{{ $sb->code ?: substr($sb->name, 0, 4) }}</div>

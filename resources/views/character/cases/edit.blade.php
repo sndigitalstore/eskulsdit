@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Catatan Kasus Santri – SMILE Karakter')
+@section('title', 'Edit Catatan Kasus Siswa – SMILE Karakter')
 @section('page-title', 'Edit Catatan Kasus')
 
 @section('content')
@@ -12,7 +12,7 @@
                 <i class="fas fa-edit" style="color: #e67e22;"></i> Edit Catatan Kasus & Pembinaan
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Perbarui tindak lanjut atau status penyelesaian kasus santri <strong>{{ $case->student->name ?? '-' }}</strong>.
+                Perbarui tindak lanjut atau status penyelesaian kasus siswa <strong>{{ $case->student->name ?? '-' }}</strong>.
             </p>
         </div>
         <a href="{{ route('character-cases.index') }}" class="btn-action-header btn-dark" style="text-decoration: none;">
@@ -36,16 +36,16 @@
             @csrf
             @method('PUT')
 
-            <!-- Section 1: Santri Info & Waktu -->
+            <!-- Section 1: Siswa Info & Waktu -->
             <div style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 800; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
-                    1. Identitas Santri & Waktu Kejadian
+                    1. Identitas Siswa & Waktu Kejadian
                 </h4>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Nama Santri
+                            Nama Siswa
                         </label>
                         <input type="text" class="form-control" value="{{ $case->student->name ?? '-' }} (Kelas {{ $case->student->class ?? '-' }})" disabled style="background: #f8fafc; font-weight: 700;">
                     </div>
@@ -164,7 +164,7 @@
                     <div style="padding-top: 24px;">
                         <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; color: #334155; font-size: 0.9rem;">
                             <input type="checkbox" name="parent_notified" value="1" {{ old('parent_notified', $case->parent_notified) ? 'checked' : '' }} style="width: 18px; height: 18px;">
-                            <span>Sudah diberitahukan ke Orang Tua / Wali Santri</span>
+                            <span>Sudah diberitahukan ke Orang Tua / Wali Siswa</span>
                         </label>
                     </div>
                 </div>

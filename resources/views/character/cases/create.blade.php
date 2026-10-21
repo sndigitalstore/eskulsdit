@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Catat Kasus Pembinaan Santri – SMILE Karakter')
+@section('title', 'Catat Kasus Pembinaan Siswa – SMILE Karakter')
 @section('page-title', 'Catat Kasus Pembinaan')
 
 @section('content')
@@ -12,7 +12,7 @@
                 <i class="fas fa-plus-circle" style="color: #ef4444;"></i> Form Pencatatan Kasus & Pembinaan
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Catat kronologi kejadian dan langkah pembinaan akhlak santri secara objektif dan mendidik.
+                Catat kronologi kejadian dan langkah pembinaan akhlak siswa secara objektif dan mendidik.
             </p>
         </div>
         <a href="{{ route('character-cases.index') }}" class="btn-action-header btn-dark" style="text-decoration: none;">
@@ -35,19 +35,19 @@
         <form action="{{ route('character-cases.store') }}" method="POST">
             @csrf
 
-            <!-- Section 1: Identitas Santri & Waktu -->
+            <!-- Section 1: Identitas Siswa & Waktu -->
             <div style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 800; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
-                    1. Identitas Santri & Waktu Kejadian
+                    1. Identitas Siswa & Waktu Kejadian
                 </h4>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Pilih Santri <span style="color: #ef4444;">*</span>
+                            Pilih Siswa <span style="color: #ef4444;">*</span>
                         </label>
                         <select name="student_id" id="student_id" class="form-control" required>
-                            <option value="">-- Pilih Santri --</option>
+                            <option value="">-- Pilih Siswa --</option>
                             @foreach($students as $st)
                                 <option value="{{ $st->id }}" {{ (old('student_id', $selectedStudent->id ?? '') == $st->id) ? 'selected' : '' }}>
                                     {{ $st->name }} (Kelas {{ $st->class }}) - NIS: {{ $st->nis ?? '-' }}
@@ -171,7 +171,7 @@
                     <div style="padding-top: 24px;">
                         <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; color: #334155; font-size: 0.9rem;">
                             <input type="checkbox" name="parent_notified" value="1" {{ old('parent_notified') ? 'checked' : '' }} style="width: 18px; height: 18px;">
-                            <span>Sudah diberitahukan ke Orang Tua / Wali Santri</span>
+                            <span>Sudah diberitahukan ke Orang Tua / Wali Siswa</span>
                         </label>
                     </div>
                 </div>

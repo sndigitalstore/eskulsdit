@@ -147,7 +147,7 @@
     <div class="no-print-bar">
         <span style="font-family: sans-serif; font-weight: bold; font-size: 0.95rem;">
             <i class="fas fa-quran" style="color: #38bdf8;"></i>
-            Laporan Evaluasi Tahfidz – {{ $class ? 'Kelas ' . $class : ($groupObj->name ?? 'Seluruh Siswa') }} ({{ $students->count() }} Santri, {{ $totalAllSetoran }} Setoran)
+            Laporan Evaluasi Tahfidz – {{ $class ? 'Kelas ' . $class : ($groupObj->name ?? 'Seluruh Siswa') }} ({{ $students->count() }} Siswa, {{ $totalAllSetoran }} Setoran)
         </span>
         <div style="display: flex; gap: 10px;">
             <button onclick="window.print()" class="btn-print"><i class="fas fa-print"></i> Cetak / Simpan PDF (A4 Landscape)</button>
@@ -187,7 +187,7 @@
                 <strong>Satuan Pendidikan:</strong> SDIT AN NADZIR<br>
                 <strong>Tahun Pelajaran:</strong> {{ $yearName }}<br>
                 <strong>Kelas / Rombel:</strong> {{ $class ? 'Kelas ' . $class : ($groupObj ? 'Kelompok ' . $groupObj->name : 'Semua') }}<br>
-                <strong>Total Santri Terdaftar:</strong> {{ $students->count() }} Orang
+                <strong>Total Siswa Terdaftar:</strong> {{ $students->count() }} Orang
             </div>
             <div>
                 <strong>Musyrif / Pembina Tahfidz:</strong> {{ $groupObj ? ($groupObj->mentorUser?->name ?? $groupObj->mentor_name ?? '-') : 'Musyrif Pembina Tahfidz' }}<br>
@@ -203,7 +203,7 @@
                 <tr>
                     <th style="width: 3%;">No</th>
                     <th style="width: 8%;">NIS</th>
-                    <th style="width: 17%; text-align: left;">Nama Lengkap Santri</th>
+                    <th style="width: 17%; text-align: left;">Nama Lengkap Siswa</th>
                     <th style="width: 5%;">Kelas</th>
                     <th style="width: 13%; text-align: left;">Kelompok & Musyrif</th>
                     <th style="width: 8%;">Target</th>
@@ -301,7 +301,7 @@
                 @empty
                     <tr>
                         <td colspan="11" style="text-align: center; padding: 25px; color: #94a3b8; font-style: italic;">
-                            Tidak ada data santri untuk kriteria filter yang dipilih.
+                            Tidak ada data siswa untuk kriteria filter yang dipilih.
                         </td>
                     </tr>
                 @endforelse

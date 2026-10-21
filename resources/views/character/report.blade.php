@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan & Rekapitulasi Karakter Santri – SMILE Karakter')
+@section('title', 'Laporan & Rekapitulasi Karakter Siswa – SMILE Karakter')
 @section('page-title', 'Laporan & Rekapitulasi Karakter')
 
 @section('content')
@@ -10,10 +10,10 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-file-signature" style="color: #0284c7;"></i> Laporan Neraca & Pemantauan Karakter Santri
+                <i class="fas fa-file-signature" style="color: #0284c7;"></i> Laporan Neraca & Pemantauan Karakter Siswa
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Evaluasi komprehensif perkembangan akhlak santri: akumulasi apresiasi, catatan kasus pembinaan, dan predikat karakter.
+                Evaluasi komprehensif perkembangan akhlak siswa: akumulasi apresiasi, catatan kasus pembinaan, dan predikat karakter.
             </p>
         </div>
         @if($selectedClass && $students->count() > 0)
@@ -68,7 +68,7 @@
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                     <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #1e293b;">
-                        Daftar Evaluasi Karakter: {{ $selectedClass === 'ALL' ? 'Seluruh Kelas' : 'Kelas ' . $selectedClass }} ({{ $students->count() }} Santri)
+                        Daftar Evaluasi Karakter: {{ $selectedClass === 'ALL' ? 'Seluruh Kelas' : 'Kelas ' . $selectedClass }} ({{ $students->count() }} Siswa)
                     </h4>
                     <span style="font-size: 0.8rem; color: #64748b;">
                         Format SMILE Karakter SDIT AN NADZIR
@@ -81,7 +81,7 @@
                             <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
                                 <th style="padding: 12px 10px; text-align: center; width: 45px;">No</th>
                                 <th style="padding: 12px 10px; text-align: left; width: 90px;">NIS</th>
-                                <th style="padding: 12px 10px; text-align: left;">Nama Santri</th>
+                                <th style="padding: 12px 10px; text-align: left;">Nama Siswa</th>
                                 <th style="padding: 12px 10px; text-align: center; width: 60px;">Kelas</th>
                                 <th style="padding: 12px 10px; text-align: center; width: 110px;">Apresiasi (+)</th>
                                 <th style="padding: 12px 10px; text-align: center; width: 110px;">Kasus (-)</th>
@@ -156,15 +156,15 @@
         @else
             <div class="card" style="text-align: center; color: #64748b; padding: 3.5rem 1.5rem;">
                 <i class="fas fa-users-slash" style="font-size: 2.8rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
-                <h4 style="color: #334155; margin-bottom: 6px;">Tidak Ditemukan Data Santri</h4>
-                <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Tidak ada santri yang terdaftar pada kelas yang dipilih untuk tahun ajaran ini.</p>
+                <h4 style="color: #334155; margin-bottom: 6px;">Tidak Ditemukan Data Siswa</h4>
+                <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Tidak ada siswa yang terdaftar pada kelas yang dipilih untuk tahun ajaran ini.</p>
             </div>
         @endif
     @else
         <div class="card" style="text-align: center; color: #64748b; padding: 3.5rem 1.5rem;">
             <i class="fas fa-search" style="font-size: 2.8rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
             <h4 style="color: #334155; margin-bottom: 6px;">Pilih Kelas untuk Menampilkan Laporan</h4>
-            <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Silakan pilih Kelas di atas, lalu klik <strong>Tampilkan</strong> untuk melihat neraca poin apresiasi dan catatan kasus santri.</p>
+            <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Silakan pilih Kelas di atas, lalu klik <strong>Tampilkan</strong> untuk melihat neraca poin apresiasi dan catatan kasus siswa.</p>
         </div>
     @endif
 

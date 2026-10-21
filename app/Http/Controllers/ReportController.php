@@ -87,7 +87,7 @@ class ReportController extends Controller
                 ])->orderBy('class')->orderBy('name')->get();
 
                 // Compute Tilawati KPI
-                $totalSantri = $students->count();
+                $totalSiswa = $students->count();
                 $assignedCount = 0;
                 $jilidCounts = [
                     'Jilid 1' => 0, 'Jilid 2' => 0, 'Jilid 3' => 0,
@@ -115,9 +115,9 @@ class ReportController extends Controller
                 }
 
                 $quranStats = [
-                    'total_students' => $totalSantri,
+                    'total_students' => $totalSiswa,
                     'assigned_count' => $assignedCount,
-                    'unassigned_count' => max(0, $totalSantri - $assignedCount),
+                    'unassigned_count' => max(0, $totalSiswa - $assignedCount),
                     'jilid_counts' => $jilidCounts,
                 ];
             }
@@ -162,7 +162,7 @@ class ReportController extends Controller
                 ])->orderBy('class')->orderBy('name')->get();
 
                 // Compute Tahfidz KPI
-                $totalSantri = $students->count();
+                $totalSiswa = $students->count();
                 $totalSetoran = 0;
                 $totalLancar = 0;
                 $allStudentIds = $students->pluck('id');
@@ -206,7 +206,7 @@ class ReportController extends Controller
                 $lancarPercentage = $totalSetoran > 0 ? round(($totalLancar / $totalSetoran) * 100, 1) : 0;
 
                 $quranStats = [
-                    'total_students' => $totalSantri,
+                    'total_students' => $totalSiswa,
                     'total_setoran' => $totalSetoran,
                     'lancar_percentage' => $lancarPercentage,
                 ];

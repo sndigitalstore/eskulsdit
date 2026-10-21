@@ -18,7 +18,7 @@
                     </h2>
                     <p style="margin: 2px 0 0 0; color: #64748b; font-size: 0.88rem;">
                         @if($isAdmin)
-                            Kelola kelompok bimbingan {{ strtolower($typeLabel) }}, distribusi santri, dan penugasan mentor.
+                            Kelola kelompok bimbingan {{ strtolower($typeLabel) }}, distribusi siswa, dan penugasan mentor.
                         @else
                             Daftar kelompok {{ strtolower($typeLabel) }} yang diamanahkan kepada Anda.
                         @endif
@@ -62,14 +62,14 @@
             </div>
             <div>
                 <span style="font-size: 0.82rem; color: #64748b; font-weight: 600; text-transform: uppercase;">
-                    {{ $isAdmin ? 'Siswa Terkelompokkan' : 'Total Santri Bimbingan' }}
+                    {{ $isAdmin ? 'Siswa Terkelompokkan' : 'Total Siswa Bimbingan' }}
                 </span>
                 <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #1e293b;">
                     {{ $totalAssigned }} 
                     @if($isAdmin)
                         <small style="font-size: 0.8rem; font-weight: normal; color: #64748b;">/ {{ $totalStudentsInYear }}</small>
                     @else
-                        <small style="font-size: 0.8rem; font-weight: normal; color: #64748b;">Santri</small>
+                        <small style="font-size: 0.8rem; font-weight: normal; color: #64748b;">Siswa</small>
                     @endif
                 </h3>
             </div>

@@ -261,7 +261,7 @@
                 </p>
             </div>
             <span style="background: #ecfdf5; color: #047857; font-weight: 700; font-size: 0.82rem; padding: 5px 14px; border-radius: 20px; border: 1px solid #a7f3d0;">
-                <i class="fas fa-user-graduate"></i> {{ $myMentoringStudentCount ?? 0 }} Santri Terbina
+                <i class="fas fa-user-graduate"></i> {{ $myMentoringStudentCount ?? 0 }} Siswa Terbina
             </span>
         </div>
 

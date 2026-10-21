@@ -197,10 +197,10 @@ class CharacterCaseController extends Controller
         ]);
 
         $student = Student::find($request->student_id);
-        ActivityLog::log('Karakter', 'Create Kasus', "Mencatat kasus: {$case->title} ({$case->severity}) untuk santri {$student->name}");
+        ActivityLog::log('Karakter', 'Create Kasus', "Mencatat kasus: {$case->title} ({$case->severity}) untuk siswa {$student->name}");
 
         return redirect()->route('character-cases.index')
-            ->with('success', "Data kasus pembinaan santri '{$student->name}' berhasil dicatat.");
+            ->with('success', "Data kasus pembinaan siswa '{$student->name}' berhasil dicatat.");
     }
 
     public function edit(CharacterCase $character_case)

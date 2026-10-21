@@ -122,7 +122,7 @@
                         {{ $totalTilawatiGroups }} <span style="font-size: 0.95rem; font-weight: 600; color: #64748b;">Kelompok</span>
                     </h3>
                     <div style="font-size: 0.84rem; color: #475569; margin-top: 6px;">
-                        <strong>{{ $tilawatiAssignedCount }}</strong> santri terkelompokkan
+                        <strong>{{ $tilawatiAssignedCount }}</strong> siswa terkelompokkan
                         @if($tilawatiUnassignedCount > 0)
                             • <span style="color: #ea580c; font-weight: 700;">{{ $tilawatiUnassignedCount }} belum</span>
                         @else
@@ -147,7 +147,7 @@
                         {{ $totalTahfidzGroups }} <span style="font-size: 0.95rem; font-weight: 600; color: #64748b;">Kelompok</span>
                     </h3>
                     <div style="font-size: 0.84rem; color: #475569; margin-top: 6px;">
-                        <strong>{{ $tahfidzAssignedCount }}</strong> santri terkelompokkan
+                        <strong>{{ $tahfidzAssignedCount }}</strong> siswa terkelompokkan
                         @if($tahfidzUnassignedCount > 0)
                             • <span style="color: #ea580c; font-weight: 700;">{{ $tahfidzUnassignedCount }} belum</span>
                         @else
@@ -323,7 +323,7 @@
                             <th style="padding: 12px 16px; text-align: left;">Guru Pembimbing</th>
                             <th style="padding: 12px 16px; text-align: left;">Target Jenjang</th>
                             <th style="padding: 12px 16px; text-align: left;">Jadwal / Tempat</th>
-                            <th style="padding: 12px 16px; text-align: center; width: 10%;">Jumlah Santri</th>
+                            <th style="padding: 12px 16px; text-align: center; width: 10%;">Jumlah Siswa</th>
                             <th style="padding: 12px 16px; text-align: center; width: 220px;">Aksi Cepat</th>
                         </tr>
                     </thead>
@@ -475,7 +475,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px;">
                 <div>
                     <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
-                        Distribusi Cepat Santri Belum Berkelompok
+                        Distribusi Cepat Siswa Belum Berkelompok
                     </h3>
                     <p style="margin: 4px 0 0 0; font-size: 0.88rem; color: #64748b;">
                         Pilih siswa dan masukkan sekaligus ke dalam kelompok tujuan dalam 1 klik.
@@ -523,7 +523,7 @@
                     <div style="width: 56px; height: 56px; border-radius: 50%; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 12px;">
                         <i class="fas fa-check-double"></i>
                     </div>
-                    <h4 style="margin: 0; color: #1e293b; font-size: 1.1rem; font-weight: 700;">Seluruh Santri Sudah Memiliki Kelompok {{ ucfirst($unassignedType) }}!</h4>
+                    <h4 style="margin: 0; color: #1e293b; font-size: 1.1rem; font-weight: 700;">Seluruh Siswa Sudah Memiliki Kelompok {{ ucfirst($unassignedType) }}!</h4>
                     <p style="margin: 6px 0 0 0; color: #64748b; font-size: 0.9rem;">
                         Tidak ada siswa yang belum masuk kelompok untuk kategori {{ ucfirst($unassignedType) }} pada filter ini.
                     </p>
@@ -708,7 +708,7 @@
                     <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 0.88rem;">
                         Catatan Tambahan
                     </label>
-                    <textarea name="notes" rows="2" placeholder="Catatan opsional mengenai kriteria santri kelompok ini..." class="form-control" style="padding: 8px 12px; font-size: 0.88rem;"></textarea>
+                    <textarea name="notes" rows="2" placeholder="Catatan opsional mengenai kriteria siswa kelompok ini..." class="form-control" style="padding: 8px 12px; font-size: 0.88rem;"></textarea>
                 </div>
             </div>
 

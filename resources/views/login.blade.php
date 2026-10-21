@@ -557,7 +557,7 @@
 
                 <div class="welcome-text">
                     <h2>Selamat Datang!</h2>
-                    <p>Sistem Informasi Manajemen Terpadu Pembinaan Qur'an, Karakter SMILE, Kurikulum Akademik, dan Talenta Santri.</p>
+                    <p>Sistem Informasi Manajemen Terpadu Pembinaan Qur'an, Karakter SMILE, Kurikulum Akademik, dan Talenta Siswa.</p>
                 </div>
 
                 @if ($errors->any())
@@ -592,7 +592,7 @@
                 </form>
 
                 <div class="footer-text">
-                    &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Aplikasi Manajemen Terpadu.
+                    &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong> (Najibudin, S.Pd).
                 </div>
             </div>
         </div>

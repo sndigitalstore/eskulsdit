@@ -146,7 +146,7 @@
     <div class="no-print-bar">
         <span style="font-family: sans-serif; font-weight: bold; font-size: 0.95rem;">
             <i class="fas fa-book-reader" style="color: #34d399;"></i>
-            Laporan Pembinaan Tilawati – {{ $class ? 'Kelas ' . $class : ($groupObj->name ?? 'Seluruh Siswa') }} ({{ $students->count() }} Santri)
+            Laporan Pembinaan Tilawati – {{ $class ? 'Kelas ' . $class : ($groupObj->name ?? 'Seluruh Siswa') }} ({{ $students->count() }} Siswa)
         </span>
         <div style="display: flex; gap: 10px;">
             <button onclick="window.print()" class="btn-print"><i class="fas fa-print"></i> Cetak / Simpan PDF</button>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Data Kasus & Pembinaan Santri – SMILE Karakter')
+@section('title', 'Data Kasus & Pembinaan Siswa – SMILE Karakter')
 @section('page-title', 'Data Kasus & Pembinaan')
 
 @section('content')
@@ -13,7 +13,7 @@
                 <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i> Catatan Kasus & Pembinaan Karakter
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Dokumentasi kasus indisipliner, pelanggaran adab, dan tindak lanjut pembinaan akhlak santri.
+                Dokumentasi kasus indisipliner, pelanggaran adab, dan tindak lanjut pembinaan akhlak siswa.
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -174,7 +174,7 @@
                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
                         <th style="padding: 12px 10px; text-align: center; width: 45px;">No</th>
                         <th style="padding: 12px 10px; text-align: left; width: 100px;">Tanggal</th>
-                        <th style="padding: 12px 10px; text-align: left; width: 220px;">Santri & Kelas</th>
+                        <th style="padding: 12px 10px; text-align: left; width: 220px;">Siswa & Kelas</th>
                         <th style="padding: 12px 10px; text-align: left;">Kategori & Kasus</th>
                         <th style="padding: 12px 10px; text-align: center; width: 110px;">Tingkat & Poin</th>
                         <th style="padding: 12px 10px; text-align: left; width: 220px;">Tindakan / Komitmen</th>

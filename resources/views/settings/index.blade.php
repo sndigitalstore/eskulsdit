@@ -155,7 +155,7 @@
                 </h4>
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Footer Text (Credits)</label>
-                    <input type="text" name="app_credits" class="form-control" value="{{ $settings['app_credits'] ?? '' }}" placeholder="Contoh: SDIT An Nadzir - 2024">
+                    <input type="text" name="app_credits" class="form-control" value="{{ $settings['app_credits'] ?? '' }}" placeholder="Contoh: © {{ date('Y') }} SDIT AN NADZIR (Najibudin, S.Pd).">
                 </div>
 
                 <div class="form-group" style="margin-top: 15px;">

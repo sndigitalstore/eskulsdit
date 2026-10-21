@@ -158,7 +158,7 @@
     </div>
 
     <div class="footer">
-        &copy; {{ date('Y') }} SDIT AN NADZIR – SIM SMILE
+        &copy; {{ date('Y') }} SDIT AN NADZIR (Najibudin, S.Pd).
     </div>
 </div>
 

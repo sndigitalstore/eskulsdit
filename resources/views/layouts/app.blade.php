@@ -1039,13 +1039,11 @@
         </div>
 
         @php
-            $footerText = \App\Models\Setting::where('key', 'app_credits')->value('value');
+            $footerText = \App\Models\Setting::where('key', 'app_credits')->value('value') ?: '© ' . date('Y') . ' SDIT AN NADZIR (Najibudin, S.Pd).';
         @endphp
-        @if($footerText)
-            <footer style="text-align: center; padding: 20px; color: #aaa; font-size: 0.8rem; border-top: 1px solid #eee; margin-top: auto;">
-                {{ $footerText }}
-            </footer>
-        @endif
+        <footer style="text-align: center; padding: 20px; color: #94a3b8; font-size: 0.82rem; border-top: 1px solid #e2e8f0; margin-top: auto;">
+            {{ $footerText }}
+        </footer>
     </main>
 
     @stack('scripts')

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Beri Apresiasi Santri – SMILE Karakter')
-@section('page-title', 'Beri Apresiasi Santri')
+@section('title', 'Beri Apresiasi Siswa – SMILE Karakter')
+@section('page-title', 'Beri Apresiasi Siswa')
 
 @section('content')
 <div style="max-width: 900px; margin: 0 auto;">
@@ -12,7 +12,7 @@
                 <i class="fas fa-plus-circle" style="color: #10b981;"></i> Form Pemberian Apresiasi & Kebaikan
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Apresiasi perilaku mulia, inisiatif terpuji, dan akhlak unggul santri berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly)</strong>.
+                Apresiasi perilaku mulia, inisiatif terpuji, dan akhlak unggul siswa berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly)</strong>.
             </p>
         </div>
         <a href="{{ route('character-appreciations.index') }}" class="btn-action-header btn-dark" style="text-decoration: none;">
@@ -35,7 +35,7 @@
         <form action="{{ route('character-appreciations.store') }}" method="POST">
             @csrf
 
-            <!-- Section 1: Identitas Santri & Waktu -->
+            <!-- Section 1: Identitas Siswa & Waktu -->
             <div style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 800; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
                     1. Penerima Apresiasi & Waktu
@@ -44,10 +44,10 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Pilih Santri <span style="color: #ef4444;">*</span>
+                            Pilih Siswa <span style="color: #ef4444;">*</span>
                         </label>
                         <select name="student_id" class="form-control" required>
-                            <option value="">-- Pilih Santri --</option>
+                            <option value="">-- Pilih Siswa --</option>
                             @foreach($students as $st)
                                 <option value="{{ $st->id }}" {{ (old('student_id', $selectedStudent->id ?? '') == $st->id) ? 'selected' : '' }}>
                                     {{ $st->name }} (Kelas {{ $st->class }}) - NIS: {{ $st->nis ?? '-' }}
@@ -117,7 +117,7 @@
                     <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                         Detail Aksi Kebaikan
                     </label>
-                    <textarea name="description" rows="3" class="form-control" placeholder="Ceritakan bagaimana santri menunjukkan perilaku terpuji tersebut...">{{ old('description') }}</textarea>
+                    <textarea name="description" rows="3" class="form-control" placeholder="Ceritakan bagaimana siswa menunjukkan perilaku terpuji tersebut...">{{ old('description') }}</textarea>
                 </div>
             </div>
 

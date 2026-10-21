@@ -179,10 +179,10 @@ class CharacterAppreciationController extends Controller
         ]);
 
         $student = Student::find($request->student_id);
-        ActivityLog::log('Karakter', 'Create Apresiasi', "Memberikan apresiasi: {$appreciation->title} (+{$appreciation->point} poin) untuk santri {$student->name}");
+        ActivityLog::log('Karakter', 'Create Apresiasi', "Memberikan apresiasi: {$appreciation->title} (+{$appreciation->point} poin) untuk siswa {$student->name}");
 
         return redirect()->route('character-appreciations.index')
-            ->with('success', "Apresiasi karakter untuk santri '{$student->name}' berhasil dicatat.");
+            ->with('success', "Apresiasi karakter untuk siswa '{$student->name}' berhasil dicatat.");
     }
 
     public function edit(CharacterAppreciation $character_appreciation)
@@ -239,7 +239,7 @@ class CharacterAppreciationController extends Controller
         ActivityLog::log('Karakter', 'Update Apresiasi', "Memperbarui apresiasi ID: {$character_appreciation->id} ({$character_appreciation->title})");
 
         return redirect()->route('character-appreciations.index')
-            ->with('success', 'Data apresiasi karakter santri berhasil diperbarui.');
+            ->with('success', 'Data apresiasi karakter siswa berhasil diperbarui.');
     }
 
     public function destroy(CharacterAppreciation $character_appreciation)

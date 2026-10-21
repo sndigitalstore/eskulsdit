@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekapitulasi Apresiasi Karakter Santri – SDIT AN NADZIR</title>
+    <title>Rekapitulasi Apresiasi Karakter Siswa – SDIT AN NADZIR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @page { 
@@ -153,7 +153,7 @@
     <!-- Print Control Bar -->
     <div class="no-print-bar">
         <div style="font-size: 0.95rem; font-weight: bold; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-medal"></i> Rekapitulasi Catatan Apresiasi Karakter Santri (A4 Landscape)
+            <i class="fas fa-medal"></i> Rekapitulasi Catatan Apresiasi Karakter Siswa (A4 Landscape)
         </div>
         <div style="display: flex; gap: 10px;">
             <button onclick="window.print()" class="btn-print">
@@ -170,14 +170,14 @@
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
                 <h1>SDIT AN NADZIR</h1>
-                <h2>PROGRAM PEMBIASAAN AKHLAK & KARAKTER SANTRI (SMILE)</h2>
+                <h2>PROGRAM PEMBIASAAN AKHLAK & KARAKTER SISWA (SMILE)</h2>
                 <p>Membentuk Generasi Qur'ani yang Berakhlak Mulia, Cerdas, Mandiri, dan Berkarakter</p>
             </div>
         </div>
 
         <!-- JUDUL LAPORAN -->
         <div class="title-box">
-            <h3>REKAPITULASI CATATAN APRESIASI & PERILAKU TERPUJI SANTRI</h3>
+            <h3>REKAPITULASI CATATAN APRESIASI & PERILAKU TERPUJI SISWA</h3>
             <p>
                 Tahun Ajaran: <strong>{{ $year->name ?? '-' }}</strong>
                 &nbsp;|&nbsp; 
@@ -195,7 +195,7 @@
                 <strong>Total Akumulasi Poin Kebaikan:</strong> +{{ $appreciations->sum('point') }} poin karakter
             </div>
             <div style="text-align: right;">
-                <strong>Jumlah Santri Berapresiasi:</strong> {{ $appreciations->pluck('student_id')->unique()->count() }} orang<br>
+                <strong>Jumlah Siswa Berapresiasi:</strong> {{ $appreciations->pluck('student_id')->unique()->count() }} orang<br>
                 <strong>Tanggal Cetak:</strong> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
             </div>
         </div>
@@ -206,7 +206,7 @@
                 <tr>
                     <th style="width: 25px;">No</th>
                     <th style="width: 70px;">Tanggal</th>
-                    <th style="width: 150px;">Nama Santri</th>
+                    <th style="width: 150px;">Nama Siswa</th>
                     <th style="width: 45px;">Kelas</th>
                     <th style="width: 140px;">Nilai SMILE</th>
                     <th>Bentuk Perilaku Terpuji & Kronologi</th>
@@ -253,7 +253,7 @@
                 @empty
                     <tr>
                         <td colspan="9" style="text-align: center; padding: 20px; color: #666;">
-                            Tidak ada catatan apresiasi karakter santri pada filter ini.
+                            Tidak ada catatan apresiasi karakter siswa pada filter ini.
                         </td>
                     </tr>
                 @endforelse

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Data Apresiasi & Kebaikan Santri – SMILE Karakter')
+@section('title', 'Data Apresiasi & Kebaikan Siswa – SMILE Karakter')
 @section('page-title', 'Data Apresiasi & Kebaikan')
 
 @section('content')
@@ -10,10 +10,10 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-award" style="color: #10b981;"></i> Catatan Apresiasi & Perilaku Terpuji Santri
+                <i class="fas fa-award" style="color: #10b981;"></i> Catatan Apresiasi & Perilaku Terpuji Siswa
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Dokumentasi pembiasaan karakter unggul santri berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly)</strong>.
+                Dokumentasi pembiasaan karakter unggul siswa berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly)</strong>.
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -60,9 +60,9 @@
 
         <div class="card" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid #0284c7;">
             <div>
-                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Santri Berprestasi</span>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Siswa Berprestasi</span>
                 <div style="font-size: 1.6rem; font-weight: 900; color: #0284c7;">{{ $stats['unique_students'] }}</div>
-                <div style="font-size: 0.75rem; color: #0284c7; font-weight: 600;">Santri Penerima Apresiasi</div>
+                <div style="font-size: 0.75rem; color: #0284c7; font-weight: 600;">Siswa Penerima Apresiasi</div>
             </div>
             <div style="width: 44px; height: 44px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
                 <i class="fas fa-user-graduate"></i>
@@ -134,7 +134,7 @@
                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
                         <th style="padding: 12px 10px; text-align: center; width: 45px;">No</th>
                         <th style="padding: 12px 10px; text-align: left; width: 100px;">Tanggal</th>
-                        <th style="padding: 12px 10px; text-align: left; width: 220px;">Santri & Kelas</th>
+                        <th style="padding: 12px 10px; text-align: left; width: 220px;">Siswa & Kelas</th>
                         <th style="padding: 12px 10px; text-align: left; width: 160px;">Nilai SMILE</th>
                         <th style="padding: 12px 10px; text-align: left;">Bentuk Perilaku Terpuji & Uraian</th>
                         <th style="padding: 12px 10px; text-align: center; width: 120px;">Poin & Reward</th>

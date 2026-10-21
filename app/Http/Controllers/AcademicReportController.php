@@ -279,7 +279,7 @@ class AcademicReportController extends Controller
             'assessment' => $assessmentType,
             'subject_id' => $subjectId,
             'tab' => 'input',
-        ])->with('success', "Nilai untuk {$savedCount} santri berhasil disimpan dengan rapi!");
+        ])->with('success', "Nilai untuk {$savedCount} siswa berhasil disimpan dengan rapi!");
     }
 
     /**

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Catatan Apresiasi Santri – SMILE Karakter')
+@section('title', 'Edit Catatan Apresiasi Siswa – SMILE Karakter')
 @section('page-title', 'Edit Catatan Apresiasi')
 
 @section('content')
@@ -9,10 +9,10 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div>
             <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-edit" style="color: #e67e22;"></i> Edit Catatan Apresiasi Santri
+                <i class="fas fa-edit" style="color: #e67e22;"></i> Edit Catatan Apresiasi Siswa
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Perbarui rincian apresiasi santri <strong>{{ $appreciation->student->name ?? '-' }}</strong>.
+                Perbarui rincian apresiasi siswa <strong>{{ $appreciation->student->name ?? '-' }}</strong>.
             </p>
         </div>
         <a href="{{ route('character-appreciations.index') }}" class="btn-action-header btn-dark" style="text-decoration: none;">
@@ -36,7 +36,7 @@
             @csrf
             @method('PUT')
 
-            <!-- Section 1: Identitas Santri & Waktu -->
+            <!-- Section 1: Identitas Siswa & Waktu -->
             <div style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 800; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
                     1. Penerima Apresiasi & Waktu
@@ -45,7 +45,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Nama Santri
+                            Nama Siswa
                         </label>
                         <input type="text" class="form-control" value="{{ $appreciation->student->name ?? '-' }} (Kelas {{ $appreciation->student->class ?? '-' }})" disabled style="background: #f8fafc; font-weight: 700;">
                     </div>

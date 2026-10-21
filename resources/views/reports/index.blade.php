@@ -196,7 +196,7 @@
                         <i class="fas fa-book-open" style="color: #16a34a;"></i> Filter Laporan Pembinaan Tilawati
                     </h3>
                     <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">
-                        Laporan capaian Jilid 1–6 / Al-Qur'an, halaman mutakhir, serta catatan evaluasi fashohah & kelancaran santri.
+                        Laporan capaian Jilid 1–6 / Al-Qur'an, halaman mutakhir, serta catatan evaluasi fashohah & kelancaran siswa.
                     </p>
                 </div>
                 <span style="font-size: 0.82rem; background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 999px; font-weight: 600;">
@@ -256,7 +256,7 @@
                 <!-- Actions Bar -->
                 <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div style="font-size: 0.9rem; color: #475569;">
-                        Menampilkan <strong>{{ count($students) }} Santri</strong> 
+                        Menampilkan <strong>{{ count($students) }} Siswa</strong> 
                         {{ $selectedClass ? ($selectedClass === 'ALL' ? 'seluruh kelas' : 'Kelas ' . $selectedClass) : '' }}
                         {{ $selectedGroupId ? '(Filter Kelompok aktif)' : '' }}
                     </div>
@@ -275,7 +275,7 @@
                             <i class="fas fa-user-graduate"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Santri</div>
+                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Siswa</div>
                             <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $quranStats['total_students'] ?? count($students) }}</div>
                             <div style="font-size: 0.75rem; color: #16a34a;"><i class="fas fa-check-circle"></i> Terdaftar Aktif</div>
                         </div>
@@ -285,7 +285,7 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Santri Berkelompok</div>
+                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Siswa Berkelompok</div>
                             <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $quranStats['assigned_count'] ?? 0 }}</div>
                             <div style="font-size: 0.75rem; color: #64748b;">Belum: {{ $quranStats['unassigned_count'] ?? 0 }} anak</div>
                         </div>
@@ -293,7 +293,7 @@
                     <div class="kpi-stat-card" style="grid-column: span 2;">
                         <div style="width: 100%;">
                             <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">
-                                Sebaran Level / Jilid Santri
+                                Sebaran Level / Jilid Siswa
                             </div>
                             <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                                 @if(isset($quranStats['jilid_counts']))
@@ -327,7 +327,7 @@
                                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
                                     <th style="padding: 12px; text-align: center; width: 50px;">No</th>
                                     <th style="padding: 12px; text-align: left;">NIS</th>
-                                    <th style="padding: 12px; text-align: left;">Nama Santri</th>
+                                    <th style="padding: 12px; text-align: left;">Nama Siswa</th>
                                     <th style="padding: 12px; text-align: center;">Kelas</th>
                                     <th style="padding: 12px; text-align: left;">Kelompok & Pembina</th>
                                     <th style="padding: 12px; text-align: left;">Target Jilid</th>
@@ -403,7 +403,7 @@
                                                     <i class="fas fa-eye"></i> Detail
                                                 </a>
                                             @else
-                                                <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tilawati', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 4px 10px; font-size: 0.78rem; text-decoration: none;" title="Petakan Santri">
+                                                <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tilawati', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 4px 10px; font-size: 0.78rem; text-decoration: none;" title="Petakan Siswa">
                                                     <i class="fas fa-user-plus"></i> Petakan
                                                 </a>
                                             @endif
@@ -417,15 +417,15 @@
             @else
                 <div class="card" style="text-align: center; color: #64748b; padding: 3.5rem 1.5rem;">
                     <i class="fas fa-book-open" style="font-size: 2.8rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
-                    <h4 style="color: #334155; margin-bottom: 6px;">Tidak Ada Data Santri Tilawati</h4>
-                    <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Tidak ditemukan santri yang sesuai dengan filter kelas atau kelompok Tilawati yang dipilih pada Tahun Pelajaran ini.</p>
+                    <h4 style="color: #334155; margin-bottom: 6px;">Tidak Ada Data Siswa Tilawati</h4>
+                    <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Tidak ditemukan siswa yang sesuai dengan filter kelas atau kelompok Tilawati yang dipilih pada Tahun Pelajaran ini.</p>
                 </div>
             @endif
         @else
             <div class="card" style="text-align: center; color: #64748b; padding: 3.5rem 1.5rem;">
                 <i class="fas fa-search" style="font-size: 2.8rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
                 <h4 style="color: #334155; margin-bottom: 6px;">Pilih Filter Laporan Tilawati</h4>
-                <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Silakan pilih Kelas atau Kelompok Tilawati di atas, lalu klik <strong>Tampilkan</strong> untuk memuat data laporan capaian jilid santri.</p>
+                <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Silakan pilih Kelas atau Kelompok Tilawati di atas, lalu klik <strong>Tampilkan</strong> untuk memuat data laporan capaian jilid siswa.</p>
             </div>
         @endif
 
@@ -442,7 +442,7 @@
                         <i class="fas fa-quran" style="color: #0284c7;"></i> Filter Laporan Pembinaan Tahfidz
                     </h3>
                     <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">
-                        Laporan akuntabel setoran hafalan baru, murojaah, mutu kualitas (lancar/cukup/perlu perbaikan), dan rekap sima'an santri.
+                        Laporan akuntabel setoran hafalan baru, murojaah, mutu kualitas (lancar/cukup/perlu perbaikan), dan rekap sima'an siswa.
                     </p>
                 </div>
                 <span style="font-size: 0.82rem; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 999px; font-weight: 600;">
@@ -502,7 +502,7 @@
                 <!-- Actions Bar -->
                 <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div style="font-size: 0.9rem; color: #475569;">
-                        Menampilkan <strong>{{ count($students) }} Santri Tahfidz</strong> 
+                        Menampilkan <strong>{{ count($students) }} Siswa Tahfidz</strong> 
                         {{ $selectedClass ? ($selectedClass === 'ALL' ? 'seluruh kelas' : 'Kelas ' . $selectedClass) : '' }}
                         {{ $selectedGroupId ? '(Filter Kelompok aktif)' : '' }}
                     </div>
@@ -521,9 +521,9 @@
                             <i class="fas fa-quran"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Santri</div>
+                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Siswa</div>
                             <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $quranStats['total_students'] ?? count($students) }}</div>
-                            <div style="font-size: 0.75rem; color: #0284c7;"><i class="fas fa-check-circle"></i> Santri Terdata</div>
+                            <div style="font-size: 0.75rem; color: #0284c7;"><i class="fas fa-check-circle"></i> Siswa Terdata</div>
                         </div>
                     </div>
                     <div class="kpi-stat-card">
@@ -574,7 +574,7 @@
                                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.8rem; color: #475569;">
                                     <th style="padding: 10px 8px; text-align: center; width: 40px;">No</th>
                                     <th style="padding: 10px 8px; text-align: left; width: 85px;">NIS</th>
-                                    <th style="padding: 10px 8px; text-align: left;">Nama Santri</th>
+                                    <th style="padding: 10px 8px; text-align: left;">Nama Siswa</th>
                                     <th style="padding: 10px 8px; text-align: center; width: 60px;">Kelas</th>
                                     <th style="padding: 10px 8px; text-align: left;">Kelompok & Musyrif</th>
                                     <th style="padding: 10px 8px; text-align: left;">Target</th>
@@ -689,12 +689,12 @@
                                                     <a href="{{ route('tahfidz.student-card', ['group' => $grp->id, 'student' => $student->id]) }}" class="btn-action-header btn-blue" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Lihat Kartu Hafalan">
                                                         <i class="fas fa-id-card"></i>
                                                     </a>
-                                                    <a href="{{ route('tahfidz.print-card', ['group' => $grp->id, 'student' => $student->id]) }}" target="_blank" class="btn-action-header btn-dark" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Cetak Kartu Santri">
+                                                    <a href="{{ route('tahfidz.print-card', ['group' => $grp->id, 'student' => $student->id]) }}" target="_blank" class="btn-action-header btn-dark" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Cetak Kartu Siswa">
                                                         <i class="fas fa-print"></i>
                                                     </a>
                                                 </div>
                                             @else
-                                                <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tahfidz', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Petakan Santri">
+                                                <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tahfidz', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Petakan Siswa">
                                                     <i class="fas fa-user-plus"></i> Petakan
                                                 </a>
                                             @endif
@@ -708,15 +708,15 @@
             @else
                 <div class="card" style="text-align: center; color: #64748b; padding: 3.5rem 1.5rem;">
                     <i class="fas fa-quran" style="font-size: 2.8rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
-                    <h4 style="color: #334155; margin-bottom: 6px;">Tidak Ada Data Santri Tahfidz</h4>
-                    <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Tidak ditemukan santri yang sesuai dengan filter kelas atau kelompok Tahfidz yang dipilih pada Tahun Pelajaran ini.</p>
+                    <h4 style="color: #334155; margin-bottom: 6px;">Tidak Ada Data Siswa Tahfidz</h4>
+                    <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Tidak ditemukan siswa yang sesuai dengan filter kelas atau kelompok Tahfidz yang dipilih pada Tahun Pelajaran ini.</p>
                 </div>
             @endif
         @else
             <div class="card" style="text-align: center; color: #64748b; padding: 3.5rem 1.5rem;">
                 <i class="fas fa-search" style="font-size: 2.8rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
                 <h4 style="color: #334155; margin-bottom: 6px;">Pilih Filter Laporan Tahfidz</h4>
-                <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Silakan pilih Kelas atau Kelompok Tahfidz di atas, lalu klik <strong>Tampilkan</strong> untuk memuat data rekapitulasi setoran hafalan santri.</p>
+                <p style="font-size: 0.9rem; margin: 0; max-width: 500px; margin: 0 auto;">Silakan pilih Kelas atau Kelompok Tahfidz di atas, lalu klik <strong>Tampilkan</strong> untuk memuat data rekapitulasi setoran hafalan siswa.</p>
             </div>
         @endif
 

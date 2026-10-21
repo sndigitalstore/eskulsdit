@@ -109,7 +109,7 @@
         <!-- STATS BAR -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
             <div class="card" style="padding: 16px 20px; border-left: 4px solid #0284c7; border-radius: 12px;">
-                <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Santri</div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Siswa</div>
                 <div style="font-size: 1.6rem; font-weight: 900; color: #1e293b; margin-top: 4px;">{{ $classStats['total_students'] }}</div>
                 <div style="font-size: 0.78rem; color: #0284c7; margin-top: 2px;">Kelas {{ $selectedClass }}</div>
             </div>
@@ -123,12 +123,12 @@
                 <div style="font-size: 1.4rem; font-weight: 900; color: #1e293b; margin-top: 4px;">
                     <span style="color: #16a34a;">{{ $classStats['highest_score'] }}</span> / <span style="color: #ef4444;">{{ $classStats['lowest_score'] }}</span>
                 </div>
-                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">Nilai Rata-rata Santri</div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">Nilai Rata-rata Siswa</div>
             </div>
             <div class="card" style="padding: 16px 20px; border-left: 4px solid #8b5cf6; border-radius: 12px;">
                 <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Ketuntasan KKTP</div>
                 <div style="font-size: 1.6rem; font-weight: 900; color: #8b5cf6; margin-top: 4px;">{{ $classStats['passed_percentage'] }}%</div>
-                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">{{ $classStats['passed_count'] }} santri di atas KKTP</div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">{{ $classStats['passed_count'] }} siswa di atas KKTP</div>
             </div>
         </div>
 
@@ -157,7 +157,7 @@
                             Rekap Nilai Siswa: Kelas {{ $selectedClass }} – {{ $assessmentInfo['name'] }}
                         </h4>
                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
-                            Klik nama santri atau tombol Cetak Rapor untuk mencetak lembar rapor individu A4
+                            Klik nama siswa atau tombol Cetak Rapor untuk mencetak lembar rapor individu A4
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
@@ -173,7 +173,7 @@
                             <tr style="border-bottom: 2px solid #cbd5e1; color: #475569;">
                                 <th style="padding: 10px; text-align: center; width: 45px;">No</th>
                                 <th style="padding: 10px; text-align: left; width: 85px;">NIS</th>
-                                <th style="padding: 10px; text-align: left; min-width: 180px;">Nama Santri</th>
+                                <th style="padding: 10px; text-align: left; min-width: 180px;">Nama Siswa</th>
                                 @foreach($subjects as $sb)
                                     <th style="padding: 8px 6px; text-align: center; min-width: 58px;" title="{{ $sb->name }} (KKTP: {{ (int)$sb->kkm }})">
                                         <div style="font-weight: 800; color: #0f172a;">{{ $sb->code ?: substr($sb->name, 0, 4) }}</div>
@@ -237,7 +237,7 @@
                             @empty
                                 <tr>
                                     <td colspan="{{ 6 + $subjects->count() }}" style="padding: 40px; text-align: center; color: #94a3b8;">
-                                        Belum ada santri terdaftar pada kelas ini.
+                                        Belum ada siswa terdaftar pada kelas ini.
                                     </td>
                                 </tr>
                             @endforelse
@@ -256,7 +256,7 @@
                             <i class="fas fa-edit" style="color: #0284c7;"></i> Form Input Nilai: {{ $assessmentInfo['name'] }}
                         </h4>
                         <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">
-                            Pilih Mata Pelajaran lalu isikan nilai angka santri (0-100) dan catatan capaian kompetensi.
+                            Pilih Mata Pelajaran lalu isikan nilai angka siswa (0-100) dan catatan capaian kompetensi.
                         </p>
                     </div>
 
@@ -304,7 +304,7 @@
                                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
                                         <th style="padding: 10px; text-align: center; width: 45px;">No</th>
                                         <th style="padding: 10px; text-align: left; width: 90px;">NIS</th>
-                                        <th style="padding: 10px; text-align: left; min-width: 200px;">Nama Santri</th>
+                                        <th style="padding: 10px; text-align: left; min-width: 200px;">Nama Siswa</th>
                                         <th style="padding: 10px; text-align: center; width: 130px;">Nilai (0 - 100)</th>
                                         <th style="padding: 10px; text-align: center; width: 110px;">Predikat</th>
                                         <th style="padding: 10px; text-align: left; min-width: 300px;">Capaian Pembelajaran / Catatan Guru</th>
@@ -391,7 +391,7 @@
                                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
                                     <th style="padding: 10px; text-align: center; width: 45px;">No</th>
                                     <th style="padding: 10px; text-align: left; width: 90px;">NIS</th>
-                                    <th style="padding: 10px; text-align: left; min-width: 180px;">Nama Santri</th>
+                                    <th style="padding: 10px; text-align: left; min-width: 180px;">Nama Siswa</th>
                                     <th style="padding: 10px; text-align: center; width: 85px;">Sakit (S)</th>
                                     <th style="padding: 10px; text-align: center; width: 85px;">Izin (I)</th>
                                     <th style="padding: 10px; text-align: center; width: 85px;">Alpa (A)</th>

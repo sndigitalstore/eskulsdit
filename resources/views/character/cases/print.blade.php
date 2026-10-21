@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekapitulasi Catatan Kasus Pembinaan Santri – SDIT AN NADZIR</title>
+    <title>Rekapitulasi Catatan Kasus Pembinaan Siswa – SDIT AN NADZIR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @page { 
@@ -153,7 +153,7 @@
     <!-- Print Control Bar -->
     <div class="no-print-bar">
         <div style="font-size: 0.95rem; font-weight: bold; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-file-invoice"></i> Rekapitulasi Catatan Kasus Pembinaan Santri (A4 Landscape)
+            <i class="fas fa-file-invoice"></i> Rekapitulasi Catatan Kasus Pembinaan Siswa (A4 Landscape)
         </div>
         <div style="display: flex; gap: 10px;">
             <button onclick="window.print()" class="btn-print">
@@ -170,14 +170,14 @@
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
                 <h1>SDIT AN NADZIR</h1>
-                <h2>LEMBAGA PEMBINAAN KARAKTER SANTRI (SMILE Karakter)</h2>
+                <h2>LEMBAGA PEMBINAAN KARAKTER SISWA (SMILE Karakter)</h2>
                 <p>Membentuk Generasi Qur'ani yang Berakhlak Mulia, Cerdas, Mandiri, dan Berkarakter</p>
             </div>
         </div>
 
         <!-- JUDUL LAPORAN -->
         <div class="title-box">
-            <h3>REKAPITULASI CATATAN KASUS & TINDAK LANJUT PEMBINAAN SANTRI</h3>
+            <h3>REKAPITULASI CATATAN KASUS & TINDAK LANJUT PEMBINAAN SISWA</h3>
             <p>
                 Tahun Ajaran: <strong>{{ $year->name ?? '-' }}</strong>
                 &nbsp;|&nbsp; 
@@ -214,7 +214,7 @@
                 <tr>
                     <th style="width: 25px;">No</th>
                     <th style="width: 65px;">Tanggal</th>
-                    <th style="width: 140px;">Nama Santri</th>
+                    <th style="width: 140px;">Nama Siswa</th>
                     <th style="width: 45px;">Kelas</th>
                     <th style="width: 100px;">Kategori</th>
                     <th>Judul & Kronologi Kejadian</th>
@@ -274,7 +274,7 @@
                 @empty
                     <tr>
                         <td colspan="10" style="text-align: center; padding: 20px; color: #666;">
-                            Tidak ada catatan kasus pembinaan santri pada filter ini.
+                            Tidak ada catatan kasus pembinaan siswa pada filter ini.
                         </td>
                     </tr>
                 @endforelse

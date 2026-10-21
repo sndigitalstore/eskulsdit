@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Perkembangan Karakter Santri – {{ $selectedClass ? 'Kelas ' . $selectedClass : 'Semua Kelas' }}</title>
+    <title>Laporan Perkembangan Karakter Siswa – {{ $selectedClass ? 'Kelas ' . $selectedClass : 'Semua Kelas' }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @page { 
@@ -146,7 +146,7 @@
     <!-- Print Control Bar -->
     <div class="no-print-bar">
         <div style="font-size: 0.95rem; font-weight: bold; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-file-signature"></i> Laporan Neraca & Pemantauan Karakter Santri (A4 Landscape)
+            <i class="fas fa-file-signature"></i> Laporan Neraca & Pemantauan Karakter Siswa (A4 Landscape)
         </div>
         <div style="display: flex; gap: 10px;">
             <button onclick="window.print()" class="btn-print">
@@ -170,7 +170,7 @@
 
         <!-- JUDUL LAPORAN -->
         <div class="title-box">
-            <h3>LAPORAN EVALUASI & REKAPITULASI PEMBIASAAN KARAKTER SANTRI</h3>
+            <h3>LAPORAN EVALUASI & REKAPITULASI PEMBIASAAN KARAKTER SISWA</h3>
             <p>
                 Tahun Ajaran: <strong>{{ $year->name ?? '-' }}</strong>
                 &nbsp;|&nbsp; 
@@ -181,13 +181,13 @@
         <!-- INFO STATISTIK -->
         <div class="info-grid">
             <div>
-                <strong>Total Santri Terevaluasi:</strong> {{ $students->count() }} orang<br>
+                <strong>Total Siswa Terevaluasi:</strong> {{ $students->count() }} orang<br>
                 <strong>Total Apresiasi Kebaikan:</strong> {{ $students->sum('appreciations_count') }} catatan (+{{ $students->sum('appreciation_points_total') }} poin)<br>
                 <strong>Total Kasus Pembinaan:</strong> {{ $students->sum('cases_count') }} kasus (-{{ $students->sum('cases_point_total') }} poin)
             </div>
             <div style="text-align: right;">
-                <strong>Bintang Karakter SMILE:</strong> {{ $students->where('predicate_label', 'Bintang Karakter')->count() }} santri<br>
-                <strong>Dalam Pembinaan Intensif:</strong> {{ $students->where('predicate_label', 'Perlu Pendampingan')->count() }} santri<br>
+                <strong>Bintang Karakter SMILE:</strong> {{ $students->where('predicate_label', 'Bintang Karakter')->count() }} siswa<br>
+                <strong>Dalam Pembinaan Intensif:</strong> {{ $students->where('predicate_label', 'Perlu Pendampingan')->count() }} siswa<br>
                 <strong>Tanggal Cetak:</strong> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
             </div>
         </div>
@@ -198,7 +198,7 @@
                 <tr>
                     <th style="width: 25px;">No</th>
                     <th style="width: 80px;">NIS</th>
-                    <th>Nama Santri</th>
+                    <th>Nama Siswa</th>
                     <th style="width: 35px;">L/P</th>
                     <th style="width: 45px;">Kelas</th>
                     <th style="width: 100px;">Apresiasi (+)</th>
@@ -241,7 +241,7 @@
                 @empty
                     <tr>
                         <td colspan="10" style="text-align: center; padding: 20px; color: #666;">
-                            Tidak ada data santri pada filter kelas ini.
+                            Tidak ada data siswa pada filter kelas ini.
                         </td>
                     </tr>
                 @endforelse

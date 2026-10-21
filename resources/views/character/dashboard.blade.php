@@ -19,7 +19,7 @@
                 </div>
                 <h2 style="margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em;">SMILE Karakter SDIT AN NADZIR</h2>
                 <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 0.92rem; max-width: 650px;">
-                    Pemantauan holistik pembiasaan karakter santri berlandaskan nilai <strong>SMILE</strong>: <strong>Sholeh</strong>, <strong>Muslih</strong>, <strong>Intellectual Curiosity</strong>, <strong>Leadership</strong>, dan <strong>Environmentally Friendly</strong> secara akuntabel.
+                    Pemantauan holistik pembiasaan karakter siswa berlandaskan nilai <strong>SMILE</strong>: <strong>Sholeh</strong>, <strong>Muslih</strong>, <strong>Intellectual Curiosity</strong>, <strong>Leadership</strong>, dan <strong>Environmentally Friendly</strong> secara akuntabel.
                 </p>
             </div>
             
@@ -173,11 +173,11 @@
             </div>
         </div>
 
-        <!-- Santri Memerlukan Pendampingan Khusus -->
+        <!-- Siswa Memerlukan Pendampingan Khusus -->
         <div class="card" style="padding: 0; overflow: hidden;">
             <div style="padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                 <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-hand-holding-heart" style="color: #ef4444;"></i> Santri Butuh Pendampingan Pembinaan
+                    <i class="fas fa-hand-holding-heart" style="color: #ef4444;"></i> Siswa Butuh Pendampingan Pembinaan
                 </h4>
                 <a href="{{ route('character-cases.index') }}" style="font-size: 0.82rem; color: #ef4444; font-weight: 700; text-decoration: none;">
                     Lihat Semua <i class="fas fa-chevron-right"></i>
@@ -203,14 +203,14 @@
                             </span>
                             <div style="margin-top: 2px;">
                                 <a href="{{ route('character-cases.create', ['student_id' => $st->id]) }}" style="font-size: 0.72rem; color: #0284c7; text-decoration: none; font-weight: 600;">
-                                    + Bina Santri
+                                    + Bina Siswa
                                 </a>
                             </div>
                         </div>
                     </div>
                 @empty
                     <div style="text-align: center; color: #10b981; padding: 24px 0; font-size: 0.9rem;">
-                        <i class="fas fa-check-circle"></i> Alhamdulillah, tidak ada santri yang memiliki catatan kasus berulang.
+                        <i class="fas fa-check-circle"></i> Alhamdulillah, tidak ada siswa yang memiliki catatan kasus berulang.
                     </div>
                 @endforelse
             </div>

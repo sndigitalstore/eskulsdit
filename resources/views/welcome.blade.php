@@ -865,7 +865,7 @@
             <a href="#keunggulan" class="nav-link">Fitur Terpadu</a>
             <a href="#statistik" class="nav-link">Statistik</a>
             <a href="{{ route('status.index') }}" class="nav-link">
-                <i class="fas fa-search" style="font-size: 0.8rem; color: #0284c7;"></i> Cek Status Santri
+                <i class="fas fa-search" style="font-size: 0.8rem; color: #0284c7;"></i> Cek Status Siswa
             </a>
             @auth
                 <a href="{{ url('/dashboard') }}" class="btn-nav-portal">
@@ -898,7 +898,7 @@
                 Sinergi <span class="highlight-green">Qur'ani</span>, Karakter Unggul & <span class="highlight-blue">Prestasi.</span>
             </h1>
             <p class="hero-desc">
-                <strong>SIM SMILE SDIT AN NADZIR</strong> menghadirkan integrasi holistik pembinaan Tilawati & Tahfidz, pemantauan karakter SMILE, rapor akademik Kurikulum Merdeka (STS & SAS), serta manajemen potensi bakat santri dalam satu platform akuntabel.
+                <strong>SIM SMILE SDIT AN NADZIR</strong> menghadirkan integrasi holistik pembinaan Tilawati & Tahfidz, pemantauan karakter SMILE, rapor akademik Kurikulum Merdeka (STS & SAS), serta manajemen potensi bakat siswa dalam satu platform akuntabel.
             </p>
             <div class="hero-cta-group">
                 @auth
@@ -934,7 +934,7 @@
 
                 <div class="mockup-metrics-grid">
                     <div class="mockup-metric active-theme">
-                        <div class="metric-label">Santri Terdaftar</div>
+                        <div class="metric-label">Siswa Terdaftar</div>
                         <div class="metric-val">{{ $totalSiswa }}</div>
                         <div style="font-size: 0.72rem; color: #047857; font-weight: 600; margin-top: 2px;">
                             <i class="fas fa-check-circle"></i> Terdata Aktif
@@ -957,7 +957,7 @@
                         </div>
                         <div>
                             <div style="font-size: 0.8rem; font-weight: 800; color: #166534;">Pembinaan Al-Qur'an</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Mutaba'ah Tilawati & Kartu Hafalan Santri</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Mutaba'ah Tilawati & Kartu Hafalan Siswa</div>
                         </div>
                     </div>
                     <span style="font-size: 0.7rem; font-weight: 800; color: #15803d; background: white; padding: 2px 8px; border-radius: 6px;">Aktif</span>
@@ -998,7 +998,7 @@
             <span class="section-tag">Struktur Ekosistem</span>
             <h2 class="section-title">4 Pilar Utama SIM SMILE</h2>
             <p class="section-desc">
-                Pondasi terpadu untuk memastikan setiap santri berkembang optimal dalam pemahaman agama, keluhuran budi pekerti, kecakapan akademis, dan potensi bakat.
+                Pondasi terpadu untuk memastikan setiap siswa berkembang optimal dalam pemahaman agama, keluhuran budi pekerti, kecakapan akademis, dan potensi bakat.
             </p>
         </div>
 
@@ -1010,7 +1010,7 @@
                 </div>
                 <h3 class="pillar-title">Pembinaan Al-Qur'an</h3>
                 <p class="pillar-text">
-                    Sistem pemantauan berjenjang untuk pembelajaran Al-Qur'an metode Tilawati dan akselerasi setoran Tahfidz santri.
+                    Sistem pemantauan berjenjang untuk pembelajaran Al-Qur'an metode Tilawati dan akselerasi setoran Tahfidz siswa.
                 </p>
                 <ul class="pillar-features-list">
                     <li><i class="fas fa-check"></i> Mentoring Tilawati Berjilid</li>
@@ -1027,12 +1027,12 @@
                 </div>
                 <h3 class="pillar-title">SMILE Karakter</h3>
                 <p class="pillar-text">
-                    Pemantauan adab dan akhlak santri berlandaskan nilai Sholeh, Muslih, Intellectual Curiosity, Leadership, & Environmentally Friendly.
+                    Pemantauan adab dan akhlak siswa berlandaskan nilai Sholeh, Muslih, Intellectual Curiosity, Leadership, & Environmentally Friendly.
                 </p>
                 <ul class="pillar-features-list">
                     <li><i class="fas fa-check"></i> Buku Saku Apresiasi & Kebaikan</li>
                     <li><i class="fas fa-check"></i> Pencatatan Kasus & Tindak Lanjut</li>
-                    <li><i class="fas fa-check"></i> Neraca Poin Karakter Santri</li>
+                    <li><i class="fas fa-check"></i> Neraca Poin Karakter Siswa</li>
                     <li><i class="fas fa-check"></i> Lembar Evaluasi Karakter per Kelas</li>
                 </ul>
             </div>
@@ -1061,7 +1061,7 @@
                 </div>
                 <h3 class="pillar-title">Bakat & Prestasi</h3>
                 <p class="pillar-text">
-                    Penyaluran minat bakat melalui kegiatan ekstrakurikuler serta rekam jejak sertifikat digital prestasi santri.
+                    Penyaluran minat bakat melalui kegiatan ekstrakurikuler serta rekam jejak sertifikat digital prestasi siswa.
                 </p>
                 <ul class="pillar-features-list">
                     <li><i class="fas fa-check"></i> Pilihan Ekstrakurikuler Mandiri</li>
@@ -1078,7 +1078,7 @@
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-number">{{ $totalSiswa }}</div>
-                <div class="stat-label">Santri Terdaftar</div>
+                <div class="stat-label">Siswa Terdaftar</div>
                 <div class="stat-desc">Peserta Didik Aktif SDIT AN NADZIR</div>
             </div>
             <div class="stat-item">
@@ -1089,7 +1089,7 @@
             <div class="stat-item">
                 <div class="stat-number">{{ $totalEskul }}</div>
                 <div class="stat-label">Pilihan Eskul</div>
-                <div class="stat-desc">Wadah Minat & Bakat Santri</div>
+                <div class="stat-desc">Wadah Minat & Bakat Siswa</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number">{{ $totalGuru }}</div>
@@ -1105,7 +1105,7 @@
             <span class="section-tag">Efisiensi & Akuntabilitas</span>
             <h2 class="section-title">Dirancang untuk Mutu Pendidikan Terbaik</h2>
             <p class="section-desc">
-                Teknologi pintar yang menyederhanakan birokrasi dan administrasi sekolah sehingga dewan guru dapat lebih fokus membina santri.
+                Teknologi pintar yang menyederhanakan birokrasi dan administrasi sekolah sehingga dewan guru dapat lebih fokus membina siswa.
             </p>
         </div>
 
@@ -1135,8 +1135,8 @@
                     <i class="fas fa-id-card"></i>
                 </div>
                 <div class="feature-box-content">
-                    <h4>Portal Cek Mandiri Santri</h4>
-                    <p>Wali murid dan santri dapat mengecek status kegiatan, kehadiran, dan capaian pembinaan secara mandiri melalui NIS.</p>
+                    <h4>Portal Cek Mandiri Siswa</h4>
+                    <p>Wali murid dan siswa dapat mengecek status kegiatan, kehadiran, dan capaian pembinaan secara mandiri melalui NIS.</p>
                 </div>
             </div>
 
@@ -1146,7 +1146,7 @@
                 </div>
                 <div class="feature-box-content">
                     <h4>Sertifikat Digital QR Code</h4>
-                    <p>Penerbitan sertifikat digital resmi untuk santri berprestasi yang dilengkapi tautan verifikasi keaslian berbasis QR code.</p>
+                    <p>Penerbitan sertifikat digital resmi untuk siswa berprestasi yang dilengkapi tautan verifikasi keaslian berbasis QR code.</p>
                 </div>
             </div>
 
@@ -1177,7 +1177,7 @@
         <div class="cta-banner-card">
             <div class="cta-banner-content">
                 <h3>Siap Mewujudkan Manajemen Sekolah Modern?</h3>
-                <p>Masuk ke portal SIM SMILE untuk mulai mengelola data akademik, pembinaan Al-Qur'an, dan pembiasaan karakter santri.</p>
+                <p>Masuk ke portal SIM SMILE untuk mulai mengelola data akademik, pembinaan Al-Qur'an, dan pembiasaan karakter siswa.</p>
             </div>
             <div>
                 @auth
@@ -1240,7 +1240,7 @@
 
         <div class="footer-bottom">
             <div>
-                &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong>. Seluruh Hak Cipta Dilindungi Undang-Undang.
+                &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong> (Najibudin, S.Pd).
             </div>
             <div>
                 SIM SMILE – Solusi Digital Pendidikan Terpadu
