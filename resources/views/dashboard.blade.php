@@ -429,6 +429,256 @@
     @endif
 </div>
 
+@if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && isset($programAchievements))
+    <!-- INDIKATOR KETERCAPAIAN MUTU & PROGRAM UNGGULAN (KPI SEKOLAH) -->
+    <div style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                    <i class="fas fa-chart-line"></i> Standar Mutu & Akuntabilitas Sekolah (KPI)
+                </div>
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 10px;">
+                    Ketercapaian Program Unggulan
+                </h3>
+                <p style="margin: 4px 0 0; color: #64748b; font-size: 0.88rem;">
+                    Pemantauan persentase capaian riil pembinaan Qur'an (Tilawati & Tahfidz), Rapor Kurikulum Merdeka, serta Pembiasaan Karakter SMILE.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <span style="background: #ffffff; border: 1px solid #e2e8f0; color: #475569; font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <i class="fas fa-shield-alt" style="color: #10b981;"></i> Data Terintegrasi Real-Time
+                </span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+            <!-- 1. Ketercapaian Tilawati -->
+            <div class="card" style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 22px; margin-bottom: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 42px; height: 42px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid #a7f3d0;">
+                                <i class="fas fa-book-reader"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #0f172a;">Tilawati Qur'an</h4>
+                                <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Metode Standar SDIT</span>
+                            </div>
+                        </div>
+                        <span style="background: #ecfdf5; color: #047857; font-size: 0.72rem; font-weight: 750; padding: 3px 8px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                            Capaian Jilid
+                        </span>
+                    </div>
+
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+                        <span style="font-size: 2.35rem; font-weight: 900; color: #065f46; letter-spacing: -1px; line-height: 1;">
+                            {{ $programAchievements['tilawati']['percentage'] }}%
+                        </span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
+                            Jilid Lanjut / Mandiri
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-bottom: 16px;">
+                        <div style="width: {{ min(100, max(5, $programAchievements['tilawati']['percentage'])) }}%; height: 100%; background: linear-gradient(90deg, #34d399, #059669); border-radius: 10px; transition: width 1s ease;"></div>
+                    </div>
+
+                    <!-- Detail Metrik -->
+                    <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-users" style="color: #059669; width: 16px;"></i> Siswa Terbina:</span>
+                            <strong style="color: #0f172a;">{{ $programAchievements['tilawati']['assigned_count'] }} <span style="font-weight: 400; color: #94a3b8;">/ {{ $programAchievements['tilawati']['total_students'] }}</span></strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-award" style="color: #f59e0b; width: 16px;"></i> Jilid 4 - Al-Qur'an:</span>
+                            <strong style="color: #059669;">{{ $programAchievements['tilawati']['advanced_count'] }} Siswa</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-check-circle" style="color: #3b82f6; width: 16px;"></i> Cakupan Binaan:</span>
+                            <strong style="color: #3b82f6;">{{ $programAchievements['tilawati']['coverage_percentage'] }}% Siswa</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('reports.index', ['tab' => 'tilawati']) }}" style="color: #059669; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px dashed #e2e8f0; transition: 0.2s;">
+                    <span>Lihat Rekap Tilawati</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 2. Ketercapaian Tahfidz -->
+            <div class="card" style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 22px; margin-bottom: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 42px; height: 42px; border-radius: 12px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid #bfdbfe;">
+                                <i class="fas fa-quran"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #0f172a;">Tahfidz Qur'an</h4>
+                                <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Halaqah & Ujian Tahfidz</span>
+                            </div>
+                        </div>
+                        <span style="background: #eff6ff; color: #1d4ed8; font-size: 0.72rem; font-weight: 750; padding: 3px 8px; border-radius: 6px; border: 1px solid #bfdbfe;">
+                            Mutqin Rate
+                        </span>
+                    </div>
+
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+                        <span style="font-size: 2.35rem; font-weight: 900; color: #1e40af; letter-spacing: -1px; line-height: 1;">
+                            {{ $programAchievements['tahfidz']['percentage'] }}%
+                        </span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
+                            Setoran Kualitas Lancar
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-bottom: 16px;">
+                        <div style="width: {{ min(100, max(5, $programAchievements['tahfidz']['percentage'])) }}%; height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); border-radius: 10px; transition: width 1s ease;"></div>
+                    </div>
+
+                    <!-- Detail Metrik -->
+                    <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-microphone" style="color: #2563eb; width: 16px;"></i> Total Setoran:</span>
+                            <strong style="color: #0f172a;">{{ $programAchievements['tahfidz']['total_records'] }} Sesi</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-star" style="color: #10b981; width: 16px;"></i> Setoran Lancar:</span>
+                            <strong style="color: #10b981;">{{ $programAchievements['tahfidz']['lancar_count'] }} Catatan</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-user-check" style="color: #7c3aed; width: 16px;"></i> Siswa Aktif Setor:</span>
+                            <strong style="color: #7c3aed;">{{ $programAchievements['tahfidz']['active_students'] }} Siswa</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('reports.index', ['tab' => 'tahfidz']) }}" style="color: #2563eb; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px dashed #e2e8f0; transition: 0.2s;">
+                    <span>Buka Rekap Tahfidz</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 3. Ketercapaian Akademik -->
+            <div class="card" style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 22px; margin-bottom: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 42px; height: 42px; border-radius: 12px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid #ddd6fe;">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #0f172a;">Akademik Rapor</h4>
+                                <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Kurikulum Merdeka</span>
+                            </div>
+                        </div>
+                        <span style="background: #f5f3ff; color: #6d28d9; font-size: 0.72rem; font-weight: 750; padding: 3px 8px; border-radius: 6px; border: 1px solid #ddd6fe;">
+                            Tuntas KKM
+                        </span>
+                    </div>
+
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+                        <span style="font-size: 2.35rem; font-weight: 900; color: #5b21b6; letter-spacing: -1px; line-height: 1;">
+                            {{ $programAchievements['academic']['percentage'] }}%
+                        </span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
+                            Nilai Tuntas (≥ 75)
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-bottom: 16px;">
+                        <div style="width: {{ min(100, max(5, $programAchievements['academic']['percentage'])) }}%; height: 100%; background: linear-gradient(90deg, #a78bfa, #7c3aed); border-radius: 10px; transition: width 1s ease;"></div>
+                    </div>
+
+                    <!-- Detail Metrik -->
+                    <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-check-double" style="color: #7c3aed; width: 16px;"></i> Nilai Tuntas:</span>
+                            <strong style="color: #0f172a;">{{ $programAchievements['academic']['passed_scores'] }} <span style="font-weight: 400; color: #94a3b8;">/ {{ $programAchievements['academic']['total_scores'] }}</span></strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-calculator" style="color: #0284c7; width: 16px;"></i> Rata-rata Nilai:</span>
+                            <strong style="color: #0284c7;">{{ $programAchievements['academic']['average_score'] }} <span style="font-weight: 400; color: #94a3b8;">/ 100</span></strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-file-invoice" style="color: #059669; width: 16px;"></i> Status Input:</span>
+                            <strong style="color: #059669;">{{ $programAchievements['academic']['total_scores'] > 0 ? $programAchievements['academic']['total_scores'] . ' Nilai Masuk' : 'Belum Ada Input' }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('academic-reports.index') }}" style="color: #7c3aed; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px dashed #e2e8f0; transition: 0.2s;">
+                    <span>Kelola Raport STS/SAS</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 4. Ketercapaian Karakter -->
+            <div class="card" style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 22px; margin-bottom: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 42px; height: 42px; border-radius: 12px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid #fde68a;">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #0f172a;">Karakter SMILE</h4>
+                                <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Sholeh, Muslih, Cerdas</span>
+                            </div>
+                        </div>
+                        <span style="background: #fffbeb; color: #b45309; font-size: 0.72rem; font-weight: 750; padding: 3px 8px; border-radius: 6px; border: 1px solid #fde68a;">
+                            Indeks Prima
+                        </span>
+                    </div>
+
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+                        <span style="font-size: 2.35rem; font-weight: 900; color: #92400e; letter-spacing: -1px; line-height: 1;">
+                            {{ $programAchievements['character']['percentage'] }}%
+                        </span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
+                            Siswa Berkarakter Positif
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-bottom: 16px;">
+                        <div style="width: {{ min(100, max(5, $programAchievements['character']['percentage'])) }}%; height: 100%; background: linear-gradient(90deg, #fbbf24, #d97706); border-radius: 10px; transition: width 1s ease;"></div>
+                    </div>
+
+                    <!-- Detail Metrik -->
+                    <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-medal" style="color: #f59e0b; width: 16px;"></i> Apresiasi Prestasi:</span>
+                            <strong style="color: #0f172a;">{{ $programAchievements['character']['total_appreciations'] }} <span style="font-weight: 500; color: #d97706;">({{ $programAchievements['character']['appreciation_points'] }} Poin)</span></strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-hand-holding-heart" style="color: #10b981; width: 16px;"></i> Kasus Selesai:</span>
+                            <strong style="color: #10b981;">{{ $programAchievements['character']['resolved_cases'] }} <span style="font-weight: 400; color: #94a3b8;">/ {{ $programAchievements['character']['total_cases'] }}</span></strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #475569;">
+                            <span><i class="fas fa-user-clock" style="color: #ef4444; width: 16px;"></i> Dalam Pembinaan:</span>
+                            <strong style="color: {{ $programAchievements['character']['active_cases'] > 0 ? '#ef4444' : '#10b981' }};">{{ $programAchievements['character']['active_cases'] }} Siswa</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('character.dashboard') }}" style="color: #d97706; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px dashed #e2e8f0; transition: 0.2s;">
+                    <span>Buka Dasbor Karakter</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+@endif
+
 @if(Auth::user()->role === 'teacher' && ((isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty()) || (isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())))
     <div class="card duty-block" data-duty="quran" style="margin-bottom: 2rem; padding: 24px; border-top: 4px solid #059669; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">

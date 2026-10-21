@@ -7,6 +7,7 @@ use App\Models\AcademicYear;
 use App\Models\Student;
 use App\Models\Eskul;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
@@ -482,6 +483,154 @@ class DashboardController extends Controller
             if ($mySubjectsCount > 0) $teacherRoleCount++;
         }
 
+        // 10. Indikator Ketercapaian Mutu & Program Unggulan (Tilawati, Tahfidz, Akademik, Karakter)
+        $totalActiveGlobalStudents = Student::forYear($yearId)
+            ->where(function($q) {
+                $q->where('status', '!=', 'graduated')->orWhereNull('status');
+            })
+            ->count();
+
+        // A. Ketercapaian Tilawati
+        $tilawatiAssignedStudents = 0;
+        $tilawatiAdvancedStudents = 0;
+        $tilawatiPercentage = 0;
+        $tilawatiCoveragePercentage = 0;
+
+        if (Schema::hasTable('mentoring_group_students') && Schema::hasTable('mentoring_groups')) {
+            $tilawatiAssignedStudents = DB::table('mentoring_group_students')
+                ->join('mentoring_groups', 'mentoring_group_students.mentoring_group_id', '=', 'mentoring_groups.id')
+                ->where('mentoring_groups.type', 'tilawati')
+                ->when($yearId, fn($q) => $q->where('mentoring_groups.academic_year_id', $yearId))
+                ->distinct('mentoring_group_students.student_id')
+                ->count('mentoring_group_students.student_id');
+
+            $tilawatiAdvancedStudents = DB::table('mentoring_group_students')
+                ->join('mentoring_groups', 'mentoring_group_students.mentoring_group_id', '=', 'mentoring_groups.id')
+                ->where('mentoring_groups.type', 'tilawati')
+                ->when($yearId, fn($q) => $q->where('mentoring_groups.academic_year_id', $yearId))
+                ->where(function($q) {
+                    $q->where('mentoring_groups.target_level', 'LIKE', '%Jilid 4%')
+                      ->orWhere('mentoring_groups.target_level', 'LIKE', '%Jilid 5%')
+                      ->orWhere('mentoring_groups.target_level', 'LIKE', '%Jilid 6%')
+                      ->orWhere('mentoring_groups.target_level', 'LIKE', '%Al-Qur%')
+                      ->orWhere('mentoring_group_students.notes', 'LIKE', '%Jilid 4%')
+                      ->orWhere('mentoring_group_students.notes', 'LIKE', '%Jilid 5%')
+                      ->orWhere('mentoring_group_students.notes', 'LIKE', '%Jilid 6%')
+                      ->orWhere('mentoring_group_students.notes', 'LIKE', '%Al-Qur%')
+                      ->orWhere('mentoring_group_students.notes', 'LIKE', '%Tuntas%')
+                      ->orWhere('mentoring_group_students.notes', 'LIKE', '%Lulus%');
+                })
+                ->distinct('mentoring_group_students.student_id')
+                ->count('mentoring_group_students.student_id');
+
+            $tilawatiPercentage = $tilawatiAssignedStudents > 0 
+                ? round(($tilawatiAdvancedStudents / $tilawatiAssignedStudents) * 100) 
+                : 0;
+
+            $tilawatiCoveragePercentage = $totalActiveGlobalStudents > 0
+                ? round(($tilawatiAssignedStudents / $totalActiveGlobalStudents) * 100)
+                : 0;
+        }
+
+        // B. Ketercapaian Tahfidz
+        $totalTahfidzRecords = 0;
+        $tahfidzLancarRecords = 0;
+        $tahfidzCukupRecords = 0;
+        $tahfidzPerluPerbaikanRecords = 0;
+        $tahfidzActiveStudents = 0;
+        $tahfidzPercentage = 0;
+
+        if (Schema::hasTable('tahfidz_records')) {
+            $tahfidzRecordQuery = \App\Models\TahfidzRecord::when($yearId, fn($q) => $q->where('academic_year_id', $yearId));
+            $totalTahfidzRecords = (clone $tahfidzRecordQuery)->count();
+            $tahfidzLancarRecords = (clone $tahfidzRecordQuery)->where('quality', 'lancar')->count();
+            $tahfidzCukupRecords = (clone $tahfidzRecordQuery)->where('quality', 'cukup')->count();
+            $tahfidzPerluPerbaikanRecords = (clone $tahfidzRecordQuery)->where('quality', 'perlu_perbaikan')->count();
+            $tahfidzActiveStudents = (clone $tahfidzRecordQuery)->distinct('student_id')->count('student_id');
+
+            $tahfidzPercentage = $totalTahfidzRecords > 0 
+                ? round(($tahfidzLancarRecords / $totalTahfidzRecords) * 100) 
+                : 0;
+        }
+
+        // C. Ketercapaian Akademik
+        $totalAcademicScores = 0;
+        $passedAcademicScores = 0;
+        $averageAcademicScore = 0;
+        $academicPercentage = 0;
+
+        if (Schema::hasTable('academic_scores')) {
+            $academicScoreQuery = \App\Models\AcademicScore::when($yearId, fn($q) => $q->where('academic_year_id', $yearId));
+            $totalAcademicScores = (clone $academicScoreQuery)->count();
+            $passedAcademicScores = (clone $academicScoreQuery)->where('score', '>=', 75)->count();
+            $averageAcademicScore = $totalAcademicScores > 0 ? round((clone $academicScoreQuery)->avg('score'), 1) : 0;
+
+            $academicPercentage = $totalAcademicScores > 0 
+                ? round(($passedAcademicScores / $totalAcademicScores) * 100) 
+                : 0;
+        }
+
+        // D. Ketercapaian Karakter
+        $totalCases = 0;
+        $resolvedCases = 0;
+        $activeCases = 0;
+        $totalAppreciations = 0;
+        $totalAppreciationPoints = 0;
+        $studentsWithActiveCases = 0;
+        $characterPercentage = 100;
+        $caseResolutionRate = 100;
+
+        if (Schema::hasTable('character_cases') && Schema::hasTable('character_appreciations')) {
+            $caseQuery = \App\Models\CharacterCase::when($yearId, fn($q) => $q->where('academic_year_id', $yearId));
+            $totalCases = (clone $caseQuery)->count();
+            $resolvedCases = (clone $caseQuery)->where('status', 'selesai')->count();
+            $activeCases = (clone $caseQuery)->where('status', 'dalam_pembinaan')->count();
+            $studentsWithActiveCases = (clone $caseQuery)->where('status', 'dalam_pembinaan')->distinct('student_id')->count('student_id');
+
+            $appreciationQuery = \App\Models\CharacterAppreciation::when($yearId, fn($q) => $q->where('academic_year_id', $yearId));
+            $totalAppreciations = (clone $appreciationQuery)->count();
+            $totalAppreciationPoints = (clone $appreciationQuery)->sum('point');
+
+            $characterPercentage = $totalActiveGlobalStudents > 0
+                ? round((max(0, $totalActiveGlobalStudents - $studentsWithActiveCases) / $totalActiveGlobalStudents) * 100)
+                : 100;
+
+            $caseResolutionRate = $totalCases > 0 ? round(($resolvedCases / $totalCases) * 100) : 100;
+        }
+
+        $programAchievements = [
+            'tilawati' => [
+                'percentage' => $tilawatiPercentage,
+                'coverage_percentage' => $tilawatiCoveragePercentage,
+                'assigned_count' => $tilawatiAssignedStudents,
+                'advanced_count' => $tilawatiAdvancedStudents,
+                'total_students' => $totalActiveGlobalStudents,
+            ],
+            'tahfidz' => [
+                'percentage' => $tahfidzPercentage,
+                'total_records' => $totalTahfidzRecords,
+                'lancar_count' => $tahfidzLancarRecords,
+                'cukup_count' => $tahfidzCukupRecords,
+                'perlu_perbaikan_count' => $tahfidzPerluPerbaikanRecords,
+                'active_students' => $tahfidzActiveStudents,
+            ],
+            'academic' => [
+                'percentage' => $academicPercentage,
+                'total_scores' => $totalAcademicScores,
+                'passed_scores' => $passedAcademicScores,
+                'average_score' => $averageAcademicScore,
+            ],
+            'character' => [
+                'percentage' => $characterPercentage,
+                'total_cases' => $totalCases,
+                'resolved_cases' => $resolvedCases,
+                'active_cases' => $activeCases,
+                'total_appreciations' => $totalAppreciations,
+                'appreciation_points' => $totalAppreciationPoints,
+                'resolution_rate' => $caseResolutionRate,
+            ],
+        ];
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -497,7 +646,8 @@ class DashboardController extends Controller
             'missingDates', 'teacherEskul',
             
             'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount',
-            'mySubjects', 'mySubjectsCount', 'teacherRoleCount'
+            'mySubjects', 'mySubjectsCount', 'teacherRoleCount',
+            'programAchievements'
         ));
     }
 }
