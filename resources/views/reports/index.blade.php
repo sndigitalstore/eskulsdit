@@ -1069,8 +1069,14 @@
                                     <td>
                                         @php
                                             $studentAchievements = $student->achievements()
-                                                ->where('academic_year_id', $selectedYearId)
-                                                ->where('eskul_id', $eskul->id);
+                                                ->where(function($q) use ($selectedYearId) {
+                                                    $q->where('academic_year_id', $selectedYearId)
+                                                      ->orWhereNull('academic_year_id');
+                                                });
+
+                                            if (\Illuminate\Support\Facades\Schema::hasColumn('achievements', 'eskul_id')) {
+                                                $studentAchievements->where('eskul_id', $eskul->id);
+                                            }
 
                                             if ($selectedPeriod != 'all') {
                                                 $studentAchievements->where('semester', $selectedPeriod);

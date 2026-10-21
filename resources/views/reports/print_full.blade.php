@@ -215,7 +215,9 @@
                             <td style="vertical-align: top; padding: 4px;">
                                 @php
                                     $studentAchievements = \App\Models\Achievement::where('student_id', $student->id)
-                                        ->where('academic_year_id', $yearId);
+                                        ->where(function($q) use ($yearId) {
+                                            $q->where('academic_year_id', $yearId)->orWhereNull('academic_year_id');
+                                        });
                                     
                                     if ($period != 'all') {
                                         $studentAchievements->where('semester', $period);
