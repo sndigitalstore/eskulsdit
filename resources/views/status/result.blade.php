@@ -278,9 +278,16 @@
         </div>
         <h1 class="student-name">{{ $student->name }}</h1>
         <div class="student-meta">Kelas Terakhir/Aktif: {{ $student->class }}</div>
-        @if($student->nis)
-            <div class="student-nis">NIS: {{ $student->nis }}</div>
-        @endif
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+            @if($student->nis)
+                <div class="student-nis"><i class="fas fa-id-card"></i> NIS: {{ $student->nis }}</div>
+            @endif
+            @if($student->parent_phone)
+                <div class="student-nis" style="background: #e8f5e9; color: #2e7d32;" title="Nomor disamarkan demi keamanan privasi">
+                    <i class="fas fa-shield-alt"></i> Kontak Wali: {{ $student->masked_parent_phone }}
+                </div>
+            @endif
+        </div>
     </div>
 
     <!-- Achievements Section (Historical) -->

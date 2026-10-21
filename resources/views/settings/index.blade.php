@@ -249,8 +249,32 @@
         </div>
     </form>
 
-    <!-- SECTION 3: ZONE BAHAYA (DANGER ZONE) -->
-    <div style="background: #fff5f5; border: 1px solid #ffccd2; padding: 20px; border-radius: 12px; margin-top: 40px;">
+    <!-- SECTION: PENCADANGAN DATABASE (1-KLIK BACKUP) -->
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 22px; border-radius: 12px; margin-top: 35px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div style="max-width: 580px;">
+                <h4 style="margin: 0 0 6px; color: #166534; display: flex; align-items: center; gap: 10px; font-size: 1.15rem;">
+                    <i class="fas fa-database" style="color: #10b981;"></i> Pencadangan Database Sistem (1-Klik Backup)
+                </h4>
+                <p style="color: #374151; font-size: 0.9rem; margin: 0 0 10px; line-height: 1.5;">
+                    Unduh seluruh data siswa, setoran Al-Qur'an, catatan karakter SMILE, nilai raport, dan konfigurasi ke dalam file SQL murni (<code>.sql</code>). File ini dapat digunakan sewaktu-waktu untuk pemulihan (<em>restore</em>) melalui phpMyAdmin cPanel tanpa khawatir kehilangan data.
+                </p>
+                <div style="display: flex; gap: 15px; font-size: 0.8rem; color: #047857; flex-wrap: wrap;">
+                    <span><i class="fas fa-check-circle"></i> Tanpa perlu login cPanel</span>
+                    <span><i class="fas fa-shield-alt"></i> Otomatis & Terstruktur</span>
+                    <span><i class="fas fa-bolt"></i> Streaming cepat</span>
+                </div>
+            </div>
+            <div>
+                <a href="{{ route('settings.backup') }}" style="background: #059669; color: white; text-decoration: none; padding: 12px 22px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25); transition: all 0.2s; font-size: 0.95rem;">
+                    <i class="fas fa-download"></i> Unduh Database (.sql)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION: ZONE BAHAYA (DANGER ZONE) -->
+    <div style="background: #fff5f5; border: 1px solid #ffccd2; padding: 20px; border-radius: 12px; margin-top: 25px;">
         <h4 style="margin-top: 0; margin-bottom: 10px; color: #c0392b; display: flex; align-items: center; gap: 8px;">
             <i class="fas fa-exclamation-triangle"></i> Zona Bahaya (Danger Zone)
         </h4>

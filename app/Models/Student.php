@@ -133,4 +133,30 @@ class Student extends Model
     {
         return $this->hasMany(AcademicSummary::class);
     }
+
+    /**
+     * Accessor untuk menyamarkan nomor telepon wali (Privacy Masking).
+     * Contoh: 081234567890 -> 0812-****-7890
+     */
+    public function getMaskedParentPhoneAttribute()
+    {
+        if (empty($this->parent_phone)) {
+            return null;
+        }
+
+        $digits = preg_replace('/[^0-9]/', '', (string)$this->parent_phone);
+        $len = strlen($digits);
+
+        if ($len <= 4) {
+            return str_repeat('*', $len);
+        }
+
+        if ($len <= 7) {
+            return substr($digits, 0, 3) . '****';
+        }
+
+        $prefix = substr($digits, 0, 4);
+        $suffix = substr($digits, -4);
+        return $prefix . '-****-' . $suffix;
+    }
 }

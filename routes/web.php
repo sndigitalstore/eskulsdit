@@ -55,21 +55,23 @@ Route::get('/logout', function (Request $request) {
     return redirect('/login');
 });
 
-// Public Routes for Parents
-Route::get('/pilihan-eskul', [\App\Http\Controllers\EskulSelectionController::class, 'create'])->name('pilihan-eskul.form');
-Route::get('/pilihan-eskul/students', [\App\Http\Controllers\EskulSelectionController::class, 'getStudentsByClass'])->name('pilihan-eskul.students');
-Route::post('/pilihan-eskul', [\App\Http\Controllers\EskulSelectionController::class, 'store'])->name('pilihan-eskul.store');
-Route::get('/pilihan-eskul/sukses', [\App\Http\Controllers\EskulSelectionController::class, 'success'])->name('pilihan-eskul.success');
+// Public Routes for Parents & Status Check (Protected with Rate Limiting)
+Route::middleware(['throttle:30,1'])->group(function () {
+    Route::get('/pilihan-eskul', [\App\Http\Controllers\EskulSelectionController::class, 'create'])->name('pilihan-eskul.form');
+    Route::get('/pilihan-eskul/students', [\App\Http\Controllers\EskulSelectionController::class, 'getStudentsByClass'])->name('pilihan-eskul.students');
+    Route::post('/pilihan-eskul', [\App\Http\Controllers\EskulSelectionController::class, 'store'])->name('pilihan-eskul.store');
+    Route::get('/pilihan-eskul/sukses', [\App\Http\Controllers\EskulSelectionController::class, 'success'])->name('pilihan-eskul.success');
 
-Route::get('/cek-status', [\App\Http\Controllers\StudentStatusController::class, 'index'])->name('student-status.index');
-Route::get('/status', [\App\Http\Controllers\StudentStatusController::class, 'index'])->name('status.index');
-Route::get('/cek-status/students', [\App\Http\Controllers\StudentStatusController::class, 'getStudents'])->name('student-status.students');
-Route::get('/api/students/search', [\App\Http\Controllers\Api\StudentApiController::class, 'search'])->name('api.students.search');
-Route::post('/cek-status/cari', [\App\Http\Controllers\StudentStatusController::class, 'search'])->name('student-status.search');
+    Route::get('/cek-status', [\App\Http\Controllers\StudentStatusController::class, 'index'])->name('student-status.index');
+    Route::get('/status', [\App\Http\Controllers\StudentStatusController::class, 'index'])->name('status.index');
+    Route::get('/cek-status/students', [\App\Http\Controllers\StudentStatusController::class, 'getStudents'])->name('student-status.students');
+    Route::get('/api/students/search', [\App\Http\Controllers\Api\StudentApiController::class, 'search'])->name('api.students.search');
+    Route::post('/cek-status/cari', [\App\Http\Controllers\StudentStatusController::class, 'search'])->name('student-status.search');
 
-// Public Routes for Substitute Teacher Attendance (Option 1)
-Route::get('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'show'])->name('substitute.attendance.show');
-Route::post('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'store'])->name('substitute.attendance.store');
+    // Public Routes for Substitute Teacher Attendance (Option 1)
+    Route::get('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'show'])->name('substitute.attendance.show');
+    Route::post('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'store'])->name('substitute.attendance.store');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
@@ -135,6 +137,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+        Route::get('/settings/backup-database', [\App\Http\Controllers\SettingController::class, 'downloadBackup'])->name('settings.backup');
         Route::post('/settings/clear-logs', [\App\Http\Controllers\SettingController::class, 'clearLogs'])->name('settings.clear-logs');
         Route::post('/settings/profile', [\App\Http\Controllers\SettingController::class, 'updateProfile'])->name('settings.update-profile');
 
