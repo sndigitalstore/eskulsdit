@@ -955,13 +955,77 @@
             </li>
             @endif
 
-            {{-- 7. Laporan & Rapor Eskul/Kelas (Khusus Admin, Kepala Sekolah & Wali Kelas) --}}
-            @if(!$isCurriculum && ($isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class))))
-            <li class="nav-item">
-                <a href="/reports" class="nav-link {{ request()->is('reports*') ? 'active' : '' }}">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>{{ $isAdminOrHeadmaster ? 'Laporan & Rapor' : 'Laporan Kelas Saya' }}</span>
-                </a>
+            {{-- 7. Laporan & Rapor (Dropdown: Eskul, Tilawati, Tahfidz, Akademik, Karakter) --}}
+            @php
+                $isReportActive = request()->is('reports*');
+                $isAcademicReportActive = request()->is('curriculum/academic-reports*');
+                $isCharacterReportActive = request()->is('character/report*');
+                $isAnyReportActive = $isReportActive || $isAcademicReportActive || $isCharacterReportActive;
+
+                $canSeeEskulReport = !$isCurriculum && ($isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class)));
+                $canSeeTilawatiReport = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && (!empty($loggedUser->homeroom_class) || $hasTilawati));
+                $canSeeTahfidzReport = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && (!empty($loggedUser->homeroom_class) || $hasTahfidz));
+                $canSeeAcademicReport = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class));
+                $canSeeCharacterReport = !$isCurriculum && ($isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class)));
+
+                $showReportDropdown = $canSeeEskulReport || $canSeeTilawatiReport || $canSeeTahfidzReport || $canSeeAcademicReport || $canSeeCharacterReport;
+            @endphp
+
+            @if($showReportDropdown)
+            <li class="nav-dropdown {{ $isAnyReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                    <div class="toggle-content">
+                        <i class="fas fa-file-invoice main-icon" style="color: #6366f1;"></i>
+                        <span>Laporan & Rapor</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    @if($canSeeEskulReport)
+                    <li class="nav-subitem">
+                        <a href="{{ route('reports.index', ['tab' => 'eskul']) }}" class="nav-sublink {{ $isReportActive && request()->get('tab', 'eskul') === 'eskul' ? 'active' : '' }}">
+                            <i class="fas fa-basketball-ball" style="color: #0284c7;"></i>
+                            <span>Laporan Eskul</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($canSeeTilawatiReport)
+                    <li class="nav-subitem">
+                        <a href="{{ route('reports.index', ['tab' => 'tilawati']) }}" class="nav-sublink {{ $isReportActive && request()->get('tab') === 'tilawati' ? 'active' : '' }}">
+                            <i class="fas fa-book-open" style="color: #16a34a;"></i>
+                            <span>Laporan Tilawati</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($canSeeTahfidzReport)
+                    <li class="nav-subitem">
+                        <a href="{{ route('reports.index', ['tab' => 'tahfidz']) }}" class="nav-sublink {{ $isReportActive && request()->get('tab') === 'tahfidz' ? 'active' : '' }}">
+                            <i class="fas fa-quran" style="color: #0284c7;"></i>
+                            <span>Laporan Tahfidz</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($canSeeAcademicReport)
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index') }}" class="nav-sublink {{ $isAcademicReportActive ? 'active' : '' }}">
+                            <i class="fas fa-graduation-cap" style="color: #8b5cf6;"></i>
+                            <span>Laporan Akademik</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($canSeeCharacterReport)
+                    <li class="nav-subitem">
+                        <a href="{{ route('character.report') }}" class="nav-sublink {{ $isCharacterReportActive ? 'active' : '' }}">
+                            <i class="fas fa-smile-beam" style="color: #f59e0b;"></i>
+                            <span>Laporan Karakter</span>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
             </li>
             @endif
 

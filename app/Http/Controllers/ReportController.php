@@ -23,6 +23,12 @@ class ReportController extends Controller
         $isCurriculum = $user->role === 'curriculum';
 
         $activeTab = $request->query('tab');
+        if ($activeTab === 'akademik') {
+            return redirect()->route('academic-reports.index');
+        }
+        if ($activeTab === 'karakter') {
+            return redirect()->route('character.report');
+        }
         if (!$activeTab) {
             $activeTab = $isCurriculum ? 'tilawati' : 'eskul';
         }

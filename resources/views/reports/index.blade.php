@@ -155,15 +155,15 @@
 
 <div id="main-container">
 
-    <!-- 3-Tab Selector: Eskul vs Tilawati vs Tahfidz -->
+    <!-- 5-Tab Selector: Eskul vs Tilawati vs Tahfidz vs Akademik vs Karakter -->
     <div class="no-print">
         <div class="report-tabs">
             @if(Auth::user()->role !== 'curriculum')
             <a href="{{ route('reports.index', ['tab' => 'eskul', 'year_id' => $selectedYearId, 'class' => $selectedClass]) }}" 
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'eskul' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'eskul' ? 'color: #2563eb;' : '' }}">
-                <i class="fas fa-futbol" style="{{ ($activeTab ?? 'eskul') === 'eskul' ? 'color: #2563eb;' : '' }}"></i>
-                <span>Ekstrakurikuler</span>
+                <i class="fas fa-basketball-ball" style="{{ ($activeTab ?? 'eskul') === 'eskul' ? 'color: #2563eb;' : '' }}"></i>
+                <span>Laporan Eskul</span>
             </a>
             @endif
             
@@ -171,7 +171,7 @@
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'tilawati' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'tilawati' ? 'color: #16a34a;' : '' }}">
                 <i class="fas fa-book-open" style="{{ ($activeTab ?? 'eskul') === 'tilawati' ? 'color: #16a34a;' : '' }}"></i>
-                <span>Pembinaan Tilawati</span>
+                <span>Laporan Tilawati</span>
                 <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: {{ ($activeTab ?? 'eskul') === 'tilawati' ? '#dcfce7; color: #15803d;' : '#e2e8f0; color: #64748b;' }}">Jilid</span>
             </a>
             
@@ -179,9 +179,27 @@
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'tahfidz' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'tahfidz' ? 'color: #0284c7;' : '' }}">
                 <i class="fas fa-quran" style="{{ ($activeTab ?? 'eskul') === 'tahfidz' ? 'color: #0284c7;' : '' }}"></i>
-                <span>Pembinaan Tahfidz</span>
+                <span>Laporan Tahfidz</span>
                 <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: {{ ($activeTab ?? 'eskul') === 'tahfidz' ? '#e0f2fe; color: #0369a1;' : '#e2e8f0; color: #64748b;' }}">Hafalan</span>
             </a>
+
+            <a href="{{ route('academic-reports.index') }}" 
+               class="report-tab-btn inactive"
+               style="color: #7c3aed;">
+                <i class="fas fa-graduation-cap" style="color: #7c3aed;"></i>
+                <span>Laporan Akademik</span>
+                <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #f3e8ff; color: #7c3aed;">Raport</span>
+            </a>
+
+            @if(Auth::user()->role !== 'curriculum')
+            <a href="{{ route('character.report') }}" 
+               class="report-tab-btn inactive"
+               style="color: #d97706;">
+                <i class="fas fa-smile-beam" style="color: #d97706;"></i>
+                <span>Laporan Karakter</span>
+                <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #fef3c7; color: #b45309;">SMILE</span>
+            </a>
+            @endif
         </div>
     </div>
 

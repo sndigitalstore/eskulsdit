@@ -6,6 +6,49 @@
 @section('content')
 <div style="max-width: 1400px; margin: 0 auto;">
 
+    <!-- 5-Tab Selector: Eskul vs Tilawati vs Tahfidz vs Akademik vs Karakter -->
+    <div class="no-print" style="margin-bottom: 22px;">
+        <div style="display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 14px; border: 1px solid #e2e8f0; width: fit-content; max-width: 100%; overflow-x: auto;">
+            @if(Auth::user()->role !== 'curriculum')
+            <a href="{{ route('reports.index', ['tab' => 'eskul']) }}" 
+               style="padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #64748b; background: transparent;">
+                <i class="fas fa-basketball-ball" style="color: #64748b;"></i>
+                <span>Laporan Eskul</span>
+            </a>
+            @endif
+            
+            <a href="{{ route('reports.index', ['tab' => 'tilawati']) }}" 
+               style="padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #64748b; background: transparent;">
+                <i class="fas fa-book-open" style="color: #16a34a;"></i>
+                <span>Laporan Tilawati</span>
+                <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #dcfce7; color: #15803d;">Jilid</span>
+            </a>
+            
+            <a href="{{ route('reports.index', ['tab' => 'tahfidz']) }}" 
+               style="padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #64748b; background: transparent;">
+                <i class="fas fa-quran" style="color: #0284c7;"></i>
+                <span>Laporan Tahfidz</span>
+                <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #e0f2fe; color: #0369a1;">Hafalan</span>
+            </a>
+
+            <a href="{{ route('academic-reports.index') }}" 
+               style="padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #7c3aed; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);">
+                <i class="fas fa-graduation-cap" style="color: #7c3aed;"></i>
+                <span>Laporan Akademik</span>
+                <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #f3e8ff; color: #7c3aed;">Raport</span>
+            </a>
+
+            @if(Auth::user()->role !== 'curriculum')
+            <a href="{{ route('character.report') }}" 
+               style="padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #d97706; background: transparent;">
+                <i class="fas fa-smile-beam" style="color: #d97706;"></i>
+                <span>Laporan Karakter</span>
+                <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #fef3c7; color: #b45309;">SMILE</span>
+            </a>
+            @endif
+        </div>
+    </div>
+
     <!-- TOP HEADER BANNER -->
     <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, #0369a1 0%, #0284c7 60%, #0ea5e9 100%); color: white; border: none; padding: 24px 28px; position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.3);">
         <div style="position: absolute; right: 20px; bottom: -20px; font-size: 8rem; color: rgba(255, 255, 255, 0.08); pointer-events: none;">
