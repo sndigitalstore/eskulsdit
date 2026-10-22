@@ -109,11 +109,12 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th style="width:5%;">No</th>
-                    <th style="width:40%; text-align:left; padding-left:8px;">Nama Lengkap Siswa</th>
-                    <th style="width:15%;">NIS</th>
-                    <th style="width:10%;">Kelas</th>
-                    <th style="width:14%;">Status</th>
+                    <th style="width:4%;">No</th>
+                    <th style="width:28%; text-align:left; padding-left:8px;">Nama Lengkap Siswa</th>
+                    <th style="width:12%;">NIS</th>
+                    <th style="width:8%;">Kelas</th>
+                    <th style="width:11%;">Status</th>
+                    <th style="width:22%; text-align:left; padding-left:8px;">Capaian & Baris</th>
                     <th style="text-align:left; padding-left:8px;">Catatan</th>
                 </tr>
             </thead>
@@ -127,10 +128,20 @@
                         <td style="text-align:center;">
                             <span class="badge" style="background:{{ $statusBg($rec->status) }};">{{ $statusLbl($rec->status) }}</span>
                         </td>
+                        <td style="padding-left:8px; font-size:8.5pt;">
+                            @if($rec->status === 'hadir' && $rec->capaian)
+                                <strong>{{ $rec->capaian }}</strong>
+                                @if($rec->jumlah_baris > 0)
+                                    <span style="color:#047857; font-weight:bold;">({{ $rec->jumlah_baris }} Baris)</span>
+                                @endif
+                            @else
+                                <span style="color:#94a3b8;">-</span>
+                            @endif
+                        </td>
                         <td style="padding-left:8px; font-size:8.5pt; color:#334155;">{{ $rec->notes ?? '-' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" style="text-align:center; padding:20px; font-style:italic; color:#94a3b8;">Tidak ada data.</td></tr>
+                    <tr><td colspan="7" style="text-align:center; padding:20px; font-style:italic; color:#94a3b8;">Tidak ada data.</td></tr>
                 @endforelse
             </tbody>
         </table>

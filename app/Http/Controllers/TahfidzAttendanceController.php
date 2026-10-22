@@ -170,6 +170,7 @@ class TahfidzAttendanceController extends Controller
                     'juz'                => $parsed['juz'],
                     'start_ayah'         => $parsed['start_ayah'],
                     'end_ayah'           => $parsed['end_ayah'],
+                    'jumlah_baris'       => $att->jumlah_baris ?? 0,
                     'type'               => 'setoran_baru',
                     'quality'            => $isLulus ? 'lancar' : 'perlu_perbaikan',
                     'session_date'       => $att->session_date,
@@ -194,6 +195,7 @@ class TahfidzAttendanceController extends Controller
                 $table->date('session_date');
                 $table->enum('status', ['hadir', 'sakit', 'izin', 'alpha'])->default('hadir');
                 $table->string('capaian')->nullable();
+                $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0);
                 $table->string('hafalan_status')->default('LULUS')->nullable();
                 $table->string('tugas_besok')->nullable();
                 $table->text('notes')->nullable();
@@ -208,9 +210,14 @@ class TahfidzAttendanceController extends Controller
                     $table->string('capaian')->nullable()->after('status');
                 });
             }
+            if (!Schema::hasColumn('tahfidz_attendances', 'jumlah_baris')) {
+                Schema::table('tahfidz_attendances', function ($table) {
+                    $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0)->after('capaian');
+                });
+            }
             if (!Schema::hasColumn('tahfidz_attendances', 'hafalan_status')) {
                 Schema::table('tahfidz_attendances', function ($table) {
-                    $table->string('hafalan_status')->default('LULUS')->nullable()->after('capaian');
+                    $table->string('hafalan_status')->default('LULUS')->nullable()->after('jumlah_baris');
                 });
             }
             if (!Schema::hasColumn('tahfidz_attendances', 'tugas_besok')) {
@@ -323,6 +330,7 @@ class TahfidzAttendanceController extends Controller
             'attendance'                  => 'required|array',
             'attendance.*.status'         => 'required|in:hadir,sakit,izin,alpha',
             'attendance.*.capaian'        => 'nullable|string|max:255',
+            'attendance.*.jumlah_baris'   => 'nullable|integer|min:0|max:500',
             'attendance.*.hafalan_status' => 'nullable|string|max:50',
             'attendance.*.tugas_besok'    => 'nullable|string|max:255',
             'attendance.*.notes'          => 'nullable|string|max:500',
@@ -333,10 +341,11 @@ class TahfidzAttendanceController extends Controller
         $userId = Auth::id();
 
         foreach ($request->attendance as $studentId => $data) {
-            $capaian = trim($data['capaian'] ?? '');
-            $tugas   = trim($data['tugas_besok'] ?? '');
-            $notes   = trim($data['notes'] ?? '');
-            $status  = $data['status'];
+            $capaian     = trim($data['capaian'] ?? '');
+            $jumlahBaris = isset($data['jumlah_baris']) && $data['jumlah_baris'] !== '' ? max(0, (int)$data['jumlah_baris']) : 0;
+            $tugas       = trim($data['tugas_besok'] ?? '');
+            $notes       = trim($data['notes'] ?? '');
+            $status      = $data['status'];
             $hafalanStatus = $data['hafalan_status'] ?? 'LULUS';
 
             TahfidzAttendance::updateOrCreate(
@@ -349,6 +358,7 @@ class TahfidzAttendanceController extends Controller
                     'academic_year_id' => $yearId,
                     'status'           => $status,
                     'capaian'          => $capaian !== '' ? $capaian : null,
+                    'jumlah_baris'     => $jumlahBaris,
                     'hafalan_status'   => $hafalanStatus,
                     'tugas_besok'      => $tugas !== '' ? $tugas : null,
                     'notes'            => $notes !== '' ? $notes : null,
@@ -378,6 +388,7 @@ class TahfidzAttendanceController extends Controller
                         'juz'              => $parsed['juz'],
                         'start_ayah'       => $parsed['start_ayah'],
                         'end_ayah'         => $parsed['end_ayah'],
+                        'jumlah_baris'     => $jumlahBaris,
                         'type'             => 'setoran_baru',
                         'quality'          => $isLulus ? 'lancar' : 'perlu_perbaikan',
                         'notes'            => $fullNotes !== '' ? $fullNotes : null,
@@ -488,8 +499,9 @@ class TahfidzAttendanceController extends Controller
                 $tugas = !empty($rec->tugas_besok) ? $rec->tugas_besok : '-';
                 $notes = !empty($rec->notes) ? $rec->notes : ($isLulus ? 'Barakallah..' : 'Lancarkan lagi ya sholih/sholihah..');
 
+                $barisText = ($rec->jumlah_baris && $rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
                 $msg .= "📖 *Capaian Hari Ini:*\n";
-                $msg .= "{$capaian}\n\n";
+                $msg .= "{$capaian}{$barisText}\n\n";
                 $msg .= "{$statusStr}\n\n";
                 $msg .= "📝 *Tugas Besok:*\n";
                 $msg .= "{$tugas}\n";

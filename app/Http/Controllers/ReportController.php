@@ -300,7 +300,15 @@ class ReportController extends Controller
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
 
-        $filename = 'Rekap_Capaian_Tahfidz_' . ($class && $class !== 'ALL' ? 'Kelas_' . str_replace(' ', '_', $class) . '_' : '') . date('Ymd_His') . '.xlsx';
+        $groupName = '';
+        if ($groupId) {
+            $grp = \App\Models\MentoringGroup::find($groupId);
+            if ($grp) {
+                $groupName = 'Kelompok_' . str_replace([' ', '/', '\\'], '_', $grp->name) . '_';
+            }
+        }
+
+        $filename = 'Rekap_Tahfidz_' . $groupName . ($class && $class !== 'ALL' ? 'Kelas_' . str_replace(' ', '_', $class) . '_' : '') . date('Ymd_His') . '.xlsx';
 
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\TahfidzRecapExport($yearId, $class, $groupId), $filename);
     }

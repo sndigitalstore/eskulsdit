@@ -368,17 +368,23 @@
             <div class="banner-actions" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $activeGroup->id, 'date' => $today]) }}" 
                    class="btn-action-header" 
-                   style="background: #ffffff; color: #047857; font-weight: 800; padding: 10px 16px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-                    <i class="fas fa-clipboard-check" style="font-size: 1.05rem;"></i> Presensi & Setoran Sesi (1x Klik)
+                   style="background: #ffffff; color: #047857; font-weight: 800; padding: 10px 18px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.18); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: 2px solid #34d399;">
+                    <i class="fas fa-door-open" style="font-size: 1.15rem; color: #059669;"></i>
+                    <span>Input Sesi & Absensi (Satu Pintu)</span>
+                </a>
+                <a href="{{ route('reports.tahfidz.export', ['group_id' => $activeGroup->id, 'year_id' => $activeYear?->id]) }}" 
+                   class="btn-action-header" 
+                   style="background: #0284c7; color: #ffffff; font-weight: 700; padding: 10px 14px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(2,132,199,0.3);">
+                    <i class="fas fa-file-excel"></i> Download Excel
                 </a>
                 <button type="button" onclick="openGroupShareModal()" 
                         class="btn-action-header" 
                         style="background: #25D366; color: #ffffff; font-weight: 800; padding: 10px 16px; border-radius: 10px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); display: inline-flex; align-items: center; gap: 8px;">
-                    <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i> Share Rekap WA
+                    <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i> Share WA
                 </button>
                 <a href="{{ route('tahfidz.print-group-recap', $activeGroup->id) }}" 
                    target="_blank" class="btn-action-header" 
-                   style="background: rgba(255, 255, 255, 0.18); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); font-weight: 700; padding: 10px 14px; border-radius: 10px; text-decoration: none;">
+                   style="background: rgba(255, 255, 255, 0.18); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); font-weight: 700; padding: 10px 14px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fas fa-print"></i> Cetak Rekap
                 </a>
             </div>
@@ -422,6 +428,19 @@
                 </div>
             </div>
         </div>
+
+        <div class="kpi-box">
+            <div class="kpi-icon-wrap" style="background: #f0fdf4; color: #16a34a;">
+                <i class="fas fa-align-left"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.74rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Baris Dihafal</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #0f172a;">
+                    {{ (int) ($totalGroupLines ?? 0) }} 
+                    <small style="font-size: 0.75rem; font-weight: normal; color: #64748b;">Baris</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- WRAPPER DAFTAR SANTRI -->
@@ -432,7 +451,7 @@
                     <i class="fas fa-user-graduate" style="color: #059669;"></i> Daftar Santri Halaqah
                 </h3>
                 <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: #64748b;">
-                    Klik <strong>"+ Setor"</strong> untuk mencatat hafalan, dan tekan tombol <strong>WA</strong> untuk kirim laporan.
+                    ⭐ <strong>Jalur Satu Pintu:</strong> Gunakan <strong>"Input Sesi & Absensi (Satu Pintu)"</strong> di atas untuk absensi & hafalan serentak, atau klik <strong>"+ Setor"</strong> untuk catatan cepat per santri.
                 </p>
             </div>
             <div style="position: relative; width: 100%; max-width: 250px;">
@@ -473,6 +492,9 @@
                             
                             $shareSurah = $lastRec ? $lastRec->surah_name : ($activeGroup->target_level ?? 'Juz 30');
                             $shareAyah = $lastRec && $lastRec->start_ayah ? "Ayat {$lastRec->start_ayah}" . ($lastRec->end_ayah && $lastRec->end_ayah != $lastRec->start_ayah ? "-{$lastRec->end_ayah}" : '') : 'Lengkap';
+                            if ($lastRec && ($lastRec->jumlah_baris ?? 0) > 0) {
+                                $shareAyah .= " [{$lastRec->jumlah_baris} Baris]";
+                            }
                             $shareQuality = $lastRec ? ($lastRec->quality == 'lancar' ? 'Lancar (Mumtaz)' : ($lastRec->quality == 'cukup' ? 'Cukup Lancar' : 'Perlu Bimbingan')) : 'Sedang Berproses';
                             $shareType = $lastRec ? ($lastRec->type == 'setoran_baru' ? 'Ziyadah (Hafalan Baru)' : 'Muroja\'ah (Mengulang)') : 'Hafalan Qur\'an';
                             $shareDate = $lastRec ? \Carbon\Carbon::parse($lastRec->session_date)->isoFormat('dddd, D MMMM Y') : \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y');
@@ -524,6 +546,11 @@
                                         @if($lastRec->start_ayah)
                                             <span style="color: #475569; font-size: 0.82rem;">
                                                 (Ayat {{ $lastRec->start_ayah }}{{ $lastRec->end_ayah && $lastRec->end_ayah != $lastRec->start_ayah ? '-' . $lastRec->end_ayah : '' }})
+                                            </span>
+                                        @endif
+                                        @if(($lastRec->jumlah_baris ?? 0) > 0)
+                                            <span style="display: inline-block; background: #e0e7ff; color: #4338ca; font-weight: 700; font-size: 0.72rem; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">
+                                                📏 {{ $lastRec->jumlah_baris }} Baris
                                             </span>
                                         @endif
                                     </div>
@@ -644,6 +671,11 @@
                                 @if($lastRec->start_ayah)
                                     <span style="font-size: 0.82rem; font-weight: 600; color: #475569;">
                                         (Ayat {{ $lastRec->start_ayah }}{{ $lastRec->end_ayah && $lastRec->end_ayah != $lastRec->start_ayah ? '-' . $lastRec->end_ayah : '' }})
+                                    </span>
+                                @endif
+                                @if(($lastRec->jumlah_baris ?? 0) > 0)
+                                    <span style="display: inline-block; background: #e0e7ff; color: #4338ca; font-weight: 700; font-size: 0.72rem; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">
+                                        📏 {{ $lastRec->jumlah_baris }} Baris
                                     </span>
                                 @endif
                             </div>
@@ -776,8 +808,8 @@
                     <input type="hidden" name="juz" id="modalJuzInput" value="30">
                 </div>
 
-                <!-- RENTANG AYAT -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <!-- RENTANG AYAT & JUMLAH BARIS -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
                     <div>
                         <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">
                             Ayat Mulai
@@ -790,6 +822,17 @@
                         </label>
                         <input type="number" name="end_ayah" id="modalEndAyah" min="1" class="form-control" placeholder="Selesai" style="padding: 9px 12px;">
                     </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #4338ca; margin-bottom: 4px;">
+                            📏 Jml Baris
+                        </label>
+                        <input type="number" name="jumlah_baris" id="modalJumlahBaris" min="0" max="500" class="form-control" placeholder="mis: 15" style="padding: 9px 12px; border-color: #c7d2fe; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div style="background: #f0fdf4; border: 1px dashed #86efac; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 0.78rem; color: #166534; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-sync-alt" style="color: #059669; font-size: 0.9rem;"></i>
+                    <span><strong>Sistem Satu Pintu:</strong> Menyimpan setoran ini otomatis mencatat kehadiran <em>HADIR</em> dan sinkron ke rekapan & kartu santri.</span>
                 </div>
 
                 <!-- KUALITAS SETORAN -->
@@ -990,6 +1033,9 @@
         const form = document.getElementById('quickSetorForm');
         form.action = `/tahfidz-groups/${currentGroupId}/students/${studentId}/store`;
 
+        const jbInput = document.getElementById('modalJumlahBaris');
+        if (jbInput) jbInput.value = '';
+
         document.getElementById('quickSetorModal').classList.add('active');
     }
 
@@ -1103,7 +1149,7 @@ _*SDIT An Nadzir - Mencetak Generasi Qur'ani*_`;
                     $attToday = $todayAttendances->get($std->id);
                 @endphp
                 @if($recToday)
-                    rekapList.push(`${count++}. *{{ addslashes($std->name) }}* ({{ $std->class }}): QS. {{ addslashes($recToday->surah_name) }} (Ayat {{ $recToday->start_ayah }}{{ $recToday->end_ayah && $recToday->end_ayah != $recToday->start_ayah ? '-' . $recToday->end_ayah : '' }}) - {{ $recToday->quality == 'lancar' ? 'Lancar ✅' : ($recToday->quality == 'cukup' ? 'Cukup Lancar 👍' : 'Perlu Penguatan 🔄') }}`);
+                    rekapList.push(`${count++}. *{{ addslashes($std->name) }}* ({{ $std->class }}): QS. {{ addslashes($recToday->surah_name) }} (Ayat {{ $recToday->start_ayah }}{{ $recToday->end_ayah && $recToday->end_ayah != $recToday->start_ayah ? '-' . $recToday->end_ayah : '' }}){{ ($recToday->jumlah_baris ?? 0) > 0 ? ' [' . $recToday->jumlah_baris . ' Baris]' : '' }} - {{ $recToday->quality == 'lancar' ? 'Lancar ✅' : ($recToday->quality == 'cukup' ? 'Cukup Lancar 👍' : 'Perlu Penguatan 🔄') }}`);
                 @elseif($attToday && $attToday->status != 'hadir')
                     rekapList.push(`• *{{ addslashes($std->name) }}* ({{ $std->class }}): [{{ strtoupper($attToday->status) }}]`);
                 @endif

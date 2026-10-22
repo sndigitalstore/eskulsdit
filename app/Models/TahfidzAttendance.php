@@ -16,6 +16,7 @@ class TahfidzAttendance extends Model
         'session_date',
         'status',
         'capaian',
+        'jumlah_baris',
         'hafalan_status',
         'tugas_besok',
         'notes',
@@ -24,6 +25,7 @@ class TahfidzAttendance extends Model
 
     protected $casts = [
         'session_date' => 'date',
+        'jumlah_baris' => 'integer',
     ];
 
     // -------------------------------------------------------

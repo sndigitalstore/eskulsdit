@@ -17,6 +17,7 @@ class TahfidzRecord extends Model
         'juz',
         'start_ayah',
         'end_ayah',
+        'jumlah_baris',
         'type',
         'quality',
         'session_date',
@@ -29,6 +30,7 @@ class TahfidzRecord extends Model
         'juz'          => 'integer',
         'start_ayah'   => 'integer',
         'end_ayah'     => 'integer',
+        'jumlah_baris' => 'integer',
     ];
 
     // -------------------------------------------------------

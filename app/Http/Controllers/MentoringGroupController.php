@@ -300,6 +300,11 @@ class MentoringGroupController extends Controller
             // Jalankan sinkronisasi otomatis agar data absensi sesi lampau langsung sinkron ke rekapan & kartu
             \App\Http\Controllers\TahfidzAttendanceController::syncPastAttendances();
 
+            $studentIds = $activeGroup->students->pluck('id');
+            $totalGroupLines = TahfidzRecord::where('mentoring_group_id', $activeGroup->id)
+                ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                ->sum('jumlah_baris');
+
             // Riwayat setoran siswa di kelompok ini (terbaru per siswa)
             $latestRecords = TahfidzRecord::whereIn('student_id', $studentIds)
                 ->where('mentoring_group_id', $activeGroup->id)
@@ -343,7 +348,7 @@ class MentoringGroupController extends Controller
 
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
-                'latestRecords', 'todayAttendances', 'todayRecords',
+                'latestRecords', 'todayAttendances', 'todayRecords', 'totalGroupLines',
                 'surahListJuz30', 'surahListJuz29', 'today'
             ));
         }

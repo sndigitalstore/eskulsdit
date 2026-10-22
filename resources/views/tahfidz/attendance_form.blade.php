@@ -68,7 +68,7 @@
 
 .tahfidz-input-grid {
     display: grid;
-    grid-template-columns: 2.2fr 1fr 2.2fr 1.6fr;
+    grid-template-columns: 2.2fr 1fr 1.1fr 2fr 1.5fr;
     gap: 12px;
     margin-top: 12px;
     padding-top: 12px;
@@ -220,7 +220,7 @@
                         $currStatus = $ex ? $ex->status : 'hadir';
                         $currLulus = $ex && $ex->hafalan_status ? $ex->hafalan_status : 'LULUS';
                     @endphp
-                    <div class="student-card-item">
+                    <div class="student-card-item" id="student_row_{{ $student->id }}">
                         {{-- Baris 1: Identitas & Kehadiran --}}
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                             <div style="display: flex; align-items: center; gap: 12px;">
@@ -252,7 +252,7 @@
                             </div>
                         </div>
 
-                        {{-- Baris 2: Input Capaian Hafalan (Dropdown Surat + Ayat), Status, Tugas Besok, Catatan --}}
+                        {{-- Baris 2: Input Capaian Hafalan (Dropdown Surat + Ayat), Jumlah Baris, Status, Tugas Besok, Catatan --}}
                         <div id="hadir_section_{{ $student->id }}" class="tahfidz-input-grid" style="{{ $currStatus !== 'hadir' ? 'opacity: 0.5;' : '' }}">
                             {{-- Capaian Hari Ini --}}
                             <div>
@@ -279,6 +279,24 @@
                                        value="{{ $ex?->capaian ?? '' }}">
                                 <div id="capaian_preview_{{ $student->id }}" style="font-size: 0.72rem; color: #0f766e; font-weight: 600; margin-top: 3px; min-height: 15px;">
                                     {{ $ex?->capaian ? 'Format: ' . $ex->capaian : '' }}
+                                </div>
+                            </div>
+
+                            {{-- Jumlah Baris --}}
+                            <div>
+                                <label class="input-label-sm" title="Jumlah baris mushaf yang dihafal">
+                                    📏 Jml Baris
+                                </label>
+                                <input type="number" 
+                                       class="ayat-input-box" 
+                                       name="attendance[{{ $student->id }}][jumlah_baris]" 
+                                       value="{{ $ex?->jumlah_baris ?? '' }}" 
+                                       min="0" 
+                                       max="500" 
+                                       placeholder="Baris (mis: 15)" 
+                                       style="width: 100%; font-weight: 600;">
+                                <div style="font-size: 0.7rem; color: #64748b; margin-top: 3px;">
+                                    Mis: 15 baris (1 hal)
                                 </div>
                             </div>
 

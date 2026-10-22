@@ -73,6 +73,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             $latest = $records->first();
 
             $totalSetoran = $records->count();
+            $totalBaris = (int) $records->sum('jumlah_baris');
             $baruCount = $records->where('type', 'setoran_baru')->count();
             $murojaahCount = $records->where('type', 'murojaah')->count();
             $lancarCount = $records->where('quality', 'lancar')->count();
@@ -98,7 +99,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             }
 
             $capaianStr = $latest 
-                ? ($latest->surah_name . ($latest->start_ayah ? ' (Ayat ' . $latest->start_ayah . ($latest->end_ayah && $latest->end_ayah != $latest->start_ayah ? '-' . $latest->end_ayah : '') . ')' : ''))
+                ? ($latest->surah_name . ($latest->start_ayah ? ' (Ayat ' . $latest->start_ayah . ($latest->end_ayah && $latest->end_ayah != $latest->start_ayah ? '-' . $latest->end_ayah : '') . ')' : '') . ($latest->jumlah_baris ? ' [' . $latest->jumlah_baris . ' Baris]' : ''))
                 : '-';
 
             $rows[] = [
@@ -111,6 +112,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
                 'target'         => $grp ? ($grp->target_level ?? 'Juz 30') : 'Juz 30',
                 'latest_capaian' => $capaianStr,
                 'total_records'  => $totalSetoran,
+                'total_baris'    => $totalBaris,
                 'ziyadah'        => $baruCount,
                 'murojaah'       => $murojaahCount,
                 'mutqin_rate'    => $lancarPercent . '%',
@@ -138,6 +140,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Target Hafalan',
             'Capaian Terakhir',
             'Total Setoran (Kali)',
+            'Total Baris Dihafal',
             'Ziyadah (Baru)',
             'Muroja\'ah',
             'Tingkat Mutqin (%)',
@@ -153,17 +156,17 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
     public function styles(Worksheet $sheet)
     {
         // Header Styling
-        $sheet->getStyle('A1:R1')->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
-        $sheet->getStyle('A1:R1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-        $sheet->getStyle('A1:R1')->getFill()->getStartColor()->setARGB('FF047857'); // Emerald Green
-        $sheet->getStyle('A1:R1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:S1')->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
+        $sheet->getStyle('A1:S1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+        $sheet->getStyle('A1:S1')->getFill()->getStartColor()->setARGB('FF047857'); // Emerald Green
+        $sheet->getStyle('A1:S1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Center alignments
         $highestRow = $sheet->getHighestRow();
         $sheet->getStyle('A2:A' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('B2:B' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('D2:D' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('I2:P' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('I2:Q' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         return [];
     }

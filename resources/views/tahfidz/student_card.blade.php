@@ -191,7 +191,11 @@
         </div>
 
         {{-- Stats --}}
-        <div class="stats-grid-card" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px;">
+        <div class="stats-grid-card" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px;">
+            <div class="stat-box" style="background: rgba(220, 252, 231, 0.25); border: 1.5px solid rgba(134, 239, 172, 0.45);">
+                <div class="stat-num" style="color: #6ee7b7;">{{ (int) $records->sum('jumlah_baris') }}</div>
+                <div class="stat-lbl" style="color: #a7f3d0;">Baris Dihafal</div>
+            </div>
             <div class="stat-box">
                 <div class="stat-num">{{ $totalSetoran }}</div>
                 <div class="stat-lbl">Setoran Baru</div>
@@ -398,9 +402,14 @@
 
         {{-- FORM INPUT SETORAN --}}
         <div class="form-card">
-            <h4 style="margin: 0 0 18px 0; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-plus-circle" style="color: #0f766e;"></i> Tambah Catatan Setoran
-            </h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                <h4 style="margin: 0; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-plus-circle" style="color: #0f766e;"></i> Tambah Catatan Setoran
+                </h4>
+                <div style="font-size: 0.78rem; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                    <i class="fas fa-sync-alt"></i> Otomatis masuk ke Absensi Hadir & Rapor
+                </div>
+            </div>
 
             <form method="POST" action="{{ route('tahfidz.store', ['group' => $group->id, 'student' => $student->id]) }}">
                 @csrf
@@ -434,6 +443,10 @@
                     <div class="form-group">
                         <label>Ayat Selesai</label>
                         <input type="number" name="end_ayah" min="1" placeholder="Ayat terakhir" value="{{ old('end_ayah') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Baris</label>
+                        <input type="number" name="jumlah_baris" min="0" max="500" placeholder="mis: 15 baris" value="{{ old('jumlah_baris') }}">
                     </div>
                     <div class="form-group">
                         <label>Jenis <span style="color: red;">*</span></label>
@@ -491,15 +504,16 @@
                 <table class="table-records" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="width: 5%; text-align: center;">No</th>
-                            <th style="width: 12%;">Tanggal</th>
-                            <th style="width: 22%;">Surah</th>
-                            <th style="width: 10%; text-align: center;">Juz</th>
-                            <th style="width: 14%; text-align: center;">Ayat</th>
-                            <th style="width: 13%; text-align: center;">Jenis</th>
-                            <th style="width: 13%; text-align: center;">Kualitas</th>
+                            <th style="width: 4%; text-align: center;">No</th>
+                            <th style="width: 11%;">Tanggal</th>
+                            <th style="width: 20%;">Surah</th>
+                            <th style="width: 8%; text-align: center;">Juz</th>
+                            <th style="width: 11%; text-align: center;">Ayat</th>
+                            <th style="width: 9%; text-align: center;">Baris</th>
+                            <th style="width: 12%; text-align: center;">Jenis</th>
+                            <th style="width: 12%; text-align: center;">Kualitas</th>
                             <th>Catatan</th>
-                            <th style="width: 10%; text-align: center;">Aksi</th>
+                            <th style="width: 9%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -525,6 +539,9 @@
                                         {{ $rec->start_ayah }} – {{ $rec->end_ayah }}
                                     @else -
                                     @endif
+                                </td>
+                                <td style="text-align: center; font-size: 0.82rem; font-weight: 700; color: #047857;">
+                                    {{ $rec->jumlah_baris > 0 ? $rec->jumlah_baris . ' Baris' : '-' }}
                                 </td>
                                 <td style="text-align: center;">
                                     <span class="badge-type" style="background: {{ $typeColor($rec->type) }};">
@@ -602,6 +619,11 @@
                             @if($rec->juz)
                                 <span style="font-size: 0.72rem; background: #f1f5f9; color: #0f766e; padding: 2px 8px; border-radius: 12px; font-weight: 700;">
                                     Juz {{ $rec->juz }}
+                                </span>
+                            @endif
+                            @if($rec->jumlah_baris > 0)
+                                <span style="font-size: 0.72rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 12px; font-weight: 700;">
+                                    <i class="fas fa-align-left"></i> {{ $rec->jumlah_baris }} Baris
                                 </span>
                             @endif
                         </div>

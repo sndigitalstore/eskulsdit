@@ -29,6 +29,7 @@ class TahfidzRecordController extends Controller
                 $table->unsignedSmallInteger('juz')->nullable();
                 $table->unsignedSmallInteger('start_ayah')->nullable();
                 $table->unsignedSmallInteger('end_ayah')->nullable();
+                $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0);
                 $table->enum('type', ['setoran_baru', 'murojaah'])->default('setoran_baru');
                 $table->enum('quality', ['lancar', 'cukup', 'perlu_perbaikan'])->default('lancar');
                 $table->date('session_date');
@@ -38,6 +39,12 @@ class TahfidzRecordController extends Controller
                 $table->index(['student_id', 'academic_year_id']);
                 $table->index(['mentoring_group_id', 'session_date']);
             });
+        } else {
+            if (!Schema::hasColumn('tahfidz_records', 'jumlah_baris')) {
+                Schema::table('tahfidz_records', function ($table) {
+                    $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0)->after('end_ayah');
+                });
+            }
         }
     }
 
@@ -147,6 +154,7 @@ class TahfidzRecordController extends Controller
             'juz'          => 'nullable|integer|min:1|max:30',
             'start_ayah'   => 'nullable|integer|min:1',
             'end_ayah'     => 'nullable|integer|min:1',
+            'jumlah_baris' => 'nullable|integer|min:0|max:500',
             'type'         => 'required|in:setoran_baru,murojaah',
             'quality'      => 'required|in:lancar,cukup,perlu_perbaikan',
             'session_date' => 'required|date',
@@ -156,6 +164,7 @@ class TahfidzRecordController extends Controller
 
         $newRecord = TahfidzRecord::create([
             ...$validated,
+            'jumlah_baris'      => isset($validated['jumlah_baris']) && $validated['jumlah_baris'] !== '' ? max(0, (int)$validated['jumlah_baris']) : 0,
             'student_id'        => $student->id,
             'mentoring_group_id'=> $group->id,
             'recorded_by'       => Auth::id(),
@@ -179,6 +188,7 @@ class TahfidzRecordController extends Controller
                     'academic_year_id' => $validated['academic_year_id'],
                     'status'           => 'hadir',
                     'capaian'          => $capaianStr,
+                    'jumlah_baris'     => $newRecord->jumlah_baris ?? 0,
                     'hafalan_status'   => $hafalanStatus,
                     'notes'            => $newRecord->notes,
                     'recorded_by'      => Auth::id(),

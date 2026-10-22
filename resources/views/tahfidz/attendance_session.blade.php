@@ -23,13 +23,14 @@
     $alpha = $records->where('status','alpha')->count();
     $total = $records->count();
     $lulusCount = $records->where('status', 'hadir')->where('hafalan_status', 'LULUS')->count();
+    $totalBarisSesi = (int) $records->sum('jumlah_baris');
     $sessionDate = \Carbon\Carbon::parse($date);
 @endphp
 
 <style>
 .back-link { color: #64748b; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; font-weight: 600; }
 .back-link:hover { color: #0f766e; }
-.summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.summary-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px; }
 .summary-card { border-radius: 12px; padding: 14px; text-align: center; }
 .summary-card .num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
 .summary-card .lbl { font-size: 0.72rem; font-weight: 700; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -195,6 +196,10 @@
                         style="background: #25d366; border: none; color: white; padding: 9px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
                     <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share WA
                 </button>
+                <a href="{{ route('reports.tahfidz.export', ['group_id' => $group->id, 'year_id' => $yearId]) }}"
+                   style="background: #0284c7; border: 1px solid #0369a1; color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(2,132,199,0.3);">
+                    <i class="fas fa-file-excel"></i> Download Excel
+                </a>
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id, 'date' => $date, 'year_id' => $yearId]) }}"
                    style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-edit"></i> Edit Sesi
@@ -216,6 +221,10 @@
         {{-- STATS GRID --}}
         <div style="padding: 18px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
             <div class="summary-grid">
+                <div class="summary-card" style="background: #f0fdf4; border: 1.5px solid #86efac;">
+                    <div class="num" style="color: #15803d;">{{ $totalBarisSesi }}</div>
+                    <div class="lbl" style="color: #15803d;">📏 Baris Dihafal</div>
+                </div>
                 <div class="summary-card" style="background: #ecfdf5; border: 1px solid #a7f3d0;">
                     <div class="num" style="color: #059669;">{{ $lulusCount }}</div>
                     <div class="lbl" style="color: #059669;">✓ Lulus Capaian</div>
@@ -282,6 +291,13 @@
                                     <div style="font-weight: 700; color: #1e293b;">
                                         {{ $rec->capaian ?: '-' }}
                                     </div>
+                                    @if($rec->jumlah_baris > 0)
+                                        <div style="margin-top: 4px;">
+                                            <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-align-left"></i> {{ $rec->jumlah_baris }} Baris
+                                            </span>
+                                        </div>
+                                    @endif
                                 @else
                                     <span style="color: #94a3b8; font-style: italic;">Tidak hadir</span>
                                 @endif
@@ -323,12 +339,13 @@
                                              $cleanPhone = '62' . substr($cleanPhone, 1);
                                         }
                                         $statusStr = $isLulus ? "✓ LULUS" : "✗ BELUM LULUS";
+                                        $singleBarisText = ($rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
                                         $singleMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\n";
                                         $singleMsg .= "Ayah dan Bunda dari ananda *{$rec->student->name}* (Kelas {$rec->student->class}),\n\n";
                                         $singleMsg .= "Alhamdulillah, berikut kami sampaikan laporan capaian hafalan hari ini:\n";
                                         $singleMsg .= "📅 *Tanggal:* " . $sessionDate->isoFormat('dddd, D MMMM Y') . "\n";
                                         if ($rec->status === 'hadir') {
-                                            $singleMsg .= "📖 *Capaian Hari Ini:* " . ($rec->capaian ?: '-') . "\n";
+                                            $singleMsg .= "📖 *Capaian Hari Ini:* " . ($rec->capaian ?: '-') . $singleBarisText . "\n";
                                             $singleMsg .= "✅ *Status:* " . $statusStr . "\n";
                                             $singleMsg .= "📝 *Tugas Besok:* " . ($rec->tugas_besok ?: '-') . "\n";
                                             $singleMsg .= "💭 *Catatan Guru:* " . ($rec->notes ?: ($isLulus ? 'Barakallah..' : 'Tetap semangat ya sholih/sholihah..')) . "\n\n";
@@ -402,8 +419,13 @@
                         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
                             <div>
                                 <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">📖 Capaian Hari Ini:</span>
-                                <div style="font-weight: 700; color: #1e293b; margin-top: 2px;">
-                                    {{ $rec->capaian ?: '-' }}
+                                <div style="font-weight: 700; color: #1e293b; margin-top: 2px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                                    <span>{{ $rec->capaian ?: '-' }}</span>
+                                    @if($rec->jumlah_baris > 0)
+                                        <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="fas fa-align-left"></i> {{ $rec->jumlah_baris }} Baris
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                             @if($rec->tugas_besok)
@@ -437,12 +459,13 @@
                                 $cleanPhone = '62' . substr($cleanPhone, 1);
                             }
                             $statusStr = $isLulus ? "✓ LULUS" : "✗ BELUM LULUS";
+                            $singleBarisText = ($rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
                             $singleMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\n";
                             $singleMsg .= "Ayah dan Bunda dari ananda *{$rec->student->name}* (Kelas {$rec->student->class}),\n\n";
                             $singleMsg .= "Alhamdulillah, berikut kami sampaikan laporan capaian hafalan hari ini:\n";
                             $singleMsg .= "📅 *Tanggal:* " . $sessionDate->isoFormat('dddd, D MMMM Y') . "\n";
                             if ($rec->status === 'hadir') {
-                                $singleMsg .= "📖 *Capaian Hari Ini:* " . ($rec->capaian ?: '-') . "\n";
+                                $singleMsg .= "📖 *Capaian Hari Ini:* " . ($rec->capaian ?: '-') . $singleBarisText . "\n";
                                 $singleMsg .= "✅ *Status:* " . $statusStr . "\n";
                                 $singleMsg .= "📝 *Tugas Besok:* " . ($rec->tugas_besok ?: '-') . "\n";
                                 $singleMsg .= "💭 *Catatan Guru:* " . ($rec->notes ?: ($isLulus ? 'Barakallah..' : 'Tetap semangat ya sholih/sholihah..')) . "\n\n";

@@ -79,7 +79,10 @@
             Rekap Hafalan Kelompok {{ $group->name }} – TP {{ $yearName }}
             ({{ $students->count() }} Siswa)
         </span>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ route('reports.tahfidz.export', ['group_id' => $group->id, 'year_id' => $yearId]) }}" class="btn-print" style="background: #0284c7; text-decoration: none;">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </a>
             <button onclick="window.print()" class="btn-print"><i class="fas fa-print"></i> Cetak / PDF</button>
             <button onclick="window.close()" style="background: #475569; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer;">Tutup</button>
         </div>
@@ -137,7 +140,10 @@
                     </div>
                 </div>
                 <div style="font-family:sans-serif; font-size: 8.5pt; text-align: right; color: #0f766e; font-weight: 700;">
-                    {{ $student->hafalan->count() }} Catatan
+                    {{ $student->hafalan->count() }} Catatan &nbsp;·&nbsp;
+                    <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; border: 1px solid #86efac;">
+                        <i class="fas fa-align-left"></i> {{ (int) $student->hafalan->sum('jumlah_baris') }} Baris
+                    </span>
                 </div>
             </div>
 
@@ -148,12 +154,13 @@
                     <thead>
                         <tr>
                             <th style="width:4%;">No</th>
-                            <th style="width:12%;">Tanggal</th>
-                            <th style="width:24%; text-align:left; padding-left:6px;">Surah</th>
-                            <th style="width:7%;">Juz</th>
-                            <th style="width:11%;">Ayat</th>
-                            <th style="width:13%;">Jenis</th>
-                            <th style="width:13%;">Kualitas</th>
+                            <th style="width:11%;">Tanggal</th>
+                            <th style="width:22%; text-align:left; padding-left:6px;">Surah</th>
+                            <th style="width:6%;">Juz</th>
+                            <th style="width:10%;">Ayat</th>
+                            <th style="width:8%;">Baris</th>
+                            <th style="width:11%;">Jenis</th>
+                            <th style="width:11%;">Kualitas</th>
                             <th style="text-align:left; padding-left:6px;">Catatan</th>
                         </tr>
                     </thead>
@@ -169,6 +176,9 @@
                                         {{ $rec->start_ayah }}-{{ $rec->end_ayah }}
                                     @else -
                                     @endif
+                                </td>
+                                <td style="text-align:center; font-weight:bold; color:#047857;">
+                                    {{ $rec->jumlah_baris > 0 ? $rec->jumlah_baris . ' Baris' : '-' }}
                                 </td>
                                 <td style="text-align:center;">
                                     <span class="badge" style="background:{{ $typeBg($rec->type) }};">{{ $typeLbl($rec->type) }}</span>
