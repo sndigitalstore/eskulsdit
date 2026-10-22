@@ -6,6 +6,8 @@ use App\Models\AcademicYear;
 use App\Models\ActivityLog;
 use App\Models\MentoringGroup;
 use App\Models\Student;
+use App\Models\TahfidzAttendance;
+use App\Models\TahfidzRecord;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -271,6 +273,79 @@ class MentoringGroupController extends Controller
         $search = $request->input('search');
 
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
+
+        // KHUSUS GURU TAHFIDZ: Langsung buka Ruang Halaqah Tahfidz (Daftar Siswa & Quick Setoran/Presensi/Share WA)
+        if (!$isAdmin && $type === 'tahfidz') {
+            $myGroups = MentoringGroup::where('type', 'tahfidz')
+                ->where(function ($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                ->withCount('students')
+                ->get();
+
+            if ($myGroups->isEmpty()) {
+                return view('tahfidz.teacher_workspace_empty', compact('activeYear', 'academicYears', 'selectedYearId'));
+            }
+
+            $selectedGroupId = $request->input('group_id') ?? $myGroups->first()->id;
+            $activeGroup = $myGroups->firstWhere('id', $selectedGroupId) ?? $myGroups->first();
+
+            $today = date('Y-m-d');
+            $activeGroup->load(['students' => function($q) {
+                $q->orderBy('class')->orderBy('name');
+            }]);
+
+            $studentIds = $activeGroup->students->pluck('id');
+
+            // Riwayat setoran siswa di kelompok ini (terbaru per siswa)
+            $latestRecords = TahfidzRecord::whereIn('student_id', $studentIds)
+                ->where('mentoring_group_id', $activeGroup->id)
+                ->orderBy('session_date', 'desc')
+                ->orderBy('id', 'desc')
+                ->get()
+                ->groupBy('student_id');
+
+            // Absensi hari ini
+            $todayAttendances = TahfidzAttendance::whereIn('student_id', $studentIds)
+                ->where('mentoring_group_id', $activeGroup->id)
+                ->where('session_date', $today)
+                ->get()
+                ->keyBy('student_id');
+
+            // Setoran hari ini untuk rekap grup WA
+            $todayRecords = TahfidzRecord::whereIn('student_id', $studentIds)
+                ->where('mentoring_group_id', $activeGroup->id)
+                ->where('session_date', $today)
+                ->orderBy('id', 'asc')
+                ->get()
+                ->groupBy('student_id');
+
+            // Daftar Surah Juz 30 dan Juz 29 untuk modal input setoran
+            $surahListJuz30 = [
+                'An-Naba\'', 'An-Nazi\'at', '\'Abasa', 'At-Takwir', 'Al-Infitar',
+                'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A\'la',
+                'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail',
+                'Ad-Duha', 'Asy-Syarh', 'At-Tin', 'Al-\'Alaq', 'Al-Qadr',
+                'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat', 'Al-Qari\'ah', 'At-Takasur',
+                'Al-\'Asr', 'Al-Humazah', 'Al-Fil', 'Quraisy', 'Al-Ma\'un',
+                'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Lahab', 'Al-Ikhlas',
+                'Al-Falaq', 'An-Nas'
+            ];
+
+            $surahListJuz29 = [
+                'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh',
+                'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan',
+                'Al-Mursalat'
+            ];
+
+            return view('tahfidz.teacher_workspace', compact(
+                'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
+                'latestRecords', 'todayAttendances', 'todayRecords',
+                'surahListJuz30', 'surahListJuz29', 'today'
+            ));
+        }
 
         $query = MentoringGroup::where('type', $type)
             ->withCount('students')

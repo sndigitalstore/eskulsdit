@@ -428,11 +428,18 @@
                             <th style="width: 13%; text-align: center;">Jenis</th>
                             <th style="width: 13%; text-align: center;">Kualitas</th>
                             <th>Catatan</th>
-                            <th style="width: 5%; text-align: center;">Hapus</th>
+                            <th style="width: 10%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($records as $i => $rec)
+                            @php
+                                $rAyah = $rec->start_ayah ? "Ayat {$rec->start_ayah}" . ($rec->end_ayah && $rec->end_ayah != $rec->start_ayah ? "-{$rec->end_ayah}" : '') : 'Selesai';
+                                $rQuality = $qualityLabel($rec->quality);
+                                $rType = $typeLabel($rec->type);
+                                $rDate = \Carbon\Carbon::parse($rec->session_date)->isoFormat('dddd, D MMMM Y');
+                                $rNotes = $rec->notes ?? 'Pertahankan hafalan dengan muroja\'ah istiqomah di rumah.';
+                            @endphp
                             <tr>
                                 <td style="text-align: center; color: #94a3b8; font-size: 0.8rem;">{{ $i + 1 }}</td>
                                 <td style="color: #475569; font-size: 0.85rem;">
@@ -460,12 +467,30 @@
                                 </td>
                                 <td style="font-size: 0.83rem; color: #64748b;">{{ $rec->notes ?? '-' }}</td>
                                 <td style="text-align: center;">
-                                    <form method="POST" action="{{ route('tahfidz.destroy', $rec->id) }}" onsubmit="return confirm('Hapus setoran {{ $rec->surah_name }}?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-del" title="Hapus">
-                                            <i class="fas fa-trash-alt"></i>
+                                    <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                                        <button type="button" 
+                                                onclick="openWaShareModal(
+                                                    '{{ addslashes($student->name) }}',
+                                                    '{{ $student->class }}',
+                                                    '{{ $student->parent_phone ?? '' }}',
+                                                    '{{ addslashes($rec->surah_name) }}',
+                                                    '{{ addslashes($rAyah) }}',
+                                                    '{{ addslashes($rQuality) }}',
+                                                    '{{ addslashes($rType) }}',
+                                                    '{{ addslashes($rDate) }}',
+                                                    '{{ addslashes($rNotes) }}'
+                                                )"
+                                                style="background: none; border: none; color: #16a34a; cursor: pointer; font-size: 1rem; padding: 4px;"
+                                                title="Bagikan Setoran ini ke WhatsApp">
+                                            <i class="fab fa-whatsapp"></i>
                                         </button>
-                                    </form>
+                                        <form method="POST" action="{{ route('tahfidz.destroy', $rec->id) }}" onsubmit="return confirm('Hapus setoran {{ $rec->surah_name }}?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn-del" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -476,4 +501,130 @@
     </div>
 </div>
 
+<!-- MODAL SHARE WA DI KARTU SISWA -->
+<div id="cardWaShareModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 580px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden;">
+        <div style="padding: 16px 20px; background: #f0fdf4; border-bottom: 1px solid #86efac; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fab fa-whatsapp" style="font-size: 1.3rem; color: #16a34a;"></i>
+                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #14532d;">Kirim Laporan Tahfidz ke WhatsApp</h4>
+            </div>
+            <button type="button" onclick="closeWaShareModal()" style="border: none; background: transparent; font-size: 1.2rem; color: #64748b; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div style="padding: 20px;">
+            <textarea id="cardWaTextarea" rows="11" class="form-control" style="font-family: monospace; font-size: 0.84rem; line-height: 1.5; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1;"></textarea>
+            <div id="cardPhoneInfo" style="margin-top: 12px; font-size: 0.85rem; color: #065f46; background: #ecfdf5; padding: 8px 12px; border-radius: 8px; border: 1px solid #a7f3d0;">
+                <i class="fas fa-phone-alt"></i> HP Orang Tua: <strong id="cardPhoneVal">-</strong>
+            </div>
+        </div>
+        <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+            <button type="button" onclick="copyCardWaText()" class="btn-action-header btn-dark" style="background: #64748b; padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fas fa-copy"></i> Salin Teks
+            </button>
+            <button type="button" onclick="shareCardWaToGroup()" class="btn-action-header btn-blue" style="background: #0284c7; padding: 8px 16px; font-size: 0.85rem;">
+                <i class="fas fa-share-alt"></i> Share ke Grup WA
+            </button>
+            <button type="button" id="btnSendCardDirect" onclick="sendCardWaDirect()" class="btn-action-header btn-green" style="background: #25D366; font-weight: 800; padding: 8px 18px; font-size: 0.85rem;">
+                <i class="fab fa-whatsapp"></i> Kirim ke No Ortu
+            </button>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    let activeCardWaPhone = '';
+
+    function openWaShareModal(studentName, studentClass, parentPhone, surahName, ayah, quality, type, dateStr, notes) {
+        activeCardWaPhone = parentPhone.replace(/[^0-9]/g, '');
+        if (activeCardWaPhone.startsWith('0')) {
+            activeCardWaPhone = '62' + activeCardWaPhone.substring(1);
+        }
+
+        const phoneValElem = document.getElementById('cardPhoneVal');
+        const btnDirect = document.getElementById('btnSendCardDirect');
+
+        if (activeCardWaPhone) {
+            phoneValElem.innerText = parentPhone;
+            btnDirect.style.display = 'inline-flex';
+        } else {
+            phoneValElem.innerText = 'Belum Terdata';
+            btnDirect.style.display = 'none';
+        }
+
+        const mentorName = '{{ addslashes($group->mentor_name ?? Auth::user()->name) }}';
+
+        const message = 
+`Assalamu'alaikum Warahmatullahi Wabarakatuh Ayah/Bunda.
+
+Berikut laporan capaian Tahfidz ananda di *SDIT An Nadzir*:
+👤 *Nama:* ${studentName}
+🏫 *Kelas:* ${studentClass}
+📖 *Setoran:* QS. ${surahName} (${ayah})
+📌 *Jenis:* ${type}
+⭐ *Kualitas:* ${quality}
+📝 *Catatan Musyrif:* ${notes}
+📅 *Tanggal:* ${dateStr}
+🕌 *Musyrif:* ${mentorName}
+
+Alhamdulillah ananda telah menyetorkan hafalan hari ini. Mohon Ayah/Bunda terus mendampingi dan memotivasi pengulangan (muroja'ah) ananda di rumah.
+
+Jazakumullahu Khairan Katsiran.
+Wassalamu'alaikum Warahmatullahi Wabarakatuh.
+_*SDIT An Nadzir - Mencetak Generasi Qur'ani*_`;
+
+        document.getElementById('cardWaTextarea').value = message;
+        const modal = document.getElementById('cardWaShareModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeWaShareModal() {
+        document.getElementById('cardWaShareModal').style.display = 'none';
+    }
+
+    function sendCardWaDirect() {
+        const text = document.getElementById('cardWaTextarea').value;
+        if (!activeCardWaPhone) {
+            alert('Nomor HP Orang Tua belum tersedia.');
+            return;
+        }
+        window.open(`https://api.whatsapp.com/send?phone=${activeCardWaPhone}&text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function shareCardWaToGroup() {
+        const text = document.getElementById('cardWaTextarea').value;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function copyCardWaText() {
+        const text = document.getElementById('cardWaTextarea').value;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Teks laporan berhasil disalin!');
+        });
+    }
+
+    // Auto-trigger jika baru saja simpan setoran
+    @if(session('last_record'))
+        document.addEventListener('DOMContentLoaded', function() {
+            const lr = @json(session('last_record'));
+            if (lr) {
+                openWaShareModal(
+                    lr.student_name,
+                    lr.student_class,
+                    lr.parent_phone || '',
+                    lr.surah_name,
+                    lr.ayah,
+                    lr.quality_label || lr.quality,
+                    lr.type_label || lr.type,
+                    lr.date,
+                    lr.notes
+                );
+            }
+        });
+    @endif
+</script>
+@endpush
 @endsection
+

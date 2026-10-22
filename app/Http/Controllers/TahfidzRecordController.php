@@ -153,16 +153,46 @@ class TahfidzRecordController extends Controller
             'academic_year_id' => 'required|exists:academic_years,id',
         ]);
 
-        TahfidzRecord::create([
+        $newRecord = TahfidzRecord::create([
             ...$validated,
             'student_id'        => $student->id,
             'mentoring_group_id'=> $group->id,
             'recorded_by'       => Auth::id(),
         ]);
 
-        return redirect()
-            ->route('tahfidz.student-card', ['group' => $group->id, 'student' => $student->id, 'year_id' => $validated['academic_year_id']])
-            ->with('success', "Setoran hafalan {$validated['surah_name']} berhasil disimpan!");
+        $qualityLabel = match($newRecord->quality) {
+            'lancar' => 'Lancar (Mumtaz)',
+            'cukup'  => 'Cukup Lancar',
+            default  => 'Perlu Perbaikan / Bimbingan',
+        };
+
+        $typeLabel = $newRecord->type === 'setoran_baru' ? 'Ziyadah (Hafalan Baru)' : 'Muroja\'ah (Mengulang)';
+        $ayahLabel = $newRecord->start_ayah 
+            ? "Ayat {$newRecord->start_ayah}" . ($newRecord->end_ayah && $newRecord->end_ayah != $newRecord->start_ayah ? "-{$newRecord->end_ayah}" : '')
+            : 'Selesai';
+
+        $redirect = ($request->input('redirect_to') === 'workspace' || $request->has('from_workspace'))
+            ? redirect()->route('tahfidz-groups.index', ['group_id' => $group->id])
+            : redirect()->route('tahfidz.student-card', ['group' => $group->id, 'student' => $student->id, 'year_id' => $validated['academic_year_id']]);
+
+        return $redirect
+            ->with('success', "Setoran hafalan ananda {$student->name} ({$validated['surah_name']}) berhasil disimpan!")
+            ->with('last_record', [
+                'id'            => $newRecord->id,
+                'student_id'    => $student->id,
+                'student_name'  => $student->name,
+                'student_class' => $student->class,
+                'parent_phone'  => $student->parent_phone,
+                'surah_name'    => $newRecord->surah_name,
+                'ayah'          => $ayahLabel,
+                'quality'       => $newRecord->quality,
+                'quality_label' => $qualityLabel,
+                'type'          => $newRecord->type,
+                'type_label'    => $typeLabel,
+                'date'          => \Carbon\Carbon::parse($newRecord->session_date)->isoFormat('dddd, D MMMM Y'),
+                'notes'         => $newRecord->notes ?? 'Pertahankan hafalan dengan muroja\'ah istiqomah di rumah.',
+                'mentor'        => Auth::user()->name,
+            ]);
     }
 
     /**
