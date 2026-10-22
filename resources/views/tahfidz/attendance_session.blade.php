@@ -121,6 +121,10 @@
                 </div>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" onclick="openShareModal()"
+                        style="background: #25d366; border: none; color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+                    <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share WA Ortu
+                </button>
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id, 'date' => $date, 'year_id' => $yearId]) }}"
                    style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-edit"></i> Edit Sesi

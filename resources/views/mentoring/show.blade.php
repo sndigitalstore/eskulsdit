@@ -132,7 +132,10 @@
                 </button>
                 @if($type === 'tahfidz')
                     <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #7c3aed; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
-                        <i class="fas fa-clipboard-check"></i> Absensi Sesi
+                        <i class="fas fa-clipboard-check"></i> Riwayat Sesi & WA
+                    </a>
+                    <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id]) }}" class="btn-action-header" style="background: #25d366; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
+                        <i class="fab fa-whatsapp"></i> + Input Sesi & Share WA
                     </a>
                     <a href="{{ route('tahfidz.print-group-recap', ['group' => $group->id]) }}" target="_blank" class="btn-action-header btn-dark" style="background: #0f766e;">
                         <i class="fas fa-quran"></i> Rekap Hafalan

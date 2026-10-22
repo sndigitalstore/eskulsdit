@@ -401,7 +401,7 @@
                                             <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" 
                                                class="btn-action-header" 
                                                style="background: #7c3aed; color: white; padding: 5px 8px; font-size: 0.78rem;" 
-                                               title="Absensi Sesi">
+                                               title="Jurnal Sesi & Laporan WA">
                                                 <i class="fas fa-clipboard-check"></i>
                                             </a>
                                             <!-- Rekap Hafalan -->

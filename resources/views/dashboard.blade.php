@@ -742,8 +742,15 @@
                         @if($mGroup->type === 'tahfidz')
                             <a href="{{ route('tahfidz.attendance.index', ['group' => $mGroup->id]) }}" 
                                class="btn-action-header" 
-                               style="background: #7c3aed; color: white; padding: 6px 12px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;">
-                                <i class="fas fa-clipboard-check"></i> Absensi
+                               style="background: #7c3aed; color: white; padding: 6px 10px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;"
+                               title="Riwayat Sesi & Share WA">
+                                <i class="fas fa-clipboard-check"></i> Jurnal & WA
+                            </a>
+                            <a href="{{ route('tahfidz.attendance.create', ['group' => $mGroup->id]) }}" 
+                               class="btn-action-header" 
+                               style="background: #25d366; color: white; padding: 6px 10px; font-size: 0.8rem;" 
+                               title="Input Sesi Baru & Share WA">
+                                <i class="fab fa-whatsapp"></i> +Sesi
                             </a>
                             <a href="{{ route('tahfidz.print-group-recap', ['group' => $mGroup->id]) }}" 
                                target="_blank" 
