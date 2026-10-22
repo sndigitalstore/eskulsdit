@@ -624,13 +624,28 @@ class MentoringGroupController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menambahkan siswa: ' . $e->getMessage()
+                ], 422);
+            }
             return back()->with('error', 'Gagal menambahkan siswa: ' . $e->getMessage());
         }
 
         $typeLabel = $group->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         ActivityLog::log("Mentoring {$typeLabel}", 'Update', "Menambahkan {$countAdded} siswa ke kelompok: {$group->name}");
 
-        return back()->with('success', "Berhasil menambahkan {$countAdded} siswa ke kelompok \"{$group->name}\".");
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menambahkan {$countAdded} siswa ke kelompok \"{$group->name}\".",
+                'count' => $countAdded,
+            ]);
+        }
+
+        $redirectRoute = $group->type === 'tilawati' ? 'tilawati-groups.show' : 'tahfidz-groups.show';
+        return redirect()->route($redirectRoute, $group->id)->with('success', "Berhasil menambahkan {$countAdded} siswa ke kelompok \"{$group->name}\".");
     }
 
     /**

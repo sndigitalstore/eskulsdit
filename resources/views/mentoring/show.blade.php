@@ -313,7 +313,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" onclick="closeAddStudentsModal()" class="btn-action-header btn-dark" style="background: #94a3b8; padding: 8px 16px;">
+                <button type="button" id="btnCancelModal" onclick="closeAddStudentsModal()" class="btn-action-header btn-dark" style="background: #94a3b8; padding: 8px 16px;">
                     Batal
                 </button>
                 <button type="submit" id="btnSubmitAddStudents" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }}; padding: 8px 20px;" disabled>
@@ -326,14 +326,24 @@
 
 <script>
     let allFetchedStudents = [];
+    let hasAddedStudents = false;
 
     function openAddStudentsModal() {
         document.getElementById('addStudentsModal').classList.add('active');
+        hasAddedStudents = false;
+        const btnCancel = document.getElementById('btnCancelModal');
+        if (btnCancel) {
+            btnCancel.innerHTML = 'Batal';
+            btnCancel.style.background = '#94a3b8';
+        }
         loadStudentsForModal();
     }
 
     function closeAddStudentsModal() {
         document.getElementById('addStudentsModal').classList.remove('active');
+        if (hasAddedStudents) {
+            window.location.reload();
+        }
     }
 
     function loadStudentsForModal() {
@@ -454,6 +464,97 @@
         if (e.target === modal) {
             closeAddStudentsModal();
         }
+    });
+
+    // AJAX submit form to stay on page
+    document.getElementById('addStudentsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const form = this;
+        const submitBtn = document.getElementById('btnSubmitAddStudents');
+        const originalBtnHtml = submitBtn.innerHTML;
+
+        const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+        if (checkedBoxes.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Siswa',
+                text: 'Silakan centang minimal satu siswa untuk dimasukkan ke kelompok ini.'
+            });
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Gagal menambahkan siswa ke kelompok.');
+            }
+            return data;
+        })
+        .then(data => {
+            hasAddedStudents = true;
+
+            if (typeof Toast !== 'undefined') {
+                Toast.fire({
+                    icon: 'success',
+                    title: data.message
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+
+            // Reset optional notes
+            const notesInput = form.querySelector('input[name="notes"]');
+            if (notesInput) notesInput.value = '';
+
+            // Reset select all checkbox
+            const selectAll = document.getElementById('selectAllCheckbox');
+            if (selectAll) selectAll.checked = false;
+
+            // Change Batal button to Selesai
+            const btnCancel = document.getElementById('btnCancelModal');
+            if (btnCancel) {
+                btnCancel.innerHTML = '<i class="fas fa-check"></i> Selesai';
+                btnCancel.style.background = '#059669';
+                btnCancel.style.color = '#ffffff';
+            }
+
+            // Reload students in modal keeping the currently selected class filter
+            loadStudentsForModal();
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: err.message
+            });
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+            updateSelectedBadge();
+        });
     });
 </script>
 @endsection
