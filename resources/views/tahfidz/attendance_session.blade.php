@@ -135,9 +135,14 @@
 <div style="max-width: 1050px; margin: 0 auto; margin-bottom: 40px; padding: 0 4px;">
     
     <div class="top-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-        <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id, 'year_id' => $yearId]) }}" class="back-link" style="margin-bottom: 0;">
-            <i class="fas fa-arrow-left"></i> Kembali ke Daftar Sesi
-        </a>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id, 'year_id' => $yearId]) }}" class="back-link" style="margin-bottom: 0;">
+                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Sesi
+            </a>
+            <a href="{{ route('tahfidz-groups.index', ['group_id' => $group->id]) }}" class="back-link" style="margin-bottom: 0; color: #047857; font-weight: 700;">
+                <i class="fas fa-quran"></i> Buka Ruang Halaqah
+            </a>
+        </div>
         <div class="top-action-buttons" style="display: flex; gap: 8px;">
             <button type="button" onclick="openShareModal()" class="btn-action-header" style="background: #25d366; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,211,102,0.35);">
                 <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share Laporan ke WA Ortu
@@ -151,12 +156,22 @@
     @if(session('success'))
         <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
-                <strong>{{ session('success') }}</strong>
+                <i class="fas fa-check-circle" style="font-size: 1.2rem; color: #16a34a;"></i>
+                <div>
+                    <strong>{{ session('success') }}</strong>
+                    <div style="font-size: 0.8rem; color: #15803d; margin-top: 2px;">
+                        ✓ Presensi, setoran hafalan, kartu santri, dan rekapan rapor otomatis terbarui serentak.
+                    </div>
+                </div>
             </div>
-            <button type="button" onclick="openShareModal()" style="background: #16a34a; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-                <i class="fab fa-whatsapp"></i> Buka Format WA
-            </button>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="openShareModal()" style="background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                    <i class="fab fa-whatsapp"></i> Buka Format WA
+                </button>
+                <a href="{{ route('tahfidz-groups.index', ['group_id' => $group->id]) }}" style="background: white; border: 1px solid #86efac; color: #166534; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-eye"></i> Cek di Halaqah
+                </a>
+            </div>
         </div>
     @endif
 

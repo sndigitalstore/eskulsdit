@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicYear;
 use App\Models\MentoringGroup;
 use App\Models\Student;
+use App\Models\TahfidzAttendance;
 use App\Models\TahfidzRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -160,6 +161,31 @@ class TahfidzRecordController extends Controller
             'recorded_by'       => Auth::id(),
         ]);
 
+        // SINKRONISASI OTOMATIS KE TAHFIDZ_ATTENDANCE SESI MENTORING
+        if (Schema::hasTable('tahfidz_attendances')) {
+            $ayahSuffix = $newRecord->start_ayah 
+                ? " ayat {$newRecord->start_ayah}" . ($newRecord->end_ayah && $newRecord->end_ayah != $newRecord->start_ayah ? "-{$newRecord->end_ayah}" : "") 
+                : "";
+            $capaianStr = $newRecord->surah_name . $ayahSuffix;
+            $hafalanStatus = ($newRecord->quality === 'lancar' || $newRecord->quality === 'cukup') ? 'LULUS' : 'BELUM LULUS';
+
+            TahfidzAttendance::updateOrCreate(
+                [
+                    'mentoring_group_id' => $group->id,
+                    'student_id'         => $student->id,
+                    'session_date'       => $newRecord->session_date,
+                ],
+                [
+                    'academic_year_id' => $validated['academic_year_id'],
+                    'status'           => 'hadir',
+                    'capaian'          => $capaianStr,
+                    'hafalan_status'   => $hafalanStatus,
+                    'notes'            => $newRecord->notes,
+                    'recorded_by'      => Auth::id(),
+                ]
+            );
+        }
+
         $qualityLabel = match($newRecord->quality) {
             'lancar' => 'Lancar (Mumtaz)',
             'cukup'  => 'Cukup Lancar',
@@ -176,7 +202,7 @@ class TahfidzRecordController extends Controller
             : redirect()->route('tahfidz.student-card', ['group' => $group->id, 'student' => $student->id, 'year_id' => $validated['academic_year_id']]);
 
         return $redirect
-            ->with('success', "Setoran hafalan ananda {$student->name} ({$validated['surah_name']}) berhasil disimpan!")
+            ->with('success', "Setoran hafalan ananda {$student->name} ({$validated['surah_name']}) berhasil disimpan dan otomatis tersinkron ke Rekapan & Absensi!")
             ->with('last_record', [
                 'id'            => $newRecord->id,
                 'student_id'    => $student->id,
@@ -196,18 +222,46 @@ class TahfidzRecordController extends Controller
     }
 
     /**
-     * Hapus satu record setoran
+     * Hapus satu record setoran dan sinkronkan ke absensi jika perlu
      */
     public function destroy(Request $request, TahfidzRecord $record)
     {
         $this->ensureTableExists();
 
-        $groupId  = $record->mentoring_group_id;
-        $studentId= $record->student_id;
-        $yearId   = $record->academic_year_id;
-        $surah    = $record->surah_name;
+        $groupId    = $record->mentoring_group_id;
+        $studentId  = $record->student_id;
+        $yearId     = $record->academic_year_id;
+        $surah      = $record->surah_name;
+        $sessionDate= $record->session_date;
 
         $record->delete();
+
+        // Sinkronisasi pembaruan ke TahfidzAttendance
+        if (Schema::hasTable('tahfidz_attendances')) {
+            $remaining = TahfidzRecord::where('student_id', $studentId)
+                ->where('mentoring_group_id', $groupId)
+                ->where('session_date', $sessionDate)
+                ->first();
+
+            if ($remaining) {
+                $ayahSuffix = $remaining->start_ayah ? " ayat {$remaining->start_ayah}" . ($remaining->end_ayah && $remaining->end_ayah != $remaining->start_ayah ? "-{$remaining->end_ayah}" : "") : "";
+                $capaianStr = $remaining->surah_name . $ayahSuffix;
+                TahfidzAttendance::where('student_id', $studentId)
+                    ->where('mentoring_group_id', $groupId)
+                    ->where('session_date', $sessionDate)
+                    ->update([
+                        'capaian'        => $capaianStr,
+                        'hafalan_status' => ($remaining->quality === 'lancar' || $remaining->quality === 'cukup') ? 'LULUS' : 'BELUM LULUS',
+                    ]);
+            } else {
+                TahfidzAttendance::where('student_id', $studentId)
+                    ->where('mentoring_group_id', $groupId)
+                    ->where('session_date', $sessionDate)
+                    ->update([
+                        'capaian' => null,
+                    ]);
+            }
+        }
 
         return redirect()
             ->route('tahfidz.student-card', ['group' => $groupId, 'student' => $studentId, 'year_id' => $yearId])

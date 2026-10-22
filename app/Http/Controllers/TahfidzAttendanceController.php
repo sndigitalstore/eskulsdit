@@ -6,12 +6,180 @@ use App\Models\AcademicYear;
 use App\Models\MentoringGroup;
 use App\Models\Student;
 use App\Models\TahfidzAttendance;
+use App\Models\TahfidzRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
 class TahfidzAttendanceController extends Controller
 {
+    /**
+     * Map nama surah (lowercase cleaned) ke nomor Juz Al-Qur'an
+     */
+    private static function getSurahJuzMap(): array
+    {
+        return [
+            // Juz 30 (Surat ke-78 s.d 114)
+            'annaba' => 30, 'annaziat' => 30, 'abasa' => 30, 'attakwir' => 30,
+            'alinfitar' => 30, 'almuthaffifin' => 30, 'almutaffifin' => 30, 'alinsyiqaq' => 30,
+            'alburuj' => 30, 'attariq' => 30, 'alala' => 30, 'alghasyiyah' => 30,
+            'alfajr' => 30, 'albalad' => 30, 'asysyams' => 30, 'allail' => 30,
+            'adduha' => 30, 'asysyarh' => 30, 'attin' => 30, 'alalaq' => 30,
+            'alqadr' => 30, 'albayyinah' => 30, 'azzalzalah' => 30, 'aladiyat' => 30,
+            'alqariah' => 30, 'attakatsur' => 30, 'attakasur' => 30, 'alasr' => 30,
+            'alhumazah' => 30, 'alfil' => 30, 'quraisy' => 30, 'almaun' => 30,
+            'alkausar' => 30, 'alkafirun' => 30, 'annasr' => 30, 'allahab' => 30,
+            'almasad' => 30, 'alikhlas' => 30, 'alfalaq' => 30, 'annas' => 30,
+            
+            // Juz 29 (Surat ke-67 s.d 77)
+            'almulk' => 29, 'alqalam' => 29, 'alhaqqah' => 29, 'almaarij' => 29,
+            'nuh' => 29, 'aljinn' => 29, 'almuzzammil' => 29, 'almuzammil' => 29,
+            'almuddassir' => 29, 'alqiyamah' => 29, 'alinsan' => 29, 'almursalat' => 29,
+            
+            // Juz 28 (Surat ke-58 s.d 66)
+            'almujadilah' => 28, 'alhasyr' => 28, 'almumtahanah' => 28, 'assaff' => 28,
+            'aljumuah' => 28, 'almunafiqun' => 28, 'attaghabun' => 28, 'attalaq' => 28,
+            'attahrim' => 28,
+            
+            // Juz 27
+            'azzariyat' => 27, 'attur' => 27, 'annajm' => 27, 'alqamar' => 27,
+            'arrahman' => 27, 'alwaqiah' => 27, 'alhadid' => 27,
+            
+            // Juz 26
+            'alahqaf' => 26, 'muhammad' => 26, 'alfath' => 26, 'alhujurat' => 26, 'qaf' => 26,
+            
+            // Juz 1-25
+            'alfatihah' => 1, 'albaqarah' => 2, 'aliimran' => 3, 'annisa' => 4,
+            'almaidah' => 6, 'alanam' => 7, 'alaraf' => 8, 'alanfal' => 9,
+            'attaubah' => 10, 'yunus' => 11, 'hud' => 12, 'yusuf' => 12,
+            'arraid' => 13, 'ibrahim' => 13, 'alhijr' => 14, 'annahl' => 14,
+            'alisra' => 15, 'alkahf' => 15, 'maryam' => 16, 'thaha' => 16,
+            'alanbiya' => 17, 'alhajj' => 17, 'almuminun' => 18, 'annur' => 18,
+            'alfurqan' => 18, 'asysyuara' => 19, 'annaml' => 19, 'alqasas' => 20,
+            'alankabut' => 20, 'arrum' => 21, 'luqman' => 21, 'assajdah' => 21,
+            'alahzab' => 21, 'saba' => 22, 'fatir' => 22, 'yasin' => 22,
+            'assaffat' => 23, 'sad' => 23, 'azzumar' => 23, 'ghafir' => 24,
+            'fussilat' => 24, 'asysyura' => 25, 'azzukhruf' => 25, 'addukhan' => 25,
+            'aljasiyah' => 25,
+        ];
+    }
+
+    /**
+     * Tentukan nomor Juz berdasarkan nama surat
+     */
+    public static function determineJuzForSurah(string $surahName, ?int $defaultJuz = 30): int
+    {
+        $clean = strtolower(preg_replace('/[^a-z0-9]/', '', $surahName));
+        $clean = preg_replace('/^(?:surat|surah|qs)/', '', $clean);
+        
+        $map = self::getSurahJuzMap();
+        if (isset($map[$clean])) {
+            return $map[$clean];
+        }
+
+        foreach ($map as $key => $juz) {
+            if (str_contains($clean, $key) || str_contains($key, $clean)) {
+                return $juz;
+            }
+        }
+
+        return $defaultJuz ?? 30;
+    }
+
+    /**
+     * Parse teks capaian menjadi surah_name, start_ayah, end_ayah, juz
+     */
+    public static function parseCapaian(string $capaian, ?int $defaultJuz = 30): array
+    {
+        $raw = trim($capaian);
+        $text = preg_replace('/^(?:QS\.?|Surat|Surah)\s+/i', '', $raw);
+        $text = trim($text);
+
+        $startAyah = null;
+        $endAyah   = null;
+        $surahName = $text;
+
+        if (preg_match('/(?:ayat|:)\s*(\d+)\s*(?:[-–]|s\.?d\.?)\s*(\d+)/i', $text, $m)) {
+            $startAyah = (int) $m[1];
+            $endAyah   = (int) $m[2];
+            $surahName = trim(preg_replace('/(?:ayat|:)\s*\d+\s*(?:[-–]|s\.?d\.?)\s*\d+.*/i', '', $text));
+        } elseif (preg_match('/(?:ayat|:)\s*(\d+)/i', $text, $m)) {
+            $startAyah = (int) $m[1];
+            $endAyah   = (int) $m[1];
+            $surahName = trim(preg_replace('/(?:ayat|:)\s*\d+.*/i', '', $text));
+        } elseif (preg_match('/^(.*?)\s+(\d+)\s*[-–]\s*(\d+)$/i', $text, $m)) {
+            $surahName = trim($m[1]);
+            $startAyah = (int) $m[2];
+            $endAyah   = (int) $m[3];
+        } elseif (preg_match('/^(.*?)\s+(\d+)$/i', $text, $m) && !preg_match('/juz\s+\d+/i', $text)) {
+            $surahName = trim($m[1]);
+            $startAyah = (int) $m[2];
+            $endAyah   = (int) $m[2];
+        }
+
+        $surahName = trim($surahName, " :-,");
+        if (empty($surahName)) {
+            $surahName = $raw;
+        }
+
+        $juz = self::determineJuzForSurah($surahName, $defaultJuz);
+
+        return [
+            'surah_name' => $surahName,
+            'start_ayah' => $startAyah,
+            'end_ayah'   => $endAyah,
+            'juz'        => $juz,
+        ];
+    }
+
+    /**
+     * Sinkronisasi data lama dari tahfidz_attendances ke tahfidz_records
+     * agar riwayat absensi lampau otomatis masuk ke rapor dan kartu hafalan.
+     */
+    public static function syncPastAttendances(): void
+    {
+        if (!Schema::hasTable('tahfidz_attendances') || !Schema::hasTable('tahfidz_records')) {
+            return;
+        }
+
+        $unsynced = TahfidzAttendance::where('status', 'hadir')
+            ->whereNotNull('capaian')
+            ->where('capaian', '!=', '')
+            ->get();
+
+        foreach ($unsynced as $att) {
+            $exists = TahfidzRecord::where('student_id', $att->student_id)
+                ->where('mentoring_group_id', $att->mentoring_group_id)
+                ->where('session_date', $att->session_date)
+                ->exists();
+
+            if (!$exists) {
+                $parsed = self::parseCapaian($att->capaian);
+                $isLulus = (strtoupper($att->hafalan_status ?? 'LULUS') === 'LULUS');
+
+                $fullNotes = $att->notes ?? '';
+                if ($att->tugas_besok) {
+                    $fullNotes = $fullNotes !== '' ? "{$fullNotes} (Tugas besok: {$att->tugas_besok})" : "Tugas besok: {$att->tugas_besok}";
+                }
+
+                TahfidzRecord::create([
+                    'student_id'         => $att->student_id,
+                    'mentoring_group_id' => $att->mentoring_group_id,
+                    'academic_year_id'   => $att->academic_year_id,
+                    'surah_name'         => $parsed['surah_name'],
+                    'juz'                => $parsed['juz'],
+                    'start_ayah'         => $parsed['start_ayah'],
+                    'end_ayah'           => $parsed['end_ayah'],
+                    'type'               => 'setoran_baru',
+                    'quality'            => $isLulus ? 'lancar' : 'perlu_perbaikan',
+                    'session_date'       => $att->session_date,
+                    'notes'              => $fullNotes !== '' ? $fullNotes : null,
+                    'recorded_by'        => $att->recorded_by,
+                ]);
+            }
+        }
+    }
+
     /**
      * Auto-create table if not exists (self-healing)
      */
@@ -51,6 +219,9 @@ class TahfidzAttendanceController extends Controller
                 });
             }
         }
+
+        // Jalankan auto-sync bila ada data riwayat yang belum sinkron
+        self::syncPastAttendances();
     }
 
     /**
@@ -140,7 +311,7 @@ class TahfidzAttendanceController extends Controller
     }
 
     /**
-     * Simpan / update absensi sesi (upsert per siswa)
+     * Simpan / update absensi sesi (upsert per siswa) dan SINKRONISASI OTOMATIS ke TahfidzRecord
      */
     public function store(Request $request, MentoringGroup $group)
     {
@@ -165,6 +336,8 @@ class TahfidzAttendanceController extends Controller
             $capaian = trim($data['capaian'] ?? '');
             $tugas   = trim($data['tugas_besok'] ?? '');
             $notes   = trim($data['notes'] ?? '');
+            $status  = $data['status'];
+            $hafalanStatus = $data['hafalan_status'] ?? 'LULUS';
 
             TahfidzAttendance::updateOrCreate(
                 [
@@ -174,14 +347,50 @@ class TahfidzAttendanceController extends Controller
                 ],
                 [
                     'academic_year_id' => $yearId,
-                    'status'           => $data['status'],
+                    'status'           => $status,
                     'capaian'          => $capaian !== '' ? $capaian : null,
-                    'hafalan_status'   => $data['hafalan_status'] ?? 'LULUS',
+                    'hafalan_status'   => $hafalanStatus,
                     'tugas_besok'      => $tugas !== '' ? $tugas : null,
                     'notes'            => $notes !== '' ? $notes : null,
                     'recorded_by'      => $userId,
                 ]
             );
+
+            // SINKRONISASI OTOMATIS KE TAHFIDZ_RECORDS (REKAPAN, RAPOR, KARTU HAFALAN, RUANG HALAQAH)
+            if ($status === 'hadir' && $capaian !== '') {
+                $parsed = self::parseCapaian($capaian);
+                $isLulus = (strtoupper($hafalanStatus) === 'LULUS');
+
+                $fullNotes = $notes;
+                if ($tugas !== '') {
+                    $fullNotes = $fullNotes !== '' ? "{$fullNotes} (Tugas besok: {$tugas})" : "Tugas besok: {$tugas}";
+                }
+
+                TahfidzRecord::updateOrCreate(
+                    [
+                        'student_id'         => $studentId,
+                        'mentoring_group_id' => $group->id,
+                        'session_date'       => $date,
+                    ],
+                    [
+                        'academic_year_id' => $yearId,
+                        'surah_name'       => $parsed['surah_name'],
+                        'juz'              => $parsed['juz'],
+                        'start_ayah'       => $parsed['start_ayah'],
+                        'end_ayah'         => $parsed['end_ayah'],
+                        'type'             => 'setoran_baru',
+                        'quality'          => $isLulus ? 'lancar' : 'perlu_perbaikan',
+                        'notes'            => $fullNotes !== '' ? $fullNotes : null,
+                        'recorded_by'      => $userId,
+                    ]
+                );
+            } else {
+                // Jika siswa tidak hadir atau capaian kosong, hapus record setoran pada tanggal ini jika ada
+                TahfidzRecord::where('student_id', $studentId)
+                    ->where('mentoring_group_id', $group->id)
+                    ->where('session_date', $date)
+                    ->delete();
+            }
         }
 
         return redirect()
@@ -191,11 +400,11 @@ class TahfidzAttendanceController extends Controller
                 'year_id'    => $yearId,
                 'open_share' => 1
             ])
-            ->with('success', "Capaian mentoring & absensi sesi tanggal " . \Carbon\Carbon::parse($date)->isoFormat('D MMMM Y') . " berhasil disimpan! Format WhatsApp siap dibagikan.");
+            ->with('success', "Capaian mentoring & absensi sesi tanggal " . \Carbon\Carbon::parse($date)->isoFormat('D MMMM Y') . " berhasil disimpan dan otomatis tersinkron ke Rekapan, Rapor & Ruang Halaqah!");
     }
 
     /**
-     * Hapus seluruh absensi satu sesi (berdasarkan tanggal)
+     * Hapus seluruh absensi satu sesi (berdasarkan tanggal) beserta setoran yang tersinkron
      */
     public function destroySession(Request $request, MentoringGroup $group)
     {
@@ -206,9 +415,13 @@ class TahfidzAttendanceController extends Controller
             ->where('session_date', $date)
             ->delete();
 
+        TahfidzRecord::where('mentoring_group_id', $group->id)
+            ->where('session_date', $date)
+            ->delete();
+
         return redirect()
             ->route('tahfidz.attendance.index', ['group' => $group->id])
-            ->with('success', "Absensi sesi " . date('d/m/Y', strtotime($date)) . " dihapus.");
+            ->with('success', "Absensi & setoran sesi " . date('d/m/Y', strtotime($date)) . " berhasil dihapus.");
     }
 
     /**

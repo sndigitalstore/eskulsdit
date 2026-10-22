@@ -297,7 +297,8 @@ class MentoringGroupController extends Controller
                 $q->orderBy('class')->orderBy('name');
             }]);
 
-            $studentIds = $activeGroup->students->pluck('id');
+            // Jalankan sinkronisasi otomatis agar data absensi sesi lampau langsung sinkron ke rekapan & kartu
+            \App\Http\Controllers\TahfidzAttendanceController::syncPastAttendances();
 
             // Riwayat setoran siswa di kelompok ini (terbaru per siswa)
             $latestRecords = TahfidzRecord::whereIn('student_id', $studentIds)

@@ -360,12 +360,13 @@
 
             {{-- FOOTER --}}
             <div style="padding: 22px 24px; border-top: 2px solid #f1f5f9; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="font-size: 0.84rem; color: #64748b;">
-                    💡 <em>Pilih surat & ketik ayatnya. Setelah disimpan, format laporan WhatsApp otomatis terbuat dan siap dibagikan ke wali murid.</em>
+                <div style="font-size: 0.84rem; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 10px 14px; border-radius: 10px; max-width: 580px; line-height: 1.4;">
+                    <strong><i class="fas fa-sync-alt"></i> 1x Simpan, Otomatis Tersinkron Serentak:</strong> 
+                    Presensi dan setoran hafalan langsung masuk ke Rekapan Rapor, Ruang Halaqah, dan Kartu Hafalan Santri sekaligus menyiapkan format pesan WhatsApp siap share.
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" style="background: white; border: 1px solid #cbd5e1; color: #475569; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;">
-                        Batal
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="{{ route('tahfidz-groups.index', ['group_id' => $group->id]) }}" style="background: white; border: 1px solid #cbd5e1; color: #475569; text-decoration: none; padding: 11px 20px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-arrow-left"></i> Ruang Halaqah
                     </a>
                     <button type="submit" class="btn-submit">
                         <i class="fas fa-save"></i> Simpan Sesi & Siapkan Laporan WA

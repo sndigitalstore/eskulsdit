@@ -369,7 +369,7 @@
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $activeGroup->id, 'date' => $today]) }}" 
                    class="btn-action-header" 
                    style="background: #ffffff; color: #047857; font-weight: 800; padding: 10px 16px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-                    <i class="fas fa-clipboard-check" style="font-size: 1.05rem;"></i> Presensi Sesi Hari Ini
+                    <i class="fas fa-clipboard-check" style="font-size: 1.05rem;"></i> Presensi & Setoran Sesi (1x Klik)
                 </a>
                 <button type="button" onclick="openGroupShareModal()" 
                         class="btn-action-header" 
