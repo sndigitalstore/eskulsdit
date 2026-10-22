@@ -692,7 +692,25 @@
                     <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 0.88rem;">
                         Target / Jenjang Capaian
                     </label>
-                    <input type="text" name="target_level" placeholder="Contoh: Jilid 3, Al-Qur'an, Juz 30, Juz 29" class="form-control" style="padding: 10px 12px; font-size: 0.9rem;">
+                    <input type="text" name="target_level" list="mgmtTargetSuggestions" placeholder="Pilih atau ketik, contoh: Juz 30, Juz 29, Jilid 3" class="form-control" style="padding: 10px 12px; font-size: 0.9rem;">
+                    <datalist id="mgmtTargetSuggestions">
+                        <option value="Juz 30 (An-Naba s.d An-Nas)">
+                        <option value="Juz 29 (Al-Mulk s.d Al-Mursalat)">
+                        <option value="Juz 28 (Al-Mujadilah s.d At-Tahrim)">
+                        <option value="Juz 27 (Az-Zariyat s.d Al-Hadid)">
+                        <option value="Juz 26 (Al-Ahqaf s.d Az-Zariyat)">
+                        <option value="Juz 1 (Al-Fatihah & Al-Baqarah)">
+                        <option value="Juz 2">
+                        <option value="Juz 3">
+                        <option value="Jilid 1">
+                        <option value="Jilid 2">
+                        <option value="Jilid 3">
+                        <option value="Jilid 4">
+                        <option value="Jilid 5">
+                        <option value="Jilid 6">
+                        <option value="Al-Qur'an">
+                        <option value="Ghorib & Tajwid">
+                    </datalist>
                 </div>
 
                 <!-- JADWAL & TEMPAT -->

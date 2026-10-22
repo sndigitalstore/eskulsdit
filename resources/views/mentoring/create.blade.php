@@ -93,10 +93,14 @@
                             <option value="Al-Qur'an">
                             <option value="Ghorib & Tajwid">
                         @else
-                            <option value="Juz 30 (An-Nas s.d An-Naba)">
-                            <option value="Juz 29 (Al-Mursalat s.d Al-Mulk)">
-                            <option value="Juz 28">
-                            <option value="Juz 1 (Al-Baqarah)">
+                            <option value="Juz 30 (An-Naba s.d An-Nas)">
+                            <option value="Juz 29 (Al-Mulk s.d Al-Mursalat)">
+                            <option value="Juz 28 (Al-Mujadilah s.d At-Tahrim)">
+                            <option value="Juz 27 (Az-Zariyat s.d Al-Hadid)">
+                            <option value="Juz 26 (Al-Ahqaf s.d Az-Zariyat)">
+                            <option value="Juz 1 (Al-Fatihah & Al-Baqarah)">
+                            <option value="Juz 2">
+                            <option value="Juz 3">
                             <option value="Surat Pilihan">
                         @endif
                     </datalist>

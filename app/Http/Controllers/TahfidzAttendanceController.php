@@ -108,10 +108,17 @@ class TahfidzAttendanceController extends Controller
 
         // Deteksi default juz yang diampu kelompok
         $defaultJuz = 30;
-        if (preg_match('/(?:Juz\s*)(\d+)/i', ($group->target_level ?? '') . ' ' . ($group->name ?? ''), $m)) {
+        $combinedText = ($group->target_level ?? '') . ' ' . ($group->name ?? '');
+
+        // 1. Cek pola seperti 'Juz 29', 'Juz. 29', 'Juz29'
+        if (preg_match('/(?:Juz[.\s]*)(\d+)/i', $combinedText, $m)) {
+            $defaultJuz = (int) $m[1];
+        } 
+        // 2. Cek jika target_level berisi angka murni 1-30 (misal diinput '29' atau '28')
+        elseif (preg_match('/\b([1-9]|[12]\d|30)\b/', $group->target_level ?? '', $m)) {
             $defaultJuz = (int) $m[1];
         } else {
-            // Periksa dari riwayat capaian hafalan terbaru kelompok ini
+            // 3. Periksa dari riwayat capaian hafalan terbaru kelompok ini jika ada
             $recentCapaian = TahfidzAttendance::where('mentoring_group_id', $group->id)
                 ->whereNotNull('capaian')
                 ->latest('id')
@@ -122,6 +129,8 @@ class TahfidzAttendanceController extends Controller
                 $defaultJuz = 28;
             } elseif (preg_match('/(Mulk|Qalam|Haqqah|Ma\'arij|Nuh|Jinn|Muzzammil|Muddassir|Qiyamah|Insan|Mursalat)/i', $recentCapaian)) {
                 $defaultJuz = 29;
+            } elseif (preg_match('/(Naba|Nazi|Abasa|Takwir|Infitar|Mutaffif|Insyiqaq|Buruj|Tariq|Ala|Ghasyiyah|Fajr|Balad|Syams|Lail|Duha|Syarh|Tin|Alaq|Qadr|Bayyinah|Zalzalah|Adiyat|Qariah|Takasur|Asr|Humazah|Fil|Quraisy|Maun|Kausar|Kafirun|Nasr|Masad|Ikhlas|Falaq|Nas)/i', $recentCapaian)) {
+                $defaultJuz = 30;
             }
         }
 
