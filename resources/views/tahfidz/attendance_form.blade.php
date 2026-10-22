@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Input Absensi – ' . $group->name)
-@section('page-title', 'Input Absensi Sesi')
+@section('title', 'Input Sesi Mentoring & Capaian Tahfidz – ' . $group->name)
+@section('page-title', 'Input Sesi & Capaian Tahfidz')
 
 @section('content')
 
@@ -11,38 +11,44 @@
     border-radius: 16px 16px 0 0;
     padding: 24px 28px; color: white;
 }
-.student-row {
-    display: grid;
-    grid-template-columns: 36px 1fr auto 1fr;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 20px;
-    border-bottom: 1px solid #f1f5f9;
+.student-card-item {
+    padding: 18px 22px;
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
     transition: background 0.15s;
 }
-.student-row:hover { background: #f8fafc; }
-.student-row:last-child { border-bottom: none; }
+.student-card-item:hover { background: #fafbfc; }
+.student-card-item:last-child { border-bottom: none; }
+
 .status-radio { display: none; }
 .status-label {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 14px; border-radius: 20px; cursor: pointer;
-    font-size: 0.82rem; font-weight: 600; border: 2px solid #e2e8f0;
-    transition: all 0.15s; color: #64748b;
+    padding: 5px 12px; border-radius: 20px; cursor: pointer;
+    font-size: 0.8rem; font-weight: 600; border: 1.5px solid #e2e8f0;
+    transition: all 0.15s; color: #64748b; background: #ffffff;
 }
 .status-radio:checked + .status-label { border-color: transparent; color: white; }
-.radio-hadir:checked + .status-label  { background: #16a34a; }
-.radio-sakit:checked + .status-label  { background: #d97706; }
-.radio-izin:checked  + .status-label  { background: #0ea5e9; }
-.radio-alpha:checked + .status-label  { background: #dc2626; }
-.radio-hadir + .status-label:hover  { background: #dcfce7; color: #16a34a; border-color: #86efac; }
-.radio-sakit + .status-label:hover  { background: #fef3c7; color: #d97706; border-color: #fcd34d; }
-.radio-izin  + .status-label:hover  { background: #e0f2fe; color: #0ea5e9; border-color: #7dd3fc; }
-.radio-alpha + .status-label:hover  { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+.radio-hadir:checked + .status-label  { background: #16a34a; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25); }
+.radio-sakit:checked + .status-label  { background: #d97706; box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25); }
+.radio-izin:checked  + .status-label  { background: #0ea5e9; box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25); }
+.radio-alpha:checked + .status-label  { background: #dc2626; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25); }
+
+.lulus-radio { display: none; }
+.lulus-label {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 0.78rem; font-weight: 700; border: 1.5px solid #cbd5e1;
+    color: #64748b; background: #ffffff; transition: all 0.15s;
+}
+.lulus-radio:checked + .lulus-label { border-color: transparent; color: white; }
+.radio-opt-lulus:checked + .lulus-label { background: #16a34a; }
+.radio-opt-belum:checked + .lulus-label { background: #dc2626; }
+
 .avatar {
-    width: 36px; height: 36px; border-radius: 50%;
+    width: 38px; height: 38px; border-radius: 50%;
     background: #eff6ff; color: #2563eb;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 0.85rem; flex-shrink: 0;
+    font-weight: 800; font-size: 0.9rem; flex-shrink: 0;
 }
 .btn-submit {
     background: linear-gradient(135deg, #0f766e, #0ea5e9);
@@ -54,37 +60,58 @@
 .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(15,118,110,0.35); }
 .quick-btn {
     background: #f1f5f9; border: 1px solid #e2e8f0;
-    color: #475569; padding: 5px 12px; border-radius: 7px;
+    color: #475569; padding: 6px 14px; border-radius: 8px;
     font-size: 0.8rem; font-weight: 600; cursor: pointer;
     transition: background 0.15s;
 }
 .quick-btn:hover { background: #e2e8f0; }
+
+.tahfidz-input-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 2fr 2fr;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+}
+@media (max-width: 900px) {
+    .tahfidz-input-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+.input-label-sm {
+    display: block; font-size: 0.74rem; font-weight: 700; color: #475569;
+    margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;
+}
 </style>
 
-<div style="max-width: 900px; margin: 0 auto;">
+<div style="max-width: 1050px; margin: 0 auto; margin-bottom: 40px;">
     <div class="form-header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
             <div>
                 <div style="font-size: 0.8rem; opacity: 0.75; margin-bottom: 6px;">
                     <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id, 'year_id' => $yearId]) }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">
-                        <i class="fas fa-arrow-left"></i> Daftar Sesi Absensi
+                        <i class="fas fa-arrow-left"></i> Daftar Sesi Mentoring
                     </a>
                 </div>
-                <h2 style="margin: 0; font-size: 1.4rem; font-weight: 800;">
-                    <i class="fas fa-clipboard-check" style="opacity: 0.8;"></i>
-                    Input Absensi Sesi
+                <h2 style="margin: 0; font-size: 1.45rem; font-weight: 800;">
+                    <i class="fas fa-quran" style="opacity: 0.8; margin-right: 8px;"></i>
+                    Input Sesi & Capaian Mentoring Tahfidz
                 </h2>
-                <div style="margin-top: 6px; font-size: 0.85rem; opacity: 0.8;">
-                    Kelompok: <strong>{{ $group->name }}</strong> &nbsp;·&nbsp; Pembimbing: {{ $group->mentor_name }}
+                <div style="margin-top: 6px; font-size: 0.85rem; opacity: 0.85;">
+                    Kelompok: <strong>{{ $group->name }}</strong> &nbsp;·&nbsp; Pembimbing: <strong>{{ $group->mentor_name }}</strong>
                 </div>
             </div>
-            <div style="font-size: 0.85rem; opacity: 0.8;">
-                {{ $students->count() }} Siswa Terdaftar
+            <div style="text-align: right; font-size: 0.85rem; opacity: 0.9;">
+                <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-weight: 700;">
+                    <i class="fas fa-users"></i> {{ $students->count() }} Siswa
+                </span>
             </div>
         </div>
     </div>
 
-    <div style="background: white; border-radius: 0 0 16px 16px; border: 1px solid #e2e8f0; border-top: none;">
+    <div style="background: white; border-radius: 0 0 16px 16px; border: 1px solid #e2e8f0; border-top: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
 
         @if($students->isEmpty())
             <div style="text-align: center; padding: 50px; color: #94a3b8;">
@@ -98,85 +125,167 @@
             @csrf
 
             {{-- PENGATURAN SESI --}}
-            <div style="padding: 20px 20px 16px; border-bottom: 2px solid #f1f5f9; display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
-                <div>
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;">
-                        Tanggal Sesi <span style="color: red;">*</span>
-                    </label>
-                    <input type="date" name="session_date" value="{{ $date }}" required
-                        style="padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;">
-                        Tahun Pelajaran <span style="color: red;">*</span>
-                    </label>
-                    <select name="academic_year_id" required style="padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; color: #0f172a;">
-                        @foreach($academicYears as $yr)
-                            <option value="{{ $yr->id }}" {{ $yr->id == $yearId ? 'selected' : '' }}>TP {{ $yr->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                {{-- Tombol isi semua hadir --}}
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="setAll('hadir')" class="quick-btn" style="border-color: #86efac; color: #16a34a;">
-                        ✅ Semua Hadir
-                    </button>
-                    <button type="button" onclick="setAll('alpha')" class="quick-btn" style="border-color: #fca5a5; color: #dc2626;">
-                        ❌ Semua Alpha
-                    </button>
-                </div>
-            </div>
-
-            {{-- HEADER TABEL --}}
-            <div style="padding: 10px 20px; background: #f8fafc; display: grid; grid-template-columns: 36px 1fr auto 1fr; gap: 12px; align-items: center; border-bottom: 1px solid #e2e8f0;">
-                <div></div>
-                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Nama Siswa</div>
-                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; min-width: 300px; text-align: center;">Status Kehadiran</div>
-                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Catatan (opsional)</div>
-            </div>
-
-            {{-- DAFTAR SISWA --}}
-            @foreach($students as $i => $student)
-                @php $ex = $existing->get($student->id); @endphp
-                <div class="student-row">
-                    {{-- Avatar --}}
-                    <div class="avatar">{{ substr($student->name, 0, 1) }}</div>
-
-                    {{-- Nama --}}
+            <div style="padding: 20px 24px; border-bottom: 2px solid #f1f5f9; background: #f8fafc; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                     <div>
-                        <div style="font-weight: 700; color: #0f172a; font-size: 0.9rem;">{{ $student->name }}</div>
-                        <div style="font-size: 0.75rem; color: #64748b;">Kelas {{ $student->class }}{{ $student->nis ? ' · NIS: '.$student->nis : '' }}</div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;">
+                            📅 Tanggal Pelaksanaan Sesi <span style="color: red;">*</span>
+                        </label>
+                        <input type="date" name="session_date" value="{{ $date }}" required
+                            style="padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; font-weight: 600; background: white;">
                     </div>
-
-                    {{-- Status radio buttons --}}
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap; min-width: 300px; justify-content: center;">
-                        @foreach(['hadir' => ['✅','Hadir'], 'sakit' => ['🤒','Sakit'], 'izin' => ['📄','Izin'], 'alpha' => ['❌','Alpha']] as $val => [$icon, $lbl])
-                            <input type="radio"
-                                id="s{{ $student->id }}_{{ $val }}"
-                                name="attendance[{{ $student->id }}][status]"
-                                value="{{ $val }}"
-                                class="status-radio radio-{{ $val }}"
-                                {{ ($ex ? $ex->status : 'hadir') === $val ? 'checked' : '' }}>
-                            <label for="s{{ $student->id }}_{{ $val }}" class="status-label">{{ $icon }} {{ $lbl }}</label>
-                        @endforeach
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;">
+                            Tahun Pelajaran <span style="color: red;">*</span>
+                        </label>
+                        <select name="academic_year_id" required style="padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; color: #0f172a; background: white;">
+                            @foreach($academicYears as $yr)
+                                <option value="{{ $yr->id }}" {{ $yr->id == $yearId ? 'selected' : '' }}>TP {{ $yr->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-
-                    {{-- Catatan --}}
-                    <input type="text" name="attendance[{{ $student->id }}][notes]"
-                        placeholder="Catatan..."
-                        value="{{ $ex?->notes ?? '' }}"
-                        style="padding: 7px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.82rem; color: #0f172a; width: 100%; box-sizing: border-box;">
                 </div>
-            @endforeach
+
+                {{-- Quick Buttons --}}
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" onclick="setAllAttendance('hadir')" class="quick-btn" style="border-color: #86efac; color: #16a34a;">
+                        <i class="fas fa-check-circle"></i> Semua Hadir
+                    </button>
+                    <button type="button" onclick="setAllLulus('LULUS')" class="quick-btn" style="border-color: #86efac; color: #16a34a;">
+                        <i class="fas fa-award"></i> Semua LULUS
+                    </button>
+                    <button type="button" onclick="setAllAttendance('alpha')" class="quick-btn" style="border-color: #fca5a5; color: #dc2626;">
+                        <i class="fas fa-times-circle"></i> Semua Alpha
+                    </button>
+                </div>
+            </div>
+
+            {{-- DAFTAR SISWA & CAPAIAN --}}
+            <div style="padding: 0;">
+                @foreach($students as $i => $student)
+                    @php 
+                        $ex = $existing->get($student->id); 
+                        $currStatus = $ex ? $ex->status : 'hadir';
+                        $currLulus = $ex && $ex->hafalan_status ? $ex->hafalan_status : 'LULUS';
+                    @endphp
+                    <div class="student-card-item">
+                        {{-- Baris 1: Identitas & Kehadiran --}}
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar">{{ substr($student->name, 0, 1) }}</div>
+                                <div>
+                                    <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">
+                                        {{ $i + 1 }}. {{ $student->name }}
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #64748b;">
+                                        <span style="background: #f1f5f9; padding: 2px 7px; border-radius: 4px; font-weight: 600; color: #334155;">Kelas {{ $student->class }}</span>
+                                        @if($student->nis) · NIS: {{ $student->nis }} @endif
+                                        @if($student->parent_phone) · <i class="fab fa-whatsapp" style="color: #25d366;"></i> {{ $student->parent_phone }} @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Status Kehadiran Radio --}}
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                @foreach(['hadir' => ['✅','Hadir'], 'sakit' => ['🤒','Sakit'], 'izin' => ['📄','Izin'], 'alpha' => ['❌','Alpha']] as $val => [$icon, $lbl])
+                                    <input type="radio"
+                                        id="s{{ $student->id }}_{{ $val }}"
+                                        name="attendance[{{ $student->id }}][status]"
+                                        value="{{ $val }}"
+                                        class="status-radio radio-{{ $val }}"
+                                        onchange="toggleHadirSection('{{ $student->id }}', this.value)"
+                                        {{ $currStatus === $val ? 'checked' : '' }}>
+                                    <label for="s{{ $student->id }}_{{ $val }}" class="status-label">{{ $icon }} {{ $lbl }}</label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Baris 2: Input Capaian Hafalan, Status Kelulusan, Tugas Besok, Catatan --}}
+                        <div id="hadir_section_{{ $student->id }}" class="tahfidz-input-grid" style="{{ $currStatus !== 'hadir' ? 'opacity: 0.5;' : '' }}">
+                            {{-- Capaian Hari Ini --}}
+                            <div>
+                                <label class="input-label-sm">
+                                    📖 Capaian Hari Ini
+                                </label>
+                                <input type="text" 
+                                    name="attendance[{{ $student->id }}][capaian]"
+                                    value="{{ $ex?->capaian ?? '' }}"
+                                    placeholder="Contoh: Surat Al Hasyr ayat 10"
+                                    class="form-control"
+                                    style="padding: 8px 10px; font-size: 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                            </div>
+
+                            {{-- Status Kelulusan --}}
+                            <div>
+                                <label class="input-label-sm">
+                                    Hasil Capaian
+                                </label>
+                                <div style="display: flex; gap: 5px;">
+                                    <input type="radio" 
+                                        id="lulus_{{ $student->id }}_yes" 
+                                        name="attendance[{{ $student->id }}][hafalan_status]" 
+                                        value="LULUS" 
+                                        class="lulus-radio radio-opt-lulus"
+                                        {{ $currLulus === 'LULUS' ? 'checked' : '' }}>
+                                    <label for="lulus_{{ $student->id }}_yes" class="lulus-label" title="✓ Lulus">
+                                        ✓ LULUS
+                                    </label>
+
+                                    <input type="radio" 
+                                        id="lulus_{{ $student->id }}_no" 
+                                        name="attendance[{{ $student->id }}][hafalan_status]" 
+                                        value="BELUM LULUS" 
+                                        class="lulus-radio radio-opt-belum"
+                                        {{ $currLulus === 'BELUM LULUS' ? 'checked' : '' }}>
+                                    <label for="lulus_{{ $student->id }}_no" class="lulus-label" title="✗ Belum Lulus">
+                                        ✗ BELUM
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- Tugas Besok --}}
+                            <div>
+                                <label class="input-label-sm">
+                                    📝 Tugas Besok
+                                </label>
+                                <input type="text" 
+                                    name="attendance[{{ $student->id }}][tugas_besok]"
+                                    value="{{ $ex?->tugas_besok ?? '' }}"
+                                    placeholder="Contoh: Surat Al Hasyr ayat 11-12"
+                                    class="form-control"
+                                    style="padding: 8px 10px; font-size: 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                            </div>
+
+                            {{-- Catatan Guru --}}
+                            <div>
+                                <label class="input-label-sm">
+                                    💭 Catatan Guru
+                                </label>
+                                <input type="text" 
+                                    name="attendance[{{ $student->id }}][notes]"
+                                    value="{{ $ex?->notes ?? '' }}"
+                                    placeholder="Contoh: Barakallah... / Lancarkan lagi.."
+                                    class="form-control"
+                                    style="padding: 8px 10px; font-size: 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
 
             {{-- FOOTER --}}
-            <div style="padding: 20px; border-top: 2px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
-                <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-weight: 600;">
-                    Batal
-                </a>
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-save"></i> Simpan Absensi {{ $students->count() }} Siswa
-                </button>
+            <div style="padding: 22px 24px; border-top: 2px solid #f1f5f9; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="font-size: 0.84rem; color: #64748b;">
+                    💡 <em>Setelah menekan Simpan, format laporan WhatsApp siap disalin atau dibagikan ke orang tua secara instan.</em>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" style="background: white; border: 1px solid #cbd5e1; color: #475569; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;">
+                        Batal
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> Simpan Sesi & Siapkan Laporan WA
+                    </button>
+                </div>
             </div>
         </form>
 
@@ -185,8 +294,25 @@
 </div>
 
 <script>
-function setAll(status) {
-    document.querySelectorAll(`input[type=radio][value="${status}"]`).forEach(r => r.checked = true);
+function setAllAttendance(status) {
+    document.querySelectorAll(`input.status-radio[value="${status}"]`).forEach(r => {
+        r.checked = true;
+        const studentId = r.id.split('_')[0].replace('s', '');
+        toggleHadirSection(studentId, status);
+    });
+}
+
+function setAllLulus(status) {
+    document.querySelectorAll(`input.lulus-radio[value="${status}"]`).forEach(r => {
+        r.checked = true;
+    });
+}
+
+function toggleHadirSection(studentId, status) {
+    const section = document.getElementById(`hadir_section_${studentId}`);
+    if (section) {
+        section.style.opacity = (status === 'hadir') ? '1' : '0.5';
+    }
 }
 </script>
 

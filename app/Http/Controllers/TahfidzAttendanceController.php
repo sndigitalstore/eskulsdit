@@ -25,12 +25,31 @@ class TahfidzAttendanceController extends Controller
                 $table->unsignedBigInteger('academic_year_id');
                 $table->date('session_date');
                 $table->enum('status', ['hadir', 'sakit', 'izin', 'alpha'])->default('hadir');
+                $table->string('capaian')->nullable();
+                $table->string('hafalan_status')->default('LULUS')->nullable();
+                $table->string('tugas_besok')->nullable();
                 $table->text('notes')->nullable();
                 $table->unsignedBigInteger('recorded_by')->nullable();
                 $table->timestamps();
                 $table->unique(['mentoring_group_id', 'student_id', 'session_date'], 'unique_tahfidz_attendance');
                 $table->index(['mentoring_group_id', 'session_date']);
             });
+        } else {
+            if (!Schema::hasColumn('tahfidz_attendances', 'capaian')) {
+                Schema::table('tahfidz_attendances', function ($table) {
+                    $table->string('capaian')->nullable()->after('status');
+                });
+            }
+            if (!Schema::hasColumn('tahfidz_attendances', 'hafalan_status')) {
+                Schema::table('tahfidz_attendances', function ($table) {
+                    $table->string('hafalan_status')->default('LULUS')->nullable()->after('capaian');
+                });
+            }
+            if (!Schema::hasColumn('tahfidz_attendances', 'tugas_besok')) {
+                Schema::table('tahfidz_attendances', function ($table) {
+                    $table->string('tugas_besok')->nullable()->after('hafalan_status');
+                });
+            }
         }
     }
 
@@ -100,10 +119,14 @@ class TahfidzAttendanceController extends Controller
         $this->ensureTableExists();
 
         $request->validate([
-            'session_date'      => 'required|date',
-            'academic_year_id'  => 'required|exists:academic_years,id',
-            'attendance'        => 'required|array',
-            'attendance.*.status' => 'required|in:hadir,sakit,izin,alpha',
+            'session_date'                => 'required|date',
+            'academic_year_id'            => 'required|exists:academic_years,id',
+            'attendance'                  => 'required|array',
+            'attendance.*.status'         => 'required|in:hadir,sakit,izin,alpha',
+            'attendance.*.capaian'        => 'nullable|string|max:255',
+            'attendance.*.hafalan_status' => 'nullable|string|max:50',
+            'attendance.*.tugas_besok'    => 'nullable|string|max:255',
+            'attendance.*.notes'          => 'nullable|string|max:500',
         ]);
 
         $date   = $request->session_date;
@@ -120,6 +143,9 @@ class TahfidzAttendanceController extends Controller
                 [
                     'academic_year_id' => $yearId,
                     'status'           => $data['status'],
+                    'capaian'          => $data['capaian'] ?? null,
+                    'hafalan_status'   => $data['hafalan_status'] ?? 'LULUS',
+                    'tugas_besok'      => $data['tugas_besok'] ?? null,
                     'notes'            => $data['notes'] ?? null,
                     'recorded_by'      => $userId,
                 ]
@@ -127,8 +153,13 @@ class TahfidzAttendanceController extends Controller
         }
 
         return redirect()
-            ->route('tahfidz.attendance.index', ['group' => $group->id, 'year_id' => $yearId])
-            ->with('success', "Absensi sesi tanggal " . date('d/m/Y', strtotime($date)) . " berhasil disimpan!");
+            ->route('tahfidz.attendance.session', [
+                'group'      => $group->id,
+                'date'       => $date,
+                'year_id'    => $yearId,
+                'open_share' => 1
+            ])
+            ->with('success', "Capaian mentoring & absensi sesi tanggal " . \Carbon\Carbon::parse($date)->isoFormat('D MMMM Y') . " berhasil disimpan! Format WhatsApp siap dibagikan.");
     }
 
     /**
@@ -160,14 +191,77 @@ class TahfidzAttendanceController extends Controller
             ->where('session_date', $date)
             ->with('student')
             ->get()
-            ->sortBy(fn($r) => $r->student->class . $r->student->name);
+            ->sortBy(fn($r) => $r->student->class . $r->student->name)
+            ->values();
 
-        $yearId       = $records->first()?->academic_year_id;
-        $academicYears= AcademicYear::orderBy('name', 'desc')->get();
+        $yearId          = $records->first()?->academic_year_id;
+        $academicYears   = AcademicYear::orderBy('name', 'desc')->get();
+        $whatsappMessage = self::generateWhatsappMessage($group, $date, $records);
+        $openShare       = (bool) $request->query('open_share', false);
 
         return view('tahfidz.attendance_session', compact(
-            'group', 'records', 'date', 'yearId', 'academicYears'
+            'group', 'records', 'date', 'yearId', 'academicYears', 'whatsappMessage', 'openShare'
         ));
+    }
+
+    /**
+     * Helper untuk format pesan WhatsApp laporan capaian hafalan mentoring tahfidz
+     */
+    public static function generateWhatsappMessage(MentoringGroup $group, string $date, $records): string
+    {
+        $formattedDate = \Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM Y');
+
+        $msg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\n";
+        $msg .= "Ayah dan Bunda yang kami hormati,\n\n";
+        $msg .= "Alhamdulillah, dengan puji syukur kepada Allah SWT, berikut kami sampaikan laporan capaian hafalan putra-putri tercinta.\n\n";
+        $msg .= "📅 *Tanggal:* " . $formattedDate . "\n\n";
+        $msg .= "━━━━━━━━━━━━━━━━\n\n";
+
+        $no = 1;
+        foreach ($records as $rec) {
+            $student = $rec->student;
+            $name = $student ? $student->name : 'Siswa';
+            $class = $student ? $student->class : '-';
+
+            $msg .= "*{$no}. {$name}* (Kelas {$class})\n";
+
+            if ($rec->status !== 'hadir') {
+                $statusLabel = match($rec->status) {
+                    'sakit' => '🤒 Sakit',
+                    'izin'  => '📄 Izin',
+                    'alpha' => '❌ Tidak Hadir (Alpha)',
+                    default => ucfirst($rec->status)
+                };
+                $msg .= "📌 *Status Kehadiran:* {$statusLabel}\n";
+                if (!empty($rec->notes)) {
+                    $msg .= "💭 *Catatan Guru:* {$rec->notes}\n";
+                }
+            } else {
+                $capaian = !empty($rec->capaian) ? $rec->capaian : '-';
+                $isLulus = (strtoupper($rec->hafalan_status ?? 'LULUS') === 'LULUS');
+                $statusStr = $isLulus ? "✅ *Status:* ✓ LULUS" : "❌ *Status:* ✗ BELUM LULUS";
+                $tugas = !empty($rec->tugas_besok) ? $rec->tugas_besok : '-';
+                $notes = !empty($rec->notes) ? $rec->notes : ($isLulus ? 'Barakallah..' : 'Lancarkan lagi ya sholih/sholihah..');
+
+                $msg .= "📖 *Capaian Hari Ini:*\n";
+                $msg .= "{$capaian}\n\n";
+                $msg .= "{$statusStr}\n\n";
+                $msg .= "📝 *Tugas Besok:*\n";
+                $msg .= "{$tugas}\n";
+                $msg .= "💭 *Catatan Guru:* {$notes}\n";
+            }
+
+            $msg .= "\n━━━━━━━━━━━━━━━━\n\n";
+            $no++;
+        }
+
+        $msg .= "Mari kita terus mendoakan dan membimbing putra-putri kita dalam perjalanan menghafal Al-Qur'an. Setiap ayat yang dihafal adalah investasi untuk masa depan yang cerah dan amal ibadah yang berkelanjutan.\n\n";
+        $msg .= "Terima kasih atas kepercayaan dan kerja sama\n\n";
+        $msg .= "Semoga Allah SWT memberkahi setiap usaha kita, memudahkan hafalan putra-putri kita, dan menjadikan Al-Qur'an sebagai cahaya di hati dan amal ibadah di akhirat kelak. 🤲\n\n";
+        $msg .= "Wassalamu'alaikum Warahmatullahi Wabarakatuh 🌟\n\n";
+        $msg .= "_SDIT AN NADZIR_";
+
+        return $msg;
     }
 
     /**

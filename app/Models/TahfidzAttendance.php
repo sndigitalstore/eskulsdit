@@ -15,6 +15,9 @@ class TahfidzAttendance extends Model
         'academic_year_id',
         'session_date',
         'status',
+        'capaian',
+        'hafalan_status',
+        'tugas_besok',
         'notes',
         'recorded_by',
     ];

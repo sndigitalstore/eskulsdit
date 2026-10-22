@@ -142,6 +142,10 @@
 
             {{-- Aksi --}}
             <div style="display: flex; flex-direction: column; gap: 6px; min-width: fit-content;">
+                <a href="{{ route('tahfidz.attendance.session', ['group' => $group->id, 'date' => $session->session_date, 'open_share' => 1]) }}"
+                   style="background: #25d366; color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                    <i class="fab fa-whatsapp"></i> Share WA
+                </a>
                 <a href="{{ route('tahfidz.attendance.session', ['group' => $group->id, 'date' => $session->session_date]) }}"
                    style="background: #0f766e; color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                     <i class="fas fa-eye"></i> Detail
