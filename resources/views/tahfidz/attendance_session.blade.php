@@ -30,9 +30,6 @@
 .back-link { color: #64748b; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; font-weight: 600; }
 .back-link:hover { color: #0f766e; }
 .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-@media (max-width: 768px) {
-    .summary-grid { grid-template-columns: repeat(2, 1fr); }
-}
 .summary-card { border-radius: 12px; padding: 14px; text-align: center; }
 .summary-card .num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
 .summary-card .lbl { font-size: 0.72rem; font-weight: 700; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -52,6 +49,64 @@
 .avatar { width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
 .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
 .lulus-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; }
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .session-header-banner {
+        padding: 18px 16px !important;
+    }
+    .session-header-actions {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .session-header-actions button,
+    .session-header-actions a,
+    .session-header-actions form {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .session-header-actions button,
+    .session-header-actions a {
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    .session-header-actions form button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    .top-action-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .top-action-buttons {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .top-action-buttons button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    .session-desktop-table {
+        display: none !important;
+    }
+    .session-mobile-cards {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 14px 12px !important;
+    }
+}
+@media (min-width: 769px) {
+    .session-mobile-cards {
+        display: none !important;
+    }
+}
 
 /* Modal Styles */
 .modal-overlay {
@@ -77,17 +132,17 @@
 }
 </style>
 
-<div style="max-width: 1050px; margin: 0 auto; margin-bottom: 40px;">
+<div style="max-width: 1050px; margin: 0 auto; margin-bottom: 40px; padding: 0 4px;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+    <div class="top-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
         <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id, 'year_id' => $yearId]) }}" class="back-link" style="margin-bottom: 0;">
             <i class="fas fa-arrow-left"></i> Kembali ke Daftar Sesi
         </a>
-        <div style="display: flex; gap: 8px;">
-            <button type="button" onclick="openShareModal()" class="btn-action-header" style="background: #25d366; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,211,102,0.35);">
+        <div class="top-action-buttons" style="display: flex; gap: 8px;">
+            <button type="button" onclick="openShareModal()" class="btn-action-header" style="background: #25d366; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,211,102,0.35);">
                 <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share Laporan ke WA Ortu
             </button>
-            <button type="button" onclick="copyWhatsappText()" class="btn-action-header btn-dark" style="background: #334155; padding: 8px 14px;">
+            <button type="button" onclick="copyWhatsappText()" class="btn-action-header btn-dark" style="background: #334155; padding: 9px 14px; border-radius: 8px; color: white; border: none; font-weight: 600; cursor: pointer;">
                 <i class="fas fa-copy"></i> Salin Format WA
             </button>
         </div>
@@ -107,36 +162,36 @@
 
     {{-- HEADER CARD --}}
     <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 20px; border-radius: 16px;">
-        <div style="background: linear-gradient(135deg, #1e3a5f, #0f766e); padding: 24px 28px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div class="session-header-banner" style="background: linear-gradient(135deg, #1e3a5f, #0f766e); padding: 24px 28px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
             <div>
                 <div style="font-size: 0.8rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
                     Laporan Pelaksanaan Mentoring Tahfidz
                 </div>
-                <h3 style="margin: 0; font-size: 1.45rem; font-weight: 800;">
+                <h3 style="margin: 0; font-size: 1.45rem; font-weight: 800; line-height: 1.3;">
                     <i class="fas fa-calendar-check" style="opacity: 0.85; margin-right: 8px;"></i>
                     {{ $sessionDate->isoFormat('dddd, D MMMM Y') }}
                 </h3>
-                <div style="margin-top: 6px; font-size: 0.88rem; opacity: 0.85;">
+                <div style="margin-top: 6px; font-size: 0.88rem; opacity: 0.85; line-height: 1.4;">
                     Kelompok: <strong>{{ $group->name }}</strong> &nbsp;·&nbsp; Pembimbing: <strong>{{ $group->mentor_name }}</strong>
                 </div>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div class="session-header-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" onclick="openShareModal()"
-                        style="background: #25d366; border: none; color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
-                    <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share WA Ortu
+                        style="background: #25d366; border: none; color: white; padding: 9px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+                    <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share WA
                 </button>
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id, 'date' => $date, 'year_id' => $yearId]) }}"
-                   style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                   style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-edit"></i> Edit Sesi
                 </a>
                 <a href="{{ route('tahfidz.attendance.print-session', ['group' => $group->id, 'date' => $date]) }}" target="_blank"
-                   style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                   style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-print"></i> Cetak
                 </a>
                 <form method="POST" action="{{ route('tahfidz.attendance.destroy-session', ['group' => $group->id]) }}" onsubmit="return confirm('Hapus seluruh absensi & capaian sesi ini?')">
                     @csrf @method('DELETE')
                     <input type="hidden" name="date" value="{{ $date }}">
-                    <button type="submit" style="background: rgba(239,68,68,0.25); border: 1px solid rgba(239,68,68,0.4); color: white; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                    <button type="submit" style="background: rgba(239,68,68,0.25); border: 1px solid rgba(239,68,68,0.4); color: white; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600;">
                         <i class="fas fa-trash-alt"></i> Hapus
                     </button>
                 </form>
@@ -169,8 +224,8 @@
             </div>
         </div>
 
-        {{-- TABLE DETAIL CAPAIAN SISWA --}}
-        <div style="overflow-x: auto;">
+        {{-- TABLE DETAIL CAPAIAN SISWA (DESKTOP) --}}
+        <div class="session-desktop-table" style="overflow-x: auto;">
             <table class="record-table">
                 <thead>
                     <tr>
@@ -250,7 +305,7 @@
                                     @php
                                         $cleanPhone = preg_replace('/[^0-9]/', '', $rec->student->parent_phone);
                                         if (str_starts_with($cleanPhone, '0')) {
-                                            $cleanPhone = '62' . substr($cleanPhone, 1);
+                                             $cleanPhone = '62' . substr($cleanPhone, 1);
                                         }
                                         $statusStr = $isLulus ? "✓ LULUS" : "✗ BELUM LULUS";
                                         $singleMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\n";
@@ -286,6 +341,114 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- MOBILE CARDS VIEW (SMARTPHONE <= 768px) --}}
+        <div class="session-mobile-cards">
+            @forelse($records as $i => $rec)
+                @php 
+                    $sc = $statusColor($rec->status); 
+                    $isLulus = (strtoupper($rec->hafalan_status ?? 'LULUS') === 'LULUS');
+                @endphp
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 10px; border-left: 4px solid {{ $rec->status === 'hadir' ? ($isLulus ? '#16a34a' : '#ef4444') : '#94a3b8' }};">
+                    {{-- Baris Atas: Siswa & Status Badge --}}
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="avatar">{{ substr($rec->student->name, 0, 1) }}</div>
+                            <div>
+                                <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem; line-height: 1.3;">
+                                    {{ $i + 1 }}. {{ $rec->student->name }}
+                                </div>
+                                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                    Kelas {{ $rec->student->class }}{{ $rec->student->nis ? ' · NIS: '.$rec->student->nis : '' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                            <span class="status-badge" style="background: {{ $sc['bg'] }}; color: {{ $sc['text'] }}; font-size: 0.75rem; padding: 3px 8px;">
+                                {{ $statusLabel($rec->status) }}
+                            </span>
+                            @if($rec->status === 'hadir')
+                                @if($isLulus)
+                                    <span class="lulus-badge" style="background: #dcfce7; color: #166534; border: 1px solid #86efac; font-size: 0.7rem; padding: 2px 6px;">
+                                        ✓ LULUS
+                                    </span>
+                                @else
+                                    <span class="lulus-badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 0.7rem; padding: 2px 6px;">
+                                        ✗ BELUM
+                                    </span>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Tengah: Capaian & Tugas Besok --}}
+                    @if($rec->status === 'hadir')
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+                            <div>
+                                <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">📖 Capaian Hari Ini:</span>
+                                <div style="font-weight: 700; color: #1e293b; margin-top: 2px;">
+                                    {{ $rec->capaian ?: '-' }}
+                                </div>
+                            </div>
+                            @if($rec->tugas_besok)
+                                <div style="border-top: 1px dashed #cbd5e1; padding-top: 6px;">
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0369a1; text-transform: uppercase;">📝 Tugas Besok:</span>
+                                    <div style="font-weight: 600; color: #0284c7; margin-top: 2px;">
+                                        {{ $rec->tugas_besok }}
+                                    </div>
+                                </div>
+                            @endif
+                            @if($rec->notes)
+                                <div style="border-top: 1px dashed #cbd5e1; padding-top: 6px; font-size: 0.78rem; color: #475569;">
+                                    <i class="far fa-comment-dots" style="color: #f59e0b;"></i> {{ $rec->notes }}
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #64748b;">
+                            <em>Tidak hadir ({{ $statusLabel($rec->status) }})</em>
+                            @if($rec->notes)
+                                <div style="margin-top: 4px; color: #475569;"><i class="far fa-comment-dots"></i> {{ $rec->notes }}</div>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Tombol WA Personal Ortu --}}
+                    @if($rec->student->parent_phone)
+                        @php
+                            $cleanPhone = preg_replace('/[^0-9]/', '', $rec->student->parent_phone);
+                            if (str_starts_with($cleanPhone, '0')) {
+                                $cleanPhone = '62' . substr($cleanPhone, 1);
+                            }
+                            $statusStr = $isLulus ? "✓ LULUS" : "✗ BELUM LULUS";
+                            $singleMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\n";
+                            $singleMsg .= "Ayah dan Bunda dari ananda *{$rec->student->name}* (Kelas {$rec->student->class}),\n\n";
+                            $singleMsg .= "Alhamdulillah, berikut kami sampaikan laporan capaian hafalan hari ini:\n";
+                            $singleMsg .= "📅 *Tanggal:* " . $sessionDate->isoFormat('dddd, D MMMM Y') . "\n";
+                            if ($rec->status === 'hadir') {
+                                $singleMsg .= "📖 *Capaian Hari Ini:* " . ($rec->capaian ?: '-') . "\n";
+                                $singleMsg .= "✅ *Status:* " . $statusStr . "\n";
+                                $singleMsg .= "📝 *Tugas Besok:* " . ($rec->tugas_besok ?: '-') . "\n";
+                                $singleMsg .= "💭 *Catatan Guru:* " . ($rec->notes ?: ($isLulus ? 'Barakallah..' : 'Tetap semangat ya sholih/sholihah..')) . "\n\n";
+                            } else {
+                                $singleMsg .= "📌 *Status Kehadiran:* " . $statusLabel($rec->status) . "\n";
+                                if ($rec->notes) $singleMsg .= "💭 *Catatan Guru:* " . $rec->notes . "\n\n";
+                            }
+                            $singleMsg .= "Terima kasih atas kerja sama dan bimbingan Ayah & Bunda di rumah. 🤲\n\n_SDIT AN NADZIR_";
+                            $waSingleUrl = "https://api.whatsapp.com/send?phone=" . $cleanPhone . "&text=" . urlencode($singleMsg);
+                        @endphp
+                        <a href="{{ $waSingleUrl }}" target="_blank"
+                           style="background: #25d366; color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(37,211,102,0.25);">
+                            <i class="fab fa-whatsapp" style="font-size: 1rem;"></i> Kirim WA ke Orang Tua
+                        </a>
+                    @endif
+                </div>
+            @empty
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; padding: 30px; color: #94a3b8;">
+                    Belum ada data sesi pada tanggal ini.
+                </div>
+            @endforelse
         </div>
     </div>
 </div>

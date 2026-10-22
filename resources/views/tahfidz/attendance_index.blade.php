@@ -17,7 +17,7 @@
     transition: box-shadow 0.2s, transform 0.15s;
     text-decoration: none;
     color: inherit;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 .session-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-1px); }
 .date-badge {
@@ -46,12 +46,59 @@
 .btn-new:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(15,118,110,0.35); color: white; }
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-state i { font-size: 3.5rem; color: #cbd5e1; margin-bottom: 16px; display: block; }
+
+@media (max-width: 680px) {
+    .attendance-header-banner {
+        padding: 18px 16px !important;
+        border-radius: 14px !important;
+    }
+    .attendance-header-actions {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .attendance-header-actions form,
+    .attendance-header-actions a {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+    }
+    .attendance-header-actions select {
+        width: 100% !important;
+    }
+    .session-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        padding: 16px 14px !important;
+    }
+    .session-card-top {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+    .session-card-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 12px;
+    }
+    .session-card-actions a {
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 9px 10px !important;
+    }
+}
 </style>
 
-<div style="max-width: 900px; margin: 0 auto;">
+<div style="max-width: 900px; margin: 0 auto; padding: 0 4px;">
 
     {{-- HEADER --}}
-    <div style="background: linear-gradient(135deg, #1e3a5f 0%, #0f766e 100%); border-radius: 16px; padding: 26px 28px; color: white; margin-bottom: 24px;">
+    <div class="attendance-header-banner" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f766e 100%); border-radius: 16px; padding: 26px 28px; color: white; margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
             <div>
                 <div style="font-size: 0.8rem; opacity: 0.75; margin-bottom: 6px;">
@@ -64,16 +111,16 @@
                     <i class="fas fa-clipboard-check" style="margin-right: 10px; opacity: 0.8;"></i>
                     Absensi Mentoring Tahfidz
                 </h2>
-                <div style="margin-top: 8px; font-size: 0.85rem; opacity: 0.8;">
+                <div style="margin-top: 8px; font-size: 0.85rem; opacity: 0.8; line-height: 1.4;">
                     Kelompok: <strong>{{ $group->name }}</strong> &nbsp;·&nbsp;
                     Pembimbing: <strong>{{ $group->mentor_name }}</strong> &nbsp;·&nbsp;
                     {{ $totalSiswa }} Siswa Terdaftar
                 </div>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <div class="attendance-header-actions" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                 {{-- Filter tahun --}}
                 <form method="GET" style="display: flex; align-items: center; gap: 6px;">
-                    <select name="year_id" onchange="this.form.submit()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; padding: 7px 10px; font-size: 0.85rem; cursor: pointer;">
+                    <select name="year_id" onchange="this.form.submit()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;">
                         @foreach($academicYears as $yr)
                             <option value="{{ $yr->id }}" {{ $yr->id == $yearId ? 'selected' : '' }} style="color: #0f172a; background: white;">
                                 TP {{ $yr->name }}
@@ -83,7 +130,7 @@
                 </form>
                 @if($sessions->isNotEmpty())
                     <a href="{{ route('tahfidz.attendance.print-recap', ['group' => $group->id, 'year_id' => $yearId]) }}" target="_blank"
-                       style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                       style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
                         <i class="fas fa-table"></i> Rekap Absensi
                     </a>
                 @endif
@@ -113,49 +160,51 @@
         @endphp
 
         <div class="session-card">
-            {{-- Tanggal badge --}}
-            <div class="date-badge">
-                <div class="day">{{ $sessionDate->format('d') }}</div>
-                <div class="month">{{ $sessionDate->isoFormat('MMM') }}</div>
-            </div>
+            <div class="session-card-top" style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">
+                {{-- Tanggal badge --}}
+                <div class="date-badge">
+                    <div class="day">{{ $sessionDate->format('d') }}</div>
+                    <div class="month">{{ $sessionDate->isoFormat('MMM') }}</div>
+                </div>
 
-            {{-- Info sesi --}}
-            <div style="flex: 1; min-width: 0;">
-                <div style="font-weight: 700; font-size: 1rem; color: #0f172a; margin-bottom: 6px;">
-                    {{ $sessionDate->isoFormat('dddd, D MMMM Y') }}
+                {{-- Info sesi --}}
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 700; font-size: 1rem; color: #0f172a; margin-bottom: 6px; line-height: 1.3;">
+                        {{ $sessionDate->isoFormat('dddd, D MMMM Y') }}
+                    </div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <span class="stat-pill" style="background: #dcfce7; color: #16a34a;"><i class="fas fa-check"></i> {{ $hadir }} Hadir</span>
+                        <span class="stat-pill" style="background: #fef3c7; color: #d97706;"><i class="fas fa-thermometer-half"></i> {{ $sakit }} Sakit</span>
+                        <span class="stat-pill" style="background: #e0f2fe; color: #0369a1;"><i class="fas fa-file-alt"></i> {{ $izin }} Izin</span>
+                        <span class="stat-pill" style="background: #fee2e2; color: #dc2626;"><i class="fas fa-times"></i> {{ $alpha }} Alpha</span>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <span class="stat-pill" style="background: #dcfce7; color: #16a34a;"><i class="fas fa-check"></i> {{ $hadir }} Hadir</span>
-                    <span class="stat-pill" style="background: #fef3c7; color: #d97706;"><i class="fas fa-thermometer-half"></i> {{ $sakit }} Sakit</span>
-                    <span class="stat-pill" style="background: #e0f2fe; color: #0369a1;"><i class="fas fa-file-alt"></i> {{ $izin }} Izin</span>
-                    <span class="stat-pill" style="background: #fee2e2; color: #dc2626;"><i class="fas fa-times"></i> {{ $alpha }} Alpha</span>
-                </div>
-            </div>
 
-            {{-- Progress kehadiran --}}
-            <div style="text-align: center; min-width: 70px;">
-                <div style="font-size: 1.4rem; font-weight: 900; color: {{ $pct >= 80 ? '#16a34a' : ($pct >= 60 ? '#d97706' : '#dc2626') }};">
-                    {{ $pct }}%
+                {{-- Progress kehadiran --}}
+                <div style="text-align: center; min-width: 65px; margin-left: auto;">
+                    <div style="font-size: 1.35rem; font-weight: 900; color: {{ $pct >= 80 ? '#16a34a' : ($pct >= 60 ? '#d97706' : '#dc2626') }};">
+                        {{ $pct }}%
+                    </div>
+                    <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.4px;">Hadir</div>
                 </div>
-                <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.4px;">Hadir</div>
             </div>
 
             {{-- Aksi --}}
-            <div style="display: flex; flex-direction: column; gap: 6px; min-width: fit-content;">
+            <div class="session-card-actions" style="display: flex; flex-direction: column; gap: 6px; min-width: fit-content;">
                 <a href="{{ route('tahfidz.attendance.session', ['group' => $group->id, 'date' => $session->session_date, 'open_share' => 1]) }}"
-                   style="background: #25d366; color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                   style="background: #25d366; color: white; text-decoration: none; padding: 7px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 5px;">
                     <i class="fab fa-whatsapp"></i> Share WA
                 </a>
                 <a href="{{ route('tahfidz.attendance.session', ['group' => $group->id, 'date' => $session->session_date]) }}"
-                   style="background: #0f766e; color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                   style="background: #0f766e; color: white; text-decoration: none; padding: 7px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                     <i class="fas fa-eye"></i> Detail
                 </a>
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id, 'date' => $session->session_date, 'year_id' => $yearId]) }}"
-                   style="background: #f59e0b; color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                   style="background: #f59e0b; color: white; text-decoration: none; padding: 7px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                     <i class="fas fa-edit"></i> Edit
                 </a>
                 <a href="{{ route('tahfidz.attendance.print-session', ['group' => $group->id, 'date' => $session->session_date]) }}" target="_blank"
-                   style="background: #334155; color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                   style="background: #334155; color: white; text-decoration: none; padding: 7px 12px; border-radius: 7px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                     <i class="fas fa-print"></i> Cetak
                 </a>
             </div>

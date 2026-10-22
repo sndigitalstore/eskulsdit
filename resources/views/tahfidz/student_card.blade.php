@@ -73,20 +73,91 @@
 .btn-del:hover { background: #fee2e2; }
 .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
 .empty-state i { font-size: 3rem; margin-bottom: 12px; display: block; }
+
+/* RESPONSIVE MOBILE STYLES */
+@media (max-width: 768px) {
+    .card-header-custom {
+        padding: 20px 16px !important;
+        border-radius: 14px 14px 0 0 !important;
+    }
+    .card-header-custom h2 {
+        font-size: 1.35rem !important;
+    }
+    .card-header-flex-top {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+    }
+    .header-actions-wrap {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .header-actions-wrap a, .header-actions-wrap form, .header-actions-wrap select {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box;
+    }
+    .stats-grid-card {
+        grid-template-columns: 1fr 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .stat-box {
+        padding: 10px 8px !important;
+    }
+    .stat-box .stat-num {
+        font-size: 1.35rem !important;
+    }
+    .stat-box .stat-lbl {
+        font-size: 0.65rem !important;
+    }
+    .card-body-custom {
+        padding: 16px 14px !important;
+    }
+    .form-card {
+        padding: 16px 14px !important;
+    }
+    .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+    .btn-save {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 12px !important;
+    }
+    .desktop-records-table {
+        display: none !important;
+    }
+    .mobile-records-list {
+        display: flex !important;
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+@media (min-width: 769px) {
+    .desktop-records-table {
+        display: block !important;
+    }
+    .mobile-records-list {
+        display: none !important;
+    }
+}
 </style>
 
 <div style="max-width: 1000px; margin: 0 auto;">
 
     {{-- HEADER --}}
     <div class="card-header-custom">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+        <div class="card-header-flex-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
             <div>
                 <div style="font-size: 0.8rem; opacity: 0.75; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-users"></i>
                     <a href="{{ route('tahfidz-groups.show', $group->id) }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">{{ $group->name }}</a>
                     <span>›</span> Kartu Hafalan
                 </div>
-                <h2 style="margin: 0; font-size: 1.6rem; font-weight: 800;">
+                <h2 style="margin: 0; font-size: 1.6rem; font-weight: 800; word-break: break-word;">
                     <i class="fas fa-quran" style="margin-right: 10px; opacity: 0.8;"></i>
                     {{ $student->name }}
                 </h2>
@@ -96,7 +167,7 @@
                     · Pembimbing: {{ $group->mentor_name }}
                 </div>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div class="header-actions-wrap" style="display: flex; gap: 8px; flex-wrap: wrap;">
                 {{-- Filter tahun --}}
                 <form method="GET" style="display: flex; align-items: center; gap: 6px;">
                     <select name="year_id" onchange="this.form.submit()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; padding: 7px 10px; font-size: 0.85rem; cursor: pointer;">
@@ -120,7 +191,7 @@
         </div>
 
         {{-- Stats --}}
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px;">
+        <div class="stats-grid-card" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px;">
             <div class="stat-box">
                 <div class="stat-num">{{ $totalSetoran }}</div>
                 <div class="stat-lbl">Setoran Baru</div>
@@ -136,7 +207,7 @@
         </div>
     </div>
 
-    <div style="background: white; border-radius: 0 0 16px 16px; border: 1px solid #e2e8f0; border-top: none; padding: 28px;">
+    <div class="card-body-custom" style="background: white; border-radius: 0 0 16px 16px; border: 1px solid #e2e8f0; border-top: none; padding: 28px;">
 
         @if(session('success'))
             <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
@@ -416,7 +487,7 @@
                 <p style="margin: 6px 0 0 0; font-size: 0.85rem;">Gunakan form di atas untuk menambahkan setoran pertama.</p>
             </div>
         @else
-            <div style="overflow-x: auto;">
+            <div class="desktop-records-table" style="overflow-x: auto;">
                 <table class="table-records" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
@@ -496,6 +567,76 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- MOBILE RECORDS LIST (CARD-BASED, NO CLIPPING) -->
+            <div class="mobile-records-list">
+                @foreach($records as $i => $rec)
+                    @php
+                        $rAyah = $rec->start_ayah ? "Ayat {$rec->start_ayah}" . ($rec->end_ayah && $rec->end_ayah != $rec->start_ayah ? "-{$rec->end_ayah}" : '') : 'Selesai';
+                        $rQuality = $qualityLabel($rec->quality);
+                        $rType = $typeLabel($rec->type);
+                        $rDate = \Carbon\Carbon::parse($rec->session_date)->isoFormat('dddd, D MMMM Y');
+                        $rNotes = $rec->notes ?? 'Pertahankan hafalan dengan muroja\'ah istiqomah di rumah.';
+                    @endphp
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                            <div>
+                                <strong style="color: #0f172a; font-size: 0.95rem;">{{ $rec->surah_name }}</strong>
+                                <span style="font-size: 0.82rem; color: #475569; font-weight: 600;">
+                                    ({{ $rAyah }})
+                                </span>
+                            </div>
+                            <span style="font-size: 0.74rem; color: #64748b; white-space: nowrap;">
+                                {{ \Carbon\Carbon::parse($rec->session_date)->format('d/m/Y') }}
+                            </span>
+                        </div>
+
+                        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+                            <span class="badge-type" style="background: {{ $typeColor($rec->type) }}; font-size: 0.72rem; padding: 2px 8px;">
+                                {{ $typeLabel($rec->type) }}
+                            </span>
+                            <span class="badge-quality" style="background: {{ $qualityColor($rec->quality) }}; font-size: 0.72rem; padding: 2px 8px;">
+                                {{ $qualityLabel($rec->quality) }}
+                            </span>
+                            @if($rec->juz)
+                                <span style="font-size: 0.72rem; background: #f1f5f9; color: #0f766e; padding: 2px 8px; border-radius: 12px; font-weight: 700;">
+                                    Juz {{ $rec->juz }}
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($rec->notes)
+                            <div style="font-size: 0.8rem; color: #475569; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border-left: 3px solid #0f766e; margin-bottom: 8px;">
+                                "{{ $rec->notes }}"
+                            </div>
+                        @endif
+
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 6px; border-top: 1px dashed #f1f5f9;">
+                            <button type="button" 
+                                    onclick="openWaShareModal(
+                                        '{{ addslashes($student->name) }}',
+                                        '{{ $student->class }}',
+                                        '{{ $student->parent_phone ?? '' }}',
+                                        '{{ addslashes($rec->surah_name) }}',
+                                        '{{ addslashes($rAyah) }}',
+                                        '{{ addslashes($rQuality) }}',
+                                        '{{ addslashes($rType) }}',
+                                        '{{ addslashes($rDate) }}',
+                                        '{{ addslashes($rNotes) }}'
+                                    )"
+                                    style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #059669; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fab fa-whatsapp" style="color: #25D366;"></i> Kirim WA
+                            </button>
+                            <form method="POST" action="{{ route('tahfidz.destroy', $rec->id) }}" onsubmit="return confirm('Hapus setoran {{ $rec->surah_name }}?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-del" style="padding: 6px 10px; font-size: 0.78rem;" title="Hapus">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         @endif
     </div>

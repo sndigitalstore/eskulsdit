@@ -266,6 +266,30 @@
             background: #edf2f7;
             transform: translateY(-1px);
         }
+
+        /* MOBILE OPTIMIZATIONS */
+        @media (max-width: 480px) {
+            .quran-header-wrap {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .quran-latest-box {
+                text-align: left !important;
+                margin-top: 10px !important;
+            }
+            .quran-kpi-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+            .quran-record-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 6px !important;
+            }
+            .quran-record-badge {
+                align-self: flex-start !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -297,7 +321,7 @@
                 <i class="fas fa-quran"></i>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+            <div class="quran-header-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
                 <div>
                     <span style="background: rgba(255,255,255,0.18); color: #ecfdf5; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px;">
                         <i class="fas fa-book-quran"></i> Program Unggulan Qur'ani
@@ -321,7 +345,7 @@
                 </div>
 
                 @if($quranData['latest_record'])
-                    <div style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 10px 14px; text-align: right; backdrop-filter: blur(4px);">
+                    <div class="quran-latest-box" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 10px 14px; text-align: right; backdrop-filter: blur(4px);">
                         <div style="font-size: 10px; opacity: 0.8; text-transform: uppercase; font-weight: 600;">Setoran Terakhir</div>
                         <div style="font-size: 15px; font-weight: 800; color: #a7f3d0; margin-top: 2px;">
                             {{ $quranData['latest_record']->surah_name }}
@@ -335,7 +359,7 @@
             </div>
 
             <!-- Mini KPI Grid -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px;">
+            <div class="quran-kpi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px;">
                 <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
                     <div style="font-size: 17px; font-weight: 800; color: #ffffff;">{{ $quranData['total_records'] }}</div>
                     <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Total Setoran</div>
@@ -364,7 +388,7 @@
 
                     <div style="display: flex; flex-direction: column; gap: 6px;">
                         @foreach($quranData['recent_records'] as $rec)
-                            <div style="background: rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <div class="quran-record-row" style="background: rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                                 <div>
                                     <div style="font-weight: 700; font-size: 13px; color: #ffffff;">
                                         {{ $rec->surah_name }}
@@ -382,7 +406,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div>
+                                <div class="quran-record-badge">
                                     @php
                                         $badgeBg = match($rec->quality) {
                                             'lancar' => '#10b981',
