@@ -91,6 +91,80 @@
     <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -15px; bottom: -25px; font-size: 9.5rem; color: rgba(99, 102, 241, 0.05);"></i>
 </div>
 
+{{-- PEMBERITAHUAN SISWA LULUS MUNAQOSAH (MENUNGGU PINDAH KELOMPOK / JENJANG) --}}
+@if(isset($pendingMunaqosahPromotions) && $pendingMunaqosahPromotions->isNotEmpty())
+    @php
+        $canPromote = in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']);
+    @endphp
+    <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #e0f2fe 100%); border: 1.5px solid #10b981; border-radius: 20px; padding: 22px 24px; margin-bottom: 25px; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15); position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+                <div style="width: 50px; height: 50px; border-radius: 14px; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 8px 16px -4px rgba(16, 185, 129, 0.4);">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
+                        <h3 style="font-size: 1.15rem; font-weight: 800; color: #064e3b; margin: 0;">
+                            Pemberitahuan Munaqosah: {{ $pendingMunaqosahPromotions->count() }} Santri Lulus & Siap Pindah Jenjang!
+                        </h3>
+                        <span style="background: #10b981; color: white; font-size: 0.74rem; font-weight: 800; padding: 3px 10px; border-radius: 20px;">
+                            Perlu Tindak Lanjut
+                        </span>
+                    </div>
+                    <p style="color: #047857; font-size: 0.88rem; margin: 0; font-weight: 500;">
+                        Santri di bawah ini telah menyelesaikan ujian dan dinyatakan <strong>LULUS MUNAQOSAH</strong> oleh dewan penguji. Silakan alokasikan ke kelompok jenjang lanjutan sesuai arahan kurikulum.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a href="{{ route('munaqosah.index', ['status' => 'passed']) }}" class="btn-action-header" style="background: #047857; padding: 9px 18px; font-weight: 700; border-radius: 12px;">
+                    <i class="fas fa-award"></i> Buka Halaman Munaqisy
+                </a>
+            </div>
+        </div>
+
+        {{-- Grid Kartu Siswa Siap Pindah --}}
+        <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px;">
+            @foreach($pendingMunaqosahPromotions as $promo)
+                <div style="background: white; border: 1px solid #a7f3d0; border-radius: 14px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(6, 95, 70, 0.05); display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                            <strong style="font-size: 0.95rem; color: #0f172a;">{{ $promo->student->name ?? 'Siswa' }}</strong>
+                            <span style="background: #e0f2fe; color: #0284c7; font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 8px;">
+                                Kelas {{ $promo->student->class ?? '-' }}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: #475569; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="background: {{ $promo->type === 'tilawati' ? '#fef3c7' : '#ecfdf5' }}; color: {{ $promo->type === 'tilawati' ? '#92400e' : '#065f46' }}; padding: 2px 7px; border-radius: 6px; font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">
+                                {{ $promo->type }}
+                            </span>
+                            <span style="font-weight: 700; color: #0f172a;">{{ $promo->current_level }}</span>
+                            <i class="fas fa-arrow-right" style="font-size: 0.75rem; color: #10b981;"></i>
+                            <span style="font-weight: 800; color: #059669; background: #d1fae5; padding: 2px 7px; border-radius: 6px;">{{ $promo->target_level }}</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #64748b;">
+                            Penguji: <strong>{{ $promo->examinerUser->name ?? ($promo->examiner->user->name ?? '-') }}</strong> • Nilai: <strong style="color: #047857;">{{ $promo->final_score ?? '-' }} ({{ $promo->predicate ?? '-' }})</strong>
+                        </div>
+                    </div>
+
+                    @if($canPromote)
+                        <div style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
+                            <button type="button" onclick="openDashboardPromoteModal({{ $promo->id }}, '{{ addslashes($promo->student->name ?? '') }}', '{{ $promo->type }}', '{{ addslashes($promo->target_level) }}')" 
+                                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);">
+                                <i class="fas fa-user-check"></i> Pindahkan Kelompok
+                            </button>
+                        </div>
+                    @else
+                        <div style="font-size: 0.75rem; color: #047857; font-weight: 600; text-align: right;">
+                            <i class="fas fa-clock"></i> Menunggu pemindahan oleh Admin/Kurikulum
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
 @if(Auth::user()->role === 'teacher' && ($teacherRoleCount ?? 0) > 1)
 <!-- Duty Switcher Bar (Untuk Guru dengan Multi-Peran) -->
 <div style="background: #ffffff; border-radius: 16px; padding: 12px 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
@@ -1558,6 +1632,81 @@
             }
         });
     }
+
+    // Dashboard Quick Promote Modal Functions
+    function openDashboardPromoteModal(id, studentName, type, targetLevel) {
+        document.getElementById('dash_promote_student_name').textContent = studentName;
+        document.getElementById('dash_promote_target_level').textContent = targetLevel;
+        document.getElementById('dashboardPromoteForm').action = '/munaqosah/' + id + '/promote';
+        
+        const select = document.getElementById('dash_target_group_select');
+        for (let opt of select.options) {
+            if (!opt.value) continue;
+            const optType = opt.getAttribute('data-type');
+            const optTarget = opt.getAttribute('data-target') || '';
+            if (optType === type) {
+                opt.style.display = '';
+                if (targetLevel && optTarget.toLowerCase().includes(targetLevel.toLowerCase())) {
+                    opt.selected = true;
+                }
+            } else {
+                opt.style.display = 'none';
+            }
+        }
+        document.getElementById('dashboardPromoteModal').style.display = 'flex';
+    }
+
+    function closeDashboardPromoteModal() {
+        document.getElementById('dashboardPromoteModal').style.display = 'none';
+    }
 </script>
+
+{{-- MODAL PINDAH KELOMPOK DARI DASHBOARD --}}
+<div id="dashboardPromoteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+    <div style="background: white; border-radius: 20px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; animation: fadeIn 0.25s ease-out;">
+        <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user-check"></i> Pindahkan Kelompok Santri Lulus
+            </h3>
+            <button type="button" onclick="closeDashboardPromoteModal()" style="background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer;">&times;</button>
+        </div>
+        <form id="dashboardPromoteForm" method="POST" style="padding: 24px;">
+            @csrf
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; margin-bottom: 18px;">
+                <div style="font-size: 0.82rem; color: #166534; font-weight: 700; margin-bottom: 2px;">Siswa Lulus Munaqosah:</div>
+                <div id="dash_promote_student_name" style="font-size: 1.05rem; font-weight: 900; color: #0f172a; margin-bottom: 6px;"></div>
+                <div style="font-size: 0.82rem; color: #166534;">
+                    Rekomendasi Jenjang Lanjutan: <strong id="dash_promote_target_level" style="color: #047857; text-decoration: underline;"></strong>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-weight: 700; font-size: 0.86rem; color: #334155; margin-bottom: 8px;">
+                    Pilih Kelompok Baru Tujuan Siswa <span style="color: #ef4444;">*</span>
+                </label>
+                <select name="target_group_id" id="dash_target_group_select" required style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #10b981; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
+                    <option value="">-- Pilih Kelompok Mentoring --</option>
+                    @if(isset($allMentoringGroups))
+                        @foreach($allMentoringGroups as $grp)
+                            <option value="{{ $grp->id }}" data-type="{{ $grp->type }}" data-target="{{ $grp->target_level }}">
+                                [{{ strtoupper($grp->type) }}] {{ $grp->name }} • Target: {{ $grp->target_level ?? 'Umum' }} (Mentor: {{ $grp->mentor_name ?? '-' }})
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <small style="display: block; color: #64748b; font-size: 0.78rem; margin-top: 6px;">
+                    Siswa otomatis akan dilepaskan dari kelompok sebelumnya dan didaftarkan pada kelompok baru di atas.
+                </small>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="closeDashboardPromoteModal()" style="padding: 9px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; cursor: pointer;">Batal</button>
+                <button type="submit" style="padding: 9px 22px; border-radius: 10px; border: none; background: #059669; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);">
+                    <i class="fas fa-check-circle"></i> Pindahkan Siswa Sekarang
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection

@@ -631,6 +631,31 @@ class DashboardController extends Controller
             ],
         ];
 
+        // E. Siswa Lulus Munaqosah yang Menunggu Dipindahkan Jenjang / Kelompok
+        $pendingMunaqosahPromotions = collect();
+        if (Schema::hasTable('munaqosah_registrations')) {
+            $pendingMunaqosahPromotions = \App\Models\MunaqosahRegistration::with([
+                    'student', 
+                    'academicYear', 
+                    'examinerUser', 
+                    'examiner.user',
+                    'fromGroup'
+                ])
+                ->where('status', 'passed')
+                ->where('transition_status', 'pending_promotion')
+                ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+                ->orderBy('tested_at', 'desc')
+                ->get();
+        }
+
+        $allMentoringGroups = collect();
+        if (Schema::hasTable('mentoring_groups')) {
+            $allMentoringGroups = \App\Models\MentoringGroup::when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+                ->orderBy('type')
+                ->orderBy('name')
+                ->get();
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -647,7 +672,10 @@ class DashboardController extends Controller
             
             'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount',
             'mySubjects', 'mySubjectsCount', 'teacherRoleCount',
-            'programAchievements'
+            'programAchievements',
+            'pendingMunaqosahPromotions',
+            'allMentoringGroups'
         ));
     }
 }
+

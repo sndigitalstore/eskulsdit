@@ -219,6 +219,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahfidz-groups/{group}/attendance/session/print',         [\App\Http\Controllers\TahfidzAttendanceController::class, 'printSession'])->name('tahfidz.attendance.print-session');
     Route::get('/tahfidz-groups/{group}/attendance/recap/print',           [\App\Http\Controllers\TahfidzAttendanceController::class, 'printRecap'])->name('tahfidz.attendance.print-recap');
 
+    // Munaqisy (Munaqosah Qur'an: Tilawati & Tahfidz)
+    Route::get('/munaqosah',                                               [\App\Http\Controllers\MunaqosahController::class, 'index'])->name('munaqosah.index');
+    Route::get('/munaqosah/register',                                      [\App\Http\Controllers\MunaqosahController::class, 'registerForm'])->name('munaqosah.register');
+    Route::post('/munaqosah/register',                                     [\App\Http\Controllers\MunaqosahController::class, 'registerStore'])->name('munaqosah.register.store');
+    Route::post('/munaqosah/{registration}/schedule',                      [\App\Http\Controllers\MunaqosahController::class, 'scheduleExam'])->name('munaqosah.schedule');
+    Route::get('/munaqosah/{registration}/score',                         [\App\Http\Controllers\MunaqosahController::class, 'scoreForm'])->name('munaqosah.score');
+    Route::post('/munaqosah/{registration}/score',                        [\App\Http\Controllers\MunaqosahController::class, 'scoreStore'])->name('munaqosah.score.store');
+    Route::post('/munaqosah/{registration}/promote',                      [\App\Http\Controllers\MunaqosahController::class, 'promote'])->name('munaqosah.promote');
+    Route::delete('/munaqosah/{registration}',                            [\App\Http\Controllers\MunaqosahController::class, 'destroy'])->name('munaqosah.destroy');
+    Route::post('/munaqosah/examiners/store',                             [\App\Http\Controllers\MunaqosahController::class, 'examinerStore'])->name('munaqosah.examiners.store');
+    Route::post('/munaqosah/examiners/{examiner}/toggle',                 [\App\Http\Controllers\MunaqosahController::class, 'examinerToggle'])->name('munaqosah.examiners.toggle');
+    Route::delete('/munaqosah/examiners/{examiner}',                      [\App\Http\Controllers\MunaqosahController::class, 'examinerDestroy'])->name('munaqosah.examiners.destroy');
+    Route::get('/munaqosah/{registration}/print-certificate',             [\App\Http\Controllers\MunaqosahController::class, 'printCertificate'])->name('munaqosah.print-certificate');
+    Route::get('/munaqosah/print/recap',                                  [\App\Http\Controllers\MunaqosahController::class, 'printRecap'])->name('munaqosah.print-recap');
+
     // SMILE KARAKTER (Pemantauan Karakter Siswa)
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
         Route::get('/character',                         [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');

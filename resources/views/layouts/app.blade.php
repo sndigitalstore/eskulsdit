@@ -670,7 +670,7 @@
 
             {{-- 2. Pembinaan Qur'an (Dropdown) --}}
             @php
-                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*');
+                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*');
                 $loggedUser = Auth::user();
                 $isTeacher = $loggedUser->role === 'teacher';
                 $isCurriculum = $loggedUser->role === 'curriculum';
@@ -679,6 +679,7 @@
 
                 $hasTilawati = false;
                 $hasTahfidz = false;
+                $isMunaqisy = false;
                 if ($isTeacher) {
                     $hasTilawati = \App\Models\MentoringGroup::where('type', 'tilawati')
                         ->where(function($q) use ($loggedUser) {
@@ -690,8 +691,11 @@
                             $q->where('mentor_user_id', $loggedUser->id)
                               ->orWhere('mentor_name', $loggedUser->name);
                         })->exists();
+                    if (\Illuminate\Support\Facades\Schema::hasTable('munaqisy_examiners')) {
+                        $isMunaqisy = \App\Models\MunaqisyExaminer::where('user_id', $loggedUser->id)->where('status', 'active')->exists();
+                    }
                 }
-                $showQuranMenu = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz));
+                $showQuranMenu = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz || $isMunaqisy));
             @endphp
 
             @if($showQuranMenu)
@@ -730,6 +734,14 @@
                         </a>
                     </li>
                     @endif
+
+                    {{-- Fitur Munaqisy & Munaqosah (Kelola Tuntas Juz & Jilid) --}}
+                    <li class="nav-subitem">
+                        <a href="{{ route('munaqosah.index') }}" class="nav-sublink {{ request()->is('munaqosah*') ? 'active' : '' }}">
+                            <i class="fas fa-award"></i>
+                            <span>Munaqisy (Munaqosah)</span>
+                        </a>
+                    </li>
 
                     @if($isAdminOrCurriculumOrHeadmaster)
                     <li class="nav-subitem">
