@@ -136,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/print-recap-class', [\App\Http\Controllers\ReportController::class, 'printRecapClass'])->name('reports.print-recap-class');
     Route::get('/reports/tilawati/print', [\App\Http\Controllers\ReportController::class, 'printTilawati'])->name('reports.tilawati.print');
     Route::get('/reports/tahfidz/print', [\App\Http\Controllers\ReportController::class, 'printTahfidz'])->name('reports.tahfidz.print');
+    Route::get('/reports/tahfidz/raport', [\App\Http\Controllers\ReportController::class, 'raportTahfidz'])->name('reports.tahfidz.raport');
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 
     Route::middleware(['role:admin'])->group(function () {

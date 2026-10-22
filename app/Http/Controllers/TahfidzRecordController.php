@@ -123,7 +123,7 @@ class TahfidzRecordController extends Controller
     }
 
     /**
-     * Print kartu hafalan siswa (versi cetak)
+     * Print Raport Tahfidz Standar Nasional Siswa
      */
     public function printCard(Request $request, MentoringGroup $group, Student $student)
     {
@@ -132,24 +132,11 @@ class TahfidzRecordController extends Controller
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);
 
-        $records = TahfidzRecord::where('student_id', $student->id)
-            ->where('mentoring_group_id', $group->id)
-            ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
-            ->orderBy('session_date', 'asc')
-            ->orderBy('id', 'asc')
-            ->get();
-
-        $selectedYear = AcademicYear::find($yearId);
-        $yearName     = $selectedYear?->name ?? '-';
-
-        $totalSetoran  = $records->where('type', 'setoran_baru')->count();
-        $totalMurojaah = $records->where('type', 'murojaah')->count();
-
-        return view('tahfidz.print_card', compact(
-            'group', 'student', 'records',
-            'yearName', 'yearId',
-            'totalSetoran', 'totalMurojaah'
-        ));
+        return app(ReportController::class)->raportTahfidz($request->merge([
+            'student_id' => $student->id,
+            'group_id'   => $group->id,
+            'year_id'    => $yearId
+        ]));
     }
 
     /**

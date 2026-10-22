@@ -526,10 +526,14 @@
                         {{ $selectedClass ? ($selectedClass === 'ALL' ? 'seluruh kelas' : 'Kelas ' . $selectedClass) : '' }}
                         {{ $selectedGroupId ? '(Filter Kelompok aktif)' : '' }}
                     </div>
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
+                           target="_blank" class="btn-action-header btn-green" style="background: #059669; font-weight: 700; padding: 10px 18px; font-size: 0.92rem; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                            <i class="fas fa-file-invoice"></i> Cetak Raport Tahfidz Standar Nasional (A4 Portrait)
+                        </a>
                         <a href="{{ route('reports.tahfidz.print', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
-                           target="_blank" class="btn-action-header btn-blue" style="background: #0284c7; font-weight: 700; padding: 10px 20px; font-size: 0.95rem;">
-                            <i class="fas fa-print"></i> Cetak Laporan Evaluasi Tahfidz (A4 Landscape)
+                           target="_blank" class="btn-action-header btn-blue" style="background: #0284c7; font-weight: 700; padding: 10px 18px; font-size: 0.92rem;">
+                            <i class="fas fa-table"></i> Cetak Rekap Evaluasi Tahfidz (A4 Landscape)
                         </a>
                     </div>
                 </div>
@@ -707,10 +711,10 @@
                                             @if($grp)
                                                 <div style="display: flex; gap: 4px; justify-content: center;">
                                                     <a href="{{ route('tahfidz.student-card', ['group' => $grp->id, 'student' => $student->id]) }}" class="btn-action-header btn-blue" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Lihat Kartu Hafalan">
-                                                        <i class="fas fa-id-card"></i>
+                                                        <i class="fas fa-id-card"></i> Kartu
                                                     </a>
-                                                    <a href="{{ route('tahfidz.print-card', ['group' => $grp->id, 'student' => $student->id]) }}" target="_blank" class="btn-action-header btn-dark" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Cetak Kartu Siswa">
-                                                        <i class="fas fa-print"></i>
+                                                    <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'student_id' => $student->id, 'group_id' => $grp->id]) }}" target="_blank" class="btn-action-header btn-green" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none; background: #059669;" title="Cetak Raport Tahfidz Standar Nasional">
+                                                        <i class="fas fa-print"></i> Raport
                                                     </a>
                                                 </div>
                                             @else
