@@ -114,6 +114,11 @@ class Student extends Model
         return $this->hasMany(TahfidzRecord::class);
     }
 
+    public function tasmiExams()
+    {
+        return $this->hasMany(TasmiExam::class);
+    }
+
     public function characterCases()
     {
         return $this->hasMany(CharacterCase::class);

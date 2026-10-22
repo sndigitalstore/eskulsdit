@@ -670,7 +670,7 @@
 
             {{-- 2. Pembinaan Qur'an (Dropdown) --}}
             @php
-                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*');
+                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*');
                 $loggedUser = Auth::user();
                 $isTeacher = $loggedUser->role === 'teacher';
                 $isCurriculum = $loggedUser->role === 'curriculum';
@@ -740,6 +740,14 @@
                         <a href="{{ route('munaqosah.index') }}" class="nav-sublink {{ request()->is('munaqosah*') ? 'active' : '' }}">
                             <i class="fas fa-award"></i>
                             <span>Munaqisy (Munaqosah)</span>
+                        </a>
+                    </li>
+
+                    {{-- Fitur Ujian Tasmi' Sekali Duduk --}}
+                    <li class="nav-subitem">
+                        <a href="{{ route('tasmi.index') }}" class="nav-sublink {{ request()->is('tasmi*') ? 'active' : '' }}">
+                            <i class="fas fa-certificate"></i>
+                            <span>Ujian Tasmi' (Bil Ghaib)</span>
                         </a>
                     </li>
 

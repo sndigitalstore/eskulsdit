@@ -65,10 +65,72 @@ class TahfidzRecordController extends Controller
         $totalMurojaah  = $records->where('type', 'murojaah')->count();
         $surahUnique    = $records->pluck('surah_name')->unique()->count();
 
+        // Target Hafalan Progress (Juz 30 & Juz 29)
+        $juz30Surahs = [
+            'An-Naba', 'An-Nazi\'at', 'Abasa', 'At-Takwir', 'Al-Infitar',
+            'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A\'la',
+            'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail',
+            'Ad-Duha', 'Asy-Syarh', 'At-Tin', 'Al-\'Alaq', 'Al-Qadr',
+            'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat', 'Al-Qari\'ah', 'At-Takasur',
+            'Al-\'Asr', 'Al-Humazah', 'Al-Fil', 'Quraisy', 'Al-Ma\'un',
+            'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Masad', 'Al-Ikhlas',
+            'Al-Falaq', 'An-Nas'
+        ];
+
+        $juz29Surahs = [
+            'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh',
+            'Al-Jinn', 'Al-Muzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan', 'Al-Mursalat'
+        ];
+
+        // Map status surah untuk Juz 30
+        $recordedSurahNames = $records->groupBy(function($r) {
+            return strtolower(preg_replace('/[^a-z0-9]/', '', $r->surah_name));
+        });
+
+        $checkSurahStatus = function($surahList, $juzNum) use ($recordedSurahNames) {
+            $list = [];
+            $completedCount = 0;
+            foreach ($surahList as $name) {
+                $cleanKey = strtolower(preg_replace('/[^a-z0-9]/', '', $name));
+                $foundRecords = $recordedSurahNames->get($cleanKey, collect());
+                
+                $status = 'unrecorded'; // unrecorded, lancar, cukup, perlu_perbaikan
+                if ($foundRecords->isNotEmpty()) {
+                    if ($foundRecords->contains('quality', 'lancar')) {
+                        $status = 'lancar';
+                        $completedCount++;
+                    } elseif ($foundRecords->contains('quality', 'cukup')) {
+                        $status = 'cukup';
+                        $completedCount++;
+                    } else {
+                        $status = 'perlu_perbaikan';
+                    }
+                }
+
+                $list[] = [
+                    'name' => $name,
+                    'juz' => $juzNum,
+                    'status' => $status,
+                    'count' => $foundRecords->count(),
+                ];
+            }
+
+            return [
+                'surahs' => $list,
+                'total' => count($surahList),
+                'completed' => $completedCount,
+                'percent' => count($surahList) > 0 ? round(($completedCount / count($surahList)) * 100) : 0,
+            ];
+        };
+
+        $juz30Data = $checkSurahStatus($juz30Surahs, 30);
+        $juz29Data = $checkSurahStatus($juz29Surahs, 29);
+
         return view('tahfidz.student_card', compact(
             'group', 'student', 'records',
             'academicYears', 'selectedYear', 'yearId',
-            'totalSetoran', 'totalMurojaah', 'surahUnique'
+            'totalSetoran', 'totalMurojaah', 'surahUnique',
+            'juz30Data', 'juz29Data'
         ));
     }
 

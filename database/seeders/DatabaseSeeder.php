@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         $guru = User::create([
             'name' => 'Guru Pembina',
             'username' => 'guru',
-            'role' => 'guru',
+            'role' => 'teacher',
             'email' => 'guru@school.com',
             'password' => bcrypt('guru123'),
         ]);

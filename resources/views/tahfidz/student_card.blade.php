@@ -144,6 +144,187 @@
             </div>
         @endif
 
+        {{-- TARGET HAFALAN PROGRESS & CHECKLIST --}}
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-bullseye" style="color: #0f766e; font-size: 1.1rem;"></i>
+                    <h4 style="margin: 0; color: #0f172a; font-size: 1rem; font-weight: 700;">
+                        Target Hafalan Siswa
+                    </h4>
+                    <span style="font-size: 0.8rem; background: #ccfbf1; color: #0f766e; padding: 2px 8px; border-radius: 6px; font-weight: 700;">
+                        {{ $group->target_level ?? 'Juz 30' }}
+                    </span>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button type="button" onclick="switchJuzTab(30)" id="btnTab30"
+                            style="padding: 6px 14px; border-radius: 8px; border: 1px solid #0f766e; background: #0f766e; color: white; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                        Juz 30 ({{ $juz30Data['completed'] }}/{{ $juz30Data['total'] }})
+                    </button>
+                    <button type="button" onclick="switchJuzTab(29)" id="btnTab29"
+                            style="padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #475569; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                        Juz 29 ({{ $juz29Data['completed'] }}/{{ $juz29Data['total'] }})
+                    </button>
+                </div>
+            </div>
+
+            {{-- JUZ 30 CONTENT --}}
+            <div id="contentJuz30">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
+                    <span style="color: #475569; font-weight: 600;">Capaian Juz 30</span>
+                    <strong style="color: #0f766e; font-size: 0.95rem;">{{ $juz30Data['percent'] }}% Terpenuhi ({{ $juz30Data['completed'] }} dari {{ $juz30Data['total'] }} Surah)</strong>
+                </div>
+                <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 16px;">
+                    <div style="width: {{ $juz30Data['percent'] }}%; height: 100%; background: linear-gradient(90deg, #10b981, #0f766e); border-radius: 20px; transition: width 0.5s ease;"></div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 14px; font-size: 0.76rem; color: #64748b; margin-bottom: 12px; flex-wrap: wrap;">
+                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #10b981; display: inline-block;"></span> Lancar ({{ collect($juz30Data['surahs'])->where('status', 'lancar')->count() }})</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #f59e0b; display: inline-block;"></span> Cukup ({{ collect($juz30Data['surahs'])->where('status', 'cukup')->count() }})</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #ef4444; display: inline-block;"></span> Perlu Perbaikan ({{ collect($juz30Data['surahs'])->where('status', 'perlu_perbaikan')->count() }})</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #e2e8f0; display: inline-block;"></span> Belum Setor ({{ collect($juz30Data['surahs'])->where('status', 'unrecorded')->count() }})</span>
+                    <span style="font-style: italic; color: #0f766e; margin-left: auto;">*Klik nama surah untuk otomatis mengisi formulir setoran</span>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    @foreach($juz30Data['surahs'] as $item)
+                        @php
+                            $bg = match($item['status']) {
+                                'lancar' => '#dcfce7',
+                                'cukup'  => '#fef3c7',
+                                'perlu_perbaikan' => '#fee2e2',
+                                default  => '#ffffff',
+                            };
+                            $borderColor = match($item['status']) {
+                                'lancar' => '#86efac',
+                                'cukup'  => '#fde047',
+                                'perlu_perbaikan' => '#fca5a5',
+                                default  => '#cbd5e1',
+                            };
+                            $textColor = match($item['status']) {
+                                'lancar' => '#15803d',
+                                'cukup'  => '#854d0e',
+                                'perlu_perbaikan' => '#b91c1c',
+                                default  => '#475569',
+                            };
+                            $icon = match($item['status']) {
+                                'lancar' => 'fa-check-circle',
+                                'cukup'  => 'fa-check',
+                                'perlu_perbaikan' => 'fa-exclamation-circle',
+                                default  => 'fa-circle-notch',
+                            };
+                        @endphp
+                        <button type="button" onclick="selectSurah('{{ $item['name'] }}', 30)"
+                                style="background: {{ $bg }}; border: 1.5px solid {{ $borderColor }}; color: {{ $textColor }}; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: transform 0.15s;"
+                                onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'"
+                                title="{{ $item['status'] !== 'unrecorded' ? 'Sudah disetor ' . $item['count'] . 'x (' . $item['status'] . ')' : 'Belum pernah disetor' }}">
+                            <i class="fas {{ $icon }}" style="font-size: 0.72rem;"></i>
+                            {{ $item['name'] }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- JUZ 29 CONTENT --}}
+            <div id="contentJuz29" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
+                    <span style="color: #475569; font-weight: 600;">Capaian Juz 29</span>
+                    <strong style="color: #0f766e; font-size: 0.95rem;">{{ $juz29Data['percent'] }}% Terpenuhi ({{ $juz29Data['completed'] }} dari {{ $juz29Data['total'] }} Surah)</strong>
+                </div>
+                <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 16px;">
+                    <div style="width: {{ $juz29Data['percent'] }}%; height: 100%; background: linear-gradient(90deg, #10b981, #0f766e); border-radius: 20px; transition: width 0.5s ease;"></div>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    @foreach($juz29Data['surahs'] as $item)
+                        @php
+                            $bg = match($item['status']) {
+                                'lancar' => '#dcfce7',
+                                'cukup'  => '#fef3c7',
+                                'perlu_perbaikan' => '#fee2e2',
+                                default  => '#ffffff',
+                            };
+                            $borderColor = match($item['status']) {
+                                'lancar' => '#86efac',
+                                'cukup'  => '#fde047',
+                                'perlu_perbaikan' => '#fca5a5',
+                                default  => '#cbd5e1',
+                            };
+                            $textColor = match($item['status']) {
+                                'lancar' => '#15803d',
+                                'cukup'  => '#854d0e',
+                                'perlu_perbaikan' => '#b91c1c',
+                                default  => '#475569',
+                            };
+                            $icon = match($item['status']) {
+                                'lancar' => 'fa-check-circle',
+                                'cukup'  => 'fa-check',
+                                'perlu_perbaikan' => 'fa-exclamation-circle',
+                                default  => 'fa-circle-notch',
+                            };
+                        @endphp
+                        <button type="button" onclick="selectSurah('{{ $item['name'] }}', 29)"
+                                style="background: {{ $bg }}; border: 1.5px solid {{ $borderColor }}; color: {{ $textColor }}; padding: 5px 12px; border-radius: 8px; font-size: 0.84rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform 0.15s;"
+                                onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'"
+                                title="{{ $item['status'] !== 'unrecorded' ? 'Sudah disetor ' . $item['count'] . 'x (' . $item['status'] . ')' : 'Belum pernah disetor' }}">
+                            <i class="fas {{ $icon }}" style="font-size: 0.72rem;"></i>
+                            {{ $item['name'] }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function switchJuzTab(juz) {
+            const tab30 = document.getElementById('contentJuz30');
+            const tab29 = document.getElementById('contentJuz29');
+            const btn30 = document.getElementById('btnTab30');
+            const btn29 = document.getElementById('btnTab29');
+
+            if (juz === 30) {
+                tab30.style.display = 'block';
+                tab29.style.display = 'none';
+                btn30.style.background = '#0f766e';
+                btn30.style.color = 'white';
+                btn30.style.borderColor = '#0f766e';
+                btn29.style.background = 'white';
+                btn29.style.color = '#475569';
+                btn29.style.borderColor = '#cbd5e1';
+            } else {
+                tab30.style.display = 'none';
+                tab29.style.display = 'block';
+                btn29.style.background = '#0f766e';
+                btn29.style.color = 'white';
+                btn29.style.borderColor = '#0f766e';
+                btn30.style.background = 'white';
+                btn30.style.color = '#475569';
+                btn30.style.borderColor = '#cbd5e1';
+            }
+        }
+
+        function selectSurah(surahName, juz) {
+            const inputSurah = document.querySelector('input[name="surah_name"]');
+            const inputJuz = document.querySelector('input[name="juz"]');
+            const formCard = document.querySelector('.form-card');
+
+            if (inputSurah) {
+                inputSurah.value = surahName;
+                inputSurah.style.borderColor = '#0f766e';
+                inputSurah.style.boxShadow = '0 0 0 3px rgba(15,118,110,0.2)';
+                setTimeout(() => {
+                    inputSurah.style.boxShadow = '';
+                }, 1500);
+            }
+            if (inputJuz) {
+                inputJuz.value = juz;
+            }
+            if (formCard) {
+                formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        </script>
+
         {{-- FORM INPUT SETORAN --}}
         <div class="form-card">
             <h4 style="margin: 0 0 18px 0; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 8px;">

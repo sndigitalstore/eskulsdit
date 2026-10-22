@@ -20,7 +20,15 @@ class EnsureUserHasRole
             return redirect()->route('login');
         }
 
-        if (!in_array($request->user()->role, $roles)) {
+        $userRole = $request->user()->role;
+        // Normalisasi peran 'guru' menjadi 'teacher' untuk kompatibilitas
+        if ($userRole === 'guru') {
+            $userRole = 'teacher';
+        }
+
+        $allowedRoles = array_map(fn($r) => $r === 'guru' ? 'teacher' : $r, $roles);
+
+        if (!in_array($userRole, $allowedRoles)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.');
         }
 

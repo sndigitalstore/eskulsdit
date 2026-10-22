@@ -293,6 +293,18 @@ class ReportController extends Controller
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CalistungGraduatesExport, 'Siswa_Lulus_Calistung_' . date('Ymd_His') . '.xlsx');
     }
 
+    public function exportTahfidz(Request $request)
+    {
+        $class = $request->query('class');
+        $groupId = $request->query('group_id');
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
+
+        $filename = 'Rekap_Capaian_Tahfidz_' . ($class && $class !== 'ALL' ? 'Kelas_' . str_replace(' ', '_', $class) . '_' : '') . date('Ymd_His') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\TahfidzRecapExport($yearId, $class, $groupId), $filename);
+    }
+
     public function exportClass(Request $request)
     {
         $class = $request->query('class');
@@ -937,5 +949,27 @@ class ReportController extends Controller
         return view('reports.raport_tahfidz', compact(
             'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 'headmasterName', 'studentId'
         ));
+    }
+
+    /**
+     * Ekspor Rekap Tahfidz Komprehensif ke Excel
+     */
+    public function exportTahfidz(Request $request)
+    {
+        $class = $request->query('class');
+        $groupId = $request->query('group_id');
+        $yearId = $request->query('year_id');
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $selectedYearId = $yearId ?? ($activeYear?->id);
+        $yearName = $selectedYearId ? (AcademicYear::find($selectedYearId)?->name ?? 'Semua-Tahun') : 'Semua-Tahun';
+        $classClean = ($class && $class !== 'ALL') ? 'Kelas_' . str_replace(' ', '_', $class) : 'Semua_Kelas';
+
+        $filename = 'Rekap_Tahfidz_' . $classClean . '_' . str_replace(['/', '\\', ' '], '_', $yearName) . '_' . date('Ymd_His') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\TahfidzRecapExport($selectedYearId, $class, $groupId),
+            $filename
+        );
     }
 }

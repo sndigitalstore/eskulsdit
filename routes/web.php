@@ -137,6 +137,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/tilawati/print', [\App\Http\Controllers\ReportController::class, 'printTilawati'])->name('reports.tilawati.print');
     Route::get('/reports/tahfidz/print', [\App\Http\Controllers\ReportController::class, 'printTahfidz'])->name('reports.tahfidz.print');
     Route::get('/reports/tahfidz/raport', [\App\Http\Controllers\ReportController::class, 'raportTahfidz'])->name('reports.tahfidz.raport');
+    Route::get('/reports/tahfidz/export', [\App\Http\Controllers\ReportController::class, 'exportTahfidz'])->name('reports.tahfidz.export');
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 
     Route::middleware(['role:admin'])->group(function () {
@@ -233,6 +234,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/munaqosah/examiners/{examiner}',                      [\App\Http\Controllers\MunaqosahController::class, 'examinerDestroy'])->name('munaqosah.examiners.destroy');
     Route::get('/munaqosah/{registration}/print-certificate',             [\App\Http\Controllers\MunaqosahController::class, 'printCertificate'])->name('munaqosah.print-certificate');
     Route::get('/munaqosah/print/recap',                                  [\App\Http\Controllers\MunaqosahController::class, 'printRecap'])->name('munaqosah.print-recap');
+
+    // Ujian Tasmi' Al-Qur'an (Tasmi' Bil Ghaib Sekali Duduk)
+    Route::get('/tasmi',                                                  [\App\Http\Controllers\TasmiExamController::class, 'index'])->name('tasmi.index');
+    Route::post('/tasmi',                                                 [\App\Http\Controllers\TasmiExamController::class, 'store'])->name('tasmi.store');
+    Route::delete('/tasmi/{tasmi}',                                       [\App\Http\Controllers\TasmiExamController::class, 'destroy'])->name('tasmi.destroy');
+    Route::get('/tasmi/{tasmi}/certificate',                              [\App\Http\Controllers\TasmiExamController::class, 'printCertificate'])->name('tasmi.certificate');
+    Route::get('/tasmi/{tasmi}/report',                                   [\App\Http\Controllers\TasmiExamController::class, 'printReport'])->name('tasmi.report');
 
     // SMILE KARAKTER (Pemantauan Karakter Siswa)
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {

@@ -527,6 +527,10 @@
                         {{ $selectedGroupId ? '(Filter Kelompok aktif)' : '' }}
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="{{ route('reports.tahfidz.export', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
+                           class="btn-action-header btn-green" style="background: #10b981; font-weight: 700; padding: 10px 18px; font-size: 0.92rem;">
+                            <i class="fas fa-file-excel"></i> Download Excel Rekap Tahfidz
+                        </a>
                         <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
                            target="_blank" class="btn-action-header btn-green" style="background: #059669; font-weight: 700; padding: 10px 18px; font-size: 0.92rem; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
                             <i class="fas fa-file-invoice"></i> Cetak Raport Tahfidz Standar Nasional (A4 Portrait)

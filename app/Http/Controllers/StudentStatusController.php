@@ -151,17 +151,61 @@ class StudentStatusController extends Controller
         }
 
         // All achievements (across all years)
-        $achievements = \App\Models\Achievement::where(function($q) use ($student) {
-            if ($student->nis) {
-                // Match by NIS across all student records
-                $studentIds = Student::where('nis', $student->nis)->pluck('id')->toArray();
-                $q->whereIn('student_id', $studentIds);
-            } else {
-                $q->where('student_id', $student->id);
-            }
-        })->orderBy('date', 'desc')->get();
+        $studentIds = $student->nis 
+            ? Student::where('nis', $student->nis)->pluck('id')->toArray() 
+            : [$student->id];
 
-        return view('status.result', compact('student', 'activeYear', 'reportData', 'historyData', 'achievements'));
+        $achievements = \App\Models\Achievement::whereIn('student_id', $studentIds)
+            ->orderBy('date', 'desc')
+            ->get();
+
+        // =====================================================================
+        // Capaian Al-Qur'an (Tahfidz, Tilawati & Munaqosah) untuk Orang Tua
+        // =====================================================================
+        $tahfidzGroup = $student->tahfidzGroup($activeYear?->id) 
+            ?? $student->mentoringGroups()->where('type', 'tahfidz')->first();
+        $tilawatiGroup = $student->tilawatiGroup($activeYear?->id) 
+            ?? $student->mentoringGroups()->where('type', 'tilawati')->first();
+
+        $tahfidzRecords = \App\Models\TahfidzRecord::whereIn('student_id', $studentIds)
+            ->orderBy('session_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $totalTahfidzRecords = $tahfidzRecords->count();
+        $totalZiyadah = $tahfidzRecords->where('type', 'setoran_baru')->count();
+        $totalMurojaah = $tahfidzRecords->where('type', 'murojaah')->count();
+        $totalLancar = $tahfidzRecords->where('quality', 'lancar')->count();
+        $lancarRate = $totalTahfidzRecords > 0 ? round(($totalLancar / $totalTahfidzRecords) * 100) : 0;
+        $latestRecord = $tahfidzRecords->first();
+        $recentTahfidzRecords = $tahfidzRecords->take(6);
+
+        // Munaqosah Lulus (Sertifikat)
+        $munaqosahList = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('munaqosah_registrations')) {
+            $munaqosahList = \App\Models\MunaqosahRegistration::whereIn('student_id', $studentIds)
+                ->where('status', 'passed')
+                ->orderBy('exam_date', 'desc')
+                ->get();
+        }
+
+        $quranData = [
+            'has_quran' => $tahfidzGroup || $tilawatiGroup || $totalTahfidzRecords > 0 || $munaqosahList->isNotEmpty(),
+            'tahfidz_group' => $tahfidzGroup,
+            'tilawati_group' => $tilawatiGroup,
+            'total_records' => $totalTahfidzRecords,
+            'total_ziyadah' => $totalZiyadah,
+            'total_murojaah' => $totalMurojaah,
+            'total_lancar' => $totalLancar,
+            'lancar_rate' => $lancarRate,
+            'latest_record' => $latestRecord,
+            'recent_records' => $recentTahfidzRecords,
+            'munaqosah_list' => $munaqosahList,
+        ];
+
+        return view('status.result', compact(
+            'student', 'activeYear', 'reportData', 'historyData', 'achievements', 'quranData'
+        ));
     }
     
     // API Helper to reuse the class-student fetch logic

@@ -290,7 +290,143 @@
         </div>
     </div>
 
-    <!-- Achievements Section (Historical) -->
+    <!-- Capaian Al-Qur'an (Tahfidz, Tilawati & Munaqosah) Section -->
+    @if(!empty($quranData) && $quranData['has_quran'])
+        <div style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%); border-radius: 16px; padding: 22px; margin-bottom: 25px; color: white; box-shadow: 0 10px 25px rgba(4, 120, 87, 0.25); text-align: left; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -15px; bottom: -20px; font-size: 130px; color: rgba(255,255,255,0.06); pointer-events: none;">
+                <i class="fas fa-quran"></i>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+                <div>
+                    <span style="background: rgba(255,255,255,0.18); color: #ecfdf5; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-book-quran"></i> Program Unggulan Qur'ani
+                    </span>
+                    <h3 style="margin: 8px 0 2px 0; font-size: 18px; font-weight: 700; color: #ffffff;">
+                        Capaian Tahfidz & Al-Qur'an
+                    </h3>
+                    <div style="font-size: 12px; opacity: 0.9; margin-top: 3px;">
+                        @if($quranData['tahfidz_group'])
+                            Halaqah: <strong>{{ $quranData['tahfidz_group']->name }}</strong>
+                            · Musyrif: <strong>{{ $quranData['tahfidz_group']->mentor_name ?? '-' }}</strong>
+                            · Target: <span style="background: #34d399; color: #064e3b; padding: 1px 6px; border-radius: 4px; font-weight: 700;">{{ $quranData['tahfidz_group']->target_level ?? 'Juz 30' }}</span>
+                        @elseif($quranData['tilawati_group'])
+                            Kelompok: <strong>{{ $quranData['tilawati_group']->name }}</strong>
+                            · Pembimbing: <strong>{{ $quranData['tilawati_group']->mentor_name ?? '-' }}</strong>
+                            · Level: <span style="background: #34d399; color: #064e3b; padding: 1px 6px; border-radius: 4px; font-weight: 700;">{{ $quranData['tilawati_group']->target_level ?? 'Tilawati' }}</span>
+                        @else
+                            Program Bimbingan Al-Qur'an SDIT An Nadzir
+                        @endif
+                    </div>
+                </div>
+
+                @if($quranData['latest_record'])
+                    <div style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 10px 14px; text-align: right; backdrop-filter: blur(4px);">
+                        <div style="font-size: 10px; opacity: 0.8; text-transform: uppercase; font-weight: 600;">Setoran Terakhir</div>
+                        <div style="font-size: 15px; font-weight: 800; color: #a7f3d0; margin-top: 2px;">
+                            {{ $quranData['latest_record']->surah_name }}
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.9;">
+                            {{ $quranData['latest_record']->start_ayah ? 'Ayat ' . $quranData['latest_record']->start_ayah . ($quranData['latest_record']->end_ayah && $quranData['latest_record']->end_ayah != $quranData['latest_record']->start_ayah ? '-'.$quranData['latest_record']->end_ayah : '') : 'Juz ' . ($quranData['latest_record']->juz ?? '30') }}
+                            · <span style="font-weight: 700; color: #fef08a;">{{ ucfirst($quranData['latest_record']->quality) }}</span>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Mini KPI Grid -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px;">
+                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 17px; font-weight: 800; color: #ffffff;">{{ $quranData['total_records'] }}</div>
+                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Total Setoran</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 17px; font-weight: 800; color: #a7f3d0;">{{ $quranData['total_ziyadah'] }}</div>
+                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Ziyadah</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 17px; font-weight: 800; color: #fde047;">{{ $quranData['total_murojaah'] }}</div>
+                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Muroja'ah</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 17px; font-weight: 800; color: #6ee7b7;">{{ $quranData['lancar_rate'] }}%</div>
+                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Mutqin</div>
+                </div>
+            </div>
+
+            <!-- Recent Setoran History List -->
+            @if($quranData['recent_records']->isNotEmpty())
+                <div style="margin-top: 18px; background: rgba(0, 0, 0, 0.16); border-radius: 12px; padding: 12px 14px;">
+                    <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-history"></i> Riwayat 5 Setoran Terakhir</span>
+                        <span style="font-size: 10px; opacity: 0.8; text-transform: none; font-weight: 400;">Pencatatan langsung oleh Musyrif</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        @foreach($quranData['recent_records'] as $rec)
+                            <div style="background: rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 13px; color: #ffffff;">
+                                        {{ $rec->surah_name }}
+                                        <span style="font-size: 11px; opacity: 0.85; font-weight: 500;">
+                                            @if($rec->start_ayah)
+                                                (Ayat {{ $rec->start_ayah }}{{ $rec->end_ayah && $rec->end_ayah != $rec->start_ayah ? '-' . $rec->end_ayah : '' }})
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 10.5px; opacity: 0.8; margin-top: 2px;">
+                                        <span>{{ \Carbon\Carbon::parse($rec->session_date)->translatedFormat('d M Y') }}</span>
+                                        <span>· {{ $rec->type === 'setoran_baru' ? 'Hafalan Baru' : 'Muroja\'ah' }}</span>
+                                        @if($rec->notes)
+                                            <span style="color: #fef08a; font-style: italic;">· "{{ $rec->notes }}"</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    @php
+                                        $badgeBg = match($rec->quality) {
+                                            'lancar' => '#10b981',
+                                            'cukup'  => '#f59e0b',
+                                            default  => '#ef4444',
+                                        };
+                                    @endphp
+                                    <span style="background: {{ $badgeBg }}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
+                                        {{ $rec->quality }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <!-- Munaqosah Sertifikat (Jika Pernah Lulus) -->
+            @if($quranData['munaqosah_list']->isNotEmpty())
+                <div style="margin-top: 14px; background: rgba(254, 240, 138, 0.15); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 12px; padding: 12px 14px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #fef08a; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-award"></i> Sertifikat Munaqosah Al-Qur'an Yang Diraih:
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                        @foreach($quranData['munaqosah_list'] as $mun)
+                            <div style="background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <strong style="font-size: 13px; color: #ffffff;">Lulus Ujian {{ ucfirst($mun->type) }} – {{ $mun->target_level }}</strong>
+                                    <div style="font-size: 11px; opacity: 0.85;">
+                                        Predikat: <strong>{{ $mun->predicate ?? 'Mumtaz' }}</strong> (Nilai: {{ $mun->final_score ?? '-' }})
+                                        · Ujian: {{ $mun->exam_date ? \Carbon\Carbon::parse($mun->exam_date)->translatedFormat('d F Y') : '-' }}
+                                    </div>
+                                </div>
+                                <a href="{{ route('munaqosah.print-certificate', $mun->id) }}" target="_blank"
+                                   style="background: #f59e0b; color: #78350f; font-weight: 700; font-size: 11px; padding: 5px 12px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                                    <i class="fas fa-file-pdf"></i> Buka Sertifikat
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    @endif
     @if($achievements->isNotEmpty())
         <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 15px; padding: 20px; margin-bottom: 25px; text-align: left; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.03);">
             <h3 style="color: #d97706; margin-top: 0; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
