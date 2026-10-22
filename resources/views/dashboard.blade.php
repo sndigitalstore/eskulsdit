@@ -1026,7 +1026,7 @@
 
         
         <!-- Announcements (Internal Chat) -->
-        @if(isset($announcements) && count($announcements) > 0)
+        @if(Auth::user()->role !== 'curriculum' && isset($announcements) && count($announcements) > 0)
         <div class="card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
             <h3 style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span><i class="fas fa-bullhorn" style="color: #7367f0; margin-right: 10px;"></i> Pengumuman Terbaru</span>
