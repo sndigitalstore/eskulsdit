@@ -47,9 +47,11 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 5px;">
-                            <a href="{{ route('students.edit', $student->id) }}" class="btn-submit" style="padding: 6px 12px; font-size: 0.8rem; background: #fbbf24; box-shadow: none;">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                                <a href="{{ route('students.edit', $student->id) }}" class="btn-submit" style="padding: 6px 12px; font-size: 0.8rem; background: #fbbf24; box-shadow: none;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            @endif
                             <a href="{{ route('students.card', $student->id) }}" class="btn-submit" style="padding: 6px 12px; font-size: 0.8rem; background: #3498db; box-shadow: none;" target="_blank">
                                 <i class="fas fa-id-card"></i> Kartu
                             </a>

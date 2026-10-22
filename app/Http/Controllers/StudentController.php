@@ -6,11 +6,28 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Imports\StudentsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
+    /**
+     * Memastikan hanya Admin, Kepala Sekolah, dan Kurikulum yang dapat mengelola data siswa.
+     */
+    private function checkManagerRole()
+    {
+        $user = Auth::user();
+        if (!$user || !in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            abort(403, 'Akses dibatasi. Manajemen data siswa hanya dapat dikelola oleh Administrator dan Tim Kurikulum.');
+        }
+    }
+
     public function index(Request $request)
     {
+        $user = Auth::user();
+        if ($user && !in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return redirect()->route('dashboard')->with('error', 'Akses dibatasi. Pengelolaan data siswa dilakukan oleh Administrator atau Tim Kurikulum.');
+        }
+
         $status = $request->input('status', 'active');
         // Scope to active academic year only
         $query = \App\Models\Student::activeYear()->with('eskuls');
@@ -39,6 +56,8 @@ class StudentController extends Controller
 
     public function backup()
     {
+        $this->checkManagerRole();
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         if (!$activeYear) {
             return back()->with('error', 'Tidak ada tahun ajaran aktif untuk dibackup.');
@@ -51,6 +70,8 @@ class StudentController extends Controller
 
     public function create()
     {
+        $this->checkManagerRole();
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $allEskuls = collect();
         if ($activeYear) {
@@ -64,6 +85,8 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkManagerRole();
+
         // Get active year first so we can validate NIS uniqueness within active year
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         if (!$activeYear) {
@@ -156,6 +179,8 @@ class StudentController extends Controller
 
     public function store_bulk(Request $request)
     {
+        $this->checkManagerRole();
+
         $data = $request->input('bulk_data');
         if (!$data) {
             return back()->withErrors(['bulk_data' => 'Data kosong!']);
@@ -241,6 +266,8 @@ class StudentController extends Controller
 
     public function importExcel(Request $request)
     {
+        $this->checkManagerRole();
+
         // Increase time limit and memory limit to handle large backups/imports
         ini_set('memory_limit', '512M');
         set_time_limit(300);
@@ -287,6 +314,8 @@ class StudentController extends Controller
 
     public function edit(\App\Models\Student $student)
     {
+        $this->checkManagerRole();
+
         // Contextualize: Only load eskuls for the active academic year
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         
@@ -306,6 +335,8 @@ class StudentController extends Controller
 
     public function update(Request $request, \App\Models\Student $student)
     {
+        $this->checkManagerRole();
+
         $validated = $request->validate([
             // NIS unique within same academic year, excluding self
             'nis' => [
@@ -381,6 +412,8 @@ class StudentController extends Controller
 
     public function destroy(\App\Models\Student $student)
     {
+        $this->checkManagerRole();
+
         \App\Models\ActivityLog::log('Students', 'Delete', "Menghapus data siswa: {$student->name}");
         
         // Manually delete related data to ensure clean slate
@@ -395,6 +428,8 @@ class StudentController extends Controller
 
     public function destroy_bulk(Request $request)
     {
+        $this->checkManagerRole();
+
         $ids = $request->input('ids');
 
         if (empty($ids) || count($ids) == 0) {
@@ -490,6 +525,8 @@ class StudentController extends Controller
 
     public function assignGrade6Tahfidz(Request $request)
     {
+        $this->checkManagerRole();
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         if (!$activeYear) {
             return back()->with('error', 'Tidak ada tahun ajaran aktif.');

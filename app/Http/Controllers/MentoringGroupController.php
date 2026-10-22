@@ -468,12 +468,12 @@ class MentoringGroupController extends Controller
         $user = Auth::user();
         $isAdmin = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
-        $group = MentoringGroup::with('academicYear')->findOrFail($id);
-        $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
-
-        if (!$isAdmin && !$isMyGroup) {
-            return back()->with('error', 'Anda tidak memiliki hak akses untuk mengedit kelompok ini.');
+        if (!$isAdmin) {
+            return back()->with('error', 'Hanya administrator dan kurikulum yang dapat mengubah data kelompok.');
         }
+
+        $group = MentoringGroup::with('academicYear')->findOrFail($id);
+        $isMyGroup = false;
 
         $type = $group->type;
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
@@ -488,12 +488,11 @@ class MentoringGroupController extends Controller
         $user = Auth::user();
         $isAdmin = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
-        $group = MentoringGroup::findOrFail($id);
-        $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
-
-        if (!$isAdmin && !$isMyGroup) {
-            return back()->with('error', 'Anda tidak memiliki hak akses untuk mengedit kelompok ini.');
+        if (!$isAdmin) {
+            return back()->with('error', 'Hanya administrator dan kurikulum yang dapat mengubah data kelompok.');
         }
+
+        $group = MentoringGroup::findOrFail($id);
 
         if ($isAdmin) {
             $request->validate([
@@ -575,6 +574,17 @@ class MentoringGroupController extends Controller
      */
     public function addStudents(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya administrator dan kurikulum yang dapat menambahkan siswa ke kelompok.'
+                ], 403);
+            }
+            return back()->with('error', 'Hanya administrator dan kurikulum yang dapat menambahkan siswa ke kelompok.');
+        }
+
         $group = MentoringGroup::findOrFail($id);
 
         $request->validate([
@@ -653,6 +663,11 @@ class MentoringGroupController extends Controller
      */
     public function removeStudent($groupId, $studentId)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return back()->with('error', 'Hanya administrator dan kurikulum yang dapat mengeluarkan siswa dari kelompok.');
+        }
+
         $group = MentoringGroup::findOrFail($groupId);
         $student = Student::findOrFail($studentId);
 

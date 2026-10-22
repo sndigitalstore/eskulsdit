@@ -200,8 +200,8 @@
                             <td style="padding: 14px 16px; text-align: center;">
                                 <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
                                     <!-- Kelola Siswa -->
-                                    <a href="{{ $type === 'tilawati' ? route('tilawati-groups.show', $group->id) : route('tahfidz-groups.show', $group->id) }}" class="btn-action-header btn-blue" style="padding: 6px 10px; font-size: 0.8rem;" title="Lihat & Kelola Siswa">
-                                        <i class="fas fa-users"></i> Siswa
+                                    <a href="{{ $type === 'tilawati' ? route('tilawati-groups.show', $group->id) : route('tahfidz-groups.show', $group->id) }}" class="btn-action-header btn-blue" style="padding: 6px 10px; font-size: 0.8rem;" title="{{ $isAdmin ? 'Lihat & Kelola Siswa' : 'Daftar Siswa' }}">
+                                        <i class="fas fa-users"></i> {{ $isAdmin ? 'Siswa' : 'Daftar Siswa' }}
                                     </a>
 
                                     @if($type === 'tahfidz')
@@ -220,10 +220,12 @@
                                         <i class="fas fa-print"></i>
                                     </a>
 
-                                    <!-- Edit -->
-                                    <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange" style="padding: 6px 10px; font-size: 0.8rem;" title="Edit Kelompok">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    @if($isAdmin)
+                                        <!-- Edit Kelompok -->
+                                        <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange" style="padding: 6px 10px; font-size: 0.8rem;" title="Edit Kelompok">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endif
 
                                     @if($isAdmin)
                                         <button type="button" onclick="confirmDelete('{{ $group->id }}', '{{ $group->name }}')" class="btn-action-header btn-red" style="padding: 6px 10px; font-size: 0.8rem;" title="Hapus">

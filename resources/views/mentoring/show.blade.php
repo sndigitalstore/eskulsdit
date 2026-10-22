@@ -127,9 +127,11 @@
 
             <!-- ACTION BUTTONS -->
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
-                    <i class="fas fa-user-plus"></i> + Tambah Siswa
-                </button>
+                @if($isAdmin)
+                    <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
+                        <i class="fas fa-user-plus"></i> + Tambah Siswa
+                    </button>
+                @endif
                 @if($type === 'tahfidz')
                     <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #7c3aed; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
                         <i class="fas fa-clipboard-check"></i> Riwayat Sesi & WA
@@ -144,9 +146,11 @@
                 <a href="{{ route('mentoring-groups.print-group', $group->id) }}" target="_blank" class="btn-action-header btn-dark" style="background: #334155;">
                     <i class="fas fa-print"></i> Cetak Daftar Kelompok
                 </a>
-                <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
+                @if($isAdmin)
+                    <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                @endif
             </div>
         </div>
     </div>
@@ -162,7 +166,7 @@
                     {{ $group->students->count() }} Siswa
                 </span>
             </div>
-            @if($group->students->isNotEmpty())
+            @if($isAdmin && $group->students->isNotEmpty())
                 <span style="font-size: 0.84rem; color: #64748b;">
                     Klik tombol <strong>+ Tambah Siswa</strong> di atas untuk menambahkan siswa lainnya.
                 </span>
@@ -179,7 +183,9 @@
                         <th style="padding: 12px 16px; text-align: center; width: 10%;">Kelas</th>
                         <th style="padding: 12px 16px; text-align: left;">Catatan / Target Siswa</th>
                         <th style="padding: 12px 16px; text-align: center; width: 14%;">Tanggal Masuk</th>
-                        <th style="padding: 12px 16px; text-align: center; width: 10%;">Aksi</th>
+                        @if($isAdmin || $type === 'tahfidz')
+                            <th style="padding: 12px 16px; text-align: center; width: 10%;">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -215,6 +221,7 @@
                             <td style="padding: 14px 16px; text-align: center; color: #64748b; font-size: 0.85rem;">
                                 {{ $student->pivot->created_at ? $student->pivot->created_at->format('d/m/Y') : '-' }}
                             </td>
+                            @if($isAdmin || $type === 'tahfidz')
                             <td style="padding: 14px 16px; text-align: center;">
                                 <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
                                     @if($type === 'tahfidz')
@@ -225,27 +232,34 @@
                                             <i class="fas fa-quran"></i> Hafalan
                                         </a>
                                     @endif
-                                    <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 5px 10px; font-size: 0.78rem;" title="Keluarkan dari Kelompok">
-                                        <i class="fas fa-user-minus"></i> Hapus
-                                    </button>
-                                    <form id="remove-form-{{ $student->id }}" action="{{ route('mentoring-groups.remove-student', ['group' => $group->id, 'student' => $student->id]) }}" method="POST" style="display: none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
+                                    @if($isAdmin)
+                                        <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 5px 10px; font-size: 0.78rem;" title="Keluarkan dari Kelompok">
+                                            <i class="fas fa-user-minus"></i> Hapus
+                                        </button>
+                                        <form id="remove-form-{{ $student->id }}" action="{{ route('mentoring-groups.remove-student', ['group' => $group->id, 'student' => $student->id]) }}" method="POST" style="display: none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <td colspan="{{ ($isAdmin || $type === 'tahfidz') ? 7 : 6 }}" style="text-align: center; padding: 40px; color: #94a3b8;">
                                 <div style="font-size: 2.2rem; margin-bottom: 8px; color: #cbd5e1;">
                                     <i class="fas fa-users-slash"></i>
                                 </div>
                                 <h4 style="margin: 0; color: #475569;">Belum Ada Anggota di Kelompok Ini</h4>
-                                <p style="margin: 6px 0 16px 0; font-size: 0.9rem;">Tambahkan siswa ke dalam kelompok ini sekarang.</p>
-                                <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
-                                    <i class="fas fa-user-plus"></i> + Tambah Siswa Sekarang
-                                </button>
+                                @if($isAdmin)
+                                    <p style="margin: 6px 0 16px 0; font-size: 0.9rem;">Tambahkan siswa ke dalam kelompok ini sekarang.</p>
+                                    <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
+                                        <i class="fas fa-user-plus"></i> + Tambah Siswa Sekarang
+                                    </button>
+                                @else
+                                    <p style="margin: 6px 0 0 0; font-size: 0.9rem;">Anggota kelompok ditentukan dan diatur oleh Administrator atau Tim Kurikulum.</p>
+                                @endif
                             </td>
                         </tr>
                     @endforelse
@@ -255,6 +269,7 @@
     </div>
 </div>
 
+@if($isAdmin)
 <!-- MODAL TAMBAH SISWA -->
 <div id="addStudentsModal" class="modal">
     <div class="modal-content">
@@ -560,4 +575,5 @@
         });
     });
 </script>
+@endif
 @endsection
