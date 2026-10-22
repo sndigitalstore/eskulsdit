@@ -106,8 +106,27 @@ class TahfidzAttendanceController extends Controller
 
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
 
+        // Deteksi default juz yang diampu kelompok
+        $defaultJuz = 30;
+        if (preg_match('/(?:Juz\s*)(\d+)/i', ($group->target_level ?? '') . ' ' . ($group->name ?? ''), $m)) {
+            $defaultJuz = (int) $m[1];
+        } else {
+            // Periksa dari riwayat capaian hafalan terbaru kelompok ini
+            $recentCapaian = TahfidzAttendance::where('mentoring_group_id', $group->id)
+                ->whereNotNull('capaian')
+                ->latest('id')
+                ->take(20)
+                ->pluck('capaian')
+                ->join(' ');
+            if (preg_match('/(Hasyr|Talaq|Jumu|Munafiq|Taghabun|Mumtahan|Mujadil|Tahrim|Saff)/i', $recentCapaian)) {
+                $defaultJuz = 28;
+            } elseif (preg_match('/(Mulk|Qalam|Haqqah|Ma\'arij|Nuh|Jinn|Muzzammil|Muddassir|Qiyamah|Insan|Mursalat)/i', $recentCapaian)) {
+                $defaultJuz = 29;
+            }
+        }
+
         return view('tahfidz.attendance_form', compact(
-            'group', 'students', 'existing', 'date', 'yearId', 'academicYears'
+            'group', 'students', 'existing', 'date', 'yearId', 'academicYears', 'defaultJuz'
         ));
     }
 
@@ -134,6 +153,10 @@ class TahfidzAttendanceController extends Controller
         $userId = Auth::id();
 
         foreach ($request->attendance as $studentId => $data) {
+            $capaian = trim($data['capaian'] ?? '');
+            $tugas   = trim($data['tugas_besok'] ?? '');
+            $notes   = trim($data['notes'] ?? '');
+
             TahfidzAttendance::updateOrCreate(
                 [
                     'mentoring_group_id' => $group->id,
@@ -143,10 +166,10 @@ class TahfidzAttendanceController extends Controller
                 [
                     'academic_year_id' => $yearId,
                     'status'           => $data['status'],
-                    'capaian'          => $data['capaian'] ?? null,
+                    'capaian'          => $capaian !== '' ? $capaian : null,
                     'hafalan_status'   => $data['hafalan_status'] ?? 'LULUS',
-                    'tugas_besok'      => $data['tugas_besok'] ?? null,
-                    'notes'            => $data['notes'] ?? null,
+                    'tugas_besok'      => $tugas !== '' ? $tugas : null,
+                    'notes'            => $notes !== '' ? $notes : null,
                     'recorded_by'      => $userId,
                 ]
             );
