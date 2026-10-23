@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Data Presensi Pembina')
 @section('page-title', 'Data Presensi Pembina')
@@ -927,46 +927,458 @@
         }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
+        .presence-container {
+            padding: 0 2px 40px 2px;
+        }
+
+        /* 1. Hero Banner */
         .presence-hero-banner {
-            padding: 18px 20px;
+            padding: 16px 18px;
             border-radius: 16px;
-        }
-
-        .hero-title {
-            font-size: 1.35rem;
-        }
-
-        .stat-grid-summary {
-            grid-template-columns: 1fr 1fr;
+            margin-bottom: 14px;
             gap: 12px;
         }
 
-        .metric-number {
-            font-size: 1.5rem;
+        .hero-badge-tag {
+            font-size: 0.72rem;
+            padding: 4px 10px;
+            margin-bottom: 6px;
         }
 
-        .month-controls-row {
+        .hero-title {
+            font-size: 1.25rem;
+        }
+
+        .hero-description {
+            font-size: 0.82rem;
+            margin-top: 4px;
+        }
+
+        .academic-year-chip {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 12px;
+            border-radius: 12px;
+            gap: 10px;
+        }
+
+        .academic-year-chip i {
+            font-size: 1.15rem;
+        }
+
+        .chip-label {
+            font-size: 0.65rem;
+        }
+
+        .chip-val {
+            font-size: 0.85rem;
+        }
+
+        /* 2. Symmetrical 2x2 Metric KPI Grid */
+        .stat-grid-summary {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .stat-metric-card {
+            padding: 12px 10px;
+            border-radius: 14px;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
             flex-direction: column;
-            align-items: stretch;
+            justify-content: space-between;
+            border-left-width: 4px;
+        }
+
+        .metric-body {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 4px;
             width: 100%;
         }
 
+        .metric-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .metric-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1.2;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .metric-number {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin: 4px 0 0 0;
+            line-height: 1.1;
+        }
+
+        .metric-icon-box {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            font-size: 0.95rem;
+            border-radius: 9px;
+        }
+
+        /* Hide footnote on phone to keep all 4 cards 100% identical and symmetrical in height */
+        .metric-footnote {
+            display: none !important;
+        }
+
+        /* 3. Symmetrical Toolbar Filter & Action Buttons */
+        .toolbar-presence-card {
+            padding: 12px 12px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+        }
+
+        .toolbar-inner-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .filter-month-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .month-label-wrapper {
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .month-controls-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .month-input-wrapper {
+            width: 100%;
+            position: relative;
+        }
+
+        .form-month-input {
+            width: 100%;
+            height: 38px;
+            padding: 6px 10px 6px 34px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .input-calendar-icon {
+            left: 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-solid-blue {
+            height: 38px;
+            padding: 0 14px;
+            font-size: 0.82rem;
+            border-radius: 10px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
         .action-buttons-group {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: 100%;
         }
 
-        .action-buttons-group .btn-solid-orange {
-            grid-column: span 1;
+        .btn-solid-green, 
+        .btn-solid-dark {
+            height: 36px;
+            padding: 0 8px;
+            font-size: 0.78rem;
+            border-radius: 10px;
+            justify-content: center;
+            white-space: nowrap;
+            box-sizing: border-box;
         }
 
-        .presence-table th, 
-        .presence-table td {
+        .btn-solid-orange {
+            grid-column: span 2;
+            height: 38px;
+            padding: 0 12px;
+            font-size: 0.82rem;
+            border-radius: 10px;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        /* 4. Presence Table transformed into Sleek Mobile Cards */
+        .presence-table-card {
+            border-radius: 16px;
+        }
+
+        .table-header-meta {
             padding: 12px 14px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .meta-heading {
+            font-size: 0.95rem;
+        }
+
+        .meta-badge-count {
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            margin-left: 6px;
+        }
+
+        .meta-period-text {
+            font-size: 0.76rem;
+            color: #64748b;
+        }
+
+        .table-responsive-box {
+            overflow: visible;
+        }
+
+        .presence-table,
+        .presence-table thead,
+        .presence-table tbody,
+        .presence-table th,
+        .presence-table td,
+        .presence-table tr {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .presence-table thead {
+            display: none;
+        }
+
+        .presence-table tbody {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .presence-table tbody tr {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .presence-table tbody tr:has(.empty-state-box) {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .presence-table td {
+            padding: 0 !important;
+            border: none !important;
+        }
+
+        /* Cell 1: Profil Guru */
+        .presence-table td:nth-child(1) {
+            padding-right: 75px !important;
+        }
+
+        .teacher-profile-flex {
+            gap: 10px;
+            align-items: center;
+        }
+
+        .teacher-avatar-circle {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
+
+        .teacher-name-text {
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .teacher-eskul-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            margin-top: 3px;
+            border-radius: 5px;
+        }
+
+        /* Cell 3: Status Badge pinned top-right */
+        .presence-table td:nth-child(3) {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            text-align: right !important;
+            z-index: 2;
+        }
+
+        .status-pill {
+            font-size: 0.72rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            gap: 4px;
+        }
+
+        /* Cell 2: Waktu & Tanggal strip */
+        .presence-table td:nth-child(2) .time-record-box {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .time-clock-pill {
+            background: white;
+            padding: 2px 8px;
+            font-size: 0.76rem;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .date-sub-text {
+            font-size: 0.74rem;
+            color: #64748b;
+        }
+
+        /* Cell 4: Catatan & Guru Pengganti */
+        .presence-table td:nth-child(4) .text-dash-muted {
+            display: none;
+        }
+
+        .note-balloon {
+            font-size: 0.78rem;
+            padding: 5px 8px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+        }
+
+        .substitute-teacher-pill {
+            font-size: 0.74rem;
+            padding: 3px 8px;
+            margin-top: 2px;
+            border-radius: 6px;
+        }
+
+        /* Cell 5: Tombol Hapus */
+        .presence-table td:nth-child(5) {
+            border-top: 1px dashed #f1f5f9 !important;
+            padding-top: 6px !important;
+            margin-top: 2px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .btn-action-delete {
+            width: 32px;
+            height: 32px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        /* 5. Modal Dialog on Mobile */
+        .custom-modal-dialog {
+            max-width: 95%;
+            border-radius: 18px;
+            margin: 10px;
+        }
+
+        .modal-dialog-header {
+            padding: 14px 16px;
+            border-radius: 18px 18px 0 0;
+        }
+
+        .modal-title-text {
+            font-size: 1.05rem;
+        }
+
+        .modal-subtitle-text {
+            font-size: 0.75rem;
+        }
+
+        .modal-body-form {
+            padding: 14px 16px;
         }
 
         .form-grid-two {
             grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .status-options-toggle {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .status-radio-pill {
+            padding: 8px 4px;
+            font-size: 0.76rem;
+            border-radius: 8px;
+            gap: 4px;
+        }
+
+        .substitute-type-switch {
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal-dialog-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 10px;
+        }
+
+        .btn-modal-cancel, 
+        .modal-dialog-footer .btn-solid-blue {
+            width: 100%;
+            height: 38px;
+            padding: 0 10px;
+            font-size: 0.82rem;
+            justify-content: center;
         }
     }
 </style>
