@@ -5,20 +5,27 @@
 
 @push('styles')
 <style>
-    /* Styling Dasar Form Penilaian Modern */
+    /* Reset & Container */
+    .grades-form-wrapper {
+        max-width: 980px;
+        margin: 0 auto 3rem;
+        padding: 0 10px;
+    }
+
+    /* Tombol Kembali */
     .btn-back-pill {
         display: inline-flex;
         align-items: center;
         gap: 8px;
         color: #475569;
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        padding: 8px 16px;
+        border: 1.5px solid #e2e8f0;
+        padding: 8px 18px;
         border-radius: 999px;
         font-size: 0.86rem;
-        font-weight: 700;
+        font-weight: 750;
         text-decoration: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         transition: all 0.2s ease;
         margin-bottom: 1.25rem;
     }
@@ -29,14 +36,14 @@
     }
 
     /* Kartu Lembar Penilaian */
-    .penilaian-main-card {
+    .card.penilaian-main-card {
         background: #ffffff;
-        border-radius: 20px;
+        border-radius: 24px;
         border: 1.5px solid #e2e8f0;
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-        padding: 0;
+        padding: 0 !important;
         overflow: hidden;
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
     }
 
     /* Header Lembar Penilaian */
@@ -50,43 +57,41 @@
         flex-wrap: wrap;
         gap: 16px;
     }
-
     .penilaian-info-group {
         display: flex;
         align-items: center;
         gap: 14px;
     }
-
     .penilaian-icon-badge {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
         background: #ede9fe;
         color: #7c3aed;
         border: 1.5px solid #ddd6fe;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.35rem;
+        font-size: 1.45rem;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
     }
-
     .penilaian-title {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
         line-height: 1.2;
     }
-
     .penilaian-subtitle {
         font-size: 0.85rem;
         color: #64748b;
         font-weight: 600;
-        margin-top: 3px;
+        margin-top: 4px;
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
     }
 
     /* Tabel Penilaian Desktop */
@@ -101,12 +106,12 @@
         font-weight: 750;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        padding: 14px 20px;
+        padding: 14px 22px;
         border-bottom: 1.5px solid #e2e8f0;
         text-align: left;
     }
     .penilaian-table td {
-        padding: 16px 20px;
+        padding: 16px 22px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
     }
@@ -121,23 +126,24 @@
         gap: 12px;
     }
     .student-avatar {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         border-radius: 12px;
         background: #e2e8f0;
         color: #475569;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.92rem;
+        font-size: 0.95rem;
         font-weight: 800;
         flex-shrink: 0;
     }
     .student-name {
         font-size: 0.95rem;
-        font-weight: 750;
+        font-weight: 800;
         color: #0f172a;
         margin: 0;
+        line-height: 1.3;
     }
     .student-class-badge {
         display: inline-block;
@@ -148,9 +154,10 @@
         font-size: 0.74rem;
         font-weight: 700;
         margin-top: 3px;
+        border: 1px solid #e2e8f0;
     }
 
-    /* Segmented Grade Radios (Pill Style) */
+    /* Segmented Grade Radios (Desktop Style) */
     .segmented-grade-group {
         display: inline-flex;
         gap: 8px;
@@ -178,7 +185,7 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 8px 16px;
+        padding: 9px 18px;
         border-radius: 10px;
         font-size: 0.86rem;
         font-weight: 750;
@@ -259,9 +266,9 @@
         pointer-events: none;
     }
     .calistung-pill-inner {
-        padding: 4px 12px;
+        padding: 5px 14px;
         border-radius: 8px;
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         font-weight: 800;
         border: 1px solid #cbd5e1;
         background: #f8fafc;
@@ -276,11 +283,66 @@
         box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
     }
 
-    /* Mobile Responsive Card View */
+    /* Tombol Simpan Footer Desktop */
+    .penilaian-desktop-footer {
+        padding: 20px 28px;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 14px;
+    }
+    .btn-submit-main {
+        height: 50px;
+        padding: 0 32px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        color: #ffffff;
+        border: none;
+        font-size: 0.96rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 6px 18px rgba(109, 40, 217, 0.28);
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+    .btn-submit-main:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(109, 40, 217, 0.38);
+        color: #ffffff;
+    }
+
+    /* Sticky Bottom Bar untuk Layar HP */
+    .penilaian-mobile-sticky-bar {
+        display: none;
+    }
+
+    /* ======================================================== */
+    /* KHUSUS TAMPILAN HP (MOBILE OPTIMIZED CALIBER) */
+    /* ======================================================== */
     @media (max-width: 768px) {
-        .penilaian-card-header {
-            padding: 18px 20px;
+        .grades-form-wrapper {
+            margin: 0.5rem auto 5.5rem;
+            padding: 0 4px;
         }
+        .penilaian-card-header {
+            padding: 18px 16px;
+        }
+        .penilaian-icon-badge {
+            width: 44px;
+            height: 44px;
+            font-size: 1.25rem;
+            border-radius: 12px;
+        }
+        .penilaian-title {
+            font-size: 1.15rem;
+        }
+
+        /* Transformasi Tabel menjadi Mobile Card yang Solid */
         .penilaian-table, 
         .penilaian-table thead, 
         .penilaian-table tbody, 
@@ -288,13 +350,15 @@
         .penilaian-table td {
             display: block;
             width: 100%;
+            box-sizing: border-box;
         }
         .penilaian-table thead {
             display: none;
         }
         .penilaian-table tr {
-            padding: 18px 16px;
-            border-bottom: 8px solid #f8fafc;
+            background: #ffffff;
+            padding: 16px 14px;
+            border-bottom: 8px solid #f1f5f9;
         }
         .penilaian-table td {
             padding: 0;
@@ -304,32 +368,109 @@
             display: none;
         }
         .penilaian-table td:nth-child(2) {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
+
+        /* Segmented Grade Grid 3 Kolom Rata & Seimbang di HP */
         .segmented-grade-group {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
             width: 100%;
-            justify-content: space-between;
+            padding: 4px;
+            background: #f1f5f9;
+            border-radius: 14px;
         }
         .grade-pill {
-            flex: 1;
-            text-align: center;
+            width: 100%;
         }
         .grade-pill-content {
             width: 100%;
-            padding: 12px 6px;
-            font-size: 0.82rem;
+            padding: 10px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            border-radius: 10px;
+            box-sizing: border-box;
         }
+        .grade-pill-content .main-letter {
+            font-size: 1.05rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .grade-pill-content .sub-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        /* Calistung Responsif HP */
         .calistung-row {
             flex-direction: column;
-            align-items: flex-start;
+            align-items: stretch;
+            gap: 6px;
+            padding: 8px 10px;
+        }
+        .calistung-radios {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            width: 100%;
+        }
+        .calistung-pill {
+            width: 100%;
+        }
+        .calistung-pill-inner {
+            width: 100%;
+            text-align: center;
+            padding: 8px 4px;
+            box-sizing: border-box;
+        }
+
+        /* Sembunyikan Footer Desktop pada HP */
+        .penilaian-desktop-footer {
+            display: none;
+        }
+
+        /* Aktifkan Sticky Bar Dock Bawah Khusus HP */
+        .penilaian-mobile-sticky-bar {
+            display: block;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1.5px solid #e2e8f0;
+            padding: 12px 16px;
+            box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.09);
+        }
+        .penilaian-mobile-sticky-bar button {
+            width: 100%;
+            height: 50px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: #ffffff;
+            border: none;
+            font-size: 0.98rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);
+            cursor: pointer;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div style="max-width: 980px; margin: 0 auto;">
+<div class="grades-form-wrapper">
     <!-- Tombol Kembali -->
     <a href="{{ route('grades.index') }}" class="btn-back-pill">
         <i class="fas fa-arrow-left"></i>
@@ -338,8 +479,8 @@
 
     <!-- Notifikasi Riwayat / Semester -->
     @if(!$contextYear->is_active || $contextYear->active_semester != $semester)
-        <div style="background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; padding: 14px 18px; border-radius: 14px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 600;">
-            <i class="fas fa-history" style="font-size: 1.15rem; color: #d97706;"></i>
+        <div style="background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; padding: 14px 18px; border-radius: 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; font-size: 0.88rem; font-weight: 600;">
+            <i class="fas fa-history" style="font-size: 1.2rem; color: #d97706; flex-shrink: 0;"></i>
             <div>
                 <strong>Mode Arsip / Riwayat:</strong> Anda sedang meninjau data untuk 
                 <u>Tahun {{ $contextYear->name }} Semester {{ $semester }}</u>.
@@ -347,48 +488,48 @@
         </div>
     @endif
 
-    <!-- Kartu Utama Penilaian -->
-    <div class="penilaian-main-card">
-        <!-- Header Info Kegiatan & Penilaian -->
-        <div class="penilaian-card-header">
-            <div class="penilaian-info-group">
-                <div class="penilaian-icon-badge">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div>
-                    <h3 class="penilaian-title">{{ $eskul->name }}</h3>
-                    <div class="penilaian-subtitle">
-                        @if($type == 'daily')
-                            <span><i class="far fa-calendar-alt" style="color: #7c3aed;"></i> Nilai Harian: {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
-                        @elseif($type == 'sas1')
-                            <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-award"></i> Asesmen Akhir Semester 1 (SAS 1)</span>
-                        @elseif($type == 'sas2')
-                            <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-award"></i> Asesmen Akhir Semester 2 (SAS 2)</span>
-                        @endif
-                        <span>•</span>
-                        <span style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;">Tahun {{ $contextYear->name }}</span>
+    <!-- Form Simpan Nilai -->
+    <form id="grade-form" action="{{ route('grades.store') }}" method="POST">
+        @csrf
+        <input type="hidden" name="eskul_id" value="{{ $eskul->id }}">
+        <input type="hidden" name="type" value="{{ $type }}">
+        <input type="hidden" name="date" value="{{ $date }}">
+        <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
+        <input type="hidden" name="semester" value="{{ $semester }}">
+
+        <!-- Kartu Utama Penilaian -->
+        <div class="card penilaian-main-card">
+            <!-- Header Info Kegiatan & Penilaian -->
+            <div class="penilaian-card-header">
+                <div class="penilaian-info-group">
+                    <div class="penilaian-icon-badge">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <h3 class="penilaian-title">{{ $eskul->name }}</h3>
+                        <div class="penilaian-subtitle">
+                            @if($type == 'daily')
+                                <span><i class="far fa-calendar-alt" style="color: #7c3aed;"></i> Nilai Harian: {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
+                            @elseif($type == 'sas1')
+                                <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-award"></i> Asesmen Akhir Semester 1 (SAS 1)</span>
+                            @elseif($type == 'sas2')
+                                <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-award"></i> Asesmen Akhir Semester 2 (SAS 2)</span>
+                            @endif
+                            <span>•</span>
+                            <span style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;">Tahun {{ $contextYear->name }}</span>
+                        </div>
                     </div>
                 </div>
+
+                <div>
+                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-user-graduate" style="color: #7c3aed;"></i>
+                        <strong>{{ $students->count() }}</strong> Santri Ternilai
+                    </span>
+                </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-user-graduate" style="color: #7c3aed;"></i>
-                    <strong>{{ $students->count() }}</strong> Santri Ternilai
-                </span>
-            </div>
-        </div>
-
-        <!-- Form Simpan Nilai -->
-        <form action="{{ route('grades.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="eskul_id" value="{{ $eskul->id }}">
-            <input type="hidden" name="type" value="{{ $type }}">
-            <input type="hidden" name="date" value="{{ $date }}">
-            <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
-            <input type="hidden" name="semester" value="{{ $semester }}">
-
-            <!-- Tabel Daftar Santri & Opsi Nilai -->
+            <!-- Tabel Daftar Santri & Opsi Nilai (Menjadi Mobile Card di HP) -->
             <table class="penilaian-table">
                 <thead>
                     <tr>
@@ -443,10 +584,10 @@
                         <td>
                             @if($isAbsent)
                                 {{-- Jika siswa tidak hadir: tampilkan banner santun --}}
-                                <div style="background: #fffbeb; border: 1.5px dashed #fde68a; border-radius: 12px; padding: 10px 14px; color: #92400e; font-size: 0.84rem; display: flex; align-items: center; gap: 10px;">
-                                    <i class="fas fa-info-circle" style="color: #d97706; font-size: 1.1rem; flex-shrink: 0;"></i>
+                                <div style="background: #fffbeb; border: 1.5px dashed #fde68a; border-radius: 14px; padding: 12px 14px; color: #92400e; font-size: 0.84rem; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-info-circle" style="color: #d97706; font-size: 1.15rem; flex-shrink: 0;"></i>
                                     <div>
-                                        <span>Nilai tidak diinput — Santri tercatat <strong>{{ $attendBadge }}</strong> pada pertemuan ini.</span>
+                                        <span>Nilai dinonaktifkan — Santri tercatat <strong>{{ $attendBadge }}</strong>.</span>
                                         @if($attendRec->note)
                                             <div style="color: #b45309; font-size: 0.78rem; margin-top: 2px;">
                                                 Catatan: <em>{{ $attendRec->note }}</em>
@@ -497,15 +638,24 @@
                                     <div class="segmented-grade-group">
                                         <label class="grade-pill grade-a" title="Predikat A (Sangat Baik)">
                                             <input type="radio" name="grades[{{ $student->id }}]" value="A" {{ $score == 'A' ? 'checked' : '' }} required>
-                                            <span class="grade-pill-content"><i class="fas fa-star" style="font-size: 0.78rem;"></i> A (Sangat Baik)</span>
+                                            <span class="grade-pill-content">
+                                                <span class="main-letter">A</span>
+                                                <span class="sub-label">Sangat Baik</span>
+                                            </span>
                                         </label>
                                         <label class="grade-pill grade-b" title="Predikat B (Baik)">
                                             <input type="radio" name="grades[{{ $student->id }}]" value="B" {{ $score == 'B' ? 'checked' : '' }}>
-                                            <span class="grade-pill-content"><i class="fas fa-thumbs-up" style="font-size: 0.78rem;"></i> B (Baik)</span>
+                                            <span class="grade-pill-content">
+                                                <span class="main-letter">B</span>
+                                                <span class="sub-label">Baik</span>
+                                            </span>
                                         </label>
                                         <label class="grade-pill grade-c" title="Predikat C (Cukup)">
                                             <input type="radio" name="grades[{{ $student->id }}]" value="C" {{ $score == 'C' ? 'checked' : '' }}>
-                                            <span class="grade-pill-content"><i class="fas fa-check" style="font-size: 0.78rem;"></i> C (Cukup)</span>
+                                            <span class="grade-pill-content">
+                                                <span class="main-letter">C</span>
+                                                <span class="sub-label">Cukup</span>
+                                            </span>
                                         </label>
                                     </div>
                                 @endif
@@ -515,8 +665,8 @@
                     @empty
                     <tr>
                         <td colspan="3" style="text-align: center; padding: 40px 20px; color: #64748b;">
-                            <i class="fas fa-user-slash" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
-                            <strong style="color: #334155;">Belum Ada Santri Terdaftar</strong>
+                            <i class="fas fa-user-slash" style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
+                            <strong style="color: #334155; font-size: 1rem;">Belum Ada Santri Terdaftar</strong>
                             <p style="margin: 4px 0 0; font-size: 0.85rem;">Silakan tambahkan santri ke kegiatan eskul ini melalui menu Kelola Eskul.</p>
                         </td>
                     </tr>
@@ -524,19 +674,29 @@
                 </tbody>
             </table>
 
-            <!-- Footer & Tombol Simpan Solid -->
+            <!-- Footer Desktop -->
             @if($students->isNotEmpty())
-            <div style="padding: 24px 28px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <span style="font-size: 0.84rem; color: #64748b;">
+            <div class="penilaian-desktop-footer">
+                <span style="font-size: 0.85rem; color: #64748b;">
                     Nilai yang tersimpan akan otomatis masuk ke dalam rekapitulasi raport eskul.
                 </span>
-                <button type="submit" class="btn-submit" style="height: 48px; padding: 0 32px; border-radius: 12px; background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: #ffffff; border: none; font-size: 0.95rem; font-weight: 800; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 16px rgba(109, 40, 217, 0.25); cursor: pointer; transition: all 0.25s ease;">
+                <button type="submit" class="btn-submit-main">
                     <i class="fas fa-save"></i>
                     <span>Simpan Penilaian Siswa</span>
                 </button>
             </div>
             @endif
-        </form>
-    </div>
+        </div>
+
+        <!-- Sticky Dock Bar Khusus Layar HP -->
+        @if($students->isNotEmpty())
+        <div class="penilaian-mobile-sticky-bar">
+            <button type="submit">
+                <i class="fas fa-save"></i>
+                <span>Simpan Penilaian ({{ $students->count() }} Santri)</span>
+            </button>
+        </div>
+        @endif
+    </form>
 </div>
 @endsection
