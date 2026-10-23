@@ -232,7 +232,7 @@
                     <h1>SDIT AN NADZIR</h1>
                     <h2>LAPORAN HASIL BELAJAR PESERTA DIDIK (RAPOR AKADEMIK)</h2>
                     <p>SMILE Kurikulum Merdeka – Membentuk Generasi Qur'ani, Cerdas, dan Berkarakter Mulia</p>
-                    <p style="font-size: 8pt; font-style: italic;">Komplek Perguruan SDIT An Nadzir, Bandar Lampung</p>
+                    <p style="font-size: 8pt; font-style: italic;">Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
                 </div>
             </div>
 
@@ -517,7 +517,7 @@
                 </div>
 
                 <div class="sig-col">
-                    <div>Bandar Lampung, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>
+                    <div>Cinangka, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>
                     <div><strong>Wali Kelas {{ $student->class }}</strong></div>
                     <div class="sig-space"></div>
                     <div><strong><u>{{ $homeroomTeacher?->name ?? 'Wali Kelas ' . $student->class }}</u></strong></div>

@@ -1215,7 +1215,7 @@
                     Sistem Informasi Manajemen Terpadu untuk membina generasi Qur'ani yang berakhlak mulia, cerdas, berkarakter unggul, dan siap berprestasi.
                 </p>
                 <div style="margin-top: 14px; font-size: 0.85rem; color: #cbd5e1;">
-                    <i class="fas fa-map-marker-alt" style="color: #38bdf8; margin-right: 6px;"></i> Komplek Perguruan SDIT An Nadzir, Bandar Lampung
+                    <i class="fas fa-map-marker-alt" style="color: #38bdf8; margin-right: 6px;"></i> Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167
                 </div>
             </div>
 

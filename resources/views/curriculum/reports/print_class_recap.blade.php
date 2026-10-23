@@ -278,7 +278,7 @@
     <!-- SIGNATURES -->
     <div class="signatures-grid">
         <div class="sig-col">
-            <div>Bandar Lampung, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>
+            <div>Cinangka, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>
             <div><strong>Wali Kelas {{ $class }}</strong></div>
             <div class="sig-space"></div>
             <div><strong><u>{{ $homeroomTeacher?->name ?? 'Wali Kelas ' . $class }}</u></strong></div>
