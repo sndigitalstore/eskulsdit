@@ -19,7 +19,7 @@
         border: 1.5px solid #e2e8f0;
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         background: #ffffff;
-        overflow: hidden;
+        overflow: visible !important;
     }
 
     /* Header Kartu */
@@ -28,6 +28,8 @@
         padding: 28px 24px 20px;
         border-bottom: 1px solid #f1f5f9;
         text-align: center;
+        border-top-left-radius: 22px;
+        border-top-right-radius: 22px;
     }
     .presensi-select-icon {
         width: 56px;
@@ -133,6 +135,8 @@
         border-top: 1px solid #f1f5f9;
         padding: 22px 24px;
         text-align: center;
+        border-bottom-left-radius: 22px;
+        border-bottom-right-radius: 22px;
     }
     .footer-label {
         font-size: 0.8rem;
@@ -251,7 +255,7 @@
                 <label class="form-label-custom">
                     <i class="fas fa-calendar-alt"></i> Tahun Ajaran
                 </label>
-                <select name="academic_year_id" class="input-control-custom" required>
+                <select name="academic_year_id" class="custom-select-modern" data-theme="emerald" data-icon="fas fa-calendar-alt" data-placeholder="Pilih Tahun Ajaran" required>
                     @foreach($academicYears as $year)
                         <option value="{{ $year->id }}" {{ ($activeYear && $activeYear->id == $year->id) ? 'selected' : '' }}>
                             {{ $year->name }} {{ $year->is_active ? '— (Tahun Aktif)' : '' }}
@@ -265,10 +269,12 @@
                 <label class="form-label-custom">
                     <i class="fas fa-shapes"></i> Ekstrakurikuler
                 </label>
-                <select name="eskul_id" class="input-control-custom" required>
+                <select name="eskul_id" class="custom-select-modern" data-theme="emerald" data-icon="fas fa-shapes" data-placeholder="-- Pilih Kegiatan Ekstrakurikuler --" data-search-placeholder="Ketik nama eskul..." required>
                     <option value="">-- Pilih Kegiatan Ekstrakurikuler --</option>
                     @foreach($eskuls as $eskul)
-                        <option value="{{ $eskul->id }}">{{ $eskul->name }}</option>
+                        <option value="{{ $eskul->id }}" data-badge="{{ $eskul->schedule ?: ($eskul->instructor_name ?: '') }}">
+                            {{ $eskul->name }}
+                        </option>
                     @endforeach
                 </select>
             </div>

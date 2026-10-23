@@ -19,7 +19,7 @@
         border: 1.5px solid #e2e8f0;
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         background: #ffffff;
-        overflow: hidden;
+        overflow: visible !important;
     }
 
     /* Header Kartu */
@@ -28,6 +28,8 @@
         padding: 28px 24px 20px;
         border-bottom: 1px solid #f1f5f9;
         text-align: center;
+        border-top-left-radius: 22px;
+        border-top-right-radius: 22px;
     }
     .grades-select-icon {
         width: 56px;
@@ -133,6 +135,8 @@
         border-top: 1px solid #f1f5f9;
         padding: 22px 24px;
         text-align: center;
+        border-bottom-left-radius: 22px;
+        border-bottom-right-radius: 22px;
     }
     .footer-label {
         font-size: 0.8rem;
@@ -251,7 +255,7 @@
                 <label class="form-label-custom">
                     <i class="fas fa-calendar-alt"></i> Tahun Ajaran
                 </label>
-                <select name="academic_year_id" class="input-control-custom" required>
+                <select name="academic_year_id" class="custom-select-modern" data-theme="purple" data-icon="fas fa-calendar-alt" data-placeholder="Pilih Tahun Ajaran" required>
                     @foreach($academicYears as $year)
                         <option value="{{ $year->id }}" {{ ($activeYear && $activeYear->id == $year->id) ? 'selected' : '' }}>
                             {{ $year->name }} {{ $year->is_active ? '— (Tahun Aktif)' : '' }}
@@ -265,10 +269,10 @@
                 <label class="form-label-custom">
                     <i class="fas fa-shapes"></i> Ekstrakurikuler
                 </label>
-                <select name="eskul_id" class="input-control-custom" id="eskul-select" required>
+                <select name="eskul_id" class="custom-select-modern" id="eskul-select" data-theme="purple" data-icon="fas fa-shapes" data-placeholder="-- Pilih Kegiatan Ekstrakurikuler --" data-search-placeholder="Ketik nama eskul..." required>
                     <option value="">-- Pilih Kegiatan Ekstrakurikuler --</option>
                     @foreach($eskuls as $eskul)
-                        <option value="{{ $eskul->id }}" {{ request('eskul_id') == $eskul->id ? 'selected' : '' }}>{{ $eskul->name }}</option>
+                        <option value="{{ $eskul->id }}" data-badge="{{ $eskul->schedule ?: ($eskul->instructor_name ?: '') }}" {{ request('eskul_id') == $eskul->id ? 'selected' : '' }}>{{ $eskul->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -278,7 +282,7 @@
                 <label class="form-label-custom">
                     <i class="fas fa-clipboard-list"></i> Jenis Penilaian
                 </label>
-                <select name="type" class="input-control-custom" id="type-select" required onchange="toggleDate()">
+                <select name="type" class="custom-select-modern" id="type-select" data-theme="purple" data-icon="fas fa-clipboard-list" data-placeholder="Pilih Jenis Penilaian" required onchange="toggleDate()">
                     <option value="daily">Nilai Harian / Per Pertemuan</option>
                     <option value="sas1">Nilai Akhir Semester 1 (SAS 1)</option>
                     <option value="sas2">Nilai Akhir Semester 2 (SAS 2)</option>

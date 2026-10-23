@@ -1343,6 +1343,7 @@
 
     @stack('scripts')
     @include('partials.page_help_script')
+    @include('partials.custom_select_script')
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('mainSidebar');

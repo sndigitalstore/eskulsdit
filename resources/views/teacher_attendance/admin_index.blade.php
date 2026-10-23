@@ -1787,10 +1787,10 @@
             <div class="form-row-modern">
                 <label class="form-label-modern"><i class="fas fa-user-tie"></i> Pilih Guru Pembina <span class="text-danger">*</span></label>
                 <div class="select-wrapper-modern">
-                    <select name="user_id" class="form-control-modern" required>
+                    <select name="user_id" class="form-control-modern custom-select-modern" data-theme="blue" data-icon="fas fa-user-tie" data-placeholder="-- Pilih Guru / Pembina --" data-search-placeholder="Ketik nama guru atau eskul..." required>
                         <option value="">-- Pilih Guru / Pembina --</option>
                         @foreach($teachers as $t)
-                            <option value="{{ $t->id }}">
+                            <option value="{{ $t->id }}" data-badge="{{ $t->eskul ? 'Pembina '.$t->eskul->name : '' }}">
                                 {{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}
                             </option>
                         @endforeach
@@ -1847,10 +1847,10 @@
                 </div>
 
                 <div id="manualSubstituteUserSelect" class="form-row-modern" style="margin-bottom: 0;">
-                    <select name="substitute_user_id" class="form-control-modern bg-white">
+                    <select name="substitute_user_id" class="form-control-modern bg-white custom-select-modern" data-theme="blue" data-icon="fas fa-user-friends" data-placeholder="-- Pilih Guru Pengganti --" data-search-placeholder="Ketik nama guru pengganti...">
                         <option value="">-- Pilih Guru Pengganti --</option>
                         @foreach($teachers as $t)
-                            <option value="{{ $t->id }}">{{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}</option>
+                            <option value="{{ $t->id }}" data-badge="{{ $t->eskul ? 'Pembina '.$t->eskul->name : '' }}">{{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -1896,6 +1896,9 @@
             modal.scrollTop = 0;
             const dialog = modal.querySelector('.custom-modal-dialog');
             if (dialog) dialog.scrollTop = 0;
+            if (window.autoInitCustomSelects) {
+                window.autoInitCustomSelects(modal);
+            }
         }
     }
 

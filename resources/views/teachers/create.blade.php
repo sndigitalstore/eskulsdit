@@ -68,7 +68,7 @@
                     <label style="font-weight: 700; color: #475569; font-size: 0.85rem; margin-bottom: 6px; display: block;">
                         <i class="fas fa-school" style="color: #0284c7;"></i> Wali Kelas Binaan
                     </label>
-                    <select name="homeroom_class" class="form-control">
+                    <select name="homeroom_class" class="custom-select-modern" data-theme="blue" data-icon="fas fa-school" data-placeholder="-- Bukan Wali Kelas (None) --">
                         <option value="">-- Bukan Wali Kelas (None) --</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->name }}" {{ old('homeroom_class') == $class->name ? 'selected' : '' }}>
@@ -84,10 +84,10 @@
                     <label style="font-weight: 700; color: #475569; font-size: 0.85rem; margin-bottom: 6px; display: block;">
                         <i class="fas fa-basketball-ball" style="color: #059669;"></i> Eskul Binaan
                     </label>
-                    <select name="eskul_id" class="form-control">
+                    <select name="eskul_id" class="custom-select-modern" data-theme="emerald" data-icon="fas fa-basketball-ball" data-placeholder="-- Tidak Mengampu Eskul (None) --" data-search-placeholder="Ketik nama eskul...">
                         <option value="">-- Tidak Mengampu Eskul (None) --</option>
                         @foreach($eskuls as $eskul)
-                            <option value="{{ $eskul->id }}" {{ old('eskul_id') == $eskul->id ? 'selected' : '' }}>
+                            <option value="{{ $eskul->id }}" data-badge="{{ $eskul->schedule ?: '' }}" {{ old('eskul_id') == $eskul->id ? 'selected' : '' }}>
                                 {{ $eskul->name }} {{ $eskul->schedule ? "({$eskul->schedule})" : '' }}
                             </option>
                         @endforeach
