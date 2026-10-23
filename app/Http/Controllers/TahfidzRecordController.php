@@ -73,33 +73,148 @@ class TahfidzRecordController extends Controller
         $totalMurojaah  = $records->where('type', 'murojaah')->count();
         $surahUnique    = $records->pluck('surah_name')->unique()->count();
 
-        // Target Hafalan Progress (Juz 30 & Juz 29)
-        $juz30Surahs = [
-            'An-Naba', 'An-Nazi\'at', 'Abasa', 'At-Takwir', 'Al-Infitar',
-            'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A\'la',
-            'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail',
-            'Ad-Duha', 'Asy-Syarh', 'At-Tin', 'Al-\'Alaq', 'Al-Qadr',
-            'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat', 'Al-Qari\'ah', 'At-Takasur',
-            'Al-\'Asr', 'Al-Humazah', 'Al-Fil', 'Quraisy', 'Al-Ma\'un',
-            'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Masad', 'Al-Ikhlas',
-            'Al-Falaq', 'An-Nas'
+        // Target Hafalan Progress (Dinamis berdasarkan target_level kelompok)
+        $allJuzSurahs = [
+            30 => [
+                'An-Naba', 'An-Nazi\'at', 'Abasa', 'At-Takwir', 'Al-Infitar',
+                'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A\'la',
+                'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail',
+                'Ad-Duha', 'Asy-Syarh', 'At-Tin', 'Al-\'Alaq', 'Al-Qadr',
+                'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat', 'Al-Qari\'ah', 'At-Takasur',
+                'Al-\'Asr', 'Al-Humazah', 'Al-Fil', 'Quraisy', 'Al-Ma\'un',
+                'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Masad', 'Al-Ikhlas',
+                'Al-Falaq', 'An-Nas'
+            ],
+            29 => [
+                'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh',
+                'Al-Jinn', 'Al-Muzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan', 'Al-Mursalat'
+            ],
+            28 => [
+                'Al-Mujadilah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah',
+                'Al-Munafiqun', 'At-Taghabun', 'At-Talaq', 'At-Tahrim'
+            ],
+            27 => [
+                'Az-Zariyat', 'At-Tur', 'An-Najm', 'Al-Qamar', 'Ar-Rahman', 'Al-Waqi\'ah', 'Al-Hadid'
+            ],
+            26 => [
+                'Al-Ahqaf', 'Muhammad', 'Al-Fath', 'Al-Hujurat', 'Qaf', 'Az-Zariyat'
+            ],
+            25 => [
+                'Fussilat', 'Asy-Syura', 'Az-Zukhruf', 'Ad-Dukhan', 'Al-Jatsiyah'
+            ],
+            24 => [
+                'Az-Zumar', 'Ghafir', 'Fussilat'
+            ],
+            23 => [
+                'Yasin', 'As-Saffat', 'Sad', 'Az-Zumar'
+            ],
+            22 => [
+                'Al-Ahzab', 'Saba\'', 'Fatir', 'Yasin'
+            ],
+            21 => [
+                'Al-\'Ankabut', 'Ar-Rum', 'Luqman', 'As-Sajdah', 'Al-Ahzab'
+            ],
+            20 => [
+                'An-Naml', 'Al-Qasas', 'Al-\'Ankabut'
+            ],
+            19 => [
+                'Al-Furqan', 'Asy-Syu\'ara\'', 'An-Naml'
+            ],
+            18 => [
+                'Al-Mu\'minun', 'An-Nur', 'Al-Furqan'
+            ],
+            17 => [
+                'Al-Anbiya\'', 'Al-Hajj'
+            ],
+            16 => [
+                'Al-Kahfi', 'Maryam', 'Thaha'
+            ],
+            15 => [
+                'Al-Isra\'', 'Al-Kahfi'
+            ],
+            14 => [
+                'Al-Hijr', 'An-Nahl'
+            ],
+            13 => [
+                'Yusuf', 'Ar-Ra\'d', 'Ibrahim'
+            ],
+            12 => [
+                'Hud', 'Yusuf'
+            ],
+            11 => [
+                'At-Taubah', 'Yunus', 'Hud'
+            ],
+            10 => [
+                'Al-Anfal', 'At-Taubah'
+            ],
+            9 => [
+                'Al-A\'raf', 'Al-Anfal'
+            ],
+            8 => [
+                'Al-An\'am', 'Al-A\'raf'
+            ],
+            7 => [
+                'Al-Ma\'idah', 'Al-An\'am'
+            ],
+            6 => [
+                'An-Nisa\'', 'Al-Ma\'idah'
+            ],
+            5 => [
+                'An-Nisa\''
+            ],
+            4 => [
+                'Ali \'Imran', 'An-Nisa\''
+            ],
+            3 => [
+                'Al-Baqarah', 'Ali \'Imran'
+            ],
+            2 => [
+                'Al-Baqarah'
+            ],
+            1 => [
+                'Al-Fatihah', 'Al-Baqarah'
+            ]
         ];
 
-        $juz29Surahs = [
-            'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh',
-            'Al-Jinn', 'Al-Muzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan', 'Al-Mursalat'
-        ];
+        // Ekstraksi target Juz dari target_level grup secara dinamis
+        $targetText = $group->target_level ?? 'Juz 30';
+        $targetJuzList = [];
 
-        // Map status surah untuk Juz 30
+        // 1. Ekstraksi pola "Juz X"
+        if (preg_match_all('/(?:juz\s*)(\d+)/i', $targetText, $juzMatches) && !empty($juzMatches[1])) {
+            foreach ($juzMatches[1] as $val) {
+                $n = (int)$val;
+                if ($n >= 1 && $n <= 30 && !in_array($n, $targetJuzList)) {
+                    $targetJuzList[] = $n;
+                }
+            }
+        }
+
+        // 2. Ekstraksi angka 1-30 lainnya (misal: "Juz 29 - 28" atau "29, 28")
+        if (preg_match_all('/\b([1-9]|[12][0-9]|30)\b/', $targetText, $numMatches) && !empty($numMatches[1])) {
+            foreach ($numMatches[1] as $val) {
+                $n = (int)$val;
+                if ($n >= 1 && $n <= 30 && !in_array($n, $targetJuzList)) {
+                    $targetJuzList[] = $n;
+                }
+            }
+        }
+
+        if (empty($targetJuzList)) {
+            $targetJuzList = [30, 29];
+        }
+
+        // Map status surah dari riwayat setoran
         $recordedSurahNames = $records->groupBy(function($r) {
-            return strtolower(preg_replace('/[^a-z0-9]/', '', $r->surah_name));
+            $clean = strtolower(str_replace(['surat', 'surah', ' '], '', $r->surah_name));
+            return preg_replace('/[^a-z0-9]/', '', $clean);
         });
 
         $checkSurahStatus = function($surahList, $juzNum) use ($recordedSurahNames) {
             $list = [];
             $completedCount = 0;
             foreach ($surahList as $name) {
-                $cleanKey = strtolower(preg_replace('/[^a-z0-9]/', '', $name));
+                $cleanKey = strtolower(preg_replace('/[^a-z0-9]/', '', str_replace(['surat', 'surah', ' '], '', $name)));
                 $foundRecords = $recordedSurahNames->get($cleanKey, collect());
                 
                 $status = 'unrecorded'; // unrecorded, lancar, cukup, perlu_perbaikan
@@ -131,13 +246,22 @@ class TahfidzRecordController extends Controller
             ];
         };
 
-        $juz30Data = $checkSurahStatus($juz30Surahs, 30);
-        $juz29Data = $checkSurahStatus($juz29Surahs, 29);
+        // Buat data evaluasi per Juz sesuai target kelompok
+        $targetJuzData = [];
+        foreach ($targetJuzList as $juzNum) {
+            $surahList = $allJuzSurahs[$juzNum] ?? [];
+            $targetJuzData[$juzNum] = $checkSurahStatus($surahList, $juzNum);
+        }
+
+        // Backward compatibility
+        $juz30Data = $targetJuzData[30] ?? $checkSurahStatus($allJuzSurahs[30], 30);
+        $juz29Data = $targetJuzData[29] ?? $checkSurahStatus($allJuzSurahs[29], 29);
 
         return view('tahfidz.student_card', compact(
             'group', 'student', 'records',
             'academicYears', 'selectedYear', 'yearId',
             'totalSetoran', 'totalMurojaah', 'surahUnique',
+            'targetJuzList', 'targetJuzData',
             'juz30Data', 'juz29Data'
         ));
     }

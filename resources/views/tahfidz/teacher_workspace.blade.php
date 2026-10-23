@@ -804,6 +804,13 @@
                                 <option value="{{ $sName }}" data-juz="29">{{ $sName }} (Juz 29)</option>
                             @endforeach
                         </optgroup>
+                        @if(isset($surahListJuz28))
+                        <optgroup label="📖 Juz 28 (Al-Mujadilah s.d. At-Tahrim)">
+                            @foreach($surahListJuz28 as $sName)
+                                <option value="{{ $sName }}" data-juz="28">{{ $sName }} (Juz 28)</option>
+                            @endforeach
+                        </optgroup>
+                        @endif
                     </select>
                     <input type="hidden" name="juz" id="modalJuzInput" value="30">
                 </div>

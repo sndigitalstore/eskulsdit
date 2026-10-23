@@ -346,10 +346,15 @@ class MentoringGroupController extends Controller
                 'Al-Mursalat'
             ];
 
+            $surahListJuz28 = [
+                'Al-Mujadilah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah',
+                'Al-Munafiqun', 'At-Taghabun', 'At-Talaq', 'At-Tahrim'
+            ];
+
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
                 'latestRecords', 'todayAttendances', 'todayRecords', 'totalGroupLines',
-                'surahListJuz30', 'surahListJuz29', 'today'
+                'surahListJuz30', 'surahListJuz29', 'surahListJuz28', 'today'
             ));
         }
 

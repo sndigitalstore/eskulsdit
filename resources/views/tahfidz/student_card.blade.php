@@ -231,150 +231,98 @@
                         {{ $group->target_level ?? 'Juz 30' }}
                     </span>
                 </div>
-                <div style="display: flex; gap: 6px;">
-                    <button type="button" onclick="switchJuzTab(30)" id="btnTab30"
-                            style="padding: 6px 14px; border-radius: 8px; border: 1px solid #0f766e; background: #0f766e; color: white; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
-                        Juz 30 ({{ $juz30Data['completed'] }}/{{ $juz30Data['total'] }})
-                    </button>
-                    <button type="button" onclick="switchJuzTab(29)" id="btnTab29"
-                            style="padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #475569; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
-                        Juz 29 ({{ $juz29Data['completed'] }}/{{ $juz29Data['total'] }})
-                    </button>
-                </div>
-            </div>
-
-            {{-- JUZ 30 CONTENT --}}
-            <div id="contentJuz30">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
-                    <span style="color: #475569; font-weight: 600;">Capaian Juz 30</span>
-                    <strong style="color: #0f766e; font-size: 0.95rem;">{{ $juz30Data['percent'] }}% Terpenuhi ({{ $juz30Data['completed'] }} dari {{ $juz30Data['total'] }} Surah)</strong>
-                </div>
-                <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 16px;">
-                    <div style="width: {{ $juz30Data['percent'] }}%; height: 100%; background: linear-gradient(90deg, #10b981, #0f766e); border-radius: 20px; transition: width 0.5s ease;"></div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 14px; font-size: 0.76rem; color: #64748b; margin-bottom: 12px; flex-wrap: wrap;">
-                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #10b981; display: inline-block;"></span> Lancar ({{ collect($juz30Data['surahs'])->where('status', 'lancar')->count() }})</span>
-                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #f59e0b; display: inline-block;"></span> Cukup ({{ collect($juz30Data['surahs'])->where('status', 'cukup')->count() }})</span>
-                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #ef4444; display: inline-block;"></span> Perlu Perbaikan ({{ collect($juz30Data['surahs'])->where('status', 'perlu_perbaikan')->count() }})</span>
-                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #e2e8f0; display: inline-block;"></span> Belum Setor ({{ collect($juz30Data['surahs'])->where('status', 'unrecorded')->count() }})</span>
-                    <span style="font-style: italic; color: #0f766e; margin-left: auto;">*Klik nama surah untuk otomatis mengisi formulir setoran</span>
-                </div>
-
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                    @foreach($juz30Data['surahs'] as $item)
-                        @php
-                            $bg = match($item['status']) {
-                                'lancar' => '#dcfce7',
-                                'cukup'  => '#fef3c7',
-                                'perlu_perbaikan' => '#fee2e2',
-                                default  => '#ffffff',
-                            };
-                            $borderColor = match($item['status']) {
-                                'lancar' => '#86efac',
-                                'cukup'  => '#fde047',
-                                'perlu_perbaikan' => '#fca5a5',
-                                default  => '#cbd5e1',
-                            };
-                            $textColor = match($item['status']) {
-                                'lancar' => '#15803d',
-                                'cukup'  => '#854d0e',
-                                'perlu_perbaikan' => '#b91c1c',
-                                default  => '#475569',
-                            };
-                            $icon = match($item['status']) {
-                                'lancar' => 'fa-check-circle',
-                                'cukup'  => 'fa-check',
-                                'perlu_perbaikan' => 'fa-exclamation-circle',
-                                default  => 'fa-circle-notch',
-                            };
-                        @endphp
-                        <button type="button" onclick="selectSurah('{{ $item['name'] }}', 30)"
-                                style="background: {{ $bg }}; border: 1.5px solid {{ $borderColor }}; color: {{ $textColor }}; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: transform 0.15s;"
-                                onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'"
-                                title="{{ $item['status'] !== 'unrecorded' ? 'Sudah disetor ' . $item['count'] . 'x (' . $item['status'] . ')' : 'Belum pernah disetor' }}">
-                            <i class="fas {{ $icon }}" style="font-size: 0.72rem;"></i>
-                            {{ $item['name'] }}
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    @php
+                        $targetJuzList = $targetJuzList ?? [30, 29];
+                        $targetJuzData = $targetJuzData ?? [30 => ($juz30Data ?? []), 29 => ($juz29Data ?? [])];
+                    @endphp
+                    @foreach($targetJuzList as $idx => $juzNum)
+                        @php $jData = $targetJuzData[$juzNum] ?? ['completed' => 0, 'total' => 0]; @endphp
+                        <button type="button" onclick="switchJuzTab({{ $juzNum }})" id="btnTab{{ $juzNum }}"
+                                class="juz-tab-btn"
+                                style="padding: 6px 14px; border-radius: 8px; border: 1px solid {{ $idx === 0 ? '#0f766e' : '#cbd5e1' }}; background: {{ $idx === 0 ? '#0f766e' : 'white' }}; color: {{ $idx === 0 ? 'white' : '#475569' }}; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                            Juz {{ $juzNum }} ({{ $jData['completed'] }}/{{ $jData['total'] }})
                         </button>
                     @endforeach
                 </div>
             </div>
 
-            {{-- JUZ 29 CONTENT --}}
-            <div id="contentJuz29" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
-                    <span style="color: #475569; font-weight: 600;">Capaian Juz 29</span>
-                    <strong style="color: #0f766e; font-size: 0.95rem;">{{ $juz29Data['percent'] }}% Terpenuhi ({{ $juz29Data['completed'] }} dari {{ $juz29Data['total'] }} Surah)</strong>
-                </div>
-                <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 16px;">
-                    <div style="width: {{ $juz29Data['percent'] }}%; height: 100%; background: linear-gradient(90deg, #10b981, #0f766e); border-radius: 20px; transition: width 0.5s ease;"></div>
-                </div>
+            @foreach($targetJuzList as $idx => $juzNum)
+                @php $jData = $targetJuzData[$juzNum] ?? ['percent' => 0, 'completed' => 0, 'total' => 0, 'surahs' => []]; @endphp
+                <div id="contentJuz{{ $juzNum }}" class="juz-tab-content" style="{{ $idx > 0 ? 'display: none;' : '' }}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
+                        <span style="color: #475569; font-weight: 600;">Capaian Juz {{ $juzNum }}</span>
+                        <strong style="color: #0f766e; font-size: 0.95rem;">{{ $jData['percent'] }}% Terpenuhi ({{ $jData['completed'] }} dari {{ $jData['total'] }} Surah)</strong>
+                    </div>
+                    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 16px;">
+                        <div style="width: {{ $jData['percent'] }}%; height: 100%; background: linear-gradient(90deg, #10b981, #0f766e); border-radius: 20px; transition: width 0.5s ease;"></div>
+                    </div>
 
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                    @foreach($juz29Data['surahs'] as $item)
-                        @php
-                            $bg = match($item['status']) {
-                                'lancar' => '#dcfce7',
-                                'cukup'  => '#fef3c7',
-                                'perlu_perbaikan' => '#fee2e2',
-                                default  => '#ffffff',
-                            };
-                            $borderColor = match($item['status']) {
-                                'lancar' => '#86efac',
-                                'cukup'  => '#fde047',
-                                'perlu_perbaikan' => '#fca5a5',
-                                default  => '#cbd5e1',
-                            };
-                            $textColor = match($item['status']) {
-                                'lancar' => '#15803d',
-                                'cukup'  => '#854d0e',
-                                'perlu_perbaikan' => '#b91c1c',
-                                default  => '#475569',
-                            };
-                            $icon = match($item['status']) {
-                                'lancar' => 'fa-check-circle',
-                                'cukup'  => 'fa-check',
-                                'perlu_perbaikan' => 'fa-exclamation-circle',
-                                default  => 'fa-circle-notch',
-                            };
-                        @endphp
-                        <button type="button" onclick="selectSurah('{{ $item['name'] }}', 29)"
-                                style="background: {{ $bg }}; border: 1.5px solid {{ $borderColor }}; color: {{ $textColor }}; padding: 5px 12px; border-radius: 8px; font-size: 0.84rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform 0.15s;"
-                                onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'"
-                                title="{{ $item['status'] !== 'unrecorded' ? 'Sudah disetor ' . $item['count'] . 'x (' . $item['status'] . ')' : 'Belum pernah disetor' }}">
-                            <i class="fas {{ $icon }}" style="font-size: 0.72rem;"></i>
-                            {{ $item['name'] }}
-                        </button>
-                    @endforeach
+                    <div style="display: flex; align-items: center; gap: 14px; font-size: 0.76rem; color: #64748b; margin-bottom: 12px; flex-wrap: wrap;">
+                        <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #10b981; display: inline-block;"></span> Lancar ({{ collect($jData['surahs'])->where('status', 'lancar')->count() }})</span>
+                        <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #f59e0b; display: inline-block;"></span> Cukup ({{ collect($jData['surahs'])->where('status', 'cukup')->count() }})</span>
+                        <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #ef4444; display: inline-block;"></span> Perlu Perbaikan ({{ collect($jData['surahs'])->where('status', 'perlu_perbaikan')->count() }})</span>
+                        <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #e2e8f0; display: inline-block;"></span> Belum Setor ({{ collect($jData['surahs'])->where('status', 'unrecorded')->count() }})</span>
+                        <span style="font-style: italic; color: #0f766e; margin-left: auto;">*Klik nama surah untuk otomatis mengisi formulir setoran</span>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        @foreach($jData['surahs'] as $item)
+                            @php
+                                $bg = match($item['status']) {
+                                    'lancar' => '#dcfce7',
+                                    'cukup'  => '#fef3c7',
+                                    'perlu_perbaikan' => '#fee2e2',
+                                    default  => '#ffffff',
+                                };
+                                $borderColor = match($item['status']) {
+                                    'lancar' => '#86efac',
+                                    'cukup'  => '#fde047',
+                                    'perlu_perbaikan' => '#fca5a5',
+                                    default  => '#cbd5e1',
+                                };
+                                $textColor = match($item['status']) {
+                                    'lancar' => '#15803d',
+                                    'cukup'  => '#854d0e',
+                                    'perlu_perbaikan' => '#b91c1c',
+                                    default  => '#475569',
+                                };
+                                $icon = match($item['status']) {
+                                    'lancar' => 'fa-check-circle',
+                                    'cukup'  => 'fa-check',
+                                    'perlu_perbaikan' => 'fa-exclamation-circle',
+                                    default  => 'fa-circle-notch',
+                                };
+                            @endphp
+                            <button type="button" onclick="selectSurah('{{ $item['name'] }}', {{ $juzNum }})"
+                                    style="background: {{ $bg }}; border: 1.5px solid {{ $borderColor }}; color: {{ $textColor }}; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: transform 0.15s;"
+                                    onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'"
+                                    title="{{ $item['status'] !== 'unrecorded' ? 'Sudah disetor ' . $item['count'] . 'x (' . $item['status'] . ')' : 'Belum pernah disetor' }}">
+                                <i class="fas {{ $icon }}" style="font-size: 0.72rem;"></i>
+                                {{ $item['name'] }}
+                            </button>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
+            @endforeach
         </div>
 
         <script>
         function switchJuzTab(juz) {
-            const tab30 = document.getElementById('contentJuz30');
-            const tab29 = document.getElementById('contentJuz29');
-            const btn30 = document.getElementById('btnTab30');
-            const btn29 = document.getElementById('btnTab29');
+            document.querySelectorAll('.juz-tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.juz-tab-btn').forEach(btn => {
+                btn.style.background = 'white';
+                btn.style.color = '#475569';
+                btn.style.borderColor = '#cbd5e1';
+            });
 
-            if (juz === 30) {
-                tab30.style.display = 'block';
-                tab29.style.display = 'none';
-                btn30.style.background = '#0f766e';
-                btn30.style.color = 'white';
-                btn30.style.borderColor = '#0f766e';
-                btn29.style.background = 'white';
-                btn29.style.color = '#475569';
-                btn29.style.borderColor = '#cbd5e1';
-            } else {
-                tab30.style.display = 'none';
-                tab29.style.display = 'block';
-                btn29.style.background = '#0f766e';
-                btn29.style.color = 'white';
-                btn29.style.borderColor = '#0f766e';
-                btn30.style.background = 'white';
-                btn30.style.color = '#475569';
-                btn30.style.borderColor = '#cbd5e1';
+            const activeContent = document.getElementById('contentJuz' + juz);
+            const activeBtn = document.getElementById('btnTab' + juz);
+            if (activeContent) activeContent.style.display = 'block';
+            if (activeBtn) {
+                activeBtn.style.background = '#0f766e';
+                activeBtn.style.color = 'white';
+                activeBtn.style.borderColor = '#0f766e';
             }
         }
 
