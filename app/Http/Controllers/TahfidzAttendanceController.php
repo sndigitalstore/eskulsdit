@@ -422,6 +422,12 @@ class TahfidzAttendanceController extends Controller
         $this->ensureTableExists();
 
         $date = $request->input('date');
+        if (!$date) {
+            return redirect()
+                ->route('tahfidz.attendance.index', ['group' => $group->id])
+                ->with('error', 'Tanggal sesi tidak ditemukan atau tidak valid.');
+        }
+
         TahfidzAttendance::where('mentoring_group_id', $group->id)
             ->where('session_date', $date)
             ->delete();
@@ -443,11 +449,19 @@ class TahfidzAttendanceController extends Controller
         $this->ensureTableExists();
 
         $date = $request->input('date');
+        if (!$date) {
+            $latestDate = TahfidzAttendance::where('mentoring_group_id', $group->id)
+                ->whereNotNull('session_date')
+                ->latest('session_date')
+                ->value('session_date');
+            $date = $latestDate ? \Carbon\Carbon::parse($latestDate)->format('Y-m-d') : date('Y-m-d');
+        }
+
         $records = TahfidzAttendance::where('mentoring_group_id', $group->id)
             ->where('session_date', $date)
             ->with('student')
             ->get()
-            ->sortBy(fn($r) => $r->student->class . $r->student->name)
+            ->sortBy(fn($r) => ($r->student?->class ?? '') . ($r->student?->name ?? ''))
             ->values();
 
         $yearId          = $records->first()?->academic_year_id;
@@ -463,9 +477,10 @@ class TahfidzAttendanceController extends Controller
     /**
      * Helper untuk format pesan WhatsApp laporan capaian hafalan mentoring tahfidz
      */
-    public static function generateWhatsappMessage(MentoringGroup $group, string $date, $records): string
+    public static function generateWhatsappMessage(MentoringGroup $group, ?string $date = null, $records = []): string
     {
-        $formattedDate = \Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM Y');
+        $dateStr = $date ?: date('Y-m-d');
+        $formattedDate = \Carbon\Carbon::parse($dateStr)->locale('id')->isoFormat('dddd, D MMMM Y');
 
         $msg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\n";
         $msg .= "Ayah dan Bunda yang kami hormati,\n\n";
@@ -474,42 +489,44 @@ class TahfidzAttendanceController extends Controller
         $msg .= "━━━━━━━━━━━━━━━━\n\n";
 
         $no = 1;
-        foreach ($records as $rec) {
-            $student = $rec->student;
-            $name = $student ? $student->name : 'Siswa';
-            $class = $student ? $student->class : '-';
+        if (!empty($records)) {
+            foreach ($records as $rec) {
+                $student = $rec->student;
+                $name = $student ? $student->name : 'Siswa';
+                $class = $student ? $student->class : '-';
 
-            $msg .= "*{$no}. {$name}* (Kelas {$class})\n";
+                $msg .= "*{$no}. {$name}* (Kelas {$class})\n";
 
-            if ($rec->status !== 'hadir') {
-                $statusLabel = match($rec->status) {
-                    'sakit' => '🤒 Sakit',
-                    'izin'  => '📄 Izin',
-                    'alpha' => '❌ Tidak Hadir (Alpha)',
-                    default => ucfirst($rec->status)
-                };
-                $msg .= "📌 *Status Kehadiran:* {$statusLabel}\n";
-                if (!empty($rec->notes)) {
-                    $msg .= "💭 *Catatan Guru:* {$rec->notes}\n";
+                if ($rec->status !== 'hadir') {
+                    $statusLabel = match($rec->status) {
+                        'sakit' => '🤒 Sakit',
+                        'izin'  => '📄 Izin',
+                        'alpha' => '❌ Tidak Hadir (Alpha)',
+                        default => ucfirst($rec->status)
+                    };
+                    $msg .= "📌 *Status Kehadiran:* {$statusLabel}\n";
+                    if (!empty($rec->notes)) {
+                        $msg .= "💭 *Catatan Guru:* {$rec->notes}\n";
+                    }
+                } else {
+                    $capaian = !empty($rec->capaian) ? $rec->capaian : '-';
+                    $isLulus = (strtoupper($rec->hafalan_status ?? 'LULUS') === 'LULUS');
+                    $statusStr = $isLulus ? "✅ *Status:* ✓ LULUS" : "❌ *Status:* ✗ BELUM LULUS";
+                    $tugas = !empty($rec->tugas_besok) ? $rec->tugas_besok : '-';
+                    $notes = !empty($rec->notes) ? $rec->notes : ($isLulus ? 'Barakallah..' : 'Lancarkan lagi ya sholih/sholihah..');
+
+                    $barisText = ($rec->jumlah_baris && $rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
+                    $msg .= "📖 *Capaian Hari Ini:*\n";
+                    $msg .= "{$capaian}{$barisText}\n\n";
+                    $msg .= "{$statusStr}\n\n";
+                    $msg .= "📝 *Tugas Besok:*\n";
+                    $msg .= "{$tugas}\n";
+                    $msg .= "💭 *Catatan Guru:* {$notes}\n";
                 }
-            } else {
-                $capaian = !empty($rec->capaian) ? $rec->capaian : '-';
-                $isLulus = (strtoupper($rec->hafalan_status ?? 'LULUS') === 'LULUS');
-                $statusStr = $isLulus ? "✅ *Status:* ✓ LULUS" : "❌ *Status:* ✗ BELUM LULUS";
-                $tugas = !empty($rec->tugas_besok) ? $rec->tugas_besok : '-';
-                $notes = !empty($rec->notes) ? $rec->notes : ($isLulus ? 'Barakallah..' : 'Lancarkan lagi ya sholih/sholihah..');
 
-                $barisText = ($rec->jumlah_baris && $rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
-                $msg .= "📖 *Capaian Hari Ini:*\n";
-                $msg .= "{$capaian}{$barisText}\n\n";
-                $msg .= "{$statusStr}\n\n";
-                $msg .= "📝 *Tugas Besok:*\n";
-                $msg .= "{$tugas}\n";
-                $msg .= "💭 *Catatan Guru:* {$notes}\n";
+                $msg .= "\n━━━━━━━━━━━━━━━━\n\n";
+                $no++;
             }
-
-            $msg .= "\n━━━━━━━━━━━━━━━━\n\n";
-            $no++;
         }
 
         $msg .= "Mari kita terus mendoakan dan membimbing putra-putri kita dalam perjalanan menghafal Al-Qur'an. Setiap ayat yang dihafal adalah investasi untuk masa depan yang cerah dan amal ibadah yang berkelanjutan.\n\n";
@@ -529,11 +546,19 @@ class TahfidzAttendanceController extends Controller
         $this->ensureTableExists();
 
         $date = $request->input('date');
+        if (!$date) {
+            $latestDate = TahfidzAttendance::where('mentoring_group_id', $group->id)
+                ->whereNotNull('session_date')
+                ->latest('session_date')
+                ->value('session_date');
+            $date = $latestDate ? \Carbon\Carbon::parse($latestDate)->format('Y-m-d') : date('Y-m-d');
+        }
+
         $records = TahfidzAttendance::where('mentoring_group_id', $group->id)
             ->where('session_date', $date)
             ->with('student')
             ->get()
-            ->sortBy(fn($r) => $r->student->class . $r->student->name)
+            ->sortBy(fn($r) => ($r->student?->class ?? '') . ($r->student?->name ?? ''))
             ->values();
 
         $yearId   = $records->first()?->academic_year_id;
