@@ -798,6 +798,515 @@
         box-shadow: 0 4px 12px rgba(234,84,85,0.3);
     }
     .btn-confirm-delete:hover { background: #d43434; transform: translateY(-1px); }
+
+    /* ===== VIEW SWITCHING ===== */
+    .desktop-table-view {
+        display: block;
+    }
+    .mobile-students-view {
+        display: none;
+    }
+    .mobile-select-all-wrap {
+        display: none;
+    }
+    .topbar-admin-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .action-grid-buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .form-plotting-tahfidz {
+        display: inline-block;
+    }
+    .btn-plotting {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+    }
+
+    /* ===== MOBILE RESPONSIVE (< 769px) ===== */
+    @media (max-width: 768px) {
+        .students-page {
+            gap: 14px;
+        }
+
+        /* Topbar Mobile */
+        .students-topbar {
+            padding: 16px 14px;
+            border-radius: 14px;
+            gap: 12px;
+        }
+
+        .topbar-left {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .page-title-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .page-title-group h2 {
+            font-size: 1.15rem;
+        }
+
+        .status-tabs {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 4px;
+            border-radius: 12px;
+            background: #f1f5f9;
+        }
+
+        .status-tab {
+            justify-content: center;
+            padding: 9px 12px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .topbar-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .search-wrap {
+            width: 100%;
+        }
+
+        .search-wrap input {
+            width: 100% !important;
+            box-sizing: border-box;
+            padding: 10px 14px 10px 38px;
+            font-size: 0.85rem;
+        }
+
+        .search-wrap input:focus {
+            width: 100% !important;
+        }
+
+        #searchSuggestions {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .topbar-admin-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .form-plotting-tahfidz {
+            width: 100%;
+            display: block !important;
+        }
+
+        .form-plotting-tahfidz .btn-plotting {
+            width: 100%;
+            justify-content: center;
+            padding: 11px 14px;
+            font-size: 0.82rem;
+            border-radius: 10px;
+        }
+
+        #btnBulkDelete {
+            width: 100%;
+            justify-content: center;
+            padding: 11px 14px;
+            margin: 0;
+            border-radius: 10px;
+        }
+
+        .action-grid-buttons {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+
+        .action-grid-buttons .act-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 10px 4px;
+            font-size: 0.8rem;
+            border-radius: 10px;
+        }
+
+        /* Stats Grid 2x2 */
+        .stats-row {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+        }
+
+        .stat-card {
+            padding: 12px 14px;
+            gap: 10px;
+            border-radius: 14px;
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            font-size: 0.95rem;
+            border-radius: 10px;
+        }
+
+        .stat-info h3 {
+            font-size: 1.25rem;
+            margin-bottom: 2px;
+        }
+
+        .stat-info p {
+            font-size: 0.72rem;
+        }
+
+        /* Table Card & Header */
+        .table-card {
+            border-radius: 14px;
+        }
+
+        .table-card-header {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .table-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .table-card-header h3 {
+            font-size: 0.9rem;
+        }
+
+        .bulk-info {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+        }
+
+        .mobile-select-all-wrap {
+            display: flex;
+            align-items: center;
+        }
+
+        .mobile-select-all-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .mobile-select-all-label:active {
+            background: #e2e8f0;
+        }
+
+        /* Hide desktop table & show mobile cards */
+        .desktop-table-view {
+            display: none !important;
+        }
+
+        .mobile-students-view {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        /* Mobile Student Card */
+        .mobile-student-card {
+            background: #ffffff;
+            border: 1px solid #e8edf2;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .m-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .m-card-user {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .m-card-check {
+            display: flex;
+            align-items: center;
+            padding-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .m-card-check .custom-check {
+            width: 18px;
+            height: 18px;
+        }
+
+        .m-card-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7367f0, #9c8ff5);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(115,103,240,0.22);
+        }
+
+        .m-card-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .m-card-title-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .m-student-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 4px 0;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .m-student-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .m-student-number {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 700;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .m-nis-pill {
+            font-family: 'Courier New', monospace;
+            font-size: 0.72rem;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.03em;
+        }
+
+        .m-nis-empty {
+            font-size: 0.72rem;
+            color: #cbd5e1;
+        }
+
+        .m-card-badge {
+            flex-shrink: 0;
+        }
+
+        /* Eskul & Pembina in card body */
+        .m-card-body {
+            background: #f8fafc;
+            border: 1px solid #eef2f7;
+            border-radius: 10px;
+            padding: 9px 12px;
+        }
+
+        .m-eskul-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .m-eskul-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .m-eskul-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .m-pembina-name {
+            font-size: 0.78rem;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .m-pembina-name i {
+            color: #94a3b8;
+            font-size: 0.72rem;
+        }
+
+        .m-no-eskul {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            font-style: italic;
+        }
+
+        .m-no-eskul i {
+            color: #cbd5e1;
+        }
+
+        /* Actions Footer */
+        .m-card-actions {
+            margin-top: 2px;
+            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .m-card-actions.m-actions-4 {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 6px !important;
+        }
+
+        .m-card-actions.m-actions-2 {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+        }
+
+        .m-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 4px;
+            border-radius: 9px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 36px;
+        }
+
+        .m-btn:active {
+            transform: scale(0.97);
+        }
+
+        .m-btn-view {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #dbeafe;
+        }
+
+        .m-btn-cert {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .m-btn-edit {
+            background: #f5f3ff;
+            color: #6d28d9;
+            border: 1px solid #ddd6fe;
+        }
+
+        .m-btn-delete {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* Smaller mobile screens (< 420px) */
+        @media (max-width: 420px) {
+            .m-card-actions.m-actions-4 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+            .action-grid-buttons {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+            }
+            .action-grid-buttons .act-btn {
+                font-size: 0.76rem;
+                padding: 10px 4px;
+            }
+        }
+
+        /* Pagination on mobile */
+        .pagination-wrap {
+            padding: 12px 14px;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .pagination-wrap nav {
+            justify-content: center;
+        }
+    }
 </style>
 @endpush
 
@@ -840,29 +1349,33 @@
             </form>
 
             @if(Auth::user()->role == 'admin')
-                <form action="{{ route('students.assign_grade_6_tahfidz') }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin mem-plotting seluruh siswa Kelas 6 ke Kelompok Tahfidz untuk Semester 2?');">
-                    @csrf
-                    <button type="submit" class="act-btn" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;" title="Plotting Massal Siswa Kelas 6 ke Kelompok Tahfidz Semester 2">
-                        <i class="fas fa-quran"></i> Plotting Tahfidz Kelas 6
+                <div class="topbar-admin-actions">
+                    <form action="{{ route('students.assign_grade_6_tahfidz') }}" method="POST" class="form-plotting-tahfidz" onsubmit="return confirm('Apakah Anda yakin ingin mem-plotting seluruh siswa Kelas 6 ke Kelompok Tahfidz untuk Semester 2?');">
+                        @csrf
+                        <button type="submit" class="act-btn btn-plotting" title="Plotting Massal Siswa Kelas 6 ke Kelompok Tahfidz Semester 2">
+                            <i class="fas fa-quran"></i> <span>Plotting Tahfidz Kelas 6</span>
+                        </button>
+                    </form>
+
+                    <button id="btnBulkDelete" onclick="confirmBulkDelete()"
+                            class="act-btn act-btn-danger" style="display:none;">
+                        <i class="fas fa-trash"></i> <span>Hapus Terpilih</span>
                     </button>
-                </form>
 
-                <button id="btnBulkDelete" onclick="confirmBulkDelete()"
-                        class="act-btn act-btn-danger" style="display:none;">
-                    <i class="fas fa-trash"></i> Hapus Terpilih
-                </button>
+                    <div class="action-grid-buttons">
+                        <a href="{{ route('students.create') }}" class="act-btn act-btn-primary">
+                            <i class="fas fa-plus"></i> <span>Tambah</span>
+                        </a>
 
-                <a href="{{ route('students.create') }}" class="act-btn act-btn-primary">
-                    <i class="fas fa-plus"></i> Tambah
-                </a>
+                        <button type="button" class="act-btn act-btn-success" onclick="openImportModal()">
+                            <i class="fas fa-file-excel"></i> <span>Import</span>
+                        </button>
 
-                <button class="act-btn act-btn-success" onclick="openImportModal()">
-                    <i class="fas fa-file-excel"></i> Import
-                </button>
-
-                <a href="{{ route('students.backup') }}" class="act-btn act-btn-dark">
-                    <i class="fas fa-download"></i> Backup
-                </a>
+                        <a href="{{ route('students.backup') }}" class="act-btn act-btn-dark">
+                            <i class="fas fa-download"></i> <span>Backup</span>
+                        </a>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -941,21 +1454,32 @@
     {{-- ===== TABLE CARD ===== --}}
     <div class="table-card">
         <div class="table-card-header">
-            <h3><i class="fas fa-table" style="color:#7367f0; margin-right:6px;"></i>Data Siswa {{ $status == 'graduated' ? '(Lulus)' : '(Aktif)' }}</h3>
-            <span class="bulk-info" id="bulkInfo">0 siswa dipilih</span>
+            <div class="table-header-left">
+                <h3><i class="fas fa-table" style="color:#7367f0; margin-right:6px;"></i>Data Siswa {{ $status == 'graduated' ? '(Lulus)' : '(Aktif)' }}</h3>
+                <span class="bulk-info" id="bulkInfo">0 siswa dipilih</span>
+            </div>
+            @if(Auth::user()->role == 'admin')
+                <div class="mobile-select-all-wrap">
+                    <label class="mobile-select-all-label">
+                        <input type="checkbox" id="checkAllMobile" class="custom-check" onchange="toggleAll(this)">
+                        <span>Pilih Semua</span>
+                    </label>
+                </div>
+            @endif
         </div>
 
         <form action="{{ route('students.destroy_bulk') }}" method="POST" id="bulkDeleteForm">
             @csrf
             @method('DELETE')
 
-            <div style="overflow-x: auto;">
+            {{-- 1. DESKTOP TABLE VIEW (>= 769px) --}}
+            <div class="desktop-table-view" style="overflow-x: auto;">
                 <table class="students-table">
                     <thead>
                         <tr>
                             <th style="width:44px; text-align:center;">
                                 @if(Auth::user()->role == 'admin')
-                                    <input type="checkbox" id="checkAll" class="custom-check" onclick="toggleAll(this)">
+                                    <input type="checkbox" id="checkAll" class="custom-check" onchange="toggleAll(this)">
                                 @else
                                     #
                                 @endif
@@ -978,7 +1502,7 @@
                             <td style="text-align:center;">
                                 @if(Auth::user()->role == 'admin')
                                     <input type="checkbox" name="ids[]" value="{{ $student->id }}"
-                                           class="check-item custom-check" onclick="toggleBtn()">
+                                           class="check-item custom-check" onchange="onStudentCheck('{{ $student->id }}', this.checked)">
                                 @else
                                     <span class="col-no">-</span>
                                 @endif
@@ -1098,6 +1622,107 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- 2. MOBILE CARD VIEW (< 769px) --}}
+            <div class="mobile-students-view">
+                @forelse($students as $i => $student)
+                <div class="mobile-student-card" id="student-card-{{ $student->id }}">
+                    {{-- Header: Avatar, Name, NIS, Class badge & Checkbox --}}
+                    <div class="m-card-header">
+                        <div class="m-card-user">
+                            @if(Auth::user()->role == 'admin')
+                                <div class="m-card-check">
+                                    <input type="checkbox" name="ids[]" value="{{ $student->id }}"
+                                           class="check-item custom-check" onchange="onStudentCheck('{{ $student->id }}', this.checked)">
+                                </div>
+                            @endif
+                            <div class="m-card-avatar">
+                                @if($student->photo)
+                                    <img src="{{ asset('storage/'.$student->photo) }}" alt="{{ $student->name }}">
+                                @else
+                                    {{ strtoupper(substr($student->name, 0, 1)) }}
+                                @endif
+                            </div>
+                            <div class="m-card-title-group">
+                                <h4 class="m-student-name">{{ $student->name }}</h4>
+                                <div class="m-student-meta">
+                                    <span class="m-student-number">#{{ $students->firstItem() + $i }}</span>
+                                    @if($student->nis)
+                                        <span class="m-nis-pill"><i class="fas fa-id-badge"></i> {{ $student->nis }}</span>
+                                    @else
+                                        <span class="m-nis-empty">NIS: —</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-card-badge">
+                            <span class="class-badge">{{ $student->class ?? '-' }}</span>
+                        </div>
+                    </div>
+
+                    {{-- Body: Ekstrakurikuler & Pembina --}}
+                    <div class="m-card-body">
+                        @if($student->eskuls->count() > 0)
+                            <div class="m-eskul-list">
+                                @foreach($student->eskuls as $eskul)
+                                    <div class="m-eskul-item">
+                                        <span class="eskul-chip">
+                                            <span class="eskul-chip-dot"></span>
+                                            {{ $eskul->name }}
+                                        </span>
+                                        <span class="m-pembina-name">
+                                            <i class="fas fa-user-tie"></i>
+                                            {{ $eskul->instructor_name ?? 'Belum ada pembina' }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="m-no-eskul">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Belum terdaftar di ekstrakurikuler</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Footer: Actions (Lihat, Piagam, Edit, Hapus) --}}
+                    @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                        <div class="m-card-actions {{ Auth::user()->role == 'admin' ? 'm-actions-4' : 'm-actions-2' }}">
+                            <a href="{{ route('students.show', $student->id) }}" class="m-btn m-btn-view" title="Lihat Riwayat & Detail">
+                                <i class="fas fa-eye"></i>
+                                <span>Riwayat</span>
+                            </a>
+                            <a href="{{ route('students.certificate', $student->id) }}" target="_blank" class="m-btn m-btn-cert" title="Cetak Piagam Digital">
+                                <i class="fas fa-certificate"></i>
+                                <span>Piagam</span>
+                            </a>
+                            @if(Auth::user()->role == 'admin')
+                                <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}" class="m-btn m-btn-edit" title="Edit Data Siswa">
+                                    <i class="fas fa-pen"></i>
+                                    <span>Edit</span>
+                                </a>
+                                <button type="button" onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')" class="m-btn m-btn-delete" title="Hapus Siswa">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                @empty
+                <div class="empty-state" style="background:#fff; border-radius:14px; padding:36px 16px;">
+                    <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
+                    <h4>Tidak ada data siswa</h4>
+                    <p>
+                        @if(request('search'))
+                            Hasil pencarian "{{ request('search') }}" tidak ditemukan.
+                        @else
+                            Belum ada siswa yang terdaftar.
+                        @endif
+                    </p>
+                </div>
+                @endforelse
+            </div>
         </form>
 
         {{-- Pagination --}}
@@ -1210,23 +1835,49 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
 <script>
     let confirmCallback = null;
 
-    // ===== CHECKBOX =====
+    // ===== CHECKBOX & BULK SELECTION =====
+    function onStudentCheck(id, isChecked) {
+        document.querySelectorAll(`input[name="ids[]"][value="${id}"]`).forEach(cb => {
+            cb.checked = isChecked;
+        });
+        updateBulkUI();
+    }
+
     function toggleAll(source) {
-        document.querySelectorAll('.check-item').forEach(cb => cb.checked = source.checked);
-        toggleBtn();
+        const isChecked = source.checked;
+        const checkAllDesk = document.getElementById('checkAll');
+        const checkAllMob  = document.getElementById('checkAllMobile');
+        if (checkAllDesk) checkAllDesk.checked = isChecked;
+        if (checkAllMob)  checkAllMob.checked  = isChecked;
+
+        document.querySelectorAll('input[name="ids[]"]').forEach(cb => {
+            cb.checked = isChecked;
+        });
+        updateBulkUI();
     }
 
     function toggleBtn() {
-        const checked = document.querySelectorAll('.check-item:checked');
+        updateBulkUI();
+    }
+
+    function updateBulkUI() {
+        const checkedBoxes = document.querySelectorAll('input[name="ids[]"]:checked');
+        const uniqueIds = new Set();
+        checkedBoxes.forEach(cb => uniqueIds.add(cb.value));
+
+        const count = uniqueIds.size;
         const btn   = document.getElementById('btnBulkDelete');
         const info  = document.getElementById('bulkInfo');
-        if (checked.length > 0) {
-            btn.style.display  = 'inline-flex';
-            info.style.display = 'block';
-            info.innerText     = checked.length + ' siswa dipilih';
+        
+        if (count > 0) {
+            if (btn) btn.style.display  = 'inline-flex';
+            if (info) {
+                info.style.display = 'block';
+                info.innerText     = count + ' siswa dipilih';
+            }
         } else {
-            btn.style.display  = 'none';
-            info.style.display = 'none';
+            if (btn) btn.style.display  = 'none';
+            if (info) info.style.display = 'none';
         }
     }
 
@@ -1249,10 +1900,23 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
     };
 
     function confirmBulkDelete() {
-        const count = document.querySelectorAll('.check-item:checked').length;
-        if (count === 0) return;
-        showConfirmModal('Apakah Anda yakin ingin menghapus ' + count + ' data siswa yang dipilih? Tindakan ini tidak dapat dibatalkan.', function () {
-            document.getElementById('bulkDeleteForm').submit();
+        const checkedBoxes = document.querySelectorAll('input[name="ids[]"]:checked');
+        const uniqueIds = Array.from(new Set(Array.from(checkedBoxes).map(cb => cb.value)));
+        if (uniqueIds.length === 0) return;
+
+        showConfirmModal('Apakah Anda yakin ingin menghapus ' + uniqueIds.length + ' data siswa yang dipilih? Tindakan ini tidak dapat dibatalkan.', function () {
+            const form = document.getElementById('bulkDeleteForm');
+            // Disable existing checkboxes to avoid duplicate values in request
+            form.querySelectorAll('input[name="ids[]"]').forEach(cb => cb.disabled = true);
+            // Append clean unique hidden inputs
+            uniqueIds.forEach(id => {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'ids[]';
+                hidden.value = id;
+                form.appendChild(hidden);
+            });
+            form.submit();
         });
     }
 
