@@ -14,13 +14,21 @@
 @endpush
 
 @section('content')
-<a href="{{ route('grades.index') }}" class="back-btn" style="display: inline-block; margin-bottom: 1rem; color: #888; text-decoration: none;"><i class="fas fa-arrow-left"></i> Kembali</a>
+<div class="no-print" style="margin-bottom: 1.25rem;">
+    <a href="{{ route('grades.index') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #475569; background: #ffffff; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+        <i class="fas fa-arrow-left"></i>
+        <span>Kembali ke Pemilihan Penilaian</span>
+    </a>
+</div>
 
-<div class="card" style="max-width: 1000px; margin: 0 auto;">
+<div class="card" style="max-width: 1000px; margin: 0 auto; border-radius: 18px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);">
     <div style="text-align: center; margin-bottom: 2rem;">
-        <h2 style="font-size: 1.5rem; margin-bottom: 5px;">REKAP NILAI EKSTRAKURIKULER</h2>
-        <h3 style="font-size: 1.2rem; margin-bottom: 5px; color: #555;">{{ $selectedEskul->name ?? '-' }}</h3>
-        <p style="color: #888;">Pembina: {{ $selectedEskul->instructor_name ?? '-' }}</p>
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: #f5f3ff; color: #7c3aed; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">
+            <i class="fas fa-file-invoice"></i> Rekapitulasi Penilaian
+        </div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 5px;">REKAP NILAI EKSTRAKURIKULER</h2>
+        <h3 style="font-size: 1.15rem; font-weight: 750; margin-bottom: 5px; color: #7c3aed;">{{ $selectedEskul->name ?? '-' }}</h3>
+        <p style="color: #64748b; font-size: 0.88rem; margin: 0;">Pembina: <strong>{{ $selectedEskul->instructor_name ?? '-' }}</strong></p>
     </div>
 
     @if($selectedEskul)

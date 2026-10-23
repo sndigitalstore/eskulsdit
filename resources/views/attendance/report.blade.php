@@ -4,13 +4,20 @@
 @section('page-title', 'Laporan Absensi')
 
 @section('content')
-<div class="card">
-    <div class="page-header" style="margin-bottom: 2rem;">
+<div class="no-print" style="margin-bottom: 1.25rem;">
+    <a href="{{ route('attendance.index') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #475569; background: #ffffff; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+        <i class="fas fa-arrow-left"></i>
+        <span>Kembali ke Pemilihan Presensi</span>
+    </a>
+</div>
+
+<div class="card" style="border-radius: 18px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);">
+    <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h2>Rekapitulasi Absensi</h2>
-            <p style="color: #666; margin: 0;">Eskul: <strong>{{ $eskul->name }}</strong> | Tahun: {{ $year->name }}</p>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0 0 4px;">Rekapitulasi Presensi</h2>
+            <p style="color: #64748b; margin: 0; font-size: 0.88rem;">Eskul: <strong style="color: #059669;">{{ $eskul->name }}</strong> | Tahun: {{ $year->name }}</p>
         </div>
-        <button onclick="window.print()" class="btn-submit" style="width: auto; background: #333;">
+        <button onclick="window.print()" class="btn-submit" style="width: auto; background: #0f172a; border-radius: 10px; padding: 10px 20px; font-weight: 750;">
             <i class="fas fa-print"></i> Cetak Laporan
         </button>
     </div>
