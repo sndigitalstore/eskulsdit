@@ -111,8 +111,8 @@
         <img src="{{ asset('logo.png') }}" class="logo" alt="Logo">
         <div class="school-info">
             <h2>YAYASAN PENDIDIKAN ISLAM AN NADZIR</h2>
-            <h3>SDIT AN NADZIR KABUPATEN BOGOR</h3>
-            <p>Jl. Raya Tajur No. 12, Tarikolot, Kec. Citeureup, Kab. Bogor, Jawa Barat</p>
+            <h3>SDIT AN NADZIR KABUPATEN SERANG</h3>
+            <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             <p>Website: sditannadzir.sch.id | Email: sditannadzir@gmail.com</p>
         </div>
     </div>
@@ -215,7 +215,7 @@
 
         <div class="sign-box">
             <p style="margin: 0 0 50px 0;">
-                Bogor, {{ date('d F Y') }}<br>
+                Cinangka, {{ date('d F Y') }}<br>
                 Kepala Sekolah SDIT An Nadzir
             </p>
             <p style="font-weight: bold; margin: 0; text-decoration: underline;">

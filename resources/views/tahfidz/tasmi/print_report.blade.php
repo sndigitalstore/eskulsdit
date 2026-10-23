@@ -216,8 +216,7 @@
             <div class="kop-text">
                 <h2>YAYASAN PENDIDIKAN DAN SOSIAL AN NADZIR</h2>
                 <h1>SDIT AN NADZIR</h1>
-                <p>NPSN: 69949618 · Akreditasi: A · Jl. Raya Pendidikan No. 01, Cisauk, Tangerang, Banten</p>
-                <p>Telp: (021) 5432-1098 · Email: info@annadzir.sch.id</p>
+                <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             </div>
         </div>
 
@@ -330,7 +329,7 @@
                 <div style="font-size: 8.5pt; color: #64748b;">NIP / NPY: 19820415.2010.01</div>
             </div>
             <div>
-                <div>Tangerang, {{ \Carbon\Carbon::parse($tasmi->exam_date)->translatedFormat('d F Y') }}</div>
+                <div>Cinangka, {{ \Carbon\Carbon::parse($tasmi->exam_date)->translatedFormat('d F Y') }}</div>
                 <div style="margin-bottom: 50px;">Munaqisy / Penguji Tasmi'</div>
                 <div style="font-weight: bold; text-decoration: underline;">{{ $tasmi->examiner_name }}</div>
                 <div style="font-size: 8.5pt; color: #64748b;">Penguji Tahfidz Bil Ghaib</div>

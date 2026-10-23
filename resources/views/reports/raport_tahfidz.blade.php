@@ -456,7 +456,7 @@
                     <p class="instansi-yayasan">YAYASAN PENDIDIKAN DAN SOSIAL AN NADZIR</p>
                     <h1 class="instansi-nama">SDIT AN NADZIR</h1>
                     <p class="instansi-npsn">NSS: 102026501053 · NPSN: 69949618 · Akreditasi: A (Amat Baik)</p>
-                    <p class="instansi-alamat">Jl. Raya Pendidikan No. 01, Cisauk, Kab. Tangerang, Banten 15341 · Telp: (021) 5432-1098 · Email: info@annadzir.sch.id</p>
+                    <p class="instansi-alamat">Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
                 </div>
             </div>
 
@@ -747,7 +747,7 @@
                             <div class="sign-nip">Tanda Tangan Orang Tua</div>
                         </td>
                         <td>
-                            Tangerang, {{ $currentDate }}<br>
+                            Cinangka, {{ $currentDate }}<br>
                             <span class="job-title">Guru Pembimbing Tahfidz</span>
                             <div style="height: 48px;"></div>
                             <span class="sign-name">{{ $mentorName !== '-' ? $mentorName : '...................................................' }}</span>

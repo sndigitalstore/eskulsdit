@@ -171,7 +171,7 @@
             <div class="kop-text">
                 <h1>SDIT AN NADZIR</h1>
                 <h2>SISTEM PEMBINAAN QUR'AN & PRESTASI TERPADU (SIM SMILE)</h2>
-                <p>Alamat: Jl. Raya Pendidikan No. 01, Cisauk, Kab. Tangerang, Banten • Telp: (021) 5432-1098</p>
+                <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             </div>
         </div>
 
@@ -327,7 +327,7 @@
                         <span style="font-size: 8pt; color: #555;">Guru Wali Kelas</span>
                     </td>
                     <td>
-                        Tangerang, {{ $currentDate }}<br>
+                        Cinangka, {{ $currentDate }}<br>
                         <strong>Musyrif / Pembina Tahfidz</strong><br>
                         <div style="height: 55px;"></div>
                         <strong style="text-decoration: underline;">{{ $mentorName !== '-' ? $mentorName : '....................................' }}</strong><br>

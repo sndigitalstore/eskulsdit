@@ -286,7 +286,7 @@
                     <div class="cert-header">
                         <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR">
                         <div>
-                            <h2 class="instansi-title">SDIT AN NADZIR CISUK</h2>
+                            <h2 class="instansi-title">SDIT AN NADZIR</h2>
                             <p class="instansi-sub">LEMBAGA PENDIDIKAN DASAR ISLAM TERPADU · PENJAMINAN MUTU AL-QUR'AN</p>
                         </div>
                     </div>
@@ -334,7 +334,7 @@
                     </div>
                     <div>
                         <div class="sig-title">
-                            Tangerang, {{ \Carbon\Carbon::parse($tasmi->exam_date)->translatedFormat('d F Y') }}<br>
+                            Cinangka, {{ \Carbon\Carbon::parse($tasmi->exam_date)->translatedFormat('d F Y') }}<br>
                             Munaqisy / Penguji Tasmi'
                         </div>
                         <div class="sig-name">{{ $tasmi->examiner_name }}</div>
