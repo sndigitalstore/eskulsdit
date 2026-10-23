@@ -871,11 +871,11 @@
         </a>
 
         <div class="nav-menu">
-            <a href="#pilar" class="nav-link">4 Pilar SMILE</a>
+            <a href="#pilar" class="nav-link">4 Pilar Pendidikan</a>
             <a href="#keunggulan" class="nav-link">Fitur Terpadu</a>
             <a href="#statistik" class="nav-link">Statistik</a>
-            <a href="{{ route('student-status.index') }}" class="nav-link">
-                <i class="fas fa-search" style="font-size: 0.8rem; color: #0284c7;"></i> Cek Status Siswa
+            <a href="{{ route('student-status.index') }}" class="nav-link" style="color: #047857; font-weight: 700;">
+                <i class="fas fa-search" style="font-size: 0.8rem; color: #059669;"></i> Portal Ayah Bunda
             </a>
             @auth
                 <a href="{{ url('/dashboard') }}" class="btn-nav-portal">
@@ -902,13 +902,13 @@
     <header class="hero-section">
         <div class="hero-content">
             <div class="hero-badge">
-                <i class="fas fa-award" style="color: #059669;"></i> Ekosistem Digital Terpadu SDIT AN NADZIR
+                <i class="fas fa-heart" style="color: #059669;"></i> Amanah Pendidikan Terpadu SDIT AN NADZIR
             </div>
             <h1 class="hero-title">
-                Sinergi <span class="highlight-green">Qur'ani</span>, Karakter Unggul & <span class="highlight-blue">Prestasi.</span>
+                Mendidik dengan <span class="highlight-green">Hati</span>, Menemani Tumbuh Kembang <span class="highlight-blue">Generasi Qur'ani.</span>
             </h1>
             <p class="hero-desc">
-                <strong>SIMUTQIN SDIT AN NADZIR</strong> (Sistem Informasi Mutaba'ah, Tahfidz, Karakter, dan Integrasi Nilai) hadir menemani tumbuh kembang prestasi dan karakter Qur'ani melalui integrasi holistik pembinaan Tilawati & Tahfidz, pemantauan karakter pembiasaan harian, rapor akademik Kurikulum Merdeka (STS & SAS), serta manajemen potensi bakat siswa dalam satu platform akuntabel.
+                <strong>SIMUTQIN SDIT AN NADZIR</strong> hadir sebagai jembatan kasih antara sekolah dan keluarga. Memudahkan Asatidz membimbing dengan teliti, serta memberi ketenangan bagi Ayah Bunda untuk memantau kelancaran hafalan Al-Qur'an, pembiasaan akhlak harian, dan capaian prestasi ananda secara mudah dan transparan.
             </p>
             <div class="hero-cta-group">
                 @auth
@@ -917,11 +917,11 @@
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="btn-hero-primary">
-                        <i class="fas fa-sign-in-alt"></i> Masuk Portal SIMUTQIN
+                        <i class="fas fa-sign-in-alt"></i> Masuk Portal Guru & Staf
                     </a>
                 @endauth
-                <a href="#pilar" class="btn-hero-secondary">
-                    <i class="fas fa-layer-group" style="color: #0284c7;"></i> Jelajahi 4 Pilar
+                <a href="{{ route('student-status.index') }}" class="btn-hero-secondary">
+                    <i class="fas fa-search" style="color: #0284c7;"></i> Cek Perkembangan Ananda
                 </a>
             </div>
         </div>
@@ -944,14 +944,14 @@
 
                 <div class="mockup-metrics-grid">
                     <div class="mockup-metric active-theme">
-                        <div class="metric-label">Siswa Terdaftar</div>
+                        <div class="metric-label">Siswa Terbina</div>
                         <div class="metric-val">{{ $totalSiswa }}</div>
                         <div style="font-size: 0.72rem; color: #047857; font-weight: 600; margin-top: 2px;">
-                            <i class="fas fa-check-circle"></i> Terdata Aktif
+                            <i class="fas fa-check-circle"></i> Terdata & Aktif
                         </div>
                     </div>
                     <div class="mockup-metric">
-                        <div class="metric-label">Kelompok Qur'an</div>
+                        <div class="metric-label">Halaqah Qur'an</div>
                         <div class="metric-val" style="color: #0284c7;">{{ $totalKelompok }}</div>
                         <div style="font-size: 0.72rem; color: #0284c7; font-weight: 600; margin-top: 2px;">
                             <i class="fas fa-quran"></i> Tilawati & Tahfidz
@@ -963,27 +963,27 @@
                 <div class="mockup-feed" style="background: #f0fdf4; border-color: #bbf7d0;">
                     <div class="mockup-feed-left">
                         <div class="mockup-feed-icon" style="background: #dcfce7; color: #15803d;">
-                            <i class="fas fa-star-and-crescent"></i>
+                            <i class="fas fa-quran"></i>
                         </div>
                         <div>
                             <div style="font-size: 0.8rem; font-weight: 800; color: #166534;">Pembinaan Al-Qur'an</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Mutaba'ah Tilawati & Kartu Hafalan Siswa</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Setoran Tahfidz, Tilawati & Ujian Munaqosah</div>
                         </div>
                     </div>
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #15803d; background: white; padding: 2px 8px; border-radius: 6px;">Aktif</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #15803d; background: white; padding: 2px 8px; border-radius: 6px;">Terbina</span>
                 </div>
 
                 <div class="mockup-feed" style="background: #fefce8; border-color: #fef08a;">
                     <div class="mockup-feed-left">
                         <div class="mockup-feed-icon" style="background: #fef9c3; color: #a16207;">
-                            <i class="fas fa-smile-beam"></i>
+                            <i class="fas fa-star"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #854d0e;">SMILE Karakter Siswa</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Sholeh, Muslih, Curousity, Leadership, Env.</div>
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #854d0e;">Mutaba'ah Karakter Siswa</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Pembiasaan Shalat, Adab Harian & Kepemimpinan</div>
                         </div>
                     </div>
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #a16207; background: white; padding: 2px 8px; border-radius: 6px;">Akuntabel</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #a16207; background: white; padding: 2px 8px; border-radius: 6px;">Terpantau</span>
                 </div>
 
                 <div class="mockup-feed" style="background: #f0f9ff; border-color: #bae6fd;">
@@ -992,11 +992,11 @@
                             <i class="fas fa-graduation-cap"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #075985;">Raport Kurikulum Merdeka</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Penilaian Sumatif STS 1, SAS 1, STS 2, SAS 2</div>
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #075985;">Kurikulum & Prestasi</div>
+                            <div style="font-size: 0.72rem; color: #64748b;">Laporan Capaian Belajar & Ekstrakurikuler</div>
                         </div>
                     </div>
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #0369a1; background: white; padding: 2px 8px; border-radius: 6px;">A4 Resmi</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #0369a1; background: white; padding: 2px 8px; border-radius: 6px;">Resmi</span>
                 </div>
             </div>
         </div>
