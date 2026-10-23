@@ -293,12 +293,18 @@ class ReportController extends Controller
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CalistungGraduatesExport, 'Siswa_Lulus_Calistung_' . date('Ymd_His') . '.xlsx');
     }
 
+    /**
+     * Ekspor Rekap Tahfidz Komprehensif ke Excel
+     */
     public function exportTahfidz(Request $request)
     {
         $class = $request->query('class');
         $groupId = $request->query('group_id');
+        $yearId = $request->query('year_id');
+
         $activeYear = AcademicYear::where('is_active', true)->first();
-        $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
+        $selectedYearId = $yearId ?? ($activeYear?->id);
+        $yearName = $selectedYearId ? (AcademicYear::find($selectedYearId)?->name ?? 'Semua-Tahun') : 'Semua-Tahun';
 
         $groupName = '';
         if ($groupId) {
@@ -308,10 +314,15 @@ class ReportController extends Controller
             }
         }
 
-        $filename = 'Rekap_Tahfidz_' . $groupName . ($class && $class !== 'ALL' ? 'Kelas_' . str_replace(' ', '_', $class) . '_' : '') . date('Ymd_His') . '.xlsx';
+        $classClean = ($class && $class !== 'ALL') ? 'Kelas_' . str_replace(' ', '_', $class) . '_' : '';
+        $filename = 'Rekap_Tahfidz_' . $groupName . $classClean . str_replace(['/', '\\', ' '], '_', $yearName) . '_' . date('Ymd_His') . '.xlsx';
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\TahfidzRecapExport($yearId, $class, $groupId), $filename);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\TahfidzRecapExport($selectedYearId, $class, $groupId),
+            $filename
+        );
     }
+
 
     public function exportClass(Request $request)
     {
@@ -959,25 +970,4 @@ class ReportController extends Controller
         ));
     }
 
-    /**
-     * Ekspor Rekap Tahfidz Komprehensif ke Excel
-     */
-    public function exportTahfidz(Request $request)
-    {
-        $class = $request->query('class');
-        $groupId = $request->query('group_id');
-        $yearId = $request->query('year_id');
-
-        $activeYear = AcademicYear::where('is_active', true)->first();
-        $selectedYearId = $yearId ?? ($activeYear?->id);
-        $yearName = $selectedYearId ? (AcademicYear::find($selectedYearId)?->name ?? 'Semua-Tahun') : 'Semua-Tahun';
-        $classClean = ($class && $class !== 'ALL') ? 'Kelas_' . str_replace(' ', '_', $class) : 'Semua_Kelas';
-
-        $filename = 'Rekap_Tahfidz_' . $classClean . '_' . str_replace(['/', '\\', ' '], '_', $yearName) . '_' . date('Ymd_His') . '.xlsx';
-
-        return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\TahfidzRecapExport($selectedYearId, $class, $groupId),
-            $filename
-        );
-    }
 }
