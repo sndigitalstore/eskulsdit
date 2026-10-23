@@ -30,10 +30,16 @@ class AttendanceController extends Controller
         return array_unique(array_merge($eskulIds, $delegatedEskulIds));
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         if ($user->role == 'teacher') {
+            if ($user->eskul_id && !$request->has('select')) {
+                return redirect()->route('attendance.create', [
+                    'eskul_id' => $user->eskul_id,
+                    'date' => date('Y-m-d')
+                ]);
+            }
             $allowedIds = $this->getAllowedEskulIds($user);
             $eskuls = Eskul::activeYear()->has('students')->whereIn('id', $allowedIds)->get();
         } else {
@@ -171,6 +177,15 @@ class AttendanceController extends Controller
         $eskul = Eskul::find($eskulId);
         $eskulName = $eskul ? $eskul->name : 'Unknown';
         \App\Models\ActivityLog::log('Attendance', 'Create', "Mencatat absensi eskul {$eskulName} untuk tanggal {$date}.");
+
+        if (auth()->user()->role == 'teacher') {
+            return redirect()->route('attendance.create', [
+                'eskul_id' => $eskulId,
+                'date' => $date,
+                'academic_year_id' => $yearId,
+                'semester' => $semester
+            ])->with('success', 'Presensi siswa berhasil disimpan!');
+        }
 
         return redirect()->route('attendance.index')->with('success', 'Absensi berhasil disimpan!');
     }

@@ -10,10 +10,17 @@ use Illuminate\Http\Request;
 
 class GradeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         if ($user->role == 'teacher') {
+            if ($user->eskul_id && !$request->has('select')) {
+                return redirect()->route('grades.create', [
+                    'eskul_id' => $user->eskul_id,
+                    'type' => 'daily',
+                    'date' => date('Y-m-d')
+                ]);
+            }
             $eskuls = $user->eskul_id 
                 ? Eskul::activeYear()->has('students')->where('id', $user->eskul_id)->get()
                 : collect();
@@ -157,6 +164,16 @@ class GradeController extends Controller
         $eskulName = $eskul ? $eskul->name : 'Unknown';
         $typeLabel = $type === 'daily' ? 'Harian' : ($type === 'sas1' ? 'SAS 1' : 'SAS 2');
         \App\Models\ActivityLog::log('Grades', 'Create', "Mengisi nilai {$typeLabel} eskul {$eskulName} untuk tanggal " . ($date ?? date('Y-m-d')) . ".");
+
+        if (auth()->user()->role == 'teacher') {
+            return redirect()->route('grades.create', [
+                'eskul_id' => $eskulId,
+                'type' => $type,
+                'date' => $date,
+                'academic_year_id' => $yearId,
+                'semester' => $semester
+            ])->with('success', 'Nilai siswa berhasil disimpan!');
+        }
 
         return redirect()->route('grades.index')->with('success', 'Nilai berhasil disimpan!');
     }

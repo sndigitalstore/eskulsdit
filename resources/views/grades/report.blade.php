@@ -15,10 +15,17 @@
 
 @section('content')
 <div class="no-print" style="margin-bottom: 1.25rem;">
+    @if(Auth::user()->role === 'teacher')
+    <a href="{{ route('grades.create', ['eskul_id' => $selectedEskul->id ?? Auth::user()->eskul_id, 'type' => 'daily', 'date' => date('Y-m-d')]) }}" style="display: inline-flex; align-items: center; gap: 8px; color: #475569; background: #ffffff; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+        <i class="fas fa-arrow-left"></i>
+        <span>Kembali ke Lembar Penilaian</span>
+    </a>
+    @else
     <a href="{{ route('grades.index') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #475569; background: #ffffff; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
         <i class="fas fa-arrow-left"></i>
         <span>Kembali ke Pemilihan Penilaian</span>
     </a>
+    @endif
 </div>
 
 <div class="card" style="max-width: 1000px; margin: 0 auto; border-radius: 18px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);">

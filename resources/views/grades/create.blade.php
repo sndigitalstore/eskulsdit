@@ -472,10 +472,17 @@
 @section('content')
 <div class="grades-form-wrapper">
     <!-- Tombol Kembali -->
+    @if(Auth::user()->role === 'teacher')
+    <a href="{{ route('dashboard') }}" class="btn-back-pill">
+        <i class="fas fa-arrow-left"></i>
+        <span>Kembali ke Beranda</span>
+    </a>
+    @else
     <a href="{{ route('grades.index') }}" class="btn-back-pill">
         <i class="fas fa-arrow-left"></i>
         <span>Kembali ke Pemilihan Kriteria</span>
     </a>
+    @endif
 
     <!-- Notifikasi Riwayat / Semester -->
     @if(!$contextYear->is_active || $contextYear->active_semester != $semester)
@@ -521,12 +528,49 @@
                     </div>
                 </div>
 
-                <div>
-                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <!-- Rekap Nilai Link -->
+                    <a href="{{ route('grades.report', ['eskul_id' => $eskul->id, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
+                       style="background: #f5f3ff; color: #5b21b6; font-size: 0.82rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #ddd6fe; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-chart-bar" style="color: #7c3aed;"></i>
+                        <span>Rekap</span>
+                    </a>
+
+                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
                         <i class="fas fa-user-graduate" style="color: #7c3aed;"></i>
-                        <strong>{{ $students->count() }}</strong> Siswa Ternilai
+                        <strong>{{ $students->count() }}</strong> Siswa
                     </span>
                 </div>
+            </div>
+
+            <!-- Tab Switcher Kategori Nilai (Harian, SAS 1, SAS 2) -->
+            <div style="background: #f8fafc; border-bottom: 1px solid #f1f5f9; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: #e2e8f0; padding: 4px; border-radius: 14px;">
+                    <a href="{{ route('grades.create', ['eskul_id' => $eskul->id, 'type' => 'daily', 'date' => $date ?: date('Y-m-d'), 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
+                       style="text-decoration: none; font-size: 0.82rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; {{ $type == 'daily' ? 'background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'color: #64748b;' }}">
+                        <i class="fas fa-calendar-day"></i> Nilai Harian
+                    </a>
+                    <a href="{{ route('grades.create', ['eskul_id' => $eskul->id, 'type' => 'sas1', 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
+                       style="text-decoration: none; font-size: 0.82rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; {{ $type == 'sas1' ? 'background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'color: #64748b;' }}">
+                        <i class="fas fa-award"></i> SAS 1
+                    </a>
+                    <a href="{{ route('grades.create', ['eskul_id' => $eskul->id, 'type' => 'sas2', 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
+                       style="text-decoration: none; font-size: 0.82rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; {{ $type == 'sas2' ? 'background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'color: #64748b;' }}">
+                        <i class="fas fa-award"></i> SAS 2
+                    </a>
+                </div>
+
+                @if($type == 'daily')
+                <!-- Date Quick Picker Khusus Nilai Harian -->
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                    <label for="changeGradeDateTop" style="font-size: 0.8rem; font-weight: 750; color: #475569; margin: 0; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <i class="far fa-calendar-alt" style="color: #7c3aed;"></i> Tanggal:
+                    </label>
+                    <input type="date" id="changeGradeDateTop" value="{{ $date }}" 
+                        onchange="window.location.href='{{ route('grades.create') }}?eskul_id={{ $eskul->id }}&type=daily&date=' + this.value + '&academic_year_id={{ $yearId }}&semester={{ $semester }}'"
+                        style="border: none; background: transparent; font-size: 0.84rem; font-weight: 700; color: #0f172a; outline: none; cursor: pointer;">
+                </div>
+                @endif
             </div>
 
             <!-- Tabel Daftar Siswa & Opsi Nilai (Menjadi Mobile Card di HP) -->

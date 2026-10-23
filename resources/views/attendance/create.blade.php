@@ -471,10 +471,17 @@
 @section('content')
 <div class="presensi-form-wrapper">
     <!-- Tombol Kembali -->
+    @if(Auth::user()->role === 'teacher')
+    <a href="{{ route('dashboard') }}" class="btn-back-pill">
+        <i class="fas fa-arrow-left"></i>
+        <span>Kembali ke Beranda</span>
+    </a>
+    @else
     <a href="{{ route('attendance.index') }}" class="btn-back-pill">
         <i class="fas fa-arrow-left"></i>
         <span>Kembali ke Pemilihan Kegiatan</span>
     </a>
+    @endif
 
     <!-- Notifikasi Riwayat / Semester -->
     @if(!$contextYear->is_active || $contextYear->active_semester != $semester)
@@ -513,10 +520,27 @@
                     </div>
                 </div>
 
-                <div>
-                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <!-- Date Quick Picker -->
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                        <label for="changeDateTop" style="font-size: 0.8rem; font-weight: 750; color: #475569; margin: 0; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <i class="far fa-calendar-alt" style="color: #059669;"></i> Tanggal:
+                        </label>
+                        <input type="date" id="changeDateTop" value="{{ $date }}" 
+                            onchange="window.location.href='{{ route('attendance.create') }}?eskul_id={{ $eskul->id }}&date=' + this.value + '&academic_year_id={{ $yearId }}&semester={{ $semester }}'"
+                            style="border: none; background: transparent; font-size: 0.84rem; font-weight: 700; color: #0f172a; outline: none; cursor: pointer;">
+                    </div>
+
+                    <!-- Rekap Presensi Link -->
+                    <a href="{{ route('attendance.report', ['eskul_id' => $eskul->id, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
+                       style="background: #f0fdf4; color: #166534; font-size: 0.82rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #bbf7d0; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-chart-line" style="color: #16a34a;"></i>
+                        <span>Rekap</span>
+                    </a>
+
+                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
                         <i class="fas fa-users" style="color: #059669;"></i>
-                        <strong>{{ $students->count() }}</strong> Siswa Terdaftar
+                        <strong>{{ $students->count() }}</strong> Siswa
                     </span>
                 </div>
             </div>

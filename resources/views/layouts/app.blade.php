@@ -851,6 +851,20 @@
                     </li>
                     @endif
 
+                    @if($isTeacher)
+                    <li class="nav-subitem">
+                        <a href="{{ Auth::user()->eskul_id ? route('attendance.create', ['eskul_id' => Auth::user()->eskul_id, 'date' => date('Y-m-d')]) : '/attendance' }}" class="nav-sublink {{ request()->is('attendance*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>Presensi Siswa</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ Auth::user()->eskul_id ? route('grades.create', ['eskul_id' => Auth::user()->eskul_id, 'type' => 'daily', 'date' => date('Y-m-d')]) : '/grades' }}" class="nav-sublink {{ request()->is('grades*') ? 'active' : '' }}">
+                            <i class="fas fa-star"></i>
+                            <span>Penilaian Siswa</span>
+                        </a>
+                    </li>
+                    @else
                     <li class="nav-subitem">
                         <a href="/attendance" class="nav-sublink {{ request()->is('attendance*') ? 'active' : '' }}">
                             <i class="fas fa-clipboard-check"></i>
@@ -863,6 +877,7 @@
                             <span>Penilaian Siswa</span>
                         </a>
                     </li>
+                    @endif
                     @if($isAdminOrHeadmaster)
                     <li class="nav-subitem">
                         <a href="{{ route('compliance.index') }}" class="nav-sublink {{ request()->is('compliance*') ? 'active' : '' }}">
