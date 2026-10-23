@@ -84,6 +84,62 @@
         outline: none;
     }
 
+    /* Kotak Hijau Statistik Informatif & Simpel */
+    .kpi-green-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .kpi-green-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+        border: 1.5px solid #a7f3d0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.05);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .kpi-green-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12);
+        border-color: #6ee7b7;
+    }
+    .kpi-green-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #047857;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    .kpi-green-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #047857;
+        letter-spacing: 0.4px;
+        margin-bottom: 2px;
+    }
+    .kpi-green-value {
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: #064e3b;
+        line-height: 1.1;
+    }
+    .kpi-green-unit {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #059669;
+    }
+
     /* Success / WA Banner */
     .wa-success-banner {
         background: #ecfdf5;
@@ -287,6 +343,16 @@
 
     /* Responsiveness Mobile */
     @media (max-width: 820px) {
+        .kpi-green-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .kpi-green-card {
+            padding: 12px 14px;
+        }
+        .kpi-green-value {
+            font-size: 1.2rem;
+        }
         .hafalan-box-wrap {
             grid-template-columns: 1fr;
             gap: 10px;
@@ -369,7 +435,65 @@
         </div>
     </div>
 
-    {{-- 3. BANNER SUKSES SIMPAN & KIRIM LAPORAN WA --}}
+    {{-- 3. KOTAK INFORMASI STATISTIK HIJAU (INFORMATIF & SIMPEL) --}}
+    @php
+        $totalSantri = $activeGroup->students->count();
+        $kehadiranHariIni = $sessionAttendances->where('status', 'hadir')->count();
+        $sudahSetorHariIni = $sessionAttendances->where('status', 'hadir')->filter(fn($a) => !empty($a->capaian))->count();
+        $totalBaris = (int) ($totalGroupLines ?? 0);
+    @endphp
+
+    <div class="kpi-green-grid">
+        <div class="kpi-green-card">
+            <div class="kpi-green-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div class="kpi-green-label">Total Santri</div>
+                <div class="kpi-green-value">
+                    {{ $totalSantri }} <span class="kpi-green-unit">Anak</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-green-card">
+            <div class="kpi-green-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div>
+                <div class="kpi-green-label">Kehadiran Hari Ini</div>
+                <div class="kpi-green-value">
+                    {{ $kehadiranHariIni }} <span class="kpi-green-unit">/ {{ $totalSantri }} Hadir</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-green-card">
+            <div class="kpi-green-icon">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div>
+                <div class="kpi-green-label">Sudah Setoran Hari Ini</div>
+                <div class="kpi-green-value">
+                    {{ $sudahSetorHariIni }} <span class="kpi-green-unit">Santri</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-green-card">
+            <div class="kpi-green-icon">
+                <i class="fas fa-align-left"></i>
+            </div>
+            <div>
+                <div class="kpi-green-label">Total Baris Dihafal</div>
+                <div class="kpi-green-value">
+                    {{ number_format($totalBaris, 0, ',', '.') }} <span class="kpi-green-unit">Baris</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- 4. BANNER SUKSES SIMPAN & KIRIM LAPORAN WA --}}
     @if(session('success') || $openShare)
         <div class="wa-success-banner" id="successBanner">
             <div style="display: flex; align-items: center; gap: 12px;">
