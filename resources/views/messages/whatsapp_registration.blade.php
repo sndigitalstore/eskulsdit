@@ -18,4 +18,6 @@ Alhamdulillah, pendaftaran eskul ananda telah berhasil kami terima dengan rincia
 ━━━━━━━━━━━━━━━━━━━━━━
 Terima kasih atas partisipasi Ayah/Bunda. Mohon bimbingan agar ananda istiqomah dalam berkegiatan. 🙏
 
+🔗 Cek status & perkembangan: https://simutqin.annadzir.sch.id/cek-status
+
 💡 _Pesan otomatis dari SIMUTQIN SDIT AN NADZIR_

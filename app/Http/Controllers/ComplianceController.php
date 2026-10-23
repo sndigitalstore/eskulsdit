@@ -73,6 +73,14 @@ class ComplianceController extends Controller
         $dayName = $parsedDate->isoFormat('dddd');
         $fullDateIndo = $parsedDate->isoFormat('dddd, D MMMM Y');
 
+        $appDomain = config('app.url', 'https://simutqin.annadzir.sch.id');
+        if (empty($appDomain) || str_contains($appDomain, 'localhost') || str_contains($appDomain, 'eskulsdit')) {
+            $appDomain = 'https://simutqin.annadzir.sch.id';
+        }
+        if (str_starts_with($appDomain, 'http://simutqin')) {
+            $appDomain = str_replace('http://', 'https://', $appDomain);
+        }
+
         $query = Eskul::activeYear()->orderBy('name');
         if (!empty($searchKeyword)) {
             $query->where(function($q) use ($searchKeyword) {
@@ -245,10 +253,6 @@ class ComplianceController extends Controller
                         $msgLines[] = "• {$reason}";
                     }
                 }
-                $appDomain = config('app.url', 'https://simutqin.annadzir.sch.id');
-                if (empty($appDomain) || str_contains($appDomain, 'localhost')) {
-                    $appDomain = 'https://simutqin.annadzir.sch.id';
-                }
                 $msgLines[] = "\nMohon dapat segera menginputnya melalui aplikasi: {$appDomain}";
                 $msgLines[] = "Jazakumullahu khairan atas kerjasamanya. 🙏";
                 $waMessage = implode("\n", $msgLines);
@@ -326,7 +330,7 @@ class ComplianceController extends Controller
         }
         $broadcastLines[] = "";
         $broadcastLines[] = "Mohon untuk dapat segera melengkapinya melalui SIMUTQIN:";
-        $broadcastLines[] = "🔗 " . ($appDomain ?? 'https://simutqin.annadzir.sch.id');
+        $broadcastLines[] = "🔗 " . $appDomain;
         $broadcastLines[] = "";
         $broadcastLines[] = "Jazakumullahu khairan atas dedikasi dan kerjasamanya. 🙏";
         $broadcastMessage = implode("\n", $broadcastLines);

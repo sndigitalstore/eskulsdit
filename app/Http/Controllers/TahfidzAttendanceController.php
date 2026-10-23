@@ -762,7 +762,8 @@ class TahfidzAttendanceController extends Controller
         $msg .= "Terima kasih atas kepercayaan dan kerja sama\n\n";
         $msg .= "Semoga Allah SWT memberkahi setiap usaha kita, memudahkan hafalan putra-putri kita, dan menjadikan Al-Qur'an sebagai cahaya di hati dan amal ibadah di akhirat kelak. 🤲\n\n";
         $msg .= "Wassalamu'alaikum Warahmatullahi Wabarakatuh 🌟\n\n";
-        $msg .= "_SDIT AN NADZIR_";
+        $msg .= "_SIMUTQIN SDIT AN NADZIR_\n";
+        $msg .= "🔗 Cek Status & Rekap Ananda: https://simutqin.annadzir.sch.id/cek-status";
 
         return $msg;
     }
