@@ -157,8 +157,10 @@ class ComplianceController extends Controller
                     $actionReasons[] = 'Belum ada akun Pembina yang tertaut';
                 }
 
-                // Pada mode today, butuh tindakan jika absensi hari ini belum beres
-                $needsAction = !$studentAttendanceComplete || $missingTeacherAttendance;
+                // Pada mode today (Kepatuhan Pembina Hari H), status kepatuhan pembina dinilai dari presensi pembina:
+                // Jika pembina sudah mengisi presensi, maka statusnya adalah SUDAH ABSEN (Tertib).
+                // Hanya butuh tindakan jika pembina belum absen.
+                $needsAction = $missingTeacherAttendance;
 
             } else {
                 // --- MODE CUMULATIVE (Akumulasi 30 Hari Terakhir & Nilai) ---
@@ -267,36 +269,36 @@ class ComplianceController extends Controller
             $complianceData->push($item);
         }
 
-        // Template Pesan Broadcast WhatsApp (Rekapan Seluruh Pembina yang Belum Lengkap)
+        // Template Pesan Broadcast WhatsApp (Rekapan Seluruh Pembina yang Belum Lengkap / Belum Absen)
         $broadcastLines = [];
-        $broadcastLines[] = "📢 *PENGINGAT ADMINISTRASI ESKUL " . ($viewMode === 'today' ? "HARI INI" : "") . "*";
+        $broadcastLines[] = "📢 *PENGINGAT PRESENSI PEMBINA ESKUL " . ($viewMode === 'today' ? "HARI INI" : "") . "*";
         $broadcastLines[] = "📅 *Hari/Tanggal*: {$fullDateIndo}";
         $broadcastLines[] = "";
         $broadcastLines[] = "Kepada Yth. Ust/Ustazah Pembina Ekstrakurikuler,";
         if ($actionNeededList->isNotEmpty()) {
-            $broadcastLines[] = "Berikut daftar eskul yang *belum melengkapi administrasi " . ($viewMode === 'today' ? "pada pelaksanaan hari ini" : "") . "*:";
+            $broadcastLines[] = "Berikut daftar eskul yang pembinanya *belum " . ($viewMode === 'today' ? "melakukan absensi kehadiran hari ini" : "melengkapi administrasi") . "*:";
             $broadcastLines[] = "";
             $no = 1;
             foreach ($actionNeededList as $act) {
                 $pName = $act['pembina'] ? $act['pembina']->name : ($act['eskul']->instructor_name ?? 'Belum ditentukan');
                 $eName = $act['eskul']->name;
                 $details = [];
+                if ($act['missing_teacher_attendance']) {
+                    $details[] = 'Absen Pembina ❌';
+                } else {
+                    $details[] = 'Absen Pembina ✅';
+                }
                 if (!$act['student_attendance_complete']) {
                     $details[] = 'Absen Siswa ❌';
                 } else {
                     $details[] = 'Absen Siswa ✅';
-                }
-                if ($act['missing_teacher_attendance']) {
-                    $details[] = 'Absen Guru ❌';
-                } else {
-                    $details[] = 'Absen Guru ✅';
                 }
                 $detailStr = implode(' | ', $details);
                 $broadcastLines[] = "{$no}. *{$eName}* - {$pName} ({$detailStr})";
                 $no++;
             }
         } else {
-            $broadcastLines[] = "Alhamdulillah seluruh pembina yang bertugas telah tertib melengkapi administrasi! ✨";
+            $broadcastLines[] = "Alhamdulillah seluruh pembina yang bertugas telah tertib melakukan absensi! ✨";
         }
         $broadcastLines[] = "";
         $broadcastLines[] = "Mohon untuk dapat segera melengkapinya melalui SIM Eskul:";

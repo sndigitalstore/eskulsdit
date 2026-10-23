@@ -30,7 +30,7 @@
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 22px rgba(220, 38, 38, 0.5)';"
                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 18px rgba(220, 38, 38, 0.4)';">
                 <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i>
-                <span>Ingatkan Pembina ({{ $actionNeededCount }} Belum Lengkap)</span>
+                <span>Ingatkan Pembina ({{ $actionNeededCount }} {{ $viewMode === 'today' ? 'Belum Absen' : 'Belum Lengkap' }})</span>
             </button>
         </div>
         @endif
@@ -88,7 +88,7 @@
                 </div>
             </div>
             <div style="margin-top: 8px; font-size: 0.8rem; color: #059669; font-weight: 600;">
-                <i class="fas fa-shield-alt"></i> Administrasi beres & tercatat
+                <i class="fas fa-shield-alt"></i> {{ $viewMode === 'today' ? 'Pembina sudah absen & tercatat' : 'Administrasi beres & tercatat' }}
             </div>
         </div>
 
@@ -96,7 +96,7 @@
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
                     <span style="font-size: 0.82rem; color: #64748b; font-weight: 700; text-transform: uppercase;">
-                        {{ $viewMode === 'today' ? 'Belum Lengkap Hari Ini' : 'Butuh Tindakan' }}
+                        {{ $viewMode === 'today' ? 'Belum Absen Hari Ini' : 'Butuh Tindakan' }}
                     </span>
                     <h3 style="font-size: 1.85rem; font-weight: 800; color: #dc2626; margin: 4px 0 0 0;">{{ $actionNeededCount }}</h3>
                 </div>
@@ -126,12 +126,12 @@
                     
                     <a href="{{ route('compliance.index', ['mode' => $viewMode, 'date' => $selectedDate, 'status' => 'action_needed', 'search' => $searchKeyword, 'only_scheduled' => $onlyScheduled ? 1 : 0]) }}" 
                        style="padding: 8px 16px; border-radius: 10px; font-size: 0.88rem; font-weight: 700; text-decoration: none; {{ $statusFilter === 'action_needed' ? 'background: #dc2626; color: white;' : 'background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;' }}">
-                        <i class="fas fa-bell"></i> Butuh Tindakan ({{ $actionNeededCount }})
+                        <i class="fas fa-bell"></i> {{ $viewMode === 'today' ? 'Belum Absen' : 'Butuh Tindakan' }} ({{ $actionNeededCount }})
                     </a>
                     
                     <a href="{{ route('compliance.index', ['mode' => $viewMode, 'date' => $selectedDate, 'status' => 'complete', 'search' => $searchKeyword, 'only_scheduled' => $onlyScheduled ? 1 : 0]) }}" 
                        style="padding: 8px 16px; border-radius: 10px; font-size: 0.88rem; font-weight: 700; text-decoration: none; {{ $statusFilter === 'complete' ? 'background: #059669; color: white;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }}">
-                        <i class="fas fa-check-double"></i> Lengkap ({{ $completeCount }})
+                        <i class="fas fa-check-double"></i> {{ $viewMode === 'today' ? 'Tertib / Sudah Absen' : 'Lengkap' }} ({{ $completeCount }})
                     </a>
                 </div>
 
@@ -265,48 +265,100 @@
 
                             <!-- Kolom 5: Status Kepatuhan & Rincian -->
                             <td style="padding: 16px 20px; vertical-align: middle;">
-                                @if($needsAction)
-                                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; margin-bottom: 6px;">
-                                        <i class="fas fa-bell"></i> BUTUH TINDAKAN
-                                    </div>
-                                    <ul style="margin: 4px 0 0 0; padding-left: 18px; font-size: 0.78rem; color: #475569; line-height: 1.4;">
-                                        @foreach($reasons as $reason)
-                                            <li>{{ $reason }}</li>
-                                        @endforeach
-                                    </ul>
+                                @if($viewMode === 'today')
+                                    @if(!$item['missing_teacher_attendance'])
+                                        <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;">
+                                            <i class="fas fa-check-circle"></i> SUDAH ABSEN
+                                        </div>
+                                        @if($item['student_attendance_complete'])
+                                            <div style="font-size: 0.78rem; color: #059669; margin-top: 4px; font-weight: 600;">
+                                                <i class="fas fa-check-double"></i> Absensi siswa & pembina lengkap
+                                            </div>
+                                        @else
+                                            <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">
+                                                <i class="fas fa-info-circle" style="color: #0284c7;"></i> Absensi siswa belum diisi
+                                            </div>
+                                        @endif
+                                    @else
+                                        <div style="display: inline-flex; align-items: center; gap: 6px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; margin-bottom: 6px;">
+                                            <i class="fas fa-bell"></i> BUTUH TINDAKAN
+                                        </div>
+                                        <ul style="margin: 4px 0 0 0; padding-left: 18px; font-size: 0.78rem; color: #475569; line-height: 1.4;">
+                                            <li>Absensi Kehadiran Pembina hari ini belum tercatat</li>
+                                            @if(!$item['student_attendance_complete'])
+                                                <li>Absensi Siswa hari ini belum diisi</li>
+                                            @endif
+                                        </ul>
+                                    @endif
                                 @else
-                                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;">
-                                        <i class="fas fa-check-double"></i> TERTIB / LENGKAP
-                                    </div>
-                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">
-                                        Administrasi sesi ini terpenuhi
-                                    </div>
+                                    @if($needsAction)
+                                        <div style="display: inline-flex; align-items: center; gap: 6px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; margin-bottom: 6px;">
+                                            <i class="fas fa-bell"></i> BUTUH TINDAKAN
+                                        </div>
+                                        <ul style="margin: 4px 0 0 0; padding-left: 18px; font-size: 0.78rem; color: #475569; line-height: 1.4;">
+                                            @foreach($reasons as $reason)
+                                                <li>{{ $reason }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;">
+                                            <i class="fas fa-check-double"></i> TERTIB / LENGKAP
+                                        </div>
+                                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">
+                                            Administrasi sesi ini terpenuhi
+                                        </div>
+                                    @endif
                                 @endif
                             </td>
 
                             <!-- Kolom 6: Tindakan Kontak Pembina -->
                             <td style="padding: 16px 20px; text-align: center; vertical-align: middle;">
-                                @if($needsAction && $pembina && $pembina->phone)
-                                    @php
-                                        $phone = trim($pembina->phone);
-                                        if (str_starts_with($phone, '0')) {
-                                            $phone = '62' . substr($phone, 1);
-                                        }
-                                        $waUrl = "https://api.whatsapp.com/send?phone={$phone}&text=" . rawurlencode($item['wa_message']);
-                                    @endphp
-                                    <a href="{{ $waUrl }}" target="_blank" 
-                                       style="background: #10b981; color: white; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); transition: all 0.2s;"
-                                       title="Ingatkan via WhatsApp">
-                                        <i class="fab fa-whatsapp" style="font-size: 0.95rem;"></i> Hubungi
-                                    </a>
-                                @elseif($needsAction)
-                                    <span style="font-size: 0.78rem; color: #94a3b8; font-style: italic; font-weight: 600;">
-                                        No. WA belum terdaftar
-                                    </span>
+                                @if($viewMode === 'today')
+                                    @if($item['missing_teacher_attendance'] && $pembina && $pembina->phone)
+                                        @php
+                                            $phone = trim($pembina->phone);
+                                            if (str_starts_with($phone, '0')) {
+                                                $phone = '62' . substr($phone, 1);
+                                            }
+                                            $waUrl = "https://api.whatsapp.com/send?phone={$phone}&text=" . rawurlencode($item['wa_message']);
+                                        @endphp
+                                        <a href="{{ $waUrl }}" target="_blank" 
+                                           style="background: #10b981; color: white; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); transition: all 0.2s;"
+                                           title="Ingatkan via WhatsApp">
+                                            <i class="fab fa-whatsapp" style="font-size: 0.95rem;"></i> Hubungi
+                                        </a>
+                                    @elseif($item['missing_teacher_attendance'])
+                                        <span style="font-size: 0.78rem; color: #94a3b8; font-style: italic; font-weight: 600;">
+                                            No. WA belum terdaftar
+                                        </span>
+                                    @else
+                                        <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="fas fa-check-circle"></i> Sudah Absen
+                                        </span>
+                                    @endif
                                 @else
-                                    <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="fas fa-heart"></i> Tertib
-                                    </span>
+                                    @if($needsAction && $pembina && $pembina->phone)
+                                        @php
+                                            $phone = trim($pembina->phone);
+                                            if (str_starts_with($phone, '0')) {
+                                                $phone = '62' . substr($phone, 1);
+                                            }
+                                            $waUrl = "https://api.whatsapp.com/send?phone={$phone}&text=" . rawurlencode($item['wa_message']);
+                                        @endphp
+                                        <a href="{{ $waUrl }}" target="_blank" 
+                                           style="background: #10b981; color: white; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); transition: all 0.2s;"
+                                           title="Ingatkan via WhatsApp">
+                                            <i class="fab fa-whatsapp" style="font-size: 0.95rem;"></i> Hubungi
+                                        </a>
+                                    @elseif($needsAction)
+                                        <span style="font-size: 0.78rem; color: #94a3b8; font-style: italic; font-weight: 600;">
+                                            No. WA belum terdaftar
+                                        </span>
+                                    @else
+                                        <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="fas fa-heart"></i> Tertib
+                                        </span>
+                                    @endif
                                 @endif
                             </td>
                         </tr>
@@ -348,7 +400,7 @@
                         Ingatkan Pembina Eskul
                     </h3>
                     <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: #64748b;">
-                        Pelaksanaan: <strong>{{ $fullDateIndo }}</strong> • Total: <strong style="color: #dc2626;">{{ $actionNeededList->count() }} Pembina Belum Lengkap</strong>
+                        Pelaksanaan: <strong>{{ $fullDateIndo }}</strong> • Total: <strong style="color: #dc2626;">{{ $actionNeededList->count() }} Pembina {{ $viewMode === 'today' ? 'Belum Absen' : 'Belum Lengkap' }}</strong>
                     </p>
                 </div>
             </div>
