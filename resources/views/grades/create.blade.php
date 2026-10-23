@@ -49,13 +49,19 @@
     /* Header Lembar Penilaian */
     .penilaian-card-header {
         background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
-        padding: 24px 28px;
+        padding: 22px 26px;
         border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .penilaian-header-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        width: 100%;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 12px;
     }
     .penilaian-info-group {
         display: flex;
@@ -63,28 +69,28 @@
         gap: 14px;
     }
     .penilaian-icon-badge {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         background: #ede9fe;
         color: #7c3aed;
         border: 1.5px solid #ddd6fe;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.45rem;
+        font-size: 1.35rem;
         flex-shrink: 0;
         box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
     }
     .penilaian-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
         line-height: 1.2;
     }
     .penilaian-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         color: #64748b;
         font-weight: 600;
         margin-top: 4px;
@@ -92,6 +98,130 @@
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
+    }
+    .penilaian-top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .rekap-grades-pill {
+        background: #f5f3ff;
+        color: #5b21b6;
+        font-size: 0.82rem;
+        font-weight: 750;
+        height: 38px;
+        padding: 0 16px;
+        border-radius: 11px;
+        border: 1.5px solid #ddd6fe;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-sizing: border-box;
+        transition: all 0.2s;
+    }
+    .rekap-grades-pill:hover {
+        background: #ede9fe;
+        color: #4c1d95;
+    }
+    .siswa-count-pill {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 0.82rem;
+        font-weight: 750;
+        height: 38px;
+        padding: 0 14px;
+        border-radius: 11px;
+        border: 1.5px solid #e2e8f0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-sizing: border-box;
+    }
+    .badge-sas {
+        background: #ede9fe;
+        color: #5b21b6;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 800;
+    }
+    .badge-year {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    /* Switcher Bar Kategori Nilai */
+    .grades-type-switcher-bar {
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .grades-tabs-grid {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #e2e8f0;
+        padding: 4px;
+        border-radius: 12px;
+    }
+    .grade-tab-item {
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 750;
+        padding: 6px 14px;
+        border-radius: 9px;
+        transition: all 0.2s;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .grade-tab-item.active {
+        background: #ffffff;
+        color: #7c3aed;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .grade-date-picker-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #ffffff;
+        padding: 0 12px;
+        height: 38px;
+        border-radius: 11px;
+        border: 1.5px solid #cbd5e1;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        box-sizing: border-box;
+    }
+    .grade-date-picker-pill label {
+        font-size: 0.8rem;
+        font-weight: 750;
+        color: #475569;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+    }
+    .grade-date-picker-pill input[type="date"] {
+        border: none;
+        background: transparent;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #0f172a;
+        outline: none;
+        cursor: pointer;
+        padding: 0;
     }
 
     /* Tabel Penilaian Desktop */
@@ -326,23 +456,106 @@
     /* ======================================================== */
     @media (max-width: 768px) {
         .grades-form-wrapper {
-            margin: 0.5rem auto 5.5rem;
+            margin: 0.4rem auto 4.5rem;
             padding: 0 4px;
         }
+        .btn-back-pill {
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            margin-bottom: 0.65rem;
+            border-radius: 999px;
+        }
         .penilaian-card-header {
-            padding: 18px 16px;
+            padding: 14px 12px;
+            gap: 10px;
+        }
+        .penilaian-header-top {
+            gap: 8px;
         }
         .penilaian-icon-badge {
-            width: 44px;
-            height: 44px;
-            font-size: 1.25rem;
-            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            font-size: 1.1rem;
+            border-radius: 10px;
         }
         .penilaian-title {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
+        }
+        .penilaian-subtitle {
+            font-size: 0.76rem;
+            gap: 4px;
+        }
+        .penilaian-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .rekap-grades-pill {
+            height: 32px;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            border-radius: 8px;
+        }
+        .siswa-count-pill {
+            height: 32px;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            border-radius: 8px;
         }
 
-        /* Transformasi Tabel menjadi Mobile Card yang Solid */
+        /* Tab Switcher Kategori Nilai: 3 Kolom Rata & Simetris di HP */
+        .grades-type-switcher-bar {
+            padding: 8px 12px;
+            flex-direction: column;
+            gap: 6px;
+            align-items: stretch;
+        }
+        .grades-tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            width: 100%;
+            background: #e2e8f0;
+            padding: 3px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .grade-tab-item {
+            width: 100%;
+            height: 33px;
+            padding: 0 2px;
+            font-size: 0.73rem;
+            font-weight: 750;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            text-align: center;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .grade-tab-item i {
+            font-size: 0.7rem;
+        }
+
+        /* Date Picker di HP: Lebar Penuh & Ramping */
+        .grade-date-picker-pill {
+            width: 100%;
+            height: 34px;
+            padding: 0 8px;
+            border-radius: 8px;
+            justify-content: space-between;
+        }
+        .grade-date-picker-pill label {
+            font-size: 0.74rem;
+        }
+        .grade-date-picker-pill input[type="date"] {
+            font-size: 0.78rem;
+            width: 120px;
+        }
+
+        /* Transformasi Tabel menjadi Mobile Card */
         .penilaian-table, 
         .penilaian-table thead, 
         .penilaian-table tbody, 
@@ -357,8 +570,8 @@
         }
         .penilaian-table tr {
             background: #ffffff;
-            padding: 16px 14px;
-            border-bottom: 8px solid #f1f5f9;
+            padding: 12px 10px;
+            border-bottom: 5px solid #f1f5f9;
         }
         .penilaian-table td {
             padding: 0;
@@ -368,55 +581,61 @@
             display: none;
         }
         .penilaian-table td:nth-child(2) {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
-        /* Segmented Grade Grid 3 Kolom Rata & Seimbang di HP */
+        /* Segmented Grade Grid 3 Kolom: Ramping, Kompak & Simetris */
         .segmented-grade-group {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 4px;
             width: 100%;
-            padding: 4px;
+            padding: 3px;
             background: #f1f5f9;
-            border-radius: 14px;
+            border-radius: 9px;
+            box-sizing: border-box;
         }
         .grade-pill {
             width: 100%;
+            margin: 0;
         }
         .grade-pill-content {
             width: 100%;
-            padding: 10px 4px;
+            height: 34px;
+            padding: 0 4px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            border-radius: 10px;
+            gap: 4px;
+            border-radius: 7px;
             box-sizing: border-box;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
         }
         .grade-pill-content .main-letter {
-            font-size: 1.05rem;
+            font-size: 0.92rem;
             font-weight: 900;
             line-height: 1;
         }
         .grade-pill-content .sub-label {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 700;
             opacity: 0.9;
+            white-space: nowrap;
         }
 
         /* Calistung Responsif HP */
         .calistung-row {
             flex-direction: column;
             align-items: stretch;
-            gap: 6px;
-            padding: 8px 10px;
+            gap: 5px;
+            padding: 6px 8px;
         }
         .calistung-radios {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 4px;
             width: 100%;
         }
         .calistung-pill {
@@ -425,8 +644,14 @@
         .calistung-pill-inner {
             width: 100%;
             text-align: center;
-            padding: 8px 4px;
+            padding: 0 4px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.74rem;
             box-sizing: border-box;
+            border-radius: 7px;
         }
 
         /* Sembunyikan Footer Desktop pada HP */
@@ -434,7 +659,7 @@
             display: none;
         }
 
-        /* Aktifkan Sticky Bar Dock Bawah Khusus HP */
+        /* Sticky Bar Bawah Ramping & Pas */
         .penilaian-mobile-sticky-bar {
             display: block;
             position: fixed;
@@ -442,27 +667,27 @@
             left: 0;
             right: 0;
             z-index: 999;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-top: 1.5px solid #e2e8f0;
-            padding: 12px 16px;
-            box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.09);
+            padding: 7px 12px;
+            box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
         }
         .penilaian-mobile-sticky-bar button {
             width: 100%;
-            height: 50px;
-            border-radius: 14px;
+            height: 40px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
             color: #ffffff;
             border: none;
-            font-size: 0.98rem;
+            font-size: 0.88rem;
             font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(109, 40, 217, 0.25);
             cursor: pointer;
         }
     }
@@ -508,67 +733,66 @@
         <div class="card penilaian-main-card">
             <!-- Header Info Kegiatan & Penilaian -->
             <div class="penilaian-card-header">
-                <div class="penilaian-info-group">
-                    <div class="penilaian-icon-badge">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div>
-                        <h3 class="penilaian-title">{{ $eskul->name }}</h3>
-                        <div class="penilaian-subtitle">
-                            @if($type == 'daily')
-                                <span><i class="far fa-calendar-alt" style="color: #7c3aed;"></i> Nilai Harian: {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
-                            @elseif($type == 'sas1')
-                                <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-award"></i> Asesmen Akhir Semester 1 (SAS 1)</span>
-                            @elseif($type == 'sas2')
-                                <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-award"></i> Asesmen Akhir Semester 2 (SAS 2)</span>
-                            @endif
-                            <span>•</span>
-                            <span style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;">Tahun {{ $contextYear->name }}</span>
+                <div class="penilaian-header-top">
+                    <div class="penilaian-info-group">
+                        <div class="penilaian-icon-badge">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <h3 class="penilaian-title">{{ $eskul->name }}</h3>
+                            <div class="penilaian-subtitle">
+                                @if($type == 'daily')
+                                    <span><i class="far fa-calendar-alt" style="color: #7c3aed;"></i> Nilai Harian: {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
+                                @elseif($type == 'sas1')
+                                    <span class="badge-sas"><i class="fas fa-award"></i> Asesmen Akhir Semester 1 (SAS 1)</span>
+                                @elseif($type == 'sas2')
+                                    <span class="badge-sas"><i class="fas fa-award"></i> Asesmen Akhir Semester 2 (SAS 2)</span>
+                                @endif
+                                <span>•</span>
+                                <span class="badge-year">Tahun {{ $contextYear->name }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <!-- Rekap Nilai Link -->
-                    <a href="{{ route('grades.report', ['eskul_id' => $eskul->id, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
-                       style="background: #f5f3ff; color: #5b21b6; font-size: 0.82rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #ddd6fe; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-chart-bar" style="color: #7c3aed;"></i>
-                        <span>Rekap</span>
-                    </a>
+                    <div class="penilaian-top-actions">
+                        <a href="{{ route('grades.report', ['eskul_id' => $eskul->id, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" class="rekap-grades-pill">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Rekap</span>
+                        </a>
 
-                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-user-graduate" style="color: #7c3aed;"></i>
-                        <strong>{{ $students->count() }}</strong> Siswa
-                    </span>
+                        <span class="siswa-count-pill">
+                            <i class="fas fa-user-graduate" style="color: #7c3aed;"></i>
+                            <strong>{{ $students->count() }}</strong> Siswa
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Tab Switcher Kategori Nilai (Harian, SAS 1, SAS 2) -->
-            <div style="background: #f8fafc; border-bottom: 1px solid #f1f5f9; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: #e2e8f0; padding: 4px; border-radius: 14px;">
+            <div class="grades-type-switcher-bar">
+                <div class="grades-tabs-grid">
                     <a href="{{ route('grades.create', ['eskul_id' => $eskul->id, 'type' => 'daily', 'date' => $date ?: date('Y-m-d'), 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
-                       style="text-decoration: none; font-size: 0.82rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; {{ $type == 'daily' ? 'background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'color: #64748b;' }}">
+                       class="grade-tab-item {{ $type == 'daily' ? 'active' : '' }}">
                         <i class="fas fa-calendar-day"></i> Nilai Harian
                     </a>
                     <a href="{{ route('grades.create', ['eskul_id' => $eskul->id, 'type' => 'sas1', 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
-                       style="text-decoration: none; font-size: 0.82rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; {{ $type == 'sas1' ? 'background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'color: #64748b;' }}">
+                       class="grade-tab-item {{ $type == 'sas1' ? 'active' : '' }}">
                         <i class="fas fa-award"></i> SAS 1
                     </a>
                     <a href="{{ route('grades.create', ['eskul_id' => $eskul->id, 'type' => 'sas2', 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
-                       style="text-decoration: none; font-size: 0.82rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; {{ $type == 'sas2' ? 'background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(0,0,0,0.08);' : 'color: #64748b;' }}">
+                       class="grade-tab-item {{ $type == 'sas2' ? 'active' : '' }}">
                         <i class="fas fa-award"></i> SAS 2
                     </a>
                 </div>
 
                 @if($type == 'daily')
-                <!-- Date Quick Picker Khusus Nilai Harian -->
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                    <label for="changeGradeDateTop" style="font-size: 0.8rem; font-weight: 750; color: #475569; margin: 0; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <!-- Date Quick Picker Khusus Nilai Harian (Simetris di HP) -->
+                <div class="grade-date-picker-pill">
+                    <label for="changeGradeDateTop">
                         <i class="far fa-calendar-alt" style="color: #7c3aed;"></i> Tanggal:
                     </label>
                     <input type="date" id="changeGradeDateTop" value="{{ $date }}" 
-                        onchange="window.location.href='{{ route('grades.create') }}?eskul_id={{ $eskul->id }}&type=daily&date=' + this.value + '&academic_year_id={{ $yearId }}&semester={{ $semester }}'"
-                        style="border: none; background: transparent; font-size: 0.84rem; font-weight: 700; color: #0f172a; outline: none; cursor: pointer;">
+                        onchange="window.location.href='{{ route('grades.create') }}?eskul_id={{ $eskul->id }}&type=daily&date=' + this.value + '&academic_year_id={{ $yearId }}&semester={{ $semester }}'">
                 </div>
                 @endif
             </div>

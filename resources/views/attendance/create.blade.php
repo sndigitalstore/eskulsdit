@@ -49,13 +49,19 @@
     /* Header Lembar Presensi */
     .presensi-card-header {
         background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
-        padding: 24px 28px;
+        padding: 22px 26px;
         border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .presensi-header-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        width: 100%;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 12px;
     }
     .presensi-info-group {
         display: flex;
@@ -63,28 +69,28 @@
         gap: 14px;
     }
     .presensi-icon-badge {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         background: #dcfce7;
         color: #059669;
         border: 1.5px solid #bbf7d0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.45rem;
+        font-size: 1.35rem;
         flex-shrink: 0;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.12);
     }
     .presensi-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
         line-height: 1.2;
     }
     .presensi-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         color: #64748b;
         font-weight: 600;
         margin-top: 4px;
@@ -92,6 +98,87 @@
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
+    }
+    .presensi-header-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .date-picker-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #ffffff;
+        padding: 0 12px;
+        height: 38px;
+        border-radius: 11px;
+        border: 1.5px solid #cbd5e1;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        box-sizing: border-box;
+    }
+    .date-picker-pill label {
+        font-size: 0.8rem;
+        font-weight: 750;
+        color: #475569;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+    }
+    .date-picker-pill input[type="date"] {
+        border: none;
+        background: transparent;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #0f172a;
+        outline: none;
+        cursor: pointer;
+        padding: 0;
+    }
+    .rekap-link-pill {
+        background: #f0fdf4;
+        color: #166534;
+        font-size: 0.82rem;
+        font-weight: 750;
+        height: 38px;
+        padding: 0 16px;
+        border-radius: 11px;
+        border: 1.5px solid #bbf7d0;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-sizing: border-box;
+        transition: all 0.2s;
+    }
+    .rekap-link-pill:hover {
+        background: #dcfce7;
+        color: #14532d;
+    }
+    .siswa-count-pill {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 0.82rem;
+        font-weight: 750;
+        height: 38px;
+        padding: 0 14px;
+        border-radius: 11px;
+        border: 1.5px solid #e2e8f0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-sizing: border-box;
+    }
+    .badge-year {
+        background: #dcfce7;
+        color: #166534;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 800;
     }
 
     /* Control Bar Aksi Cepat */
@@ -331,43 +418,93 @@
     /* ======================================================== */
     @media (max-width: 768px) {
         .presensi-form-wrapper {
-            margin: 0.5rem auto 5.5rem; /* Tambah margin bawah agar tidak tertutup sticky bar */
+            margin: 0.4rem auto 4.5rem;
             padding: 0 4px;
         }
+        .btn-back-pill {
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            margin-bottom: 0.65rem;
+            border-radius: 999px;
+        }
         .presensi-card-header {
-            padding: 18px 16px;
+            padding: 14px 12px;
+            gap: 10px;
+        }
+        .presensi-header-top {
+            gap: 8px;
         }
         .presensi-icon-badge {
-            width: 44px;
-            height: 44px;
-            font-size: 1.25rem;
-            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            font-size: 1.1rem;
+            border-radius: 10px;
         }
         .presensi-title {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
+        }
+        .presensi-subtitle {
+            font-size: 0.76rem;
+            gap: 4px;
+        }
+        .siswa-count-pill {
+            height: 32px;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            border-radius: 8px;
+        }
+
+        /* Toolbar Cepat di HP: 2 Kolom Seimbang & Simetris */
+        .presensi-header-toolbar {
+            display: grid;
+            grid-template-columns: 1fr 90px;
+            gap: 6px;
+            width: 100%;
+        }
+        .date-picker-pill {
+            width: 100%;
+            height: 35px;
+            padding: 0 8px;
+            border-radius: 8px;
+            justify-content: space-between;
+        }
+        .date-picker-pill label {
+            font-size: 0.74rem;
+        }
+        .date-picker-pill input[type="date"] {
+            font-size: 0.78rem;
+            width: 115px;
+        }
+        .rekap-link-pill {
+            width: 100%;
+            height: 35px;
+            padding: 0 6px;
+            font-size: 0.76rem;
+            border-radius: 8px;
         }
 
         /* Batch Control Bar 2 Kolom Seimbang di HP */
         .batch-control-bar {
-            padding: 12px 14px;
+            padding: 8px 12px;
             flex-direction: column;
             align-items: stretch;
-            gap: 8px;
+            gap: 6px;
         }
         .batch-action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
             width: 100%;
         }
         .batch-btn {
             width: 100%;
-            padding: 10px 6px;
-            font-size: 0.8rem;
-            border-radius: 10px;
+            height: 33px;
+            padding: 0 6px;
+            font-size: 0.74rem;
+            border-radius: 8px;
         }
 
-        /* Transformasi Tabel menjadi Mobile Card yang Solid */
+        /* Transformasi Tabel menjadi Mobile Card */
         .presensi-table, 
         .presensi-table thead, 
         .presensi-table tbody, 
@@ -382,50 +519,63 @@
         }
         .presensi-table tr {
             background: #ffffff;
-            padding: 16px 14px;
-            border-bottom: 8px solid #f1f5f9;
+            padding: 12px 10px;
+            border-bottom: 5px solid #f1f5f9;
         }
         .presensi-table td {
             padding: 0;
             border: none;
         }
         .presensi-table td:first-child {
-            display: none; /* Hide col No */
+            display: none;
         }
         .presensi-table td:nth-child(2) {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         .presensi-table td:nth-child(3) {
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
-        /* Segmented Status Grid 4 Kolom Rata di HP */
+        /* Segmented Status Grid 4 Kolom: Ramping, Kompak, Simetris */
         .segmented-status-group {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            gap: 4px;
             width: 100%;
-            padding: 4px;
+            padding: 3px;
             background: #f1f5f9;
-            border-radius: 12px;
+            border-radius: 9px;
+            box-sizing: border-box;
         }
         .status-pill {
             width: 100%;
+            margin: 0;
         }
         .pill-content {
             width: 100%;
-            padding: 10px 2px;
-            font-size: 0.76rem;
+            height: 33px;
+            padding: 0 2px;
+            font-size: 0.72rem;
+            font-weight: 750;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            border-radius: 8px;
+            gap: 3px;
+            border-radius: 7px;
             box-sizing: border-box;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
         }
         .pill-content i {
-            font-size: 0.95rem;
+            font-size: 0.72rem;
+        }
+
+        .note-input-field {
+            height: 33px;
+            font-size: 0.78rem;
+            padding: 0 10px;
+            border-radius: 7px;
         }
 
         /* Sembunyikan Footer Desktop pada HP */
@@ -433,7 +583,7 @@
             display: none;
         }
 
-        /* Aktifkan Sticky Bar Dock Bawah Khusus HP */
+        /* Sticky Bar Bawah Ramping & Pas */
         .presensi-mobile-sticky-bar {
             display: block;
             position: fixed;
@@ -441,27 +591,27 @@
             left: 0;
             right: 0;
             z-index: 999;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-top: 1.5px solid #e2e8f0;
-            padding: 12px 16px;
-            box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.09);
+            padding: 7px 12px;
+            box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
         }
         .presensi-mobile-sticky-bar button {
             width: 100%;
-            height: 50px;
-            border-radius: 14px;
+            height: 40px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: #ffffff;
             border: none;
-            font-size: 0.98rem;
+            font-size: 0.88rem;
             font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(5, 150, 105, 0.25);
             cursor: pointer;
         }
     }
@@ -506,42 +656,40 @@
         <div class="card presensi-main-card">
             <!-- Header Info Kegiatan -->
             <div class="presensi-card-header">
-                <div class="presensi-info-group">
-                    <div class="presensi-icon-badge">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <div>
-                        <h3 class="presensi-title">{{ $eskul->name }}</h3>
-                        <div class="presensi-subtitle">
-                            <span><i class="far fa-calendar-alt" style="color: #059669;"></i> {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
-                            <span>•</span>
-                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;">Tahun {{ $contextYear->name }}</span>
+                <div class="presensi-header-top">
+                    <div class="presensi-info-group">
+                        <div class="presensi-icon-badge">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div>
+                            <h3 class="presensi-title">{{ $eskul->name }}</h3>
+                            <div class="presensi-subtitle">
+                                <span><i class="far fa-calendar-alt" style="color: #059669;"></i> {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
+                                <span>•</span>
+                                <span class="badge-year">Tahun {{ $contextYear->name }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <!-- Date Quick Picker -->
-                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 12px; border-radius: 12px; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                        <label for="changeDateTop" style="font-size: 0.8rem; font-weight: 750; color: #475569; margin: 0; display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                            <i class="far fa-calendar-alt" style="color: #059669;"></i> Tanggal:
-                        </label>
-                        <input type="date" id="changeDateTop" value="{{ $date }}" 
-                            onchange="window.location.href='{{ route('attendance.create') }}?eskul_id={{ $eskul->id }}&date=' + this.value + '&academic_year_id={{ $yearId }}&semester={{ $semester }}'"
-                            style="border: none; background: transparent; font-size: 0.84rem; font-weight: 700; color: #0f172a; outline: none; cursor: pointer;">
-                    </div>
-
-                    <!-- Rekap Presensi Link -->
-                    <a href="{{ route('attendance.report', ['eskul_id' => $eskul->id, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" 
-                       style="background: #f0fdf4; color: #166534; font-size: 0.82rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #bbf7d0; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-chart-line" style="color: #16a34a;"></i>
-                        <span>Rekap</span>
-                    </a>
-
-                    <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 7px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="siswa-count-pill">
                         <i class="fas fa-users" style="color: #059669;"></i>
                         <strong>{{ $students->count() }}</strong> Siswa
                     </span>
+                </div>
+
+                <!-- Toolbar Cepat: Tanggal & Rekap (Simetris & Kompak) -->
+                <div class="presensi-header-toolbar">
+                    <div class="date-picker-pill">
+                        <label for="changeDateTop">
+                            <i class="far fa-calendar-alt" style="color: #059669;"></i> Tanggal:
+                        </label>
+                        <input type="date" id="changeDateTop" value="{{ $date }}" 
+                            onchange="window.location.href='{{ route('attendance.create') }}?eskul_id={{ $eskul->id }}&date=' + this.value + '&academic_year_id={{ $yearId }}&semester={{ $semester }}'">
+                    </div>
+
+                    <a href="{{ route('attendance.report', ['eskul_id' => $eskul->id, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" class="rekap-link-pill">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Rekap</span>
+                    </a>
                 </div>
             </div>
 
