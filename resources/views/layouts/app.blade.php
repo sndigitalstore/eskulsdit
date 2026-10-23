@@ -14,6 +14,26 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/logo.png">
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar) sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        }
+
+        function toggleNavDropdown(el, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const dropdown = el ? el.closest('.nav-dropdown') : null;
+            if (dropdown) {
+                dropdown.classList.toggle('open');
+            }
+        }
+        window.toggleSidebar = toggleSidebar;
+        window.toggleNavDropdown = toggleNavDropdown;
+    </script>
     @php
         $branding = \App\Models\Setting::whereIn('key', ['app_primary_color', 'app_accent_color'])->pluck('value', 'key');
         $primaryColor = $branding['app_primary_color'] ?? '#0f172a';
@@ -151,6 +171,12 @@
             cursor: pointer;
             user-select: none;
             border: 1px solid transparent;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-dropdown-toggle * {
+            pointer-events: none;
         }
 
         .nav-dropdown-toggle .toggle-content {
@@ -168,7 +194,7 @@
         .nav-dropdown-toggle .dropdown-chevron {
             font-size: 0.72rem;
             color: rgba(15, 23, 42, 0.55);
-            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
         }
 
         .nav-dropdown-toggle:hover {
@@ -185,12 +211,6 @@
             background: rgba(255, 255, 255, 0.55);
             color: #047857;
             border-color: rgba(255, 255, 255, 0.7);
-        }
-
-        .nav-dropdown.active-parent > .nav-dropdown-toggle .dropdown-chevron {
-            transform: rotate(180deg);
-            color: #047857;
-            transition: none !important;
         }
 
         .nav-dropdown.open > .nav-dropdown-toggle .dropdown-chevron {
@@ -211,28 +231,18 @@
             flex-direction: column;
             gap: 3px;
             visibility: hidden;
-            transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
-                        opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                        padding 0.25s ease, 
-                        margin 0.25s ease;
+            transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                        padding 0.22s ease, 
+                        margin 0.22s ease;
         }
 
         .nav-dropdown.open > .nav-submenu {
-            max-height: 520px;
+            max-height: 600px;
             opacity: 1;
             visibility: visible;
             padding: 4px 0 4px 10px;
             margin: 4px 0 6px 14px;
-        }
-
-        /* Saat menu sedang aktif/dibuka dari server, tampilkan langsung tanpa animasi transisi ulang */
-        .nav-dropdown.active-parent > .nav-submenu {
-            max-height: 520px !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            padding: 4px 0 4px 10px !important;
-            margin: 4px 0 6px 14px !important;
-            transition: none !important;
         }
 
         .nav-subitem {
@@ -748,7 +758,7 @@
 
             @if($showQuranMenu)
             <li class="nav-dropdown {{ $isQuranActive ? 'open active-parent' : '' }}" id="dropdown-quran">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-quran main-icon"></i>
                         <span>Pembinaan Qur'an</span>
@@ -819,7 +829,7 @@
                 $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*', 'teacher-attendance*');
             @endphp
             <li class="nav-dropdown {{ $isEskulActive ? 'open active-parent' : '' }}" id="dropdown-eskul">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-basketball-ball main-icon"></i>
                         <span>Ekstrakurikuler</span>
@@ -902,7 +912,7 @@
                 $isCharacterActive = request()->is('character*', 'character-cases*', 'character-appreciations*');
             @endphp
             <li class="nav-dropdown {{ $isCharacterActive ? 'open active-parent' : '' }}" id="dropdown-karakter">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-smile-beam main-icon" style="color: #f59e0b;"></i>
                         <span>SMILE Karakter</span>
@@ -943,7 +953,7 @@
                 $isKurikulumActive = request()->is('curriculum*');
             @endphp
             <li class="nav-dropdown {{ $isKurikulumActive ? 'open active-parent' : '' }}" id="dropdown-kurikulum">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-graduation-cap main-icon" style="color: #0284c7;"></i>
                         <span>SMILE Kurikulum</span>
@@ -996,7 +1006,7 @@
                 $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*');
             @endphp
             <li class="nav-dropdown {{ $isKesiswaanActive ? 'open active-parent' : '' }}" id="dropdown-kesiswaan">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-user-graduate main-icon"></i>
                         <span>Kesiswaan & Guru</span>
@@ -1058,7 +1068,7 @@
 
             @if($showReportDropdown)
             <li class="nav-dropdown {{ $isAnyReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-file-invoice main-icon" style="color: #6366f1;"></i>
                         <span>Laporan & Rapor</span>
@@ -1119,7 +1129,7 @@
                 $isSystemActive = request()->is('settings*', 'announcements*', 'logs*', 'guide*', 'profile*');
             @endphp
             <li class="nav-dropdown {{ $isSystemActive ? 'open active-parent' : '' }}" id="dropdown-system">
-                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this)">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-sliders-h main-icon"></i>
                         <span>Sistem & Akun</span>
@@ -1237,8 +1247,11 @@
             overlay.classList.toggle('active');
         }
 
-        function toggleNavDropdown(el) {
-            const dropdown = el.closest('.nav-dropdown');
+        function toggleNavDropdown(el, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const dropdown = el ? el.closest('.nav-dropdown') : null;
             if (dropdown) {
                 dropdown.classList.toggle('open');
             }
