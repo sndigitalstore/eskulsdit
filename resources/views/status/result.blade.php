@@ -102,17 +102,17 @@
             }
         }
 
-        /* Top Navigation Header */
+        /* Top Navigation Header (Refined, Friendly & Compact) */
         .top-navbar {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-            padding: 12px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+            padding: 9px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
         }
 
         .navbar-container {
@@ -124,29 +124,7 @@
             gap: 12px;
         }
 
-        .btn-nav-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 999px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            color: #334155;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        }
-
-        .btn-nav-back:hover {
-            color: var(--primary-emerald);
-            border-color: #a7f3d0;
-            transform: translateX(-3px);
-            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.1);
-        }
-
+        /* Brand on the Left: Logo + App Name + School */
         .nav-brand {
             display: flex;
             align-items: center;
@@ -155,47 +133,123 @@
             color: inherit;
         }
 
-        .nav-brand img {
-            width: 32px;
-            height: 32px;
+        .brand-logo-frame {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            flex-shrink: 0;
+        }
+
+        .brand-logo-frame img {
+            width: 100%;
+            height: 100%;
             object-fit: contain;
         }
 
-        .nav-brand-title {
+        .brand-text-block {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        .brand-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-title-text {
             font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: var(--slate-dark);
-            line-height: 1.1;
+            letter-spacing: -0.01em;
         }
 
-        .nav-brand-sub {
-            font-size: 0.7rem;
-            color: var(--primary-emerald);
-            font-weight: 600;
+        .brand-badge-pill {
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
             letter-spacing: 0.3px;
+            border: 1px solid #d1fae5;
         }
 
-        .btn-print {
+        .brand-sub-org {
+            font-size: 0.72rem;
+            color: var(--slate-muted);
+            font-weight: 500;
+            margin-top: 1px;
+        }
+
+        .brand-sub-org strong {
+            color: var(--primary-emerald);
+            font-weight: 700;
+        }
+
+        /* Actions on the Right: Compact & Soft */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-nav-compact {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 16px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #047857 0%, #0d9488 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
+            padding: 6px 13px;
+            border-radius: 8px;
+            font-size: 0.78rem;
             font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
             font-family: inherit;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
+            transition: all 0.2s ease;
+            line-height: 1.3;
         }
 
-        .btn-print:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(4, 120, 87, 0.3);
+        .btn-nav-compact i {
+            font-size: 0.72rem;
+        }
+
+        .btn-nav-back {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .btn-nav-back:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-nav-print {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+        }
+
+        .btn-nav-print:hover {
+            background: #047857;
+            color: white;
+            border-color: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
         }
 
         /* Container */
@@ -1158,7 +1212,7 @@
                 padding: 0 !important;
                 color: black !important;
             }
-            .ambient-blob, .top-navbar, .btn-print, .btn-nav-back {
+            .ambient-blob, .top-navbar, .nav-actions, .btn-nav-compact {
                 display: none !important;
             }
             .main-container {
@@ -1206,6 +1260,27 @@
             }
         }
 
+        @media (max-width: 576px) {
+            .top-navbar {
+                padding: 8px 12px;
+            }
+            .brand-sub-org {
+                display: none;
+            }
+            .brand-title-text {
+                font-size: 0.95rem;
+            }
+            .brand-logo-frame {
+                width: 32px;
+                height: 32px;
+            }
+            .btn-nav-compact {
+                padding: 5px 10px;
+                font-size: 0.74rem;
+                gap: 4px;
+            }
+        }
+
         @media (max-width: 480px) {
             .student-title {
                 font-size: 1.4rem;
@@ -1229,26 +1304,36 @@
     <div class="ambient-blob blob-2"></div>
     <div class="ambient-blob blob-3"></div>
 
-    <!-- Top Sticky Navigation -->
+    <!-- Top Sticky Navigation (Brand Left, Actions Right) -->
     <header class="top-navbar">
         <div class="navbar-container">
-            <a href="{{ route('student-status.index') }}" class="btn-nav-back">
-                <i class="fas fa-arrow-left"></i>
-                <span>Kembali ke Pencarian</span>
+            <!-- Brand on the Left: Logo + SIMUTQIN + SDIT AN NADZIR -->
+            <a href="/" class="nav-brand" title="Kembali ke Beranda">
+                <div class="brand-logo-frame">
+                    <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR">
+                </div>
+                <div class="brand-text-block">
+                    <div class="brand-name-row">
+                        <span class="brand-title-text">SIMUTQIN</span>
+                        <span class="brand-badge-pill">Portal Ortu</span>
+                    </div>
+                    <div class="brand-sub-org">
+                        <strong>SDIT AN NADZIR</strong> • Tumbuh Kembang Qur'ani
+                    </div>
+                </div>
             </a>
 
-            <div class="nav-brand">
-                <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR">
-                <div>
-                    <div class="nav-brand-title">SIMUTQIN</div>
-                    <div class="nav-brand-sub">SDIT AN NADZIR</div>
-                </div>
+            <!-- Compact Actions on the Right -->
+            <div class="nav-actions">
+                <a href="{{ route('student-status.index') }}" class="btn-nav-compact btn-nav-back" title="Cari data siswa lain">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Kembali</span>
+                </a>
+                <button type="button" class="btn-nav-compact btn-nav-print" onclick="window.print()" title="Cetak lembar perkembangan">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak</span>
+                </button>
             </div>
-
-            <button type="button" class="btn-print" onclick="window.print()">
-                <i class="fas fa-print"></i>
-                <span>Cetak Lembar</span>
-            </button>
         </div>
     </header>
 
