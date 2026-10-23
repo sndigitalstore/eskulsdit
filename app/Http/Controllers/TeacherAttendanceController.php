@@ -32,7 +32,7 @@ class TeacherAttendanceController extends Controller
             $attendances = TeacherAttendance::where('academic_year_id', $activeYear->id)
                 ->whereYear('date', $yearStr)
                 ->whereMonth('date', $monthStr)
-                ->with(['user', 'substituteUser'])
+                ->with(['user.eskul', 'substituteUser'])
                 ->orderBy('date', 'desc')
                 ->get();
 
