@@ -154,7 +154,7 @@
             <div>
                 <div style="font-size: 0.8rem; opacity: 0.75; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-users"></i>
-                    <a href="{{ route('tahfidz-groups.show', $group->id) }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">{{ $group->name }}</a>
+                    <a href="{{ route('tahfidz-groups.index', ['group_id' => $group->id]) }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">{{ $group->name }}</a>
                     <span>›</span> Kartu Hafalan
                 </div>
                 <h2 style="margin: 0; font-size: 1.6rem; font-weight: 800; word-break: break-word;">
@@ -183,7 +183,7 @@
                    onmouseover="this.style.background='#10b981'" onmouseout="this.style.background='#059669'">
                     <i class="fas fa-file-invoice"></i> Cetak Raport Tahfidz
                 </a>
-                <a href="{{ route('tahfidz-groups.show', $group->id) }}"
+                <a href="{{ route('tahfidz-groups.index', ['group_id' => $group->id]) }}"
                    style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>

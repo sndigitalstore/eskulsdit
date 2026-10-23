@@ -807,41 +807,57 @@
 
                     <!-- ACTIONS -->
                     <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 12px;">
-                        <a href="{{ $mGroup->type === 'tilawati' ? route('tilawati-groups.show', $mGroup->id) : route('tahfidz-groups.show', $mGroup->id) }}" 
-                           class="btn-action-header btn-blue" 
-                           style="padding: 6px 12px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;">
-                            <i class="fas fa-users"></i> Kelola Siswa
-                        </a>
+                        @if(Auth::user()->role === 'teacher')
+                            @if($mGroup->type === 'tahfidz')
+                                <a href="{{ route('tahfidz-groups.index', ['group_id' => $mGroup->id]) }}" 
+                                   class="btn-action-header btn-green" 
+                                   style="background: #047857; color: white; padding: 9px 16px; font-weight: 800; font-size: 0.88rem; flex: 1; text-align: center; justify-content: center; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(4, 120, 87, 0.25);">
+                                    <i class="fas fa-door-open"></i> Buka Ruang Halaqah (Absensi & Setoran)
+                                </a>
+                            @else
+                                <a href="{{ route('tilawati-groups.show', $mGroup->id) }}" 
+                                   class="btn-action-header btn-blue" 
+                                   style="padding: 9px 16px; font-weight: 700; font-size: 0.88rem; flex: 1; text-align: center; justify-content: center; text-decoration: none; border-radius: 8px;">
+                                    <i class="fas fa-book-reader"></i> Buka Kelompok Tilawati
+                                </a>
+                            @endif
+                        @else
+                            <a href="{{ $mGroup->type === 'tilawati' ? route('tilawati-groups.show', $mGroup->id) : route('tahfidz-groups.show', $mGroup->id) }}" 
+                               class="btn-action-header btn-blue" 
+                               style="padding: 6px 12px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;">
+                                <i class="fas fa-users"></i> Kelola Siswa
+                            </a>
 
-                        @if($mGroup->type === 'tahfidz')
-                            <a href="{{ route('tahfidz.attendance.index', ['group' => $mGroup->id]) }}" 
-                               class="btn-action-header" 
-                               style="background: #7c3aed; color: white; padding: 6px 10px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;"
-                               title="Riwayat Sesi & Share WA">
-                                <i class="fas fa-clipboard-check"></i> Jurnal & WA
-                            </a>
-                            <a href="{{ route('tahfidz.attendance.create', ['group' => $mGroup->id]) }}" 
-                               class="btn-action-header" 
-                               style="background: #25d366; color: white; padding: 6px 10px; font-size: 0.8rem;" 
-                               title="Input Sesi Baru & Share WA">
-                                <i class="fab fa-whatsapp"></i> +Sesi
-                            </a>
-                            <a href="{{ route('tahfidz.print-group-recap', ['group' => $mGroup->id]) }}" 
+                            @if($mGroup->type === 'tahfidz')
+                                <a href="{{ route('tahfidz.attendance.index', ['group' => $mGroup->id]) }}" 
+                                   class="btn-action-header" 
+                                   style="background: #7c3aed; color: white; padding: 6px 10px; font-size: 0.8rem; flex: 1; text-align: center; justify-content: center;"
+                                   title="Riwayat Sesi & Share WA">
+                                    <i class="fas fa-clipboard-check"></i> Jurnal & WA
+                                </a>
+                                <a href="{{ route('tahfidz.attendance.create', ['group' => $mGroup->id]) }}" 
+                                   class="btn-action-header" 
+                                   style="background: #25d366; color: white; padding: 6px 10px; font-size: 0.8rem;" 
+                                   title="Input Sesi Baru & Share WA">
+                                    <i class="fab fa-whatsapp"></i> +Sesi
+                                </a>
+                                <a href="{{ route('tahfidz.print-group-recap', ['group' => $mGroup->id]) }}" 
+                                   target="_blank" 
+                                   class="btn-action-header" 
+                                   style="background: #0f766e; color: white; padding: 6px 10px; font-size: 0.8rem;" 
+                                   title="Rekap Hafalan">
+                                    <i class="fas fa-quran"></i> Rekap
+                                </a>
+                            @endif
+
+                            <a href="{{ route('mentoring-groups.print-group', $mGroup->id) }}" 
                                target="_blank" 
-                               class="btn-action-header" 
-                               style="background: #0f766e; color: white; padding: 6px 10px; font-size: 0.8rem;" 
-                               title="Rekap Hafalan">
-                                <i class="fas fa-quran"></i> Rekap
+                               class="btn-action-header btn-dark" 
+                               style="background: #334155; padding: 6px 10px; font-size: 0.8rem;" 
+                               title="Cetak Kelompok">
+                                <i class="fas fa-print"></i>
                             </a>
                         @endif
-
-                        <a href="{{ route('mentoring-groups.print-group', $mGroup->id) }}" 
-                           target="_blank" 
-                           class="btn-action-header btn-dark" 
-                           style="background: #334155; padding: 6px 10px; font-size: 0.8rem;" 
-                           title="Cetak Kelompok">
-                            <i class="fas fa-print"></i>
-                        </a>
                     </div>
                 </div>
             @endforeach

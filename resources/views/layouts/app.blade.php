@@ -736,6 +736,7 @@
                     @endif
 
                     {{-- Fitur Munaqisy & Munaqosah (Kelola Tuntas Juz & Jilid) --}}
+                    @if($isAdminOrCurriculumOrHeadmaster || ($isTeacher && $isMunaqisy))
                     <li class="nav-subitem">
                         <a href="{{ route('munaqosah.index') }}" class="nav-sublink {{ request()->is('munaqosah*') ? 'active' : '' }}">
                             <i class="fas fa-award"></i>
@@ -750,6 +751,7 @@
                             <span>Ujian Tasmi' (Bil Ghaib)</span>
                         </a>
                     </li>
+                    @endif
 
                     @if($isAdminOrCurriculumOrHeadmaster)
                     <li class="nav-subitem">

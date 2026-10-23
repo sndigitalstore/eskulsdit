@@ -293,6 +293,8 @@ class MentoringGroupController extends Controller
             $activeGroup = $myGroups->firstWhere('id', $selectedGroupId) ?? $myGroups->first();
 
             $today = date('Y-m-d');
+            $sessionDate = $request->input('date', $today);
+
             $activeGroup->load(['students' => function($q) {
                 $q->orderBy('class')->orderBy('name');
             }]);
@@ -305,7 +307,7 @@ class MentoringGroupController extends Controller
                 ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
                 ->sum('jumlah_baris');
 
-            // Riwayat setoran siswa di kelompok ini (terbaru per siswa)
+            // Riwayat setoran siswa di kelompok ini (terbaru per siswa, untuk panduan hafalan terakhir)
             $latestRecords = TahfidzRecord::whereIn('student_id', $studentIds)
                 ->where('mentoring_group_id', $activeGroup->id)
                 ->orderBy('session_date', 'desc')
@@ -313,48 +315,54 @@ class MentoringGroupController extends Controller
                 ->get()
                 ->groupBy('student_id');
 
-            // Absensi hari ini
-            $todayAttendances = TahfidzAttendance::whereIn('student_id', $studentIds)
+            // Data absensi pada tanggal sesi yang sedang aktif
+            $sessionAttendances = TahfidzAttendance::whereIn('student_id', $studentIds)
                 ->where('mentoring_group_id', $activeGroup->id)
-                ->where('session_date', $today)
+                ->where('session_date', $sessionDate)
                 ->get()
                 ->keyBy('student_id');
 
-            // Setoran hari ini untuk rekap grup WA
-            $todayRecords = TahfidzRecord::whereIn('student_id', $studentIds)
+            // Data sesi pada tanggal ini untuk generate teks laporan WhatsApp
+            $sessionAttendanceList = TahfidzAttendance::whereIn('student_id', $studentIds)
                 ->where('mentoring_group_id', $activeGroup->id)
-                ->where('session_date', $today)
-                ->orderBy('id', 'asc')
-                ->get()
-                ->groupBy('student_id');
+                ->where('session_date', $sessionDate)
+                ->with('student')
+                ->get();
 
-            // Daftar Surah Juz 30 dan Juz 29 untuk modal input setoran
-            $surahListJuz30 = [
-                'An-Naba\'', 'An-Nazi\'at', '\'Abasa', 'At-Takwir', 'Al-Infitar',
-                'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A\'la',
-                'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail',
-                'Ad-Duha', 'Asy-Syarh', 'At-Tin', 'Al-\'Alaq', 'Al-Qadr',
-                'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat', 'Al-Qari\'ah', 'At-Takasur',
-                'Al-\'Asr', 'Al-Humazah', 'Al-Fil', 'Quraisy', 'Al-Ma\'un',
-                'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Lahab', 'Al-Ikhlas',
-                'Al-Falaq', 'An-Nas'
-            ];
+            // WhatsApp Message Generator
+            $whatsappMessage = \App\Http\Controllers\TahfidzAttendanceController::generateWhatsappMessage(
+                $activeGroup,
+                $sessionDate,
+                $sessionAttendanceList
+            );
 
-            $surahListJuz29 = [
-                'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh',
-                'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan',
-                'Al-Mursalat'
-            ];
+            $openShare = (bool) $request->input('open_share', false);
 
-            $surahListJuz28 = [
-                'Al-Mujadilah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah',
-                'Al-Munafiqun', 'At-Taghabun', 'At-Talaq', 'At-Tahrim'
+            // Daftar Surah Lengkap untuk datalist auto-complete cerdas
+            $allSurahs = [
+                'An-Nas', 'Al-Falaq', 'Al-Ikhlas', 'Al-Lahab', 'An-Nasr', 'Al-Kafirun', 'Al-Kausar',
+                'Al-Ma\'un', 'Quraisy', 'Al-Fil', 'Al-Humazah', 'Al-\'Asr', 'At-Takasur', 'Al-Qari\'ah',
+                'Al-\'Adiyat', 'Az-Zalzalah', 'Al-Bayyinah', 'Al-Qadr', 'Al-\'Alaq', 'At-Tin',
+                'Asy-Syarh', 'Ad-Duha', 'Al-Lail', 'Asy-Syams', 'Al-Balad', 'Al-Fajr', 'Al-Ghasyiyah',
+                'Al-A\'la', 'At-Tariq', 'Al-Buruj', 'Al-Insyiqaq', 'Al-Mutaffifin', 'Al-Infitar',
+                'At-Takwir', '\'Abasa', 'An-Nazi\'at', 'An-Naba\'',
+                'Al-Mursalat', 'Al-Insan', 'Al-Qiyamah', 'Al-Muddassir', 'Al-Muzzammil', 'Al-Jinn',
+                'Nuh', 'Al-Ma\'arij', 'Al-Haqqah', 'Al-Qalam', 'Al-Mulk',
+                'At-Tahrim', 'At-Talaq', 'At-Taghabun', 'Al-Munafiqun', 'Al-Jumu\'ah', 'As-Saff',
+                'Al-Mumtahanah', 'Al-Hasyr', 'Al-Mujadilah',
+                'Al-Hadid', 'Al-Waqi\'ah', 'Ar-Rahman', 'Al-Qamar', 'An-Najm', 'At-Tur', 'Az-Zariyat',
+                'Qaf', 'Al-Hujurat', 'Al-Fath', 'Muhammad', 'Al-Ahqaf',
+                'Yasin', 'Fatir', 'Saba\'', 'Al-Ahzab', 'As-Sajdah', 'Luqman', 'Ar-Rum', 'Al-\'Ankabut',
+                'Al-Qasas', 'An-Naml', 'Asy-Syu\'ara\'', 'Al-Furqan', 'An-Nur', 'Al-Mu\'minun', 'Al-Hajj',
+                'Al-Anbiya\'', 'Thaha', 'Maryam', 'Al-Kahf', 'Al-Isra\'', 'An-Nahl', 'Al-Hijr', 'Ibrahim',
+                'Ar-Ra\'d', 'Yusuf', 'Hud', 'Yunus', 'At-Taubah', 'Al-Anfal', 'Al-A\'raf', 'Al-An\'am',
+                'Al-Ma\'idah', 'An-Nisa\'', 'Ali \'Imran', 'Al-Baqarah', 'Al-Fatihah'
             ];
 
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
-                'latestRecords', 'todayAttendances', 'todayRecords', 'totalGroupLines',
-                'surahListJuz30', 'surahListJuz29', 'surahListJuz28', 'today'
+                'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines',
+                'allSurahs', 'today', 'sessionDate', 'openShare'
             ));
         }
 
@@ -515,9 +523,9 @@ class MentoringGroupController extends Controller
 
         $isMyGroup = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
 
-        // Jika bukan admin dan bukan kelompok bimbingannya, beri pesan peringatan atau batasi
-        if (!$isAdmin && !$isMyGroup) {
-            // Guru tetap bisa melihat atau dibatasi
+        // Jika bukan admin dan merupakan kelompok tahfidz, arahkan langsung ke Ruang Halaqah Sederhana
+        if (!$isAdmin && $group->type === 'tahfidz') {
+            return redirect()->route('tahfidz-groups.index', ['group_id' => $group->id]);
         }
 
         $type = $group->type;

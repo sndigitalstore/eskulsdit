@@ -404,6 +404,16 @@ class TahfidzAttendanceController extends Controller
             }
         }
 
+        if ($request->input('redirect_to') === 'workspace' || !in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum'])) {
+            return redirect()
+                ->route('tahfidz-groups.index', [
+                    'group_id'   => $group->id,
+                    'date'       => $date,
+                    'open_share' => 1
+                ])
+                ->with('success', "Alhamdulillah, absensi & setoran sesi tanggal " . \Carbon\Carbon::parse($date)->locale('id')->isoFormat('D MMMM Y') . " berhasil disimpan dan tersinkron!");
+        }
+
         return redirect()
             ->route('tahfidz.attendance.session', [
                 'group'      => $group->id,
