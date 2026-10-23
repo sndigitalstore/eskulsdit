@@ -34,6 +34,10 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
         
+        html {
+            scroll-behavior: smooth;
+        }
+
         body { 
             background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f0fdf4 100%);
             background-attachment: fixed;
@@ -44,14 +48,14 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Animation Keyframes */
+        /* Animation Keyframes Halus & Soft */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-15px); }
+            from { opacity: 0; transform: translateX(-12px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
@@ -106,7 +110,7 @@
             border-radius: 14px; 
             font-weight: 700; 
             font-size: 0.92rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1); 
             position: relative;
             overflow: hidden;
             border: 1px solid transparent;
@@ -114,12 +118,12 @@
 
         .nav-link:hover {
             color: #047857;
-            background: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.55);
             transform: translateX(4px);
         }
 
         .nav-link.active { 
-            background: rgba(255, 255, 255, 0.90); 
+            background: rgba(255, 255, 255, 0.92); 
             color: #047857; 
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06); 
             border: 1px solid rgba(255, 255, 255, 0.95);
@@ -127,7 +131,7 @@
 
         .nav-link i { margin-right: 12px; font-size: 1.15rem; width: 24px; text-align: center; }
 
-        /* Dropdown Accordion Styles */
+        /* Dropdown Accordion Styles - Buttery Smooth & Soft Transition */
         .nav-dropdown {
             margin-bottom: 0.35rem;
             position: relative;
@@ -143,7 +147,7 @@
             border-radius: 14px;
             font-weight: 700;
             font-size: 0.92rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
             user-select: none;
             border: 1px solid transparent;
@@ -164,12 +168,12 @@
         .nav-dropdown-toggle .dropdown-chevron {
             font-size: 0.72rem;
             color: rgba(15, 23, 42, 0.55);
-            transition: transform 0.25s ease, color 0.25s ease;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
         }
 
         .nav-dropdown-toggle:hover {
             color: #047857;
-            background: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.55);
             transform: translateX(4px);
         }
 
@@ -188,19 +192,31 @@
             color: #047857;
         }
 
+        /* Submenu dengan transisi max-height & opacity yang sangat halus */
         .nav-submenu {
             list-style: none;
-            padding: 4px 0 4px 10px;
-            margin: 4px 0 6px 14px;
+            padding: 0 0 0 10px;
+            margin: 0 0 0 14px;
             border-left: 2px solid rgba(255, 255, 255, 0.55);
-            display: none;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            display: flex;
             flex-direction: column;
             gap: 3px;
+            visibility: hidden;
+            transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        padding 0.25s ease, 
+                        margin 0.25s ease;
         }
 
         .nav-dropdown.open > .nav-submenu {
-            display: flex;
-            animation: fadeIn 0.25s ease-out;
+            max-height: 520px;
+            opacity: 1;
+            visibility: visible;
+            padding: 4px 0 4px 10px;
+            margin: 4px 0 6px 14px;
         }
 
         .nav-subitem {
@@ -217,7 +233,7 @@
             border-radius: 10px;
             font-weight: 600;
             font-size: 0.84rem;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
         }
 
@@ -226,12 +242,17 @@
             width: 18px;
             text-align: center;
             opacity: 0.85;
+            transition: transform 0.2s ease;
         }
 
         .nav-sublink:hover {
             color: #047857;
-            background: rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.6);
             transform: translateX(3px);
+        }
+
+        .nav-sublink:hover i {
+            transform: scale(1.1);
         }
 
         .nav-sublink.active {
@@ -311,7 +332,8 @@
 
         .content { 
             padding: 2.25rem; 
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: opacity, transform;
         }
 
         /* Card & Elements */
@@ -445,31 +467,41 @@
         @media (max-width: 900px) {
             .sidebar {
                 position: fixed;
-                left: -280px;
+                left: 0;
                 top: 0;
                 height: 100%;
                 z-index: 1000;
-                box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-                visibility: hidden; /* Ensure it doesn't catch clicks when closed */
+                box-shadow: 6px 0 25px rgba(15, 23, 42, 0.16);
+                transform: translateX(-105%);
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+                visibility: hidden;
+                will-change: transform;
             }
             .sidebar.active { 
-                left: 0; 
+                transform: translateX(0); 
                 visibility: visible;
             }
             
             .mobile-toggle { display: block; }
             .close-sidebar-btn { display: block !important; }
 
-            /* Overlay when sidebar is open */
+            /* Overlay saat sidebar HP terbuka dengan fade lembut */
             .sidebar-overlay {
-                display: none;
+                display: block;
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.5);
+                background: rgba(15, 23, 42, 0.45);
                 z-index: 999;
-                backdrop-filter: blur(3px);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            .sidebar-overlay.active { display: block; }
+            .sidebar-overlay.active { 
+                opacity: 1;
+                pointer-events: auto;
+            }
         }
 
         @media (max-width: 768px) {
