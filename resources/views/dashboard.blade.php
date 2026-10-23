@@ -757,12 +757,12 @@
                     <!-- Rincian Metrik -->
                     <div class="kpi-details-list">
                         <div class="kpi-detail-item">
-                            <span class="kpi-detail-label"><i class="fas fa-users" style="color: #059669;"></i> Santri Terbina:</span>
-                            <span class="kpi-detail-val">{{ $programAchievements['tilawati']['assigned_count'] }} <span style="font-weight: 500; color: #94a3b8;">/ {{ $programAchievements['tilawati']['total_students'] }} Santri</span></span>
+                            <span class="kpi-detail-label"><i class="fas fa-users" style="color: #059669;"></i> Siswa Terbina:</span>
+                            <span class="kpi-detail-val">{{ $programAchievements['tilawati']['assigned_count'] }} <span style="font-weight: 500; color: #94a3b8;">/ {{ $programAchievements['tilawati']['total_students'] }} Siswa</span></span>
                         </div>
                         <div class="kpi-detail-item">
                             <span class="kpi-detail-label"><i class="fas fa-award" style="color: #f59e0b;"></i> Jilid 4 s/d Al-Qur'an:</span>
-                            <span class="kpi-detail-val" style="color: #059669;">{{ $programAchievements['tilawati']['advanced_count'] }} Santri</span>
+                            <span class="kpi-detail-val" style="color: #059669;">{{ $programAchievements['tilawati']['advanced_count'] }} Siswa</span>
                         </div>
                         <div class="kpi-detail-item">
                             <span class="kpi-detail-label"><i class="fas fa-check-circle" style="color: #0284c7;"></i> Cakupan Binaan:</span>
@@ -828,8 +828,8 @@
                             <span class="kpi-detail-val" style="color: #059669;">{{ $programAchievements['tahfidz']['lancar_count'] }} Catatan</span>
                         </div>
                         <div class="kpi-detail-item">
-                            <span class="kpi-detail-label"><i class="fas fa-user-check" style="color: #7c3aed;"></i> Santri Aktif Menyetor:</span>
-                            <span class="kpi-detail-val" style="color: #7c3aed;">{{ $programAchievements['tahfidz']['active_students'] }} Santri</span>
+                            <span class="kpi-detail-label"><i class="fas fa-user-check" style="color: #7c3aed;"></i> Siswa Aktif Menyetor:</span>
+                            <span class="kpi-detail-val" style="color: #7c3aed;">{{ $programAchievements['tahfidz']['active_students'] }} Siswa</span>
                         </div>
                     </div>
                 </div>

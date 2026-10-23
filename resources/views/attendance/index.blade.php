@@ -240,7 +240,7 @@
                 Input Presensi Siswa
             </h3>
             <p class="presensi-select-desc">
-                Pilih ekstrakurikuler dan tanggal pertemuan untuk mulai mengisi presensi kehadiran santri.
+                Pilih ekstrakurikuler dan tanggal pertemuan untuk mulai mengisi presensi kehadiran siswa.
             </p>
         </div>
 
@@ -294,7 +294,7 @@
                 <i class="fas fa-chart-line" style="color: #0284c7;"></i> Rekapitulasi Presensi
             </span>
             <p class="footer-desc">
-                Lihat akumulasi kehadiran santri seluruh pertemuan dan cetak berkas laporan
+                Lihat akumulasi kehadiran siswa seluruh pertemuan dan cetak berkas laporan
             </p>
 
             <form id="report-form" action="{{ route('attendance.report') }}" method="GET">

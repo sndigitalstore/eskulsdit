@@ -240,7 +240,7 @@
                 Input Penilaian Siswa
             </h3>
             <p class="grades-select-desc">
-                Pilih kriteria penilaian, eskul, dan periode untuk mulai menginput capaian santri.
+                Pilih kriteria penilaian, eskul, dan periode untuk mulai menginput capaian siswa.
             </p>
         </div>
 
@@ -306,7 +306,7 @@
                 <i class="fas fa-chart-line" style="color: #db2777;"></i> Rekapitulasi Nilai
             </span>
             <p class="footer-desc">
-                Lihat akumulasi nilai santri dan cetak lembar raport ekstrakurikuler
+                Lihat akumulasi nilai siswa dan cetak lembar raport ekstrakurikuler
             </p>
 
             <form id="report-form" action="{{ route('grades.report') }}" method="GET">

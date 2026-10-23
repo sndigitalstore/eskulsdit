@@ -119,7 +119,7 @@
         background: #fafcfb;
     }
 
-    /* Avatar & Info Santri */
+    /* Avatar & Info Siswa */
     .student-info-cell {
         display: flex;
         align-items: center;
@@ -524,17 +524,17 @@
                 <div>
                     <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
                         <i class="fas fa-user-graduate" style="color: #7c3aed;"></i>
-                        <strong>{{ $students->count() }}</strong> Santri Ternilai
+                        <strong>{{ $students->count() }}</strong> Siswa Ternilai
                     </span>
                 </div>
             </div>
 
-            <!-- Tabel Daftar Santri & Opsi Nilai (Menjadi Mobile Card di HP) -->
+            <!-- Tabel Daftar Siswa & Opsi Nilai (Menjadi Mobile Card di HP) -->
             <table class="penilaian-table">
                 <thead>
                     <tr>
                         <th style="width: 50px; text-align: center;">No</th>
-                        <th style="width: 45%;">Nama Santri & Presensi</th>
+                        <th style="width: 45%;">Nama Siswa & Presensi</th>
                         <th style="width: 50%;">Capaian Nilai</th>
                     </tr>
                 </thead>
@@ -587,7 +587,7 @@
                                 <div style="background: #fffbeb; border: 1.5px dashed #fde68a; border-radius: 14px; padding: 12px 14px; color: #92400e; font-size: 0.84rem; display: flex; align-items: center; gap: 10px;">
                                     <i class="fas fa-info-circle" style="color: #d97706; font-size: 1.15rem; flex-shrink: 0;"></i>
                                     <div>
-                                        <span>Nilai dinonaktifkan — Santri tercatat <strong>{{ $attendBadge }}</strong>.</span>
+                                        <span>Nilai dinonaktifkan — Siswa tercatat <strong>{{ $attendBadge }}</strong>.</span>
                                         @if($attendRec->note)
                                             <div style="color: #b45309; font-size: 0.78rem; margin-top: 2px;">
                                                 Catatan: <em>{{ $attendRec->note }}</em>
@@ -666,8 +666,8 @@
                     <tr>
                         <td colspan="3" style="text-align: center; padding: 40px 20px; color: #64748b;">
                             <i class="fas fa-user-slash" style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
-                            <strong style="color: #334155; font-size: 1rem;">Belum Ada Santri Terdaftar</strong>
-                            <p style="margin: 4px 0 0; font-size: 0.85rem;">Silakan tambahkan santri ke kegiatan eskul ini melalui menu Kelola Eskul.</p>
+                            <strong style="color: #334155; font-size: 1rem;">Belum Ada Siswa Terdaftar</strong>
+                            <p style="margin: 4px 0 0; font-size: 0.85rem;">Silakan tambahkan siswa ke kegiatan eskul ini melalui menu Kelola Eskul.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -693,7 +693,7 @@
         <div class="penilaian-mobile-sticky-bar">
             <button type="submit">
                 <i class="fas fa-save"></i>
-                <span>Simpan Penilaian ({{ $students->count() }} Santri)</span>
+                <span>Simpan Penilaian ({{ $students->count() }} Siswa)</span>
             </button>
         </div>
         @endif

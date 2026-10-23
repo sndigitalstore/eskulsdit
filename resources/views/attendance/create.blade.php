@@ -162,7 +162,7 @@
         background: #fafcfb;
     }
 
-    /* Avatar & Info Santri */
+    /* Avatar & Info Siswa */
     .student-info-cell {
         display: flex;
         align-items: center;
@@ -516,7 +516,7 @@
                 <div>
                     <span style="background: #f1f5f9; color: #334155; font-size: 0.84rem; font-weight: 750; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
                         <i class="fas fa-users" style="color: #059669;"></i>
-                        <strong>{{ $students->count() }}</strong> Santri Terdaftar
+                        <strong>{{ $students->count() }}</strong> Siswa Terdaftar
                     </span>
                 </div>
             </div>
@@ -536,12 +536,12 @@
                 </div>
             </div>
 
-            <!-- Tabel Daftar Santri (Otomatis Menjadi Mobile Card di HP) -->
+            <!-- Tabel Daftar Siswa (Otomatis Menjadi Mobile Card di HP) -->
             <table class="presensi-table">
                 <thead>
                     <tr>
                         <th style="width: 50px; text-align: center;">No</th>
-                        <th style="width: 35%;">Nama Santri</th>
+                        <th style="width: 35%;">Nama Siswa</th>
                         <th style="width: 35%;">Status Kehadiran</th>
                         <th style="width: 30%;">Keterangan / Catatan</th>
                     </tr>
@@ -609,8 +609,8 @@
                     <tr>
                         <td colspan="4" style="text-align: center; padding: 40px 20px; color: #64748b;">
                             <i class="fas fa-user-slash" style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
-                            <strong style="color: #334155; font-size: 1rem;">Belum Ada Santri Terdaftar</strong>
-                            <p style="margin: 4px 0 0; font-size: 0.85rem;">Silakan tambahkan santri ke kegiatan eskul ini melalui menu Kelola Eskul.</p>
+                            <strong style="color: #334155; font-size: 1rem;">Belum Ada Siswa Terdaftar</strong>
+                            <p style="margin: 4px 0 0; font-size: 0.85rem;">Silakan tambahkan siswa ke kegiatan eskul ini melalui menu Kelola Eskul.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -621,7 +621,7 @@
             @if($students->isNotEmpty())
             <div class="presensi-desktop-footer">
                 <span style="font-size: 0.85rem; color: #64748b;">
-                    Pastikan seluruh data kehadiran santri sudah sesuai sebelum menyimpan.
+                    Pastikan seluruh data kehadiran siswa sudah sesuai sebelum menyimpan.
                 </span>
                 <button type="submit" class="btn-submit-main">
                     <i class="fas fa-save"></i>
@@ -636,7 +636,7 @@
         <div class="presensi-mobile-sticky-bar">
             <button type="submit">
                 <i class="fas fa-save"></i>
-                <span>Simpan Presensi ({{ $students->count() }} Santri)</span>
+                <span>Simpan Presensi ({{ $students->count() }} Siswa)</span>
             </button>
         </div>
         @endif
