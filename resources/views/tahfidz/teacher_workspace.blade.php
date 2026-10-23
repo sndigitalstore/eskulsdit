@@ -1268,7 +1268,7 @@
                                 <option value="">-- Pilih Surat --</option>
                                 
                                 {{-- TARGET JUZ KELOMPOK DARI ADMIN (MUNCUL PALING ATAS) --}}
-                                @foreach($targetJuzGroups as $juzNum => $sList)
+                                @foreach(($targetJuzGroups ?? []) as $juzNum => $sList)
                                     <optgroup label="⭐ Target: Juz {{ $juzNum }}">
                                         @foreach($sList as $sName)
                                             @php
@@ -1286,7 +1286,7 @@
                                 {{-- JUZ LAINNYA --}}
                                 @if(!empty($otherSurahs))
                                     <optgroup label="📖 Surat / Juz Lainnya">
-                                        @foreach($otherSurahs as $sName)
+                                        @foreach(($otherSurahs ?? []) as $sName)
                                             @php
                                                 $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
                                                 $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));

@@ -182,66 +182,113 @@ class TahfidzAttendanceController extends Controller
         }
     }
 
+    protected static bool $tableChecked = false;
+
     /**
      * Auto-create table if not exists (self-healing)
      */
-    public function ensureTableExists(): void
+    public static function ensureTableExists(): void
     {
-        if (!Schema::hasTable('tahfidz_attendances')) {
-            Schema::create('tahfidz_attendances', function ($table) {
-                $table->id();
-                $table->unsignedBigInteger('mentoring_group_id');
-                $table->unsignedBigInteger('student_id');
-                $table->unsignedBigInteger('academic_year_id');
-                $table->date('session_date');
-                $table->enum('status', ['hadir', 'sakit', 'izin', 'alpha'])->default('hadir');
-                $table->string('capaian')->nullable();
-                $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0);
-                $table->string('hafalan_status')->default('LULUS')->nullable();
-                $table->string('nilai', 50)->nullable();
-                $table->string('tugas_besok')->nullable();
-                $table->text('notes')->nullable();
-                $table->unsignedBigInteger('recorded_by')->nullable();
-                $table->timestamps();
-                $table->unique(['mentoring_group_id', 'student_id', 'session_date'], 'unique_tahfidz_attendance');
-                $table->index(['mentoring_group_id', 'session_date']);
-            });
-        } else {
-            if (!Schema::hasColumn('tahfidz_attendances', 'capaian')) {
-                Schema::table('tahfidz_attendances', function ($table) {
-                    $table->string('capaian')->nullable()->after('status');
-                });
-            }
-            if (!Schema::hasColumn('tahfidz_attendances', 'jumlah_baris')) {
-                Schema::table('tahfidz_attendances', function ($table) {
-                    $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0)->after('capaian');
-                });
-            }
-            if (!Schema::hasColumn('tahfidz_attendances', 'hafalan_status')) {
-                Schema::table('tahfidz_attendances', function ($table) {
-                    $table->string('hafalan_status')->default('LULUS')->nullable()->after('jumlah_baris');
-                });
-            }
-            if (!Schema::hasColumn('tahfidz_attendances', 'nilai')) {
-                Schema::table('tahfidz_attendances', function ($table) {
-                    $table->string('nilai', 50)->nullable()->after('hafalan_status');
-                });
-            }
-            if (!Schema::hasColumn('tahfidz_attendances', 'tugas_besok')) {
-                Schema::table('tahfidz_attendances', function ($table) {
-                    $table->string('tugas_besok')->nullable()->after('nilai');
-                });
-            }
+        if (self::$tableChecked) {
+            return;
         }
+        self::$tableChecked = true;
 
-        if (Schema::hasTable('tahfidz_records') && !Schema::hasColumn('tahfidz_records', 'nilai')) {
-            Schema::table('tahfidz_records', function ($table) {
-                $table->string('nilai', 50)->nullable()->after('quality');
-            });
+        try {
+            if (!Schema::hasTable('tahfidz_attendances')) {
+                Schema::create('tahfidz_attendances', function ($table) {
+                    $table->id();
+                    $table->unsignedBigInteger('mentoring_group_id');
+                    $table->unsignedBigInteger('student_id');
+                    $table->unsignedBigInteger('academic_year_id');
+                    $table->date('session_date');
+                    $table->enum('status', ['hadir', 'sakit', 'izin', 'alpha'])->default('hadir');
+                    $table->string('capaian')->nullable();
+                    $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0);
+                    $table->string('hafalan_status')->default('LULUS')->nullable();
+                    $table->string('nilai', 50)->nullable();
+                    $table->string('tugas_besok')->nullable();
+                    $table->text('notes')->nullable();
+                    $table->unsignedBigInteger('recorded_by')->nullable();
+                    $table->timestamps();
+                    $table->unique(['mentoring_group_id', 'student_id', 'session_date'], 'unique_tahfidz_attendance');
+                    $table->index(['mentoring_group_id', 'session_date']);
+                });
+            } else {
+                if (!Schema::hasColumn('tahfidz_attendances', 'capaian')) {
+                    Schema::table('tahfidz_attendances', function ($table) {
+                        $table->string('capaian')->nullable()->after('status');
+                    });
+                }
+                if (!Schema::hasColumn('tahfidz_attendances', 'jumlah_baris')) {
+                    Schema::table('tahfidz_attendances', function ($table) {
+                        $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0)->after('capaian');
+                    });
+                }
+                if (!Schema::hasColumn('tahfidz_attendances', 'hafalan_status')) {
+                    Schema::table('tahfidz_attendances', function ($table) {
+                        $table->string('hafalan_status')->default('LULUS')->nullable()->after('jumlah_baris');
+                    });
+                }
+                if (!Schema::hasColumn('tahfidz_attendances', 'nilai')) {
+                    Schema::table('tahfidz_attendances', function ($table) {
+                        $table->string('nilai', 50)->nullable()->after('hafalan_status');
+                    });
+                }
+                if (!Schema::hasColumn('tahfidz_attendances', 'tugas_besok')) {
+                    Schema::table('tahfidz_attendances', function ($table) {
+                        $table->string('tugas_besok')->nullable()->after('nilai');
+                    });
+                }
+            }
+
+            if (Schema::hasTable('tahfidz_records') && !Schema::hasColumn('tahfidz_records', 'nilai')) {
+                Schema::table('tahfidz_records', function ($table) {
+                    $table->string('nilai', 50)->nullable()->after('quality');
+                });
+            }
+        } catch (\Throwable $e) {
+            // Silently continue if schema modification fails due to privileges/locks
         }
 
         // Jalankan auto-sync bila ada data riwayat yang belum sinkron
-        self::syncPastAttendances();
+        try {
+            self::syncPastAttendances();
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
+    }
+
+    /**
+     * Daftar seluruh 114 Surat dalam Al-Qur'an secara berurutan
+     */
+    public static function getAllSurahNames(): array
+    {
+        return [
+            'Al-Fatihah', 'Al-Baqarah', 'Ali \'Imran', 'An-Nisa\'', 'Al-Ma\'idah',
+            'Al-An\'am', 'Al-A\'raf', 'Al-Anfal', 'At-Taubah', 'Yunus',
+            'Hud', 'Yusuf', 'Ar-Ra\'d', 'Ibrahim', 'Al-Hijr',
+            'An-Nahl', 'Al-Isra\'', 'Al-Kahf', 'Maryam', 'Thaha',
+            'Al-Anbiya\'', 'Al-Hajj', 'Al-Mu\'minun', 'An-Nur', 'Al-Furqan',
+            'Asy-Syu\'ara\'', 'An-Naml', 'Al-Qasas', 'Al-\'Ankabut', 'Ar-Rum',
+            'Luqman', 'As-Sajdah', 'Al-Ahzab', 'Saba\'', 'Fatir',
+            'Yasin', 'As-Saffat', 'Sad', 'Az-Zumar', 'Ghafir',
+            'Fussilat', 'Asy-Syura', 'Az-Zukhruf', 'Ad-Dukhan', 'Al-Jasiyah',
+            'Al-Ahqaf', 'Muhammad', 'Al-Fath', 'Al-Hujurat', 'Qaf',
+            'Az-Zariyat', 'At-Tur', 'An-Najm', 'Al-Qamar', 'Ar-Rahman',
+            'Al-Waqi\'ah', 'Al-Hadid', 'Al-Mujadilah', 'Al-Hasyr', 'Al-Mumtahanah',
+            'As-Saff', 'Al-Jumu\'ah', 'Al-Munafiqun', 'At-Taghabun', 'At-Talaq',
+            'At-Tahrim', 'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij',
+            'Nuh', 'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah',
+            'Al-Insan', 'Al-Mursalat', 'An-Naba\'', 'An-Nazi\'at', '\'Abasa',
+            'At-Takwir', 'Al-Infitar', 'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj',
+            'At-Tariq', 'Al-A\'la', 'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad',
+            'Asy-Syams', 'Al-Lail', 'Ad-Duha', 'Asy-Syarh', 'At-Tin',
+            'Al-\'Alaq', 'Al-Qadr', 'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat',
+            'Al-Qari\'ah', 'At-Takasur', 'Al-\'Asr', 'Al-Humazah', 'Al-Fil',
+            'Quraisy', 'Al-Ma\'un', 'Al-Kausar', 'Al-Kafirun', 'An-Nasr',
+            'Al-Lahab', 'Al-Ikhlas', 'Al-Falaq', 'An-Nas'
+        ];
     }
 
     /**

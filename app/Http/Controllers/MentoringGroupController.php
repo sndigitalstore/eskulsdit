@@ -299,7 +299,8 @@ class MentoringGroupController extends Controller
                 $q->orderBy('class')->orderBy('name');
             }]);
 
-            // Jalankan sinkronisasi otomatis agar data absensi sesi lampau langsung sinkron ke rekapan & kartu
+            // Pastikan kolom dan tabel tahfidz siap dan jalankan sinkronisasi otomatis data sesi lampau
+            \App\Http\Controllers\TahfidzAttendanceController::ensureTableExists();
             \App\Http\Controllers\TahfidzAttendanceController::syncPastAttendances();
 
             $studentIds = $activeGroup->students->pluck('id');
@@ -341,6 +342,7 @@ class MentoringGroupController extends Controller
             // Deteksi target Juz dari target_level grup secara dinamis
             $targetJuzList = \App\Http\Controllers\TahfidzAttendanceController::extractTargetJuz($activeGroup->target_level ?? 'Juz 30');
             $allJuzSurahs  = \App\Http\Controllers\TahfidzAttendanceController::getAllJuzSurahs();
+            $allSurahs     = \App\Http\Controllers\TahfidzAttendanceController::getAllSurahNames();
 
             $targetJuzGroups = [];
             $surahsInTarget  = [];
