@@ -240,12 +240,16 @@ class ComplianceController extends Controller
                         $msgLines[] = "• *Absensi Pembina*: Belum melakukan presensi 'Absensi Saya'";
                     }
                 } else {
-                    $msgLines[] = "Mohon perhatiannya untuk melengkapi administrasi ekstrakurikuler *{$eskulName}* di SIM Eskul:";
+                    $msgLines[] = "Mohon perhatiannya untuk melengkapi administrasi ekstrakurikuler *{$eskulName}* di SIMUTQIN:";
                     foreach ($actionReasons as $reason) {
                         $msgLines[] = "• {$reason}";
                     }
                 }
-                $msgLines[] = "\nMohon dapat segera menginputnya melalui aplikasi: https://eskulsdit.annadzir.sch.id";
+                $appDomain = config('app.url', 'https://simutqin.annadzir.sch.id');
+                if (empty($appDomain) || str_contains($appDomain, 'localhost')) {
+                    $appDomain = 'https://simutqin.annadzir.sch.id';
+                }
+                $msgLines[] = "\nMohon dapat segera menginputnya melalui aplikasi: {$appDomain}";
                 $msgLines[] = "Jazakumullahu khairan atas kerjasamanya. 🙏";
                 $waMessage = implode("\n", $msgLines);
             }
@@ -321,8 +325,8 @@ class ComplianceController extends Controller
             $broadcastLines[] = "Alhamdulillah seluruh pembina yang bertugas telah tertib melakukan absensi! ✨";
         }
         $broadcastLines[] = "";
-        $broadcastLines[] = "Mohon untuk dapat segera melengkapinya melalui SIM Eskul:";
-        $broadcastLines[] = "🔗 https://eskulsdit.annadzir.sch.id";
+        $broadcastLines[] = "Mohon untuk dapat segera melengkapinya melalui SIMUTQIN:";
+        $broadcastLines[] = "🔗 " . ($appDomain ?? 'https://simutqin.annadzir.sch.id');
         $broadcastLines[] = "";
         $broadcastLines[] = "Jazakumullahu khairan atas dedikasi dan kerjasamanya. 🙏";
         $broadcastMessage = implode("\n", $broadcastLines);
