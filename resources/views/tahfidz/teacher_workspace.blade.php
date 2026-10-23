@@ -802,7 +802,7 @@
                     <i class="fas fa-quran"></i>
                     <span>{{ $grp->name }}</span>
                     <span style="font-size: 0.72rem; padding: 1px 6px; border-radius: 6px; background: rgba(0,0,0,0.12);">
-                        {{ $grp->students_count }} santri
+                        {{ $grp->students_count }} siswa
                     </span>
                 </a>
             @endforeach
@@ -821,7 +821,7 @@
             <div class="header-meta-info">
                 <span><i class="fas fa-user-tie"></i> Musyrif: <strong>{{ $activeGroup->mentor_name ?? Auth::user()->name }}</strong></span>
                 <span><i class="fas fa-bullseye"></i> Target: <strong>{{ $activeGroup->target_level ?? 'Juz 30' }}</strong></span>
-                <span><i class="fas fa-users"></i> <strong>{{ $activeGroup->students->count() }} Santri</strong></span>
+                <span><i class="fas fa-users"></i> <strong>{{ $activeGroup->students->count() }} Siswa</strong></span>
             </div>
         </div>
 
@@ -849,7 +849,7 @@
 
     {{-- 3. KOTAK INFORMASI STATISTIK HIJAU (INFORMATIF & SIMPEL) --}}
     @php
-        $totalSantri = $activeGroup->students->count();
+        $totalSiswa = $activeGroup->students->count();
         $kehadiranHariIni = $sessionAttendances->where('status', 'hadir')->count();
         $sudahSetorHariIni = $sessionAttendances->where('status', 'hadir')->filter(fn($a) => !empty($a->capaian))->count();
         $totalBaris = (int) ($totalGroupLines ?? 0);
@@ -861,9 +861,9 @@
                 <i class="fas fa-users"></i>
             </div>
             <div>
-                <div class="kpi-green-label">Total Santri</div>
+                <div class="kpi-green-label">Total Siswa</div>
                 <div class="kpi-green-value">
-                    {{ $totalSantri }} <span class="kpi-green-unit">Anak</span>
+                    {{ $totalSiswa }} <span class="kpi-green-unit">Siswa</span>
                 </div>
             </div>
         </div>
@@ -875,7 +875,7 @@
             <div>
                 <div class="kpi-green-label">Kehadiran Hari Ini</div>
                 <div class="kpi-green-value">
-                    {{ $kehadiranHariIni }} <span class="kpi-green-unit">/ {{ $totalSantri }} Hadir</span>
+                    {{ $kehadiranHariIni }} <span class="kpi-green-unit">/ {{ $totalSiswa }} Hadir</span>
                 </div>
             </div>
         </div>
@@ -887,7 +887,7 @@
             <div>
                 <div class="kpi-green-label">Sudah Setoran</div>
                 <div class="kpi-green-value">
-                    {{ $sudahSetorHariIni }} <span class="kpi-green-unit">Santri</span>
+                    {{ $sudahSetorHariIni }} <span class="kpi-green-unit">Siswa</span>
                 </div>
             </div>
         </div>
@@ -947,7 +947,7 @@
                         Sesi {{ \Carbon\Carbon::parse($sessionDate)->locale('id')->isoFormat('dddd, D MMMM Y') }}
                     </h2>
                     <p class="completion-subtitle">
-                        Alhamdulillah, seluruh data absensi & setoran hafalan telah tersimpan. Data siap dibagikan ke orang tua santri.
+                        Alhamdulillah, seluruh data absensi & setoran hafalan telah tersimpan. Data siap dibagikan ke orang tua siswa.
                     </p>
                 </div>
                 <div class="completion-actions">
@@ -969,7 +969,7 @@
                     <thead>
                         <tr>
                             <th style="width: 45px; text-align: center;">No</th>
-                            <th>Santri & Kelas</th>
+                            <th>Siswa & Kelas</th>
                             <th style="text-align: center;">Kehadiran</th>
                             <th>Capaian Setoran</th>
                             <th style="text-align: center;">Nilai</th>
@@ -1117,7 +1117,7 @@
             <!-- Petunjuk Ganti Tanggal -->
             <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <span style="font-size: 0.8rem; color: #64748b;">
-                    💡 <strong>Ingin menginput sesi berikutnya?</strong> Cukup ganti tanggal pada pemilih tanggal di atas. Form santri otomatis siap diinput untuk tanggal baru.
+                    💡 <strong>Ingin menginput sesi berikutnya?</strong> Cukup ganti tanggal pada pemilih tanggal di atas. Form siswa otomatis siap diinput untuk tanggal baru.
                 </span>
                 <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" 
                    style="font-size: 0.8rem; font-weight: 700; color: #047857; text-decoration: none;">
@@ -1150,7 +1150,7 @@
             <input type="hidden" name="academic_year_id" value="{{ $activeGroup->academic_year_id ?? $activeYear?->id }}">
             <input type="hidden" name="redirect_to" value="workspace">
 
-            {{-- DAFTAR SANTRI --}}
+            {{-- DAFTAR SISWA --}}
             @forelse($activeGroup->students as $idx => $std)
                 @php
                     $existingAtt = $sessionAttendances->get($std->id);
@@ -1364,15 +1364,15 @@
                     {{-- KETERANGAN TIDAK HADIR --}}
                     <div id="absent-note-{{ $std->id }}" 
                          style="margin-top: 8px; font-size: 0.78rem; color: #64748b; font-style: italic; {{ $currentStatus === 'hadir' ? 'display: none;' : '' }}">
-                        Santri berstatus <strong id="absent-text-{{ $std->id }}">{{ strtoupper($currentStatus) }}</strong> (tidak perlu mengisi setoran hafalan).
+                        Siswa berstatus <strong id="absent-text-{{ $std->id }}">{{ strtoupper($currentStatus) }}</strong> (tidak perlu mengisi setoran hafalan).
                     </div>
 
                 </div>
             @empty
                 <div style="background: white; border-radius: 14px; padding: 36px 16px; text-align: center; color: #94a3b8; border: 1px solid #e2e8f0;">
                     <i class="fas fa-users-slash" style="font-size: 2.2rem; margin-bottom: 10px; color: #cbd5e1;"></i>
-                    <h4 style="margin: 0; color: #475569;">Belum Ada Santri di Kelompok Ini</h4>
-                    <p style="font-size: 0.82rem; margin-top: 4px;">Hubungi Admin / Tim Kurikulum untuk memasukkan santri ke kelompok Anda.</p>
+                    <h4 style="margin: 0; color: #475569;">Belum Ada Siswa di Kelompok Ini</h4>
+                    <p style="font-size: 0.82rem; margin-top: 4px;">Hubungi Admin / Tim Kurikulum untuk memasukkan siswa ke kelompok Anda.</p>
                 </div>
             @endforelse
 
@@ -1384,7 +1384,7 @@
                             <i class="fas fa-calendar-day" style="color: #059669; margin-right: 4px;"></i>
                             Sesi: <strong>{{ \Carbon\Carbon::parse($sessionDate)->locale('id')->isoFormat('D MMMM Y') }}</strong>
                             <span style="margin: 0 6px; color: #cbd5e1;">·</span>
-                            Total: <strong>{{ $activeGroup->students->count() }} Santri</strong>
+                            Total: <strong>{{ $activeGroup->students->count() }} Siswa</strong>
                         </div>
 
                         <div class="sticky-actions-wrap">

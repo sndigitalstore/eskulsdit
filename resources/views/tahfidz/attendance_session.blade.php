@@ -161,7 +161,7 @@
                 <div>
                     <strong>{{ session('success') }}</strong>
                     <div style="font-size: 0.8rem; color: #15803d; margin-top: 2px;">
-                        ✓ Presensi, setoran hafalan, kartu santri, dan rekapan rapor otomatis terbarui serentak.
+                        ✓ Presensi, setoran hafalan, kartu siswa, dan rekapan rapor otomatis terbarui serentak.
                     </div>
                 </div>
             </div>
