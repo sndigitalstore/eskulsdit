@@ -1007,15 +1007,18 @@
         }
 
         .metric-label {
-            font-size: 0.68rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: #64748b;
-            line-height: 1.2;
+            line-height: 1.25;
             text-transform: uppercase;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            letter-spacing: 0.2px;
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            word-break: normal;
             display: block;
+            min-height: 28px;
         }
 
         .metric-number {
@@ -1131,7 +1134,7 @@
             box-sizing: border-box;
         }
 
-        /* 4. Presence Table transformed into Sleek Mobile Cards */
+        /* 4. Presence Table transformed into Sleek Mobile Cards without clipping teacher names */
         .presence-table-card {
             border-radius: 16px;
         }
@@ -1189,11 +1192,13 @@
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 12px 14px;
-            position: relative;
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr auto;
             gap: 8px;
+            align-items: start;
+            margin-bottom: 0;
+            position: relative;
         }
 
         .presence-table tbody tr:has(.empty-state-box) {
@@ -1201,6 +1206,7 @@
             border: none;
             box-shadow: none;
             padding: 0;
+            display: block;
         }
 
         .presence-table td {
@@ -1208,28 +1214,47 @@
             border: none !important;
         }
 
-        /* Cell 1: Profil Guru */
+        /* Cell 1: Profil Guru (Avatar, Nama Guru Lengkap, Eskul) -> Kolom 1 Baris 1 */
         .presence-table td:nth-child(1) {
-            padding-right: 75px !important;
+            grid-column: 1 / 2;
+            grid-row: 1;
+            min-width: 0;
         }
 
         .teacher-profile-flex {
+            display: flex;
+            align-items: flex-start;
             gap: 10px;
-            align-items: center;
+            min-width: 0;
         }
 
         .teacher-avatar-circle {
             width: 38px;
             height: 38px;
             min-width: 38px;
+            flex-shrink: 0;
             font-size: 1rem;
             border-radius: 10px;
+            margin-top: 2px;
+        }
+
+        .teacher-profile-info {
+            flex: 1;
+            min-width: 0;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .teacher-name-text {
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             font-weight: 700;
-            line-height: 1.25;
+            line-height: 1.35;
+            color: #0f172a;
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .teacher-eskul-badge {
@@ -1237,15 +1262,21 @@
             padding: 2px 6px;
             margin-top: 3px;
             border-radius: 5px;
+            display: inline-flex;
+            max-width: 100%;
+            word-break: break-word;
         }
 
-        /* Cell 3: Status Badge pinned top-right */
+        /* Cell 3: Status Badge -> Kolom 2 Baris 1 (Pojok Kanan Atas, berdampingan rapi tanpa memotong nama guru) */
         .presence-table td:nth-child(3) {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            text-align: right !important;
-            z-index: 2;
+            grid-column: 2 / 3;
+            grid-row: 1;
+            position: static !important;
+            align-self: start;
+            justify-self: end;
+            display: flex;
+            align-items: flex-start;
+            margin-left: 6px;
         }
 
         .status-pill {
@@ -1253,9 +1284,15 @@
             padding: 4px 10px;
             border-radius: 999px;
             gap: 4px;
+            white-space: nowrap;
         }
 
-        /* Cell 2: Waktu & Tanggal strip */
+        /* Cell 2: Waktu & Tanggal strip -> Kolom 1-2 Baris 2 */
+        .presence-table td:nth-child(2) {
+            grid-column: 1 / -1;
+            grid-row: 2;
+        }
+
         .presence-table td:nth-child(2) .time-record-box {
             display: flex;
             flex-direction: row;
@@ -1282,9 +1319,18 @@
             color: #64748b;
         }
 
-        /* Cell 4: Catatan & Guru Pengganti */
+        /* Cell 4: Catatan & Guru Pengganti -> Kolom 1-2 Baris 3 */
+        .presence-table td:nth-child(4) {
+            grid-column: 1 / -1;
+            grid-row: 3;
+        }
+
         .presence-table td:nth-child(4) .text-dash-muted {
             display: none;
+        }
+
+        .presence-table td:nth-child(4):has(.text-dash-muted:only-child) {
+            display: none !important;
         }
 
         .note-balloon {
@@ -1292,17 +1338,33 @@
             padding: 5px 8px;
             margin-bottom: 2px;
             border-radius: 6px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .substitute-teacher-pill {
             font-size: 0.74rem;
-            padding: 3px 8px;
+            padding: 4px 8px;
             margin-top: 2px;
             border-radius: 6px;
+            max-width: 100%;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* Cell 5: Tombol Hapus */
+        .substitute-teacher-pill span {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Cell 5: Tombol Hapus -> Kolom 1-2 Baris 4 */
         .presence-table td:nth-child(5) {
+            grid-column: 1 / -1;
+            grid-row: 4;
             border-top: 1px dashed #f1f5f9 !important;
             padding-top: 6px !important;
             margin-top: 2px;

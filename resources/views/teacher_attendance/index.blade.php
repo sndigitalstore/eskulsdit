@@ -166,6 +166,9 @@
         font-weight: 700;
         border: 1px solid #d1fae5;
         box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        max-width: 100%;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     /* Substitute Share Box */
@@ -713,11 +716,12 @@
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 12px 14px;
-            position: relative;
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr auto;
             gap: 6px;
+            align-items: start;
+            position: relative;
         }
 
         .history-table td {
@@ -727,31 +731,42 @@
 
         /* Date Strip (Cell 1) */
         .history-table td:nth-child(1) {
-            padding-right: 75px !important;
+            grid-column: 1 / 2;
+            grid-row: 1;
             font-weight: 700;
             font-size: 0.88rem;
             color: #0f172a;
             display: flex;
             align-items: center;
             gap: 6px;
+            min-width: 0;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
-        /* Status Badge pinned top right (Cell 3) */
+        /* Status Badge (Cell 3) */
         .history-table td:nth-child(3) {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 2;
+            grid-column: 2 / 3;
+            grid-row: 1;
+            position: static !important;
+            align-self: start;
+            justify-self: end;
+            display: flex;
+            align-items: flex-start;
+            margin-left: 6px;
         }
 
         .history-status-badge {
             font-size: 0.72rem;
             padding: 3px 8px;
             gap: 4px;
+            white-space: nowrap;
         }
 
         /* Time Clock (Cell 2) */
         .history-table td:nth-child(2) {
+            grid-column: 1 / -1;
+            grid-row: 2;
             font-size: 0.78rem;
             color: #64748b;
             display: inline-flex;
@@ -761,6 +776,8 @@
 
         /* Note & Substitute (Cell 4) */
         .history-table td:nth-child(4) {
+            grid-column: 1 / -1;
+            grid-row: 3;
             font-size: 0.8rem;
             color: #334155;
             background: #f8fafc;
@@ -768,10 +785,12 @@
             border-radius: 8px;
             border: 1px solid #f1f5f9;
             margin-top: 4px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .history-table td:nth-child(4):empty {
-            display: none;
+            display: none !important;
         }
     }
 </style>
