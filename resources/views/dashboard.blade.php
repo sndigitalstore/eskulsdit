@@ -1130,7 +1130,7 @@
     </div>
 @endif
 
-@if(Auth::user()->role !== 'curriculum' && isset($todaySchedule) && count($todaySchedule) > 0)
+@if((in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role === 'teacher' && !empty(Auth::user()->eskul_id))) && isset($todaySchedule) && count($todaySchedule) > 0)
     <div class="card duty-block" data-duty="eskul" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
              <h3 style="color: #064e3b; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
@@ -1161,7 +1161,7 @@
     </div>
 @endif
 
-@if(Auth::user()->role !== 'curriculum' && isset($eskulMissingAttendance) && count($eskulMissingAttendance) > 0)
+@if((in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role === 'teacher' && !empty(Auth::user()->eskul_id))) && isset($eskulMissingAttendance) && count($eskulMissingAttendance) > 0)
 <div class="card duty-block" data-duty="eskul" style="border-left: 5px solid #ff9f43; margin-bottom: 2rem; background: #fff8f0;">
     <div style="display: flex; align-items: flex-start; gap: 15px;">
         <div style="background: #ff9f43; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">

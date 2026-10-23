@@ -802,12 +802,19 @@
 
             {{-- 2. Pembinaan Qur'an (Dropdown) --}}
             @php
-                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*');
                 $loggedUser = Auth::user();
-                $isTeacher = $loggedUser->role === 'teacher';
-                $isCurriculum = $loggedUser->role === 'curriculum';
-                $isAdminOrHeadmaster = in_array($loggedUser->role, ['admin', 'headmaster']);
-                $isAdminOrCurriculumOrHeadmaster = in_array($loggedUser->role, ['admin', 'headmaster', 'curriculum']);
+                $role = $loggedUser->role ?? '';
+                $isTeacher = $role === 'teacher';
+                $isCurriculum = $role === 'curriculum';
+                $isAdmin = $role === 'admin';
+                $isHeadmaster = $role === 'headmaster';
+                $isAdminOrHeadmaster = in_array($role, ['admin', 'headmaster']);
+                $isAdminOrCurriculumOrHeadmaster = in_array($role, ['admin', 'headmaster', 'curriculum']);
+
+                // Penugasan Guru Spesifik
+                $isEskulCoach = $isTeacher && !empty($loggedUser->eskul_id);
+                $isHomeroom = $isTeacher && !empty($loggedUser->homeroom_class);
+                $isSubjectTeacher = $isTeacher && !empty($loggedUser->teaching_subject_ids);
 
                 $hasTilawati = false;
                 $hasTahfidz = false;
@@ -827,7 +834,28 @@
                         $isMunaqisy = \App\Models\MunaqisyExaminer::where('user_id', $loggedUser->id)->where('status', 'active')->exists();
                     }
                 }
-                $showQuranMenu = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz || $isMunaqisy));
+                $isQuranMentor = $isTeacher && ($hasTilawati || $hasTahfidz || $isMunaqisy);
+
+                // Hak Akses Modul Menu Utama
+                // 1. Pembinaan Qur'an: Admin, Headmaster, Tim Kurikulum, atau Guru Pembina Qur'an
+                $showQuranMenu = $isAdminOrCurriculumOrHeadmaster || $isQuranMentor;
+
+                // 2. Ekstrakurikuler: Admin, Headmaster, atau Guru Pembina Eskul
+                $showEskulMenu = $isAdminOrHeadmaster || $isEskulCoach;
+
+                // 3. SMILE Karakter: Admin, Headmaster, Guru Pembina Eskul, atau Wali Kelas
+                $showCharacterMenu = $isAdminOrHeadmaster || $isEskulCoach || $isHomeroom;
+
+                // 4. SMILE Kurikulum: Admin, Headmaster, Tim Kurikulum, Wali Kelas, atau Guru Mapel
+                $showKurikulumMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isSubjectTeacher;
+
+                // 5. Kesiswaan & Guru: Admin dan Headmaster
+                $showKesiswaanMenu = $isAdminOrHeadmaster;
+
+                // 6. Laporan & Rapor: Admin, Headmaster, Kurikulum, atau Wali Kelas
+                $showReportMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
+
+                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*');
             @endphp
 
             @if($showQuranMenu)
@@ -897,8 +925,8 @@
             </li>
             @endif
 
-            {{-- 3. Ekstrakurikuler (Dropdown - Khusus Kesiswaan, Guru & Kepala Sekolah) --}}
-            @if(!$isCurriculum)
+            {{-- 3. Ekstrakurikuler (Dropdown - Khusus Admin, Kepala Sekolah & Guru Pembina Eskul) --}}
+            @if($showEskulMenu)
             @php
                 $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*', 'teacher-attendance*');
             @endphp
@@ -980,8 +1008,8 @@
             </li>
             @endif
 
-            {{-- 4. SMILE Karakter (Dropdown - Khusus Kesiswaan & Guru) --}}
-            @if(!$isCurriculum)
+            {{-- 4. SMILE Karakter (Dropdown - Khusus Admin, Kepala Sekolah, Pembina Eskul & Wali Kelas) --}}
+            @if($showCharacterMenu)
             @php
                 $isCharacterActive = request()->is('character*', 'character-cases*', 'character-appreciations*');
             @endphp
@@ -1023,6 +1051,7 @@
             @endif
 
             {{-- 5. SMILE Kurikulum (Dropdown - Raport Akademik Kurikulum Merdeka) --}}
+            @if($showKurikulumMenu)
             @php
                 $isKurikulumActive = request()->is('curriculum*');
             @endphp
@@ -1073,9 +1102,10 @@
                     @endif
                 </ul>
             </li>
+            @endif
 
             {{-- 6. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
-            @if($isAdminOrHeadmaster)
+            @if($showKesiswaanMenu)
             @php
                 $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*');
             @endphp
@@ -1125,22 +1155,20 @@
             @endif
 
             {{-- 7. Laporan & Rapor (Dropdown: Eskul, Tilawati, Tahfidz, Akademik, Karakter) --}}
+            @if($showReportMenu)
             @php
                 $isReportActive = request()->is('reports*');
                 $isAcademicReportActive = request()->is('curriculum/academic-reports*');
                 $isCharacterReportActive = request()->is('character/report*');
                 $isAnyReportActive = $isReportActive || $isAcademicReportActive || $isCharacterReportActive;
 
-                $canSeeEskulReport = !$isCurriculum && ($isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class)));
-                $canSeeTilawatiReport = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && (!empty($loggedUser->homeroom_class) || $hasTilawati));
-                $canSeeTahfidzReport = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && (!empty($loggedUser->homeroom_class) || $hasTahfidz));
-                $canSeeAcademicReport = $isAdminOrCurriculumOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class));
-                $canSeeCharacterReport = !$isCurriculum && ($isAdminOrHeadmaster || ($isTeacher && !empty($loggedUser->homeroom_class)));
-
-                $showReportDropdown = $canSeeEskulReport || $canSeeTilawatiReport || $canSeeTahfidzReport || $canSeeAcademicReport || $canSeeCharacterReport;
+                $canSeeEskulReport = $isAdminOrHeadmaster || $isHomeroom;
+                $canSeeTilawatiReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
+                $canSeeTahfidzReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
+                $canSeeAcademicReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
+                $canSeeCharacterReport = $isAdminOrHeadmaster || $isHomeroom;
             @endphp
 
-            @if($showReportDropdown)
             <li class="nav-dropdown {{ $isAnyReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
                 <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
@@ -1286,11 +1314,13 @@
                         <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a; line-height: 1.2;">{{ Auth::user()->name }}</span>
                         <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">
                             @if(Auth::user()->role == 'admin')
-                                Kesiswaan
+                                Kesiswaan / Admin
                             @elseif(Auth::user()->role == 'headmaster')
                                 Kepala Sekolah
+                            @elseif(Auth::user()->role == 'curriculum')
+                                Tim Kurikulum
                             @else
-                                Guru / Wali Kelas
+                                {{ implode(' • ', Auth::user()->getActiveRolesSummary()) }}
                             @endif
                         </span>
                     </div>

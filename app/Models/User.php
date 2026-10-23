@@ -126,10 +126,18 @@ class User extends Authenticatable
     public function isQuranMentor(): bool
     {
         if ($this->role !== 'teacher') return false;
-        return MentoringGroup::where(function($q) {
+        $inGroup = MentoringGroup::where(function($q) {
             $q->where('mentor_user_id', $this->id)
               ->orWhere('mentor_name', $this->name);
         })->exists();
+
+        if ($inGroup) return true;
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('munaqisy_examiners')) {
+            return \App\Models\MunaqisyExaminer::where('user_id', $this->id)->where('status', 'active')->exists();
+        }
+
+        return false;
     }
 
     public function isSubjectTeacher(): bool
@@ -156,8 +164,8 @@ class User extends Authenticatable
             if ($this->isHomeroom()) {
                 $roles[] = 'Wali Kelas ' . $this->homeroom_class;
             }
-            if ($this->isEskulCoach() && $this->eskul) {
-                $roles[] = 'Pembina ' . $this->eskul->name;
+            if ($this->isEskulCoach()) {
+                $roles[] = 'Pembina ' . ($this->eskul ? $this->eskul->name : 'Ekstrakurikuler');
             }
             
             $groups = MentoringGroup::where(function($q) {
@@ -170,13 +178,20 @@ class User extends Authenticatable
             if ($hasTilawati) $roles[] = 'Pembimbing Tilawati';
             if ($hasTahfidz) $roles[] = 'Pembimbing Tahfidz';
 
+            if (\Illuminate\Support\Facades\Schema::hasTable('munaqisy_examiners')) {
+                $isMunaqisy = \App\Models\MunaqisyExaminer::where('user_id', $this->id)->where('status', 'active')->exists();
+                if ($isMunaqisy) {
+                    $roles[] = 'Penguji Munaqisy';
+                }
+            }
+
             if ($this->isSubjectTeacher()) {
                 $subjNames = $this->teachingSubjects()->pluck('name')->implode(', ');
-                $roles[] = 'Guru Mapel (' . ($subjNames ?: 'Mapel') . ')';
+                $roles[] = 'Guru Mapel' . ($subjNames ? ' (' . $subjNames . ')' : '');
             }
 
             if (empty($roles)) {
-                $roles[] = 'Guru / Pembina';
+                $roles[] = 'Guru';
             }
         }
 
