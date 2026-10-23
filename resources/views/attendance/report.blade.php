@@ -47,6 +47,35 @@
         transform: translateX(-3px);
     }
 
+    .nav-actions-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-preview-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #ffffff;
+        color: #047857;
+        border: 1.5px solid #a7f3d0;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 750;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.08);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-preview-action:hover {
+        background: #ecfdf5;
+        border-color: #059669;
+        transform: translateY(-2px);
+    }
+
     .btn-print-action {
         display: inline-flex;
         align-items: center;
@@ -517,32 +546,13 @@
         text-align: right;
     }
 
-    /* Print Specific Styles */
-    @media print {
-        body { background: white !important; }
-        .sidebar, .header, .btn-print-action, .top-nav-bar, .no-print { display: none !important; }
-        .recap-container, .recap-content-card, .recap-hero-card, .sessions-card {
-            box-shadow: none !important;
-            border: 1px solid #ddd !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-        }
-        .recap-desktop-table { display: table !important; }
-        .recap-mobile-cards { display: none !important; }
-        .recap-desktop-table th, .recap-desktop-table td {
-            border: 1px solid #bbb !important;
-            padding: 8px !important;
-            font-size: 9pt !important;
-        }
-    }
-
     /* Mobile Responsive Breakpoints */
     @media (max-width: 768px) {
         .recap-container { padding: 0 4px 2rem 4px; }
         .top-nav-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-        .btn-nav-back, .btn-print-action { justify-content: center; width: 100%; }
-        
+        .btn-nav-back, .btn-print-action, .btn-preview-action { justify-content: center; width: 100%; }
+        .nav-actions-group { width: 100%; flex-direction: column; }
+
         .recap-hero-card { padding: 1.25rem 1rem; border-radius: 16px; }
         .recap-hero-title { font-size: 1.2rem; }
 
@@ -584,6 +594,114 @@
         .recap-desktop-table { display: none !important; }
         .recap-mobile-cards { display: block !important; }
     }
+
+    /* ========================================================
+       DEDICATED 1-LEMBAR PRINT STYLING & OFFICIAL DOCUMENT
+       ======================================================== */
+    .official-print-document {
+        display: none;
+    }
+
+    /* Print Preview Modal on Screen */
+    .print-preview-modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(4px);
+        z-index: 99999;
+        overflow-y: auto;
+        padding: 20px 10px;
+        align-items: center;
+        justify-content: center;
+    }
+    .print-preview-modal-backdrop.active {
+        display: flex;
+    }
+    .print-preview-dialog {
+        background: #ffffff;
+        width: 100%;
+        max-width: 850px;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 92vh;
+    }
+    .print-preview-topbar {
+        background: #0f172a;
+        color: #ffffff;
+        padding: 12px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .print-preview-scrollbody {
+        padding: 24px;
+        overflow-y: auto;
+        background: #f8fafc;
+    }
+    .preview-paper-sheet {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        padding: 25px;
+        border: 1px solid #e2e8f0;
+    }
+
+    @media print {
+        @page {
+            size: A4 portrait;
+            margin: 8mm 10mm 8mm 10mm;
+        }
+
+        html, body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-family: 'Times New Roman', Times, Georgia, serif !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Sembunyikan seluruh antarmuka web, sidebar, header, tombol, dan modal */
+        .sidebar, .header, .top-nav-bar, .recap-container, .sidebar-overlay, .no-print, main footer, .print-preview-modal-backdrop {
+            display: none !important;
+        }
+
+        .main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
+        }
+
+        .content {
+            margin: 0 !important;
+            padding: 0 !important;
+            animation: none !important;
+        }
+
+        /* Tampilkan SATU-SATUNYA lembar dokumen resmi print */
+        .official-print-document {
+            display: block !important;
+            width: 100% !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .official-print-table tr {
+            page-break-inside: avoid !important;
+        }
+
+        .print-signatures-block {
+            page-break-inside: avoid !important;
+        }
+    }
 </style>
 @endpush
 
@@ -597,12 +715,21 @@
     $sumAlpa = $students->sum('a');
     $totalRecords = $sumHadir + $sumSakit + $sumIzin + $sumAlpa;
     $attendanceRate = $totalRecords > 0 ? round(($sumHadir / $totalRecords) * 100) : 0;
+
+    $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+    $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+    $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : "Nur'asiah, S.Pd.I");
+
+    $instructorName = !empty($eskul->instructor_name) ? $eskul->instructor_name : (Auth::user()->role === 'teacher' ? Auth::user()->name : 'Pembina Ekstrakurikuler');
 @endphp
 
-<div class="recap-container">
+<!-- ========================================================
+     A. WEB / MOBILE INTERACTIVE VIEW (PILIHAN GURU & ADMIN)
+     ======================================================== -->
+<div class="recap-container no-print">
 
     <!-- 1. Top Navigation Bar (No Print) -->
-    <div class="top-nav-bar no-print">
+    <div class="top-nav-bar">
         @if(Auth::user()->role === 'teacher')
         <a href="{{ route('attendance.create', ['eskul_id' => $eskul->id, 'date' => date('Y-m-d')]) }}" class="btn-nav-back">
             <i class="fas fa-arrow-left"></i>
@@ -615,14 +742,20 @@
         </a>
         @endif
 
-        <button onclick="window.print()" class="btn-print-action">
-            <i class="fas fa-print"></i>
-            <span>Cetak Rekap Presensi</span>
-        </button>
+        <div class="nav-actions-group">
+            <button type="button" onclick="openPrintPreview()" class="btn-preview-action">
+                <i class="fas fa-eye"></i>
+                <span>Pratinjau Lembar Cetak</span>
+            </button>
+            <button onclick="window.print()" class="btn-print-action">
+                <i class="fas fa-print"></i>
+                <span>Cetak Rekap Presensi</span>
+            </button>
+        </div>
     </div>
 
     @if(session('success'))
-        <div class="no-print" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 12px 16px; border-radius: 14px; margin-bottom: 15px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+        <div style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 12px 16px; border-radius: 14px; margin-bottom: 15px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
             <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.1rem;"></i>
             <span>{{ session('success') }}</span>
         </div>
@@ -653,7 +786,7 @@
     </div>
 
     <!-- 3. Symmetrical KPI Summary Cards (2x2 on Mobile, 4x1 on Desktop) -->
-    <div class="kpi-recap-grid no-print">
+    <div class="kpi-recap-grid">
         <div class="kpi-recap-card kpi-students">
             <div class="kpi-icon-box">
                 <i class="fas fa-users"></i>
@@ -697,7 +830,7 @@
 
     <!-- 4. Riwayat Tanggal Absensi (Pertemuan Ter-input) -->
     @if(isset($recordedDates) && count($recordedDates) > 0)
-    <div class="sessions-card no-print">
+    <div class="sessions-card">
         <div class="sessions-header">
             <h4 class="sessions-title">
                 <i class="far fa-calendar-alt" style="color: #6366f1;"></i>
@@ -742,7 +875,7 @@
             </span>
         </div>
 
-        <!-- A. Desktop View Table (Screens > 768px & Print) -->
+        <!-- A. Desktop View Table (Screens > 768px) -->
         <table class="recap-desktop-table">
             <thead>
                 <tr>
@@ -804,7 +937,7 @@
         </table>
 
         <!-- B. Mobile Symmetrical Card View (Screens <= 768px) -->
-        <div class="recap-mobile-cards no-print">
+        <div class="recap-mobile-cards">
             @forelse($students as $index => $student)
             @php
                 $studentTotal = $student->h + $student->s + $student->i + $student->a;
@@ -866,4 +999,50 @@
     </div>
 
 </div>
+
+<!-- ========================================================
+     B. PRATINJAU MODAL DI LAYAR (SEBELUM DICETAK)
+     ======================================================== -->
+<div id="printPreviewModal" class="print-preview-modal-backdrop no-print" onclick="if(event.target === this) closePrintPreview();">
+    <div class="print-preview-dialog">
+        <div class="print-preview-topbar">
+            <div style="font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-alt" style="color: #34d399;"></i>
+                <span>Pratinjau Lembar Cetak Resmi (Standar 1 Lembar A4)</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="window.print()" style="background: #10b981; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                    <i class="fas fa-print"></i> Cetak Sekarang
+                </button>
+                <button type="button" onclick="closePrintPreview()" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                    <i class="fas fa-times"></i> Tutup
+                </button>
+            </div>
+        </div>
+        <div class="print-preview-scrollbody">
+            <div class="preview-paper-sheet">
+                @include('attendance.partials.official_print_content')
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     C. SATU-SATUNYA DOKUMEN CETAK 1 LEMBAR (KHUSUS MODE PRINT)
+     ======================================================== -->
+<div class="official-print-document">
+    @include('attendance.partials.official_print_content')
+</div>
+
+<script>
+    function openPrintPreview() {
+        const modal = document.getElementById('printPreviewModal');
+        if (modal) modal.classList.add('active');
+    }
+
+    function closePrintPreview() {
+        const modal = document.getElementById('printPreviewModal');
+        if (modal) modal.classList.remove('active');
+    }
+</script>
 @endsection

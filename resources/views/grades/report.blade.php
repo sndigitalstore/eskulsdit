@@ -47,6 +47,35 @@
         transform: translateX(-3px);
     }
 
+    .nav-actions-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-preview-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #ffffff;
+        color: #6d28d9;
+        border: 1.5px solid #ddd6fe;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 750;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(109, 40, 217, 0.08);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-preview-action:hover {
+        background: #f5f3ff;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
     .btn-print-action {
         display: inline-flex;
         align-items: center;
@@ -449,23 +478,107 @@
         text-transform: uppercase;
     }
 
+    /* Print Preview Modal on Screen */
+    .print-preview-modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(4px);
+        z-index: 99999;
+        overflow-y: auto;
+        padding: 20px 10px;
+        align-items: center;
+        justify-content: center;
+    }
+    .print-preview-modal-backdrop.active {
+        display: flex;
+    }
+    .print-preview-dialog {
+        background: #ffffff;
+        width: 100%;
+        max-width: 850px;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 92vh;
+    }
+    .print-preview-topbar {
+        background: #0f172a;
+        color: #ffffff;
+        padding: 12px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .print-preview-scrollbody {
+        padding: 24px;
+        overflow-y: auto;
+        background: #f8fafc;
+    }
+    .preview-paper-sheet {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        padding: 25px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .official-print-document {
+        display: none;
+    }
+
     /* Print Styles */
     @media print {
-        body { background: white !important; }
-        .sidebar, .header, .btn-print-action, .top-nav-bar, .no-print { display: none !important; }
-        .recap-grades-container, .recap-content-card, .recap-hero-card {
-            box-shadow: none !important;
-            border: 1px solid #ddd !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
+        @page {
+            size: A4 portrait;
+            margin: 8mm 10mm 8mm 10mm;
         }
-        .grades-desktop-table { display: table !important; }
-        .grades-mobile-cards { display: none !important; }
-        .grades-desktop-table th, .grades-desktop-table td {
-            border: 1px solid #bbb !important;
-            padding: 8px !important;
-            font-size: 9pt !important;
+
+        html, body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-family: 'Times New Roman', Times, Georgia, serif !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .sidebar, .header, .top-nav-bar, .recap-grades-container, .sidebar-overlay, .no-print, main footer, .print-preview-modal-backdrop {
+            display: none !important;
+        }
+
+        .main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
+        }
+
+        .content {
+            margin: 0 !important;
+            padding: 0 !important;
+            animation: none !important;
+        }
+
+        .official-print-document {
+            display: block !important;
+            width: 100% !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .official-print-table tr {
+            page-break-inside: avoid !important;
+        }
+
+        .print-signatures-block {
+            page-break-inside: avoid !important;
         }
     }
 
@@ -473,7 +586,8 @@
     @media (max-width: 768px) {
         .recap-grades-container { padding: 0 4px 2rem 4px; }
         .top-nav-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-        .btn-nav-back, .btn-print-action { justify-content: center; width: 100%; }
+        .btn-nav-back, .btn-print-action, .btn-preview-action { justify-content: center; width: 100%; }
+        .nav-actions-group { width: 100%; flex-direction: column; }
 
         .recap-hero-card { padding: 1.25rem 1rem; border-radius: 16px; }
         .recap-hero-title { font-size: 1.2rem; }
@@ -507,10 +621,13 @@
 @endpush
 
 @section('content')
-<div class="recap-grades-container">
+<!-- ========================================================
+     A. WEB / MOBILE VIEW
+     ======================================================== -->
+<div class="recap-grades-container no-print">
 
     <!-- 1. Top Navigation Bar (No Print) -->
-    <div class="top-nav-bar no-print">
+    <div class="top-nav-bar">
         @if(Auth::user()->role === 'teacher')
         <a href="{{ route('grades.create', ['eskul_id' => $selectedEskul->id ?? Auth::user()->eskul_id, 'type' => 'daily', 'date' => date('Y-m-d')]) }}" class="btn-nav-back">
             <i class="fas fa-arrow-left"></i>
@@ -523,10 +640,16 @@
         </a>
         @endif
 
-        <button onclick="window.print()" class="btn-print-action">
-            <i class="fas fa-print"></i>
-            <span>Cetak Rekap Nilai</span>
-        </button>
+        <div class="nav-actions-group">
+            <button type="button" onclick="openPrintPreview()" class="btn-preview-action">
+                <i class="fas fa-eye"></i>
+                <span>Pratinjau Lembar Cetak</span>
+            </button>
+            <button onclick="window.print()" class="btn-print-action">
+                <i class="fas fa-print"></i>
+                <span>Cetak Rekap Nilai</span>
+            </button>
+        </div>
     </div>
 
     <!-- 2. Hero Header Banner -->
@@ -550,7 +673,7 @@
     </div>
 
     <!-- 3. KPI Summary Grid -->
-    <div class="kpi-grades-grid no-print">
+    <div class="kpi-grades-grid">
         <div class="kpi-grades-card kpi-students">
             <div class="kpi-icon-box">
                 <i class="fas fa-users"></i>
@@ -595,7 +718,7 @@
         </div>
 
         @if($selectedEskul)
-            <!-- A. Desktop View Table (Screens > 768px & Print) -->
+            <!-- A. Desktop View Table (Screens > 768px) -->
             <table class="grades-desktop-table">
                 <thead>
                     <tr>
@@ -750,7 +873,7 @@
             </table>
 
             <!-- B. Mobile Symmetrical Card View (Screens <= 768px) -->
-            <div class="grades-mobile-cards no-print">
+            <div class="grades-mobile-cards">
                 @forelse($students as $index => $student)
                 @php
                     $studentGrades = $grades[$student->id] ?? collect([]);
@@ -887,4 +1010,50 @@
     </div>
 
 </div>
+
+<!-- ========================================================
+     B. PRATINJAU MODAL DI LAYAR (SEBELUM DICETAK)
+     ======================================================== -->
+<div id="printPreviewModal" class="print-preview-modal-backdrop no-print" onclick="if(event.target === this) closePrintPreview();">
+    <div class="print-preview-dialog">
+        <div class="print-preview-topbar">
+            <div style="font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-alt" style="color: #a78bfa;"></i>
+                <span>Pratinjau Lembar Cetak Nilai Resmi (Standar 1 Lembar A4)</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="window.print()" style="background: #7c3aed; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                    <i class="fas fa-print"></i> Cetak Sekarang
+                </button>
+                <button type="button" onclick="closePrintPreview()" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                    <i class="fas fa-times"></i> Tutup
+                </button>
+            </div>
+        </div>
+        <div class="print-preview-scrollbody">
+            <div class="preview-paper-sheet">
+                @include('grades.partials.official_print_content')
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     C. SATU-SATUNYA DOKUMEN CETAK 1 LEMBAR (KHUSUS MODE PRINT)
+     ======================================================== -->
+<div class="official-print-document">
+    @include('grades.partials.official_print_content')
+</div>
+
+<script>
+    function openPrintPreview() {
+        const modal = document.getElementById('printPreviewModal');
+        if (modal) modal.classList.add('active');
+    }
+
+    function closePrintPreview() {
+        const modal = document.getElementById('printPreviewModal');
+        if (modal) modal.classList.remove('active');
+    }
+</script>
 @endsection
