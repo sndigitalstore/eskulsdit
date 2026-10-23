@@ -95,18 +95,20 @@ class Student extends Model
 
     public function tilawatiGroup($yearId = null)
     {
-        return $this->mentoringGroups()
-                    ->where('type', 'tilawati')
-                    ->when($yearId, fn($q) => $q->wherePivot('academic_year_id', $yearId))
-                    ->first();
+        $query = $this->mentoringGroups()->where('mentoring_groups.type', 'tilawati');
+        if ($yearId) {
+            $query->where('mentoring_group_students.academic_year_id', $yearId);
+        }
+        return $query->first();
     }
 
     public function tahfidzGroup($yearId = null)
     {
-        return $this->mentoringGroups()
-                    ->where('type', 'tahfidz')
-                    ->when($yearId, fn($q) => $q->wherePivot('academic_year_id', $yearId))
-                    ->first();
+        $query = $this->mentoringGroups()->where('mentoring_groups.type', 'tahfidz');
+        if ($yearId) {
+            $query->where('mentoring_group_students.academic_year_id', $yearId);
+        }
+        return $query->first();
     }
 
     public function tahfidzRecords()

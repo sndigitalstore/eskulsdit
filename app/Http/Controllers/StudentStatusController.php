@@ -162,10 +162,27 @@ class StudentStatusController extends Controller
         // =====================================================================
         // Capaian Al-Qur'an (Tahfidz, Tilawati & Munaqosah) untuk Orang Tua
         // =====================================================================
-        $tahfidzGroup = $student->tahfidzGroup($activeYear?->id) 
-            ?? $student->mentoringGroups()->where('type', 'tahfidz')->first();
-        $tilawatiGroup = $student->tilawatiGroup($activeYear?->id) 
-            ?? $student->mentoringGroups()->where('type', 'tilawati')->first();
+        $tahfidzGroup = $student->tahfidzGroup($activeYear?->id);
+        if (!$tahfidzGroup && count($studentIds) > 1) {
+            $tahfidzGroup = \App\Models\MentoringGroup::where('mentoring_groups.type', 'tahfidz')
+                ->whereHas('students', fn($q) => $q->whereIn('students.id', $studentIds))
+                ->when($activeYear, fn($q) => $q->where('mentoring_groups.academic_year_id', $activeYear->id))
+                ->first();
+        }
+        if (!$tahfidzGroup) {
+            $tahfidzGroup = $student->mentoringGroups()->where('mentoring_groups.type', 'tahfidz')->first();
+        }
+
+        $tilawatiGroup = $student->tilawatiGroup($activeYear?->id);
+        if (!$tilawatiGroup && count($studentIds) > 1) {
+            $tilawatiGroup = \App\Models\MentoringGroup::where('mentoring_groups.type', 'tilawati')
+                ->whereHas('students', fn($q) => $q->whereIn('students.id', $studentIds))
+                ->when($activeYear, fn($q) => $q->where('mentoring_groups.academic_year_id', $activeYear->id))
+                ->first();
+        }
+        if (!$tilawatiGroup) {
+            $tilawatiGroup = $student->mentoringGroups()->where('mentoring_groups.type', 'tilawati')->first();
+        }
 
         $tahfidzRecords = \App\Models\TahfidzRecord::whereIn('student_id', $studentIds)
             ->orderBy('session_date', 'desc')
