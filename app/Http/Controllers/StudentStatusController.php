@@ -162,7 +162,14 @@ class StudentStatusController extends Controller
         // =====================================================================
         // Capaian Al-Qur'an (Tahfidz, Tilawati & Munaqosah) untuk Orang Tua
         // =====================================================================
-        $tahfidzGroup = $student->tahfidzGroup($activeYear?->id);
+        $activeStudent = Student::whereIn('id', $studentIds)
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->first() ?? $student;
+
+        // =====================================================================
+        // Capaian Al-Qur'an (Tahfidz, Tilawati, Tasmi & Munaqosah)
+        // =====================================================================
+        $tahfidzGroup = $activeStudent->tahfidzGroup($activeYear?->id) ?? $student->tahfidzGroup($activeYear?->id);
         if (!$tahfidzGroup && count($studentIds) > 1) {
             $tahfidzGroup = \App\Models\MentoringGroup::where('mentoring_groups.type', 'tahfidz')
                 ->whereHas('students', fn($q) => $q->whereIn('students.id', $studentIds))
@@ -170,10 +177,13 @@ class StudentStatusController extends Controller
                 ->first();
         }
         if (!$tahfidzGroup) {
-            $tahfidzGroup = $student->mentoringGroups()->where('mentoring_groups.type', 'tahfidz')->first();
+            $tahfidzGroup = \App\Models\MentoringGroup::where('mentoring_groups.type', 'tahfidz')
+                ->whereHas('students', fn($q) => $q->whereIn('students.id', $studentIds))
+                ->latest()
+                ->first();
         }
 
-        $tilawatiGroup = $student->tilawatiGroup($activeYear?->id);
+        $tilawatiGroup = $activeStudent->tilawatiGroup($activeYear?->id) ?? $student->tilawatiGroup($activeYear?->id);
         if (!$tilawatiGroup && count($studentIds) > 1) {
             $tilawatiGroup = \App\Models\MentoringGroup::where('mentoring_groups.type', 'tilawati')
                 ->whereHas('students', fn($q) => $q->whereIn('students.id', $studentIds))
@@ -181,7 +191,27 @@ class StudentStatusController extends Controller
                 ->first();
         }
         if (!$tilawatiGroup) {
-            $tilawatiGroup = $student->mentoringGroups()->where('mentoring_groups.type', 'tilawati')->first();
+            $tilawatiGroup = \App\Models\MentoringGroup::where('mentoring_groups.type', 'tilawati')
+                ->whereHas('students', fn($q) => $q->whereIn('students.id', $studentIds))
+                ->latest()
+                ->first();
+        }
+
+        // Pivots for individual placement notes (Batasan)
+        $tahfidzPivot = null;
+        if ($tahfidzGroup) {
+            $tahfidzPivot = DB::table('mentoring_group_students')
+                ->where('mentoring_group_id', $tahfidzGroup->id)
+                ->whereIn('student_id', $studentIds)
+                ->first();
+        }
+
+        $tilawatiPivot = null;
+        if ($tilawatiGroup) {
+            $tilawatiPivot = DB::table('mentoring_group_students')
+                ->where('mentoring_group_id', $tilawatiGroup->id)
+                ->whereIn('student_id', $studentIds)
+                ->first();
         }
 
         $tahfidzRecords = \App\Models\TahfidzRecord::whereIn('student_id', $studentIds)
@@ -195,9 +225,11 @@ class StudentStatusController extends Controller
         $totalLancar = $tahfidzRecords->where('quality', 'lancar')->count();
         $lancarRate = $totalTahfidzRecords > 0 ? round(($totalLancar / $totalTahfidzRecords) * 100) : 0;
         $latestRecord = $tahfidzRecords->first();
+        $latestZiyadah = $tahfidzRecords->where('type', 'setoran_baru')->first();
+        $latestMurojaah = $tahfidzRecords->where('type', 'murojaah')->first();
         $recentTahfidzRecords = $tahfidzRecords->take(6);
 
-        // Munaqosah Lulus (Sertifikat)
+        // Munaqosah
         $munaqosahList = collect();
         if (\Illuminate\Support\Facades\Schema::hasTable('munaqosah_registrations')) {
             $munaqosahList = \App\Models\MunaqosahRegistration::whereIn('student_id', $studentIds)
@@ -206,22 +238,96 @@ class StudentStatusController extends Controller
                 ->get();
         }
 
+        // Tasmi
+        $tasmiList = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('tasmi_exams')) {
+            $tasmiList = \App\Models\TasmiExam::whereIn('student_id', $studentIds)
+                ->orderBy('exam_date', 'desc')
+                ->get();
+        }
+
         $quranData = [
-            'has_quran' => $tahfidzGroup || $tilawatiGroup || $totalTahfidzRecords > 0 || $munaqosahList->isNotEmpty(),
+            'has_quran' => $tahfidzGroup || $tilawatiGroup || $totalTahfidzRecords > 0 || $munaqosahList->isNotEmpty() || $tasmiList->isNotEmpty(),
             'tahfidz_group' => $tahfidzGroup,
+            'tahfidz_pivot' => $tahfidzPivot,
             'tilawati_group' => $tilawatiGroup,
+            'tilawati_pivot' => $tilawatiPivot,
             'total_records' => $totalTahfidzRecords,
             'total_ziyadah' => $totalZiyadah,
             'total_murojaah' => $totalMurojaah,
             'total_lancar' => $totalLancar,
             'lancar_rate' => $lancarRate,
             'latest_record' => $latestRecord,
+            'latest_ziyadah' => $latestZiyadah,
+            'latest_murojaah' => $latestMurojaah,
             'recent_records' => $recentTahfidzRecords,
             'munaqosah_list' => $munaqosahList,
+            'tasmi_list' => $tasmiList,
+        ];
+
+        // =====================================================================
+        // Perkembangan Karakter Qur'ani (Apresiasi & Pembinaan)
+        // =====================================================================
+        $characterAppreciations = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('character_appreciations')) {
+            $characterAppreciations = \App\Models\CharacterAppreciation::whereIn('student_id', $studentIds)
+                ->orderBy('date', 'desc')
+                ->get();
+        }
+
+        $characterCases = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('character_cases')) {
+            $characterCases = \App\Models\CharacterCase::whereIn('student_id', $studentIds)
+                ->orderBy('date', 'desc')
+                ->get();
+        }
+
+        $characterData = [
+            'has_character' => $characterAppreciations->isNotEmpty() || $characterCases->isNotEmpty(),
+            'appreciations' => $characterAppreciations,
+            'cases' => $characterCases,
+            'total_points' => $characterAppreciations->sum('point'),
+            'total_appreciations' => $characterAppreciations->count(),
+            'total_cases' => $characterCases->count(),
+            'resolved_cases' => $characterCases->where('status', 'selesai')->count(),
+            'active_cases' => $characterCases->where('status', '!=', 'selesai')->count(),
+        ];
+
+        // =====================================================================
+        // Perkembangan Akademik & Kehadiran Sekolah
+        // =====================================================================
+        $academicSummaries = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('academic_summaries')) {
+            $academicSummaries = \App\Models\AcademicSummary::whereIn('student_id', $studentIds)
+                ->with('academicYear')
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+
+        $academicScores = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('academic_scores')) {
+            $academicScores = \App\Models\AcademicScore::whereIn('student_id', $studentIds)
+                ->with(['subject', 'academicYear'])
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+
+        $studentClass = $activeStudent->class ?? $student->class;
+        $homeroomTeacher = null;
+        if ($studentClass) {
+            $homeroomTeacher = \App\Models\User::where('homeroom_class', $studentClass)->first();
+        }
+
+        $academicData = [
+            'has_academic' => $academicSummaries->isNotEmpty() || $academicScores->isNotEmpty() || !empty($homeroomTeacher),
+            'summaries' => $academicSummaries,
+            'scores' => $academicScores,
+            'latest_summary' => $academicSummaries->first(),
+            'homeroom_teacher' => $homeroomTeacher,
         ];
 
         return view('status.result', compact(
-            'student', 'activeYear', 'reportData', 'historyData', 'achievements', 'quranData'
+            'student', 'activeStudent', 'activeYear', 'reportData', 'historyData', 'achievements', 'quranData', 'characterData', 'academicData'
         ));
     }
     

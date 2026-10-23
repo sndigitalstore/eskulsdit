@@ -3,616 +3,1884 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasil Pencarian - {{ $student->name }}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Perkembangan Ananda - {{ $activeStudent->name ?? $student->name }} | SIMUTQIN SDIT AN NADZIR</title>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #f4f6f9;
-            --primary-color: #2980b9;
-            --card-bg: #ffffff;
-            --text-main: #2c3e50;
-            --active-color: #27ae60;
+            --primary-emerald: #047857;
+            --primary-teal: #0d9488;
+            --emerald-dark: #064e3b;
+            --emerald-light: #ecfdf5;
+            --accent-amber: #f59e0b;
+            --accent-amber-light: #fef3c7;
+            --accent-sky: #0284c7;
+            --accent-sky-light: #e0f2fe;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: #ede9fe;
+            --slate-dark: #0f172a;
+            --slate-body: #334155;
+            --slate-muted: #64748b;
+            --slate-border: #e2e8f0;
+            --bg-page: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.95);
         }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
+
+        * {
             margin: 0;
-            padding: 20px;
-            color: var(--text-main);
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 650px;
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--slate-body);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 60px;
+        }
+
+        /* Ambient Glowing Background Blobs */
+        .ambient-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.55;
+        }
+
+        .blob-1 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.05) 70%);
+            top: -100px;
+            right: -80px;
+            animation: floatOrb 18s ease-in-out infinite alternate;
+        }
+
+        .blob-2 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.22) 0%, rgba(2, 132, 199, 0.04) 70%);
+            bottom: 20%;
+            left: -100px;
+            animation: floatOrb 22s ease-in-out infinite alternate-reverse;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.02) 70%);
+            top: 45%;
+            right: 5%;
+            animation: floatOrb 16s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(25px) scale(1.05); }
+            100% { transform: translateY(-20px) scale(0.97); }
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Top Navigation Header */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 12px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .navbar-container {
+            max-width: 900px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
         }
-        .profile-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
+
+        .btn-nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .btn-nav-back:hover {
+            color: var(--primary-emerald);
+            border-color: #a7f3d0;
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-brand img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .nav-brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--slate-dark);
+            line-height: 1.1;
+        }
+
+        .nav-brand-sub {
+            font-size: 0.7rem;
+            color: var(--primary-emerald);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #047857 0%, #0d9488 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(4, 120, 87, 0.3);
+        }
+
+        /* Container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 24px auto 0;
+            padding: 0 16px;
+            animation: cardAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Hero Student Card */
+        .student-hero-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 24px 22px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
             position: relative;
             overflow: hidden;
+            margin-bottom: 22px;
         }
-        .profile-card::before {
+
+        .student-hero-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
+            right: 0;
             height: 6px;
-            background: linear-gradient(90deg, var(--primary-color), var(--active-color));
+            background: linear-gradient(90deg, #047857, #0d9488, #0284c7, #f59e0b);
         }
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            background: #e3f2fd;
-            color: var(--primary-color);
+
+        .avatar-wrapper {
+            position: relative;
+            width: 86px;
+            height: 86px;
+            margin: 0 auto 14px;
+        }
+
+        .avatar-glow {
+            position: absolute;
+            inset: -4px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            opacity: 0.3;
+            filter: blur(6px);
+        }
+
+        .student-avatar {
+            position: relative;
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 3px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 15px;
-            box-shadow: 0 4px 10px rgba(41, 128, 185, 0.15);
-        }
-        .student-name {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0;
-            color: #1a252f;
-        }
-        .student-meta {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-        .student-nis {
-            display: inline-block;
-            background: #edf2f7;
-            color: #4a5568;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-top: 5px;
-            font-weight: 600;
+            font-size: 34px;
+            color: var(--primary-emerald);
+            box-shadow: 0 6px 16px rgba(4, 120, 87, 0.15);
         }
 
-        .section-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            color: #34495e;
+        .student-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--slate-dark);
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .student-badge-row {
             display: flex;
+            justify-content: center;
             align-items: center;
             gap: 8px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
         }
 
-        /* Timeline Styles */
-        .timeline {
-            position: relative;
-            padding-left: 20px;
-            border-left: 3px solid #cbd5e0;
-            margin-left: 10px;
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid transparent;
         }
-        .timeline-item {
-            position: relative;
-            margin-bottom: 30px;
+
+        .pill-class {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
         }
-        .timeline-item::before {
-            content: '';
+
+        .pill-nis {
+            background: #f1f5f9;
+            color: #475569;
+            border-color: #e2e8f0;
+        }
+
+        .pill-contact {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #bae6fd;
+        }
+
+        .pill-homeroom {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        /* Quick KPI Mini Glance Cards */
+        .glance-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px dashed #e2e8f0;
+            text-align: left;
+        }
+
+        .glance-item {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1px solid #edf2f7;
+            transition: all 0.2s ease;
+        }
+
+        .glance-item:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .glance-icon {
+            font-size: 1rem;
+            margin-bottom: 6px;
+            display: inline-flex;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .glance-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--slate-muted);
+            letter-spacing: 0.4px;
+        }
+
+        .glance-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--slate-dark);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Section Layouts */
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.03);
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .section-header-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .sec-title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sec-icon-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .sec-h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--slate-dark);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .sec-subtext {
+            font-size: 0.78rem;
+            color: var(--slate-muted);
+            font-weight: 500;
+        }
+
+        /* ========================================================
+           1. AL-QUR'AN & TAHFIDZ SECTION STYLING (EMERALD)
+           ======================================================== */
+        .quran-container {
+            background: linear-gradient(135deg, #064e3b 0%, #047857 55%, #0d9488 100%);
+            border-radius: 24px;
+            padding: 26px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px -5px rgba(4, 120, 87, 0.28);
+            margin-bottom: 22px;
+        }
+
+        .quran-watermark {
             position: absolute;
-            left: -28px;
-            top: 4px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #cbd5e0;
-            border: 3px solid var(--bg-color);
+            right: -25px;
+            bottom: -30px;
+            font-size: 180px;
+            color: rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+            transform: rotate(-10deg);
         }
-        .timeline-item.active::before {
-            background: var(--active-color);
-            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.2);
+
+        .quran-top-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 20px;
         }
-        .year-header {
+
+        .quran-badge-tag {
+            background: rgba(255, 255, 255, 0.16);
+            color: #d1fae5;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+        }
+
+        .quran-title-h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 6px;
+            line-height: 1.2;
+        }
+
+        .quran-desc {
+            font-size: 0.85rem;
+            color: #a7f3d0;
+            margin-top: 4px;
+        }
+
+        /* Dua Kartu Batasan Terakhir (Tahfidz & Tilawati) */
+        .batasan-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 20px;
+        }
+
+        .batasan-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 18px;
+            padding: 16px 18px;
+            transition: all 0.25s ease;
+        }
+
+        .batasan-card:hover {
+            background: rgba(255, 255, 255, 0.17);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .batasan-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-        .year-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .class-badge {
-            background: var(--primary-color);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .active-year-badge {
-            background: var(--active-color);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
 
-        /* Eskul Card Inside Year Group */
-        .eskul-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            margin-bottom: 15px;
-            border: 1px solid #e2e8f0;
-        }
-        .eskul-header {
-            background: #f7fafc;
-            padding: 12px 18px;
-            border-bottom: 1px solid #edf2f7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .eskul-name {
-            font-weight: 600;
-            color: var(--primary-color);
-            font-size: 15px;
-        }
-        .instructor {
-            font-size: 11px;
-            color: #718096;
-            margin-top: 2px;
-        }
-        
-        .sub-section-title {
-            padding: 12px 18px 0;
-            margin-bottom: 2px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #718096;
+        .batasan-type-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fef08a;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .stats-grid {
+        .batasan-target-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .batasan-main-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .batasan-sub-detail {
+            font-size: 0.8rem;
+            color: #d1fae5;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .batasan-mentor {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* KPI Row Tahfidz */
+        .quran-kpi-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            padding: 12px 18px;
-            border-bottom: 1px solid #edf2f7;
-        }
-        .stat-item {
-            text-align: center;
-            background: #f8fafc;
-            padding: 6px;
-            border-radius: 8px;
-        }
-        .stat-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        .stat-label {
-            font-size: 10px;
-            color: #95a5a6;
-            text-transform: uppercase;
-            font-weight: 500;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 18px;
         }
 
-        .grades-container {
-            padding: 15px 18px;
+        .quran-kpi-box {
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .quran-kpi-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.1;
+        }
+
+        .quran-kpi-desc {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        /* Riwayat Setoran Feed */
+        .recent-setoran-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 14px 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .recent-setoran-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #d1fae5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .setoran-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setoran-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 14px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             gap: 10px;
-        }
-        .grade-box {
-            text-align: center;
-            flex: 1;
-            background: #fffdf5;
-            padding: 8px 10px;
-            border-radius: 10px;
-            border: 1px solid #fef3c7;
-        }
-        .grade-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #d97706;
-            display: block;
-        }
-        .grade-label {
-            font-size: 11px;
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            background: white;
-            border-radius: 15px;
-            color: #95a5a6;
-            border: 1px solid #e2e8f0;
-        }
-
-        .btn-back {
-            display: block;
-            text-align: center;
-            margin-top: 30px;
-            text-decoration: none;
-            color: var(--primary-color);
-            font-weight: 600;
-            padding: 12px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: all 0.2s ease;
         }
-        .btn-back:hover {
-            background: #edf2f7;
+
+        .setoran-item:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .setoran-surah {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .setoran-meta {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 2px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .quality-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        /* Sertifikat Munaqosah Banner */
+        .munaqosah-banner {
+            margin-top: 14px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.3) 100%);
+            border: 1px solid rgba(253, 230, 138, 0.4);
+            border-radius: 14px;
+            padding: 12px 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-certificate {
+            background: #f59e0b;
+            color: #78350f;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .btn-certificate:hover {
+            background: #fbbf24;
             transform: translateY(-1px);
         }
 
-        /* MOBILE OPTIMIZATIONS */
+        /* ========================================================
+           2. KARAKTER QUR'ANI (MUTABA'AH & APRESIASI)
+           ======================================================== */
+        .character-card {
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .character-stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .char-stat-box {
+            background: #faf5ff;
+            border: 1px solid #f3e8ff;
+            border-radius: 14px;
+            padding: 12px 14px;
+            text-align: center;
+        }
+
+        .char-stat-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--accent-purple);
+        }
+
+        .char-stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #6b21a8;
+            margin-top: 2px;
+        }
+
+        .appreciation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .appreciation-item {
+            background: #fdf4ff;
+            border: 1px solid #fae8ff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .appreciation-item:hover {
+            background: white;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.06);
+            border-color: #e9d5ff;
+        }
+
+        .appr-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #581c87;
+        }
+
+        .appr-meta {
+            font-size: 0.75rem;
+            color: var(--slate-muted);
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .appr-desc {
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 6px;
+            line-height: 1.45;
+        }
+
+        .star-point-badge {
+            background: #fef08a;
+            color: #854d0e;
+            font-weight: 800;
+            font-size: 0.78rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        /* Cases Pembinaan Edukatif */
+        .case-item {
+            background: #fff1f2;
+            border: 1px solid #ffe4e6;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-top: 10px;
+        }
+
+        .case-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #9f1239;
+        }
+
+        .case-note {
+            font-size: 0.78rem;
+            color: #881337;
+            margin-top: 4px;
+        }
+
+        /* ========================================================
+           3. PERKEMBANGAN SISWA & AKADEMIK
+           ======================================================== */
+        .academic-card {
+            border-left: 4px solid var(--accent-sky);
+        }
+
+        .homeroom-note-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .homeroom-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .homeroom-sender {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .homeroom-content {
+            font-size: 0.9rem;
+            color: #1e293b;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .attendance-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .att-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .att-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .att-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--slate-muted);
+        }
+
+        /* ========================================================
+           4. PRESTASI & KEJUARAAN (GOLD)
+           ======================================================== */
+        .prestasi-card {
+            border-left: 4px solid var(--accent-amber);
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+        }
+
+        .achievement-item {
+            background: white;
+            border: 1px solid #fef3c7;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .achievement-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.12);
+        }
+
+        .medal-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            border: 1px solid #fcd34d;
+        }
+
+        .achieve-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #78350f;
+            line-height: 1.25;
+        }
+
+        .achieve-meta {
+            font-size: 0.78rem;
+            color: #92400e;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .achieve-desc {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-top: 6px;
+            line-height: 1.45;
+        }
+
+        /* ========================================================
+           5. EKSTRAKURIKULER & TIMELINE
+           ======================================================== */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 8px;
+            margin-top: 10px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 26px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            border: 3px solid var(--bg-page);
+        }
+
+        .timeline-item.active::before {
+            background: var(--primary-emerald);
+            box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.2);
+        }
+
+        .year-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .year-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--slate-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .active-year-badge {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .class-badge {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 3px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .eskul-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .eskul-box:hover {
+            background: white;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+            border-color: #cbd5e1;
+        }
+
+        .eskul-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .eskul-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--slate-dark);
+        }
+
+        .instructor {
+            font-size: 0.78rem;
+            color: var(--slate-muted);
+            margin-top: 2px;
+        }
+
+        .eskul-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .eskul-stat-mini {
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 10px;
+            padding: 8px 6px;
+            text-align: center;
+        }
+
+        .eskul-stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .eskul-stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--slate-muted);
+        }
+
+        .eskul-grades-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .grade-card-mini {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        .grade-card-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--slate-muted);
+            text-transform: uppercase;
+        }
+
+        .grade-card-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary-emerald);
+            margin-top: 2px;
+        }
+
+        /* Empty State */
+        .empty-placeholder {
+            text-align: center;
+            padding: 28px 20px;
+            background: #f8fafc;
+            border-radius: 14px;
+            border: 1px dashed #cbd5e1;
+            color: var(--slate-muted);
+        }
+
+        .empty-placeholder i {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.6;
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            margin-top: 36px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.8rem;
+            color: var(--slate-muted);
+        }
+
+        .page-footer strong {
+            color: var(--slate-body);
+        }
+
+        /* Print Media Styles */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                color: black !important;
+            }
+            .ambient-blob, .top-navbar, .btn-print, .btn-nav-back {
+                display: none !important;
+            }
+            .main-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .student-hero-card, .section-card, .quran-container {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                page-break-inside: avoid;
+            }
+            .quran-container {
+                background: #f0fdf4 !important;
+                color: #064e3b !important;
+            }
+            .quran-title-h2, .quran-kpi-num, .batasan-main-val, .setoran-surah {
+                color: #064e3b !important;
+            }
+            .quran-desc, .batasan-sub-detail, .setoran-meta {
+                color: #166534 !important;
+            }
+            .batasan-card, .quran-kpi-box, .recent-setoran-box, .setoran-item {
+                background: white !important;
+                border: 1px solid #d1fae5 !important;
+            }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .glance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .batasan-grid {
+                grid-template-columns: 1fr;
+            }
+            .quran-kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .character-stats-row {
+                grid-template-columns: 1fr;
+            }
+            .attendance-summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 480px) {
-            .quran-header-wrap {
-                flex-direction: column !important;
-                align-items: stretch !important;
+            .student-title {
+                font-size: 1.4rem;
             }
-            .quran-latest-box {
-                text-align: left !important;
-                margin-top: 10px !important;
+            .main-container {
+                padding: 0 12px;
             }
-            .quran-kpi-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 8px !important;
+            .section-card {
+                padding: 18px 16px;
             }
-            .quran-record-row {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 6px !important;
-            }
-            .quran-record-badge {
-                align-self: flex-start !important;
+            .quran-container {
+                padding: 20px 16px;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Profile Header -->
-    <div class="profile-card">
-        <div class="profile-avatar">
-            <i class="fas fa-user-graduate"></i>
-        </div>
-        <h1 class="student-name">{{ $student->name }}</h1>
-        <div class="student-meta">Kelas Terakhir/Aktif: {{ $student->class }}</div>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
-            @if($student->nis)
-                <div class="student-nis"><i class="fas fa-id-card"></i> NIS: {{ $student->nis }}</div>
-            @endif
-            @if($student->parent_phone)
-                <div class="student-nis" style="background: #e8f5e9; color: #2e7d32;" title="Nomor disamarkan demi keamanan privasi">
-                    <i class="fas fa-shield-alt"></i> Kontak Wali: {{ $student->masked_parent_phone }}
-                </div>
-            @endif
-        </div>
-    </div>
+    <!-- Ambient Glowing Background Elements -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
 
-    <!-- Capaian Al-Qur'an (Tahfidz, Tilawati & Munaqosah) Section -->
-    @if(!empty($quranData) && $quranData['has_quran'])
-        <div style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%); border-radius: 16px; padding: 22px; margin-bottom: 25px; color: white; box-shadow: 0 10px 25px rgba(4, 120, 87, 0.25); text-align: left; position: relative; overflow: hidden;">
-            <div style="position: absolute; right: -15px; bottom: -20px; font-size: 130px; color: rgba(255,255,255,0.06); pointer-events: none;">
-                <i class="fas fa-quran"></i>
+    <!-- Top Sticky Navigation -->
+    <header class="top-navbar">
+        <div class="navbar-container">
+            <a href="{{ route('student-status.index') }}" class="btn-nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Kembali ke Pencarian</span>
+            </a>
+
+            <div class="nav-brand">
+                <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR">
+                <div>
+                    <div class="nav-brand-title">SIMUTQIN</div>
+                    <div class="nav-brand-sub">SDIT AN NADZIR</div>
+                </div>
             </div>
 
-            <div class="quran-header-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
-                <div>
-                    <span style="background: rgba(255,255,255,0.18); color: #ecfdf5; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px;">
-                        <i class="fas fa-book-quran"></i> Program Unggulan Qur'ani
+            <button type="button" class="btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i>
+                <span>Cetak Lembar</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- ========================================== -->
+        <!-- STUDENT HERO PROFILE CARD                  -->
+        <!-- ========================================== -->
+        <div class="student-hero-card">
+            <div class="avatar-wrapper">
+                <div class="avatar-glow"></div>
+                <div class="student-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+
+            <h1 class="student-title">{{ $activeStudent->name ?? $student->name }}</h1>
+
+            <div class="student-badge-row">
+                <span class="meta-pill pill-class">
+                    <i class="fas fa-school"></i> Kelas: {{ $activeStudent->class ?? ($student->class ?? '-') }}
+                </span>
+
+                @if(!empty($student->nis))
+                    <span class="meta-pill pill-nis">
+                        <i class="fas fa-id-card"></i> NIS: {{ $student->nis }}
                     </span>
-                    <h3 style="margin: 8px 0 2px 0; font-size: 18px; font-weight: 700; color: #ffffff;">
-                        Capaian Tahfidz & Al-Qur'an
-                    </h3>
-                    <div style="font-size: 12px; opacity: 0.9; margin-top: 3px;">
-                        @if($quranData['tahfidz_group'])
-                            Halaqah: <strong>{{ $quranData['tahfidz_group']->name }}</strong>
-                            · Musyrif: <strong>{{ $quranData['tahfidz_group']->mentor_name ?? '-' }}</strong>
-                            · Target: <span style="background: #34d399; color: #064e3b; padding: 1px 6px; border-radius: 4px; font-weight: 700;">{{ $quranData['tahfidz_group']->target_level ?? 'Juz 30' }}</span>
-                        @elseif($quranData['tilawati_group'])
-                            Kelompok: <strong>{{ $quranData['tilawati_group']->name }}</strong>
-                            · Pembimbing: <strong>{{ $quranData['tilawati_group']->mentor_name ?? '-' }}</strong>
-                            · Level: <span style="background: #34d399; color: #064e3b; padding: 1px 6px; border-radius: 4px; font-weight: 700;">{{ $quranData['tilawati_group']->target_level ?? 'Tilawati' }}</span>
+                @endif
+
+                @if(!empty($student->masked_parent_phone))
+                    <span class="meta-pill pill-contact" title="Nomor disamarkan demi privasi">
+                        <i class="fas fa-shield-alt"></i> Kontak Wali: {{ $student->masked_parent_phone }}
+                    </span>
+                @endif
+
+                @if(!empty($academicData['homeroom_teacher']))
+                    <span class="meta-pill pill-homeroom">
+                        <i class="fas fa-chalkboard-teacher"></i> Wali Kelas: {{ $academicData['homeroom_teacher']->name }}
+                    </span>
+                @endif
+            </div>
+
+            <!-- Quick Glance 4 Metrics -->
+            <div class="glance-grid">
+                <div class="glance-item">
+                    <div class="glance-icon" style="background: #ecfdf5; color: #047857;">
+                        <i class="fas fa-quran"></i>
+                    </div>
+                    <div class="glance-label">Batasan Tahfidz</div>
+                    <div class="glance-val" title="{{ $quranData['latest_record'] ? $quranData['latest_record']->surah_name : ($quranData['tahfidz_group']->target_level ?? 'Juz 30') }}">
+                        @if($quranData['latest_record'])
+                            {{ $quranData['latest_record']->surah_name }}
+                        @elseif($quranData['tahfidz_group'])
+                            {{ $quranData['tahfidz_group']->target_level ?? 'Juz 30' }}
                         @else
-                            Program Bimbingan Al-Qur'an SDIT An Nadzir
+                            Dalam Proses
                         @endif
                     </div>
                 </div>
 
-                @if($quranData['latest_record'])
-                    <div class="quran-latest-box" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 10px 14px; text-align: right; backdrop-filter: blur(4px);">
-                        <div style="font-size: 10px; opacity: 0.8; text-transform: uppercase; font-weight: 600;">Setoran Terakhir</div>
-                        <div style="font-size: 15px; font-weight: 800; color: #a7f3d0; margin-top: 2px;">
-                            {{ $quranData['latest_record']->surah_name }}
-                        </div>
-                        <div style="font-size: 11px; opacity: 0.9;">
-                            {{ $quranData['latest_record']->start_ayah ? 'Ayat ' . $quranData['latest_record']->start_ayah . ($quranData['latest_record']->end_ayah && $quranData['latest_record']->end_ayah != $quranData['latest_record']->start_ayah ? '-'.$quranData['latest_record']->end_ayah : '') : 'Juz ' . ($quranData['latest_record']->juz ?? '30') }}
-                            · <span style="font-weight: 700; color: #fef08a;">{{ ucfirst($quranData['latest_record']->quality) }}</span>
-                        </div>
+                <div class="glance-item">
+                    <div class="glance-icon" style="background: #fef3c7; color: #b45309;">
+                        <i class="fas fa-book-open-reader"></i>
+                    </div>
+                    <div class="glance-label">Batasan Tilawati</div>
+                    <div class="glance-val" title="{{ $quranData['tilawati_pivot']->notes ?? ($quranData['tilawati_group']->target_level ?? 'Tilawati') }}">
+                        {{ $quranData['tilawati_pivot']->notes ?? ($quranData['tilawati_group']->target_level ?? 'Tahap Pemetaan') }}
+                    </div>
+                </div>
+
+                <div class="glance-item">
+                    <div class="glance-icon" style="background: #ede9fe; color: #7c3aed;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="glance-label">Karakter Qur'ani</div>
+                    <div class="glance-val">
+                        {{ $characterData['total_points'] > 0 ? $characterData['total_points'] . ' Bintang' : ($characterData['total_appreciations'] > 0 ? $characterData['total_appreciations'] . ' Apresiasi' : 'Aktif & Tertib') }}
+                    </div>
+                </div>
+
+                <div class="glance-item">
+                    <div class="glance-icon" style="background: #e0f2fe; color: #0284c7;">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="glance-label">Prestasi / Kejuaraan</div>
+                    <div class="glance-val">
+                        {{ $achievements->count() > 0 ? $achievements->count() . ' Kejuaraan' : 'Belajar Tekun' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. CAPAIAN AL-QUR'AN (TAHFIDZ & TILAWATI)  -->
+        <!-- ========================================== -->
+        <div class="quran-container">
+            <i class="fas fa-quran quran-watermark"></i>
+
+            <div class="quran-top-info">
+                <div>
+                    <span class="quran-badge-tag">
+                        <i class="fas fa-book-quran"></i> Program Utama Pembiasaan Qur'ani
+                    </span>
+                    <h2 class="quran-title-h2">Capaian Tahfidz & Tilawati</h2>
+                    <div class="quran-desc">
+                        Laporan perkembangan capaian hafalan dan tartil Al-Qur'an ananda di SDIT AN NADZIR.
+                    </div>
+                </div>
+
+                @if($quranData['tahfidz_group'])
+                    <div style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 10px 14px; backdrop-filter: blur(6px); text-align: right;">
+                        <div style="font-size: 0.68rem; text-transform: uppercase; font-weight: 700; color: #fef08a;">Halaqah Aktif</div>
+                        <div style="font-weight: 800; font-size: 0.95rem; color: #ffffff;">{{ $quranData['tahfidz_group']->name }}</div>
+                        <div style="font-size: 0.72rem; opacity: 0.9;">Musyrif: {{ $quranData['tahfidz_group']->mentor_name ?? '-' }}</div>
                     </div>
                 @endif
             </div>
 
-            <!-- Mini KPI Grid -->
-            <div class="quran-kpi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px;">
-                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
-                    <div style="font-size: 17px; font-weight: 800; color: #ffffff;">{{ $quranData['total_records'] }}</div>
-                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Total Setoran</div>
+            <!-- Dua Kartu Batasan Terakhir -->
+            <div class="batasan-grid">
+                
+                <!-- Batasan Terakhir Tahfidz -->
+                <div class="batasan-card">
+                    <div class="batasan-header">
+                        <span class="batasan-type-title">
+                            <i class="fas fa-bookmark"></i> Batasan Terakhir Tahfidz
+                        </span>
+                        @if($quranData['latest_record'])
+                            <span class="batasan-target-tag" style="background: #10b981;">
+                                {{ $quranData['latest_record']->type === 'setoran_baru' ? 'Hafalan Baru' : 'Muroja\'ah' }}
+                            </span>
+                        @else
+                            <span class="batasan-target-tag">Target: {{ $quranData['tahfidz_group']->target_level ?? 'Juz 30' }}</span>
+                        @endif
+                    </div>
+
+                    @if($quranData['latest_record'])
+                        <div class="batasan-main-val">
+                            QS. {{ $quranData['latest_record']->surah_name }}
+                        </div>
+                        <div class="batasan-sub-detail">
+                            <span>
+                                @if($quranData['latest_record']->start_ayah)
+                                    Ayat {{ $quranData['latest_record']->start_ayah }}{{ $quranData['latest_record']->end_ayah && $quranData['latest_record']->end_ayah != $quranData['latest_record']->start_ayah ? ' - ' . $quranData['latest_record']->end_ayah : '' }}
+                                @else
+                                    Juz {{ $quranData['latest_record']->juz ?? '30' }}
+                                @endif
+                            </span>
+                            <span>•</span>
+                            <span style="color: #fef08a; font-weight: 700;">
+                                <i class="fas fa-check-circle"></i> {{ ucfirst($quranData['latest_record']->quality) }}
+                            </span>
+                        </div>
+                    @else
+                        <div class="batasan-main-val" style="font-size: 1.15rem;">
+                            {{ $quranData['tahfidz_pivot']->notes ?? 'Dalam Bimbingan Halaqah' }}
+                        </div>
+                        <div class="batasan-sub-detail">
+                            Target Level: {{ $quranData['tahfidz_group']->target_level ?? 'Juz 30 (Juz \'Amma)' }}
+                        </div>
+                    @endif
+
+                    <div class="batasan-mentor">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Pembimbing: <strong>{{ $quranData['tahfidz_group']->mentor_name ?? 'Musyrif Halaqah' }}</strong></span>
+                        @if($quranData['latest_record'] && $quranData['latest_record']->session_date)
+                            <span style="margin-left: auto; opacity: 0.85;">
+                                {{ \Carbon\Carbon::parse($quranData['latest_record']->session_date)->translatedFormat('d M Y') }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
-                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
-                    <div style="font-size: 17px; font-weight: 800; color: #a7f3d0;">{{ $quranData['total_ziyadah'] }}</div>
-                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Ziyadah</div>
+
+                <!-- Batasan Terakhir Tilawati -->
+                <div class="batasan-card">
+                    <div class="batasan-header">
+                        <span class="batasan-type-title">
+                            <i class="fas fa-book-open"></i> Batasan Terakhir Tilawati
+                        </span>
+                        <span class="batasan-target-tag" style="background: #0284c7;">
+                            {{ $quranData['tilawati_group']->target_level ?? 'Tilawati' }}
+                        </span>
+                    </div>
+
+                    <div class="batasan-main-val">
+                        {{ $quranData['tilawati_pivot']->notes ?? ($quranData['tilawati_group']->target_level ?? 'Tahap Pemetaan Jilid') }}
+                    </div>
+
+                    <div class="batasan-sub-detail">
+                        <span>Kelompok: {{ $quranData['tilawati_group']->name ?? 'Bimbingan Tilawati' }}</span>
+                        <span>•</span>
+                        <span style="color: #a7f3d0;">Tartil & Tajwid</span>
+                    </div>
+
+                    <div class="batasan-mentor">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Ustadz/Ustadzah: <strong>{{ $quranData['tilawati_group']->mentor_name ?? 'Guru Tilawati' }}</strong></span>
+                    </div>
                 </div>
-                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
-                    <div style="font-size: 17px; font-weight: 800; color: #fde047;">{{ $quranData['total_murojaah'] }}</div>
-                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Muroja'ah</div>
+
+            </div>
+
+            <!-- KPI Row Hafalan -->
+            <div class="quran-kpi-row">
+                <div class="quran-kpi-box">
+                    <div class="quran-kpi-num">{{ $quranData['total_records'] }}</div>
+                    <div class="quran-kpi-desc">Total Setoran</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; text-align: center;">
-                    <div style="font-size: 17px; font-weight: 800; color: #6ee7b7;">{{ $quranData['lancar_rate'] }}%</div>
-                    <div style="font-size: 10px; opacity: 0.85; text-transform: uppercase;">Mutqin</div>
+                <div class="quran-kpi-box">
+                    <div class="quran-kpi-num" style="color: #a7f3d0;">{{ $quranData['total_ziyadah'] }}</div>
+                    <div class="quran-kpi-desc">Hafalan Baru (Ziyadah)</div>
+                </div>
+                <div class="quran-kpi-box">
+                    <div class="quran-kpi-num" style="color: #fde047;">{{ $quranData['total_murojaah'] }}</div>
+                    <div class="quran-kpi-desc">Muroja'ah</div>
+                </div>
+                <div class="quran-kpi-box">
+                    <div class="quran-kpi-num" style="color: #6ee7b7;">{{ $quranData['lancar_rate'] }}%</div>
+                    <div class="quran-kpi-desc">Tingkat Mutqin</div>
                 </div>
             </div>
 
-            <!-- Recent Setoran History List -->
+            <!-- Riwayat 5 Setoran Terakhir -->
             @if($quranData['recent_records']->isNotEmpty())
-                <div style="margin-top: 18px; background: rgba(0, 0, 0, 0.16); border-radius: 12px; padding: 12px 14px;">
-                    <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                        <span><i class="fas fa-history"></i> Riwayat 5 Setoran Terakhir</span>
-                        <span style="font-size: 10px; opacity: 0.8; text-transform: none; font-weight: 400;">Pencatatan langsung oleh Musyrif</span>
+                <div class="recent-setoran-box">
+                    <div class="recent-setoran-title">
+                        <span><i class="fas fa-history"></i> Riwayat Setoran Terakhir</span>
+                        <span style="font-size: 0.68rem; font-weight: normal; opacity: 0.85;">Pencatatan langsung oleh Musyrif</span>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div class="setoran-list">
                         @foreach($quranData['recent_records'] as $rec)
-                            <div class="quran-record-row" style="background: rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <div class="setoran-item">
                                 <div>
-                                    <div style="font-weight: 700; font-size: 13px; color: #ffffff;">
+                                    <div class="setoran-surah">
                                         {{ $rec->surah_name }}
-                                        <span style="font-size: 11px; opacity: 0.85; font-weight: 500;">
+                                        <span style="font-size: 0.78rem; opacity: 0.9; font-weight: normal;">
                                             @if($rec->start_ayah)
                                                 (Ayat {{ $rec->start_ayah }}{{ $rec->end_ayah && $rec->end_ayah != $rec->start_ayah ? '-' . $rec->end_ayah : '' }})
                                             @endif
                                         </span>
                                     </div>
-                                    <div style="font-size: 10.5px; opacity: 0.8; margin-top: 2px;">
+                                    <div class="setoran-meta">
                                         <span>{{ \Carbon\Carbon::parse($rec->session_date)->translatedFormat('d M Y') }}</span>
-                                        <span>· {{ $rec->type === 'setoran_baru' ? 'Hafalan Baru' : 'Muroja\'ah' }}</span>
+                                        <span>•</span>
+                                        <span>{{ $rec->type === 'setoran_baru' ? 'Ziyadah (Baru)' : 'Muroja\'ah' }}</span>
                                         @if($rec->notes)
-                                            <span style="color: #fef08a; font-style: italic;">· "{{ $rec->notes }}"</span>
+                                            <span>•</span>
+                                            <span style="color: #fef08a; font-style: italic;">"{{ $rec->notes }}"</span>
                                         @endif
                                     </div>
                                 </div>
-                                <div class="quran-record-badge">
-                                    @php
-                                        $badgeBg = match($rec->quality) {
-                                            'lancar' => '#10b981',
-                                            'cukup'  => '#f59e0b',
-                                            default  => '#ef4444',
-                                        };
-                                    @endphp
-                                    <span style="background: {{ $badgeBg }}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
-                                        {{ $rec->quality }}
-                                    </span>
-                                </div>
+
+                                @php
+                                    $qualityBg = match($rec->quality) {
+                                        'lancar' => '#10b981',
+                                        'cukup'  => '#f59e0b',
+                                        default  => '#ef4444',
+                                    };
+                                @endphp
+                                <span class="quality-badge" style="background: {{ $qualityBg }}; color: white;">
+                                    {{ $rec->quality }}
+                                </span>
                             </div>
                         @endforeach
                     </div>
                 </div>
             @endif
 
-            <!-- Munaqosah Sertifikat (Jika Pernah Lulus) -->
+            <!-- Sertifikat Munaqosah Jika Ada -->
             @if($quranData['munaqosah_list']->isNotEmpty())
-                <div style="margin-top: 14px; background: rgba(254, 240, 138, 0.15); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 12px; padding: 12px 14px;">
-                    <div style="font-size: 12px; font-weight: 700; color: #fef08a; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-award"></i> Sertifikat Munaqosah Al-Qur'an Yang Diraih:
+                <div class="munaqosah-banner">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: #fef08a; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                        <i class="fas fa-award"></i> Sertifikat Munaqosah Al-Qur'an Yang Telah Diraih:
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
                         @foreach($quranData['munaqosah_list'] as $mun)
-                            <div style="background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div style="background: rgba(255,255,255,0.18); padding: 8px 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                                 <div>
-                                    <strong style="font-size: 13px; color: #ffffff;">Lulus Ujian {{ ucfirst($mun->type) }} – {{ $mun->target_level }}</strong>
-                                    <div style="font-size: 11px; opacity: 0.85;">
+                                    <strong style="color: white; font-size: 0.88rem;">Lulus Munaqosah {{ ucfirst($mun->type) }} – {{ $mun->target_level }}</strong>
+                                    <div style="font-size: 0.72rem; color: #fef08a;">
                                         Predikat: <strong>{{ $mun->predicate ?? 'Mumtaz' }}</strong> (Nilai: {{ $mun->final_score ?? '-' }})
-                                        · Ujian: {{ $mun->exam_date ? \Carbon\Carbon::parse($mun->exam_date)->translatedFormat('d F Y') : '-' }}
+                                        • Tanggal: {{ $mun->exam_date ? \Carbon\Carbon::parse($mun->exam_date)->translatedFormat('d F Y') : '-' }}
                                     </div>
                                 </div>
-                                <a href="{{ route('munaqosah.print-certificate', $mun->id) }}" target="_blank"
-                                   style="background: #f59e0b; color: #78350f; font-weight: 700; font-size: 11px; padding: 5px 12px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                                    <i class="fas fa-file-pdf"></i> Buka Sertifikat
+                                <a href="{{ route('munaqosah.print-certificate', $mun->id) }}" target="_blank" class="btn-certificate">
+                                    <i class="fas fa-file-pdf"></i> Lihat Sertifikat
                                 </a>
                             </div>
                         @endforeach
                     </div>
                 </div>
             @endif
+
         </div>
-    @endif
-    @if($achievements->isNotEmpty())
-        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 15px; padding: 20px; margin-bottom: 25px; text-align: left; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.03);">
-            <h3 style="color: #d97706; margin-top: 0; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-trophy" style="font-size: 1.1rem;"></i> Prestasi & Kejuaraan (Semua Tahun)
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                @foreach($achievements as $achievement)
-                <div style="background: white; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                    <div style="font-weight: 600; color: #1e293b; font-size: 13px;">{{ $achievement->name }}</div>
-                    <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                        <span style="background: #fef3c7; color: #b45309; padding: 1px 5px; border-radius: 4px; font-weight: 600; font-size: 10px;">{{ $achievement->level }}</span>
-                        <span>• {{ \Carbon\Carbon::parse($achievement->date)->translatedFormat('d M Y') }}</span>
+
+        <!-- ========================================== -->
+        <!-- 2. PERKEMBANGAN KARAKTER QUR'ANI           -->
+        <!-- ========================================== -->
+        <div class="section-card character-card">
+            <div class="section-header-title">
+                <div class="sec-title-left">
+                    <div class="sec-icon-badge" style="background: #ede9fe; color: #7c3aed;">
+                        <i class="fas fa-heart-pulse"></i>
                     </div>
-                    @if($achievement->description)
-                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-style: italic;">
-                            {{ $achievement->description }}
-                        </div>
-                    @endif
+                    <div>
+                        <h3 class="sec-h3">Pembinaan & Karakter Qur'ani</h3>
+                        <div class="sec-subtext">Catatan mutaba'ah adab, apresiasi bintang kebaikan, dan pembiasaan karakter santri.</div>
+                    </div>
                 </div>
-                @endforeach
             </div>
-        </div>
-    @endif
 
-    <!-- Academic History Timeline -->
-    <div class="section-title">
-        <i class="fas fa-history"></i> Riwayat Perkembangan Ekstrakurikuler
-    </div>
+            <!-- Rekap Karakter -->
+            <div class="character-stats-row">
+                <div class="char-stat-box">
+                    <div class="char-stat-num">{{ $characterData['total_points'] > 0 ? $characterData['total_points'] : $characterData['total_appreciations'] }}</div>
+                    <div class="char-stat-label">Bintang Kebaikan Diraih</div>
+                </div>
+                <div class="char-stat-box" style="background: #ecfdf5; border-color: #d1fae5;">
+                    <div class="char-stat-num" style="color: #047857;">{{ $characterData['resolved_cases'] }}</div>
+                    <div class="char-stat-label" style="color: #065f46;">Pembinaan Tuntas</div>
+                </div>
+                <div class="char-stat-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+                    <div class="char-stat-num" style="color: #16a34a;"><i class="fas fa-smile"></i></div>
+                    <div class="char-stat-label" style="color: #15803d;">Status Adab & Disiplin</div>
+                </div>
+            </div>
 
-    @if(count($historyData) > 0)
-        <div class="timeline">
-            @foreach($historyData as $yearGroup)
-                <div class="timeline-item {{ $yearGroup['is_active'] ? 'active' : '' }}">
-                    
-                    <!-- Year Header -->
-                    <div class="year-header">
-                        <div class="year-title">
-                            <i class="fas fa-calendar-check" style="color: {{ $yearGroup['is_active'] ? 'var(--active-color)' : '#718096' }};"></i>
-                            TA {{ $yearGroup['year_name'] }}
-                            @if($yearGroup['is_active'])
-                                <span class="active-year-badge">Tahun Ajaran Aktif</span>
-                            @endif
-                        </div>
-                        <span class="class-badge">Kelas {{ $yearGroup['student_class'] }}</span>
-                    </div>
-
-                    <!-- Eskul Cards in this year -->
-                    @foreach($yearGroup['eskul_data'] as $data)
-                        <div class="eskul-card">
-                            <div class="eskul-header">
-                                <div>
-                                    <div class="eskul-name">{{ $data['eskul_name'] }}</div>
-                                    <div class="instructor">
-                                        <i class="fas fa-chalkboard-teacher"></i> {{ $data['instructor'] ?? 'Belum ada pembina' }}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Attendance -->
-                            <div class="sub-section-title">
-                                <i class="fas fa-clipboard-check"></i> Kehadiran
-                            </div>
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <div class="stat-value" style="color: #27ae60;">{{ $data['attendance']['H'] }}</div>
-                                    <div class="stat-label">Hadir</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" style="color: #f1c40f;">{{ $data['attendance']['S'] }}</div>
-                                    <div class="stat-label">Sakit</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" style="color: #3498db;">{{ $data['attendance']['I'] }}</div>
-                                    <div class="stat-label">Izin</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" style="color: #e74c3c;">{{ $data['attendance']['A'] }}</div>
-                                    <div class="stat-label">Alpa</div>
-                                </div>
-                            </div>
-
-                            <!-- Grades -->
-                            <div class="sub-section-title">
-                                <i class="fas fa-star"></i> Nilai Assesmen
-                            </div>
-                            <div class="grades-container">
-                                @php
-                                    $isCalistung = \Illuminate\Support\Str::contains(strtolower($data['eskul_name']), 'calistung') || \Illuminate\Support\Str::contains(strtolower($data['eskul_name']), 'baca');
-                                    
-                                    $processGrade = function($score) use ($isCalistung) {
-                                        if ($isCalistung) {
-                                            $decoded = json_decode($score, true);
-                                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                                return $decoded;
-                                            }
-                                        }
-                                        return $score;
-                                    };
-
-                                    $sas1 = $processGrade($data['grades']['sas1']);
-                                    $sas2 = $processGrade($data['grades']['sas2']);
-                                    $hasSas1 = $sas1 !== '-';
-                                    $hasSas2 = $sas2 !== '-';
-                                @endphp
-
-                                <!-- Semester 1 Grade Box -->
-                                <div class="grade-box" style="background: #fffdf5; border-color: #fef3c7;">
-                                    <span class="grade-label">Semester 1</span>
-                                    @if(is_array($sas1))
-                                        <div style="font-size: 12px; text-align: left; margin-top: 6px; line-height: 1.5;">
-                                            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 2px; margin-bottom: 2px;">
-                                                <span>Membaca</span> <strong>{{ $sas1['reading'] ?? '-' }}</strong>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 2px; margin-bottom: 2px;">
-                                                <span>Menulis</span> <strong>{{ $sas1['writing'] ?? '-' }}</strong>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between;">
-                                                <span>Menghitung</span> <strong>{{ $sas1['counting'] ?? '-' }}</strong>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <span class="grade-value" style="color: #d97706; margin-top: 4px;">{{ $sas1 }}</span>
+            <!-- Daftar Apresiasi Karakter -->
+            @if($characterData['appreciations']->isNotEmpty())
+                <div style="font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-star" style="color: #f59e0b;"></i> Apresiasi Bintang Kebaikan & Akhlak Santri:
+                </div>
+                <div class="appreciation-grid">
+                    @foreach($characterData['appreciations'] as $appr)
+                        <div class="appreciation-item">
+                            <div>
+                                <div class="appr-title">{{ $appr->title }}</div>
+                                <div class="appr-meta">
+                                    <span style="background: #f3e8ff; color: #6b21a8; padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 0.7rem;">
+                                        {{ $appr->category }}
+                                    </span>
+                                    <span>•</span>
+                                    <span>{{ \Carbon\Carbon::parse($appr->date)->translatedFormat('d M Y') }}</span>
+                                    @if($appr->given_by)
+                                        <span>•</span>
+                                        <span>Oleh: {{ $appr->given_by }}</span>
                                     @endif
                                 </div>
-                                
-                                <!-- Semester 2 Grade Box -->
-                                <div class="grade-box" style="background: #e3f2fd; border-color: #bbdefb;">
-                                    <span class="grade-label" style="color: #1e3a8a;">Semester 2</span>
-                                    @if(is_array($sas2))
-                                        <div style="font-size: 12px; text-align: left; margin-top: 6px; line-height: 1.5;">
-                                            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #bbdefb; padding-bottom: 2px; margin-bottom: 2px;">
-                                                <span>Membaca</span> <strong style="color: #1e3a8a;">{{ $sas2['reading'] ?? '-' }}</strong>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #bbdefb; padding-bottom: 2px; margin-bottom: 2px;">
-                                                <span>Menulis</span> <strong style="color: #1e3a8a;">{{ $sas2['writing'] ?? '-' }}</strong>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between;">
-                                                <span>Menghitung</span> <strong style="color: #1e3a8a;">{{ $sas2['counting'] ?? '-' }}</strong>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <span class="grade-value" style="color: #1e3a8a; margin-top: 4px;">{{ $sas2 }}</span>
-                                    @endif
-                                </div>
+                                @if($appr->description)
+                                    <div class="appr-desc">{{ $appr->description }}</div>
+                                @endif
+                            </div>
+                            <div class="star-point-badge">
+                                <i class="fas fa-star"></i> +{{ $appr->point ?? 1 }} Poin
                             </div>
                         </div>
                     @endforeach
-
                 </div>
-            @endforeach
-        </div>
-    @else
-        <div class="empty-state">
-            <i class="fas fa-folder-open" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
-            <p>Belum ada riwayat kegiatan ekstrakurikuler siswa ini di database.</p>
-        </div>
-    @endif
+            @else
+                <div class="empty-placeholder">
+                    <i class="fas fa-star" style="color: #cbd5e1;"></i>
+                    <p style="font-size: 0.85rem; font-weight: 500;">Ananda tercatat senantiasa tertib dan aktif mengikuti pembiasaan adab Qur'ani sehari-hari di sekolah.</p>
+                </div>
+            @endif
 
-    <a href="{{ route('student-status.index') }}" class="btn-back">
-        <i class="fas fa-arrow-left"></i> Cek Siswa Lain
-    </a>
-</div>
+            <!-- Catatan Pembinaan Disiplin (Jika Ada) -->
+            @if($characterData['cases']->isNotEmpty())
+                <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #e2e8f0;">
+                    <div style="font-weight: 700; font-size: 0.82rem; color: #991b1b; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                        <i class="fas fa-info-circle"></i> Catatan Pendampingan Bersama (Kerjasama Sekolah & Orang Tua):
+                    </div>
+                    @foreach($characterData['cases'] as $case)
+                        <div class="case-item">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                <div class="case-title">{{ $case->title }}</div>
+                                <span style="font-size: 0.7rem; font-weight: 700; background: {{ $case->status === 'selesai' ? '#dcfce7' : '#fee2e2' }}; color: {{ $case->status === 'selesai' ? '#15803d' : '#991b1b' }}; padding: 2px 8px; border-radius: 999px;">
+                                    {{ $case->status === 'selesai' ? 'Selesai Dibina' : 'Dalam Pendampingan' }}
+                                </span>
+                            </div>
+                            <div class="case-note">
+                                {{ $case->action_taken ?? ($case->description ?? 'Telah dilakukan bimbingan dan arahan secara persuasif.') }}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 3. PERKEMBANGAN SISWA & AKADEMIK           -->
+        <!-- ========================================== -->
+        <div class="section-card academic-card">
+            <div class="section-header-title">
+                <div class="sec-title-left">
+                    <div class="sec-icon-badge" style="background: #e0f2fe; color: #0284c7;">
+                        <i class="fas fa-book-reader"></i>
+                    </div>
+                    <div>
+                        <h3 class="sec-h3">Perkembangan Belajar & Kehadiran</h3>
+                        <div class="sec-subtext">Informasi catatan perkembangan kelas, kehadiran belajar formal, dan catatan wali kelas.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Catatan Wali Kelas -->
+            @if(!empty($academicData['latest_summary']) && !empty($academicData['latest_summary']->homeroom_notes))
+                <div class="homeroom-note-box">
+                    <div class="homeroom-header">
+                        <div class="homeroom-sender">
+                            <i class="fas fa-comment-dots"></i> Catatan Wali Kelas untuk Ayah & Bunda:
+                        </div>
+                        @if($academicData['homeroom_teacher'])
+                            <div style="font-size: 0.72rem; color: #0369a1; font-weight: 600;">
+                                {{ $academicData['homeroom_teacher']->name }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="homeroom-content">
+                        "{{ $academicData['latest_summary']->homeroom_notes }}"
+                    </div>
+                </div>
+            @endif
+
+            <!-- Ringkasan Kehadiran Belajar Formal -->
+            @if(!empty($academicData['latest_summary']))
+                <div style="font-weight: 700; font-size: 0.82rem; color: #475569; margin-bottom: 8px;">
+                    <i class="fas fa-calendar-check"></i> Rekap Kehadiran Belajar Semester Ini:
+                </div>
+                <div class="attendance-summary-grid">
+                    <div class="att-item">
+                        <div class="att-num" style="color: #047857;">
+                            {{ max(0, 100 - ($academicData['latest_summary']->sick_count + $academicData['latest_summary']->permission_count + $academicData['latest_summary']->unexcused_count)) }}%
+                        </div>
+                        <div class="att-label">Tingkat Disiplin</div>
+                    </div>
+                    <div class="att-item">
+                        <div class="att-num" style="color: #f59e0b;">{{ $academicData['latest_summary']->sick_count ?? 0 }}</div>
+                        <div class="att-label">Sakit</div>
+                    </div>
+                    <div class="att-item">
+                        <div class="att-num" style="color: #0284c7;">{{ $academicData['latest_summary']->permission_count ?? 0 }}</div>
+                        <div class="att-label">Izin</div>
+                    </div>
+                    <div class="att-item">
+                        <div class="att-num" style="color: #ef4444;">{{ $academicData['latest_summary']->unexcused_count ?? 0 }}</div>
+                        <div class="att-label">Tanpa Ket.</div>
+                    </div>
+                </div>
+            @else
+                <div class="empty-placeholder">
+                    <i class="fas fa-clipboard-user" style="color: #cbd5e1;"></i>
+                    <p style="font-size: 0.85rem; font-weight: 500;">Ananda aktif mengikuti kegiatan belajar mengajar di kelas {{ $activeStudent->class ?? $student->class }}.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 4. PRESTASI & KEJUARAAN (SEMUA TAHUN)       -->
+        <!-- ========================================== -->
+        @if($achievements->isNotEmpty())
+            <div class="section-card prestasi-card">
+                <div class="section-header-title">
+                    <div class="sec-title-left">
+                        <div class="sec-icon-badge" style="background: #fef3c7; color: #b45309;">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div>
+                            <h3 class="sec-h3">Prestasi & Kejuaraan Ananda</h3>
+                            <div class="sec-subtext">Kebanggaan prestasi akademik dan non-akademik ananda selama menempuh pendidikan di SDIT AN NADZIR.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-list">
+                    @foreach($achievements as $achievement)
+                        <div class="achievement-item">
+                            <div class="medal-badge">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="achieve-name">{{ $achievement->name }}</div>
+                                <div class="achieve-meta">
+                                    <span style="background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 0.72rem;">
+                                        {{ $achievement->level }}
+                                    </span>
+                                    <span>•</span>
+                                    <span>{{ \Carbon\Carbon::parse($achievement->date)->translatedFormat('d F Y') }}</span>
+                                </div>
+                                @if($achievement->description)
+                                    <div class="achieve-desc">
+                                        {{ $achievement->description }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <!-- ========================================== -->
+        <!-- 5. RIWAYAT EKSTRAKURIKULER & MINAT BAKAT    -->
+        <!-- ========================================== -->
+        <div class="section-card">
+            <div class="section-header-title">
+                <div class="sec-title-left">
+                    <div class="sec-icon-badge" style="background: #f1f5f9; color: #334155;">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <div>
+                        <h3 class="sec-h3">Riwayat Ekstrakurikuler & Minat Bakat</h3>
+                        <div class="sec-subtext">Rekam jejak keikutsertaan ekskul, kehadiran latihan, dan penilaian sumatif akhir semester.</div>
+                    </div>
+                </div>
+            </div>
+
+            @if(count($historyData) > 0)
+                <div class="timeline">
+                    @foreach($historyData as $yearGroup)
+                        <div class="timeline-item {{ $yearGroup['is_active'] ? 'active' : '' }}">
+                            
+                            <!-- Year Header -->
+                            <div class="year-header">
+                                <div class="year-title">
+                                    <i class="fas fa-calendar-check" style="color: {{ $yearGroup['is_active'] ? 'var(--primary-emerald)' : '#94a3b8' }};"></i>
+                                    <span>TA {{ $yearGroup['year_name'] }}</span>
+                                    @if($yearGroup['is_active'])
+                                        <span class="active-year-badge">Tahun Ajaran Aktif</span>
+                                    @endif
+                                </div>
+                                <span class="class-badge">Kelas {{ $yearGroup['student_class'] }}</span>
+                            </div>
+
+                            <!-- Eskul Cards -->
+                            @foreach($yearGroup['eskul_data'] as $data)
+                                <div class="eskul-box">
+                                    <div class="eskul-top">
+                                        <div>
+                                            <div class="eskul-name">{{ $data['eskul_name'] }}</div>
+                                            <div class="instructor">
+                                                <i class="fas fa-chalkboard-teacher"></i> Pembina: <strong>{{ $data['instructor'] ?? 'Pembina Eskul' }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kehadiran Eskul -->
+                                    <div class="eskul-stats-grid">
+                                        <div class="eskul-stat-mini">
+                                            <div class="eskul-stat-val" style="color: #047857;">{{ $data['attendance']['H'] }}</div>
+                                            <div class="eskul-stat-label">Hadir</div>
+                                        </div>
+                                        <div class="eskul-stat-mini">
+                                            <div class="eskul-stat-val" style="color: #f59e0b;">{{ $data['attendance']['S'] }}</div>
+                                            <div class="eskul-stat-label">Sakit</div>
+                                        </div>
+                                        <div class="eskul-stat-mini">
+                                            <div class="eskul-stat-val" style="color: #0284c7;">{{ $data['attendance']['I'] }}</div>
+                                            <div class="eskul-stat-label">Izin</div>
+                                        </div>
+                                        <div class="eskul-stat-mini">
+                                            <div class="eskul-stat-val" style="color: #ef4444;">{{ $data['attendance']['A'] }}</div>
+                                            <div class="eskul-stat-label">Alpa</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Grades SAS 1 & 2 -->
+                                    @php
+                                        $isCalistung = \Illuminate\Support\Str::contains(strtolower($data['eskul_name']), 'calistung') || \Illuminate\Support\Str::contains(strtolower($data['eskul_name']), 'baca');
+                                        
+                                        $processGrade = function($score) use ($isCalistung) {
+                                            if ($isCalistung) {
+                                                $decoded = json_decode($score, true);
+                                                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                                    return $decoded;
+                                                }
+                                            }
+                                            return $score;
+                                        };
+
+                                        $sas1 = $processGrade($data['grades']['sas1']);
+                                        $sas2 = $processGrade($data['grades']['sas2']);
+                                    @endphp
+
+                                    <div class="eskul-grades-row">
+                                        <div class="grade-card-mini">
+                                            <div class="grade-card-label">Nilai Semester 1</div>
+                                            @if(is_array($sas1))
+                                                <div style="font-size: 0.72rem; text-align: left; margin-top: 4px; line-height: 1.4;">
+                                                    <div>Baca: <strong>{{ $sas1['reading'] ?? '-' }}</strong></div>
+                                                    <div>Tulis: <strong>{{ $sas1['writing'] ?? '-' }}</strong></div>
+                                                    <div>Hitung: <strong>{{ $sas1['counting'] ?? '-' }}</strong></div>
+                                                </div>
+                                            @else
+                                                <div class="grade-card-val" style="color: #d97706;">{{ $sas1 }}</div>
+                                            @endif
+                                        </div>
+
+                                        <div class="grade-card-mini" style="background: #f0f9ff; border-color: #bae6fd;">
+                                            <div class="grade-card-label" style="color: #0369a1;">Nilai Semester 2</div>
+                                            @if(is_array($sas2))
+                                                <div style="font-size: 0.72rem; text-align: left; margin-top: 4px; line-height: 1.4; color: #0369a1;">
+                                                    <div>Baca: <strong>{{ $sas2['reading'] ?? '-' }}</strong></div>
+                                                    <div>Tulis: <strong>{{ $sas2['writing'] ?? '-' }}</strong></div>
+                                                    <div>Hitung: <strong>{{ $sas2['counting'] ?? '-' }}</strong></div>
+                                                </div>
+                                            @else
+                                                <div class="grade-card-val" style="color: #0369a1;">{{ $sas2 }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="empty-placeholder">
+                    <i class="fas fa-folder-open" style="color: #cbd5e1;"></i>
+                    <p style="font-size: 0.85rem; font-weight: 500;">Belum ada riwayat kegiatan ekstrakurikuler siswa ini di database.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Footer -->
+        <footer class="page-footer">
+            <p>&copy; {{ date('Y') }} <strong>SIMUTQIN SDIT AN NADZIR</strong> • Menemani Tumbuh Kembang Prestasi & Karakter Qur'ani</p>
+        </footer>
+
+    </main>
 
 </body>
 </html>
