@@ -169,31 +169,34 @@
         <div class="kop-surat">
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
-                <h1>SDIT AN NADZIR</h1>
-                <h2>SISTEM PEMBINAAN QUR'AN & PRESTASI TERPADU (SIM SMILE)</h2>
-                <p style="font-size: 8.5pt; color: #475569; margin: 1px 0;">NNS: 101280432037 · NPSN: 20616174</p>
-                <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
+                <p style="font-weight: 700; margin: 0; font-size: 9.5pt; letter-spacing: 1px; color: #065f46; text-transform: uppercase;">YAYASAN AN NADZIR ISLAMIC SCHOOL</p>
+                <h1 style="margin: 2px 0 0 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: #000;">SDIT AN NADZIR</h1>
+                <h2 style="margin: 2px 0 0 0; font-size: 10.5pt; font-weight: bold; color: #0369a1;">SISTEM PEMBINAAN QUR'AN & PRESTASI TERPADU (SIM SMILE)</h2>
+                <p style="font-size: 8.5pt; color: #475569; margin: 2px 0;">NNS: 101280432037 · NPSN: 20616174 · Akreditasi: A (Amat Baik)</p>
+                <p style="margin: 2px 0 0 0; font-size: 8pt; font-style: italic; color: #333;">Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             </div>
         </div>
 
         <!-- JUDUL LAPORAN -->
         <div class="title-box">
-            <h3>REKAPITULASI LAPORAN EVALUASI & CAPAIAN TAHFIDZ AL-QUR'AN</h3>
-            <p>Tahun Pelajaran {{ $yearName }} • {{ $class ? 'Kelas ' . $class : 'Seluruh Kelas' }}</p>
+            <h3>{{ $periodTitle ?? "REKAPITULASI LAPORAN EVALUASI & CAPAIAN TAHFIDZ AL-QUR'AN" }}</h3>
+            <p>{{ $periodLabel ?? ('Tahun Pelajaran ' . $yearName) }} &bull; {{ $class ? ($class === 'ALL' ? 'Seluruh Kelas' : 'Kelas ' . $class) : ($groupObj ? 'Kelompok ' . $groupObj->name : 'Seluruh Siswa') }}</p>
         </div>
 
         <!-- INFORMASI / METADATA -->
         <div class="info-grid">
             <div>
-                <strong>Satuan Pendidikan:</strong> SDIT AN NADZIR<br>
+                <strong>Satuan Pendidikan:</strong> SDIT AN NADZIR (Yayasan An Nadzir Islamic School)<br>
                 <strong>Tahun Pelajaran:</strong> {{ $yearName }}<br>
-                <strong>Kelas / Rombel:</strong> {{ $class ? 'Kelas ' . $class : ($groupObj ? 'Kelompok ' . $groupObj->name : 'Semua') }}<br>
+                <strong>Periode Laporan:</strong> {{ $periodLabel ?? '1 Tahun Penuh' }}<br>
+                <strong>Kelas / Rombel:</strong> {{ $class ? ($class === 'ALL' ? 'Semua Kelas' : 'Kelas ' . $class) : ($groupObj ? 'Kelompok ' . $groupObj->name : 'Semua') }}<br>
                 <strong>Total Siswa Terdaftar:</strong> {{ $students->count() }} Orang
             </div>
             <div>
                 <strong>Musyrif / Pembina Tahfidz:</strong> {{ $groupObj ? ($groupObj->mentorUser?->name ?? $groupObj->mentor_name ?? '-') : 'Musyrif Pembina Tahfidz' }}<br>
                 <strong>Wali Kelas:</strong> {{ $homeroomTeacher ? $homeroomTeacher->name : '-' }}<br>
-                <strong>Total Riwayat Setoran:</strong> {{ $totalAllSetoran }} Kali Setoran &nbsp;|&nbsp; <strong>Mutqin:</strong> {{ $mutqinPercentage }}%<br>
+                <strong>Total Setoran:</strong> {{ $totalAllSetoran }} Kali &nbsp;|&nbsp; <strong>Total Baris:</strong> {{ number_format($totalAllBaris ?? 0, 0, ',', '.') }} Baris<br>
+                <strong>Tingkat Mutqin:</strong> {{ $mutqinPercentage }}% &nbsp;|&nbsp; <strong>Rata-rata Nilai:</strong> {{ $overallAvgNilai ?? '-' }}<br>
                 <strong>Tanggal Dokumen:</strong> {{ $currentDate }}
             </div>
         </div>
@@ -203,16 +206,17 @@
             <thead>
                 <tr>
                     <th style="width: 3%;">No</th>
-                    <th style="width: 8%;">NIS</th>
-                    <th style="width: 17%; text-align: left;">Nama Lengkap Siswa</th>
-                    <th style="width: 5%;">Kelas</th>
-                    <th style="width: 13%; text-align: left;">Kelompok & Musyrif</th>
-                    <th style="width: 8%;">Target</th>
+                    <th style="width: 7%;">NIS</th>
+                    <th style="width: 15%; text-align: left;">Nama Lengkap Siswa</th>
+                    <th style="width: 4%;">Kelas</th>
+                    <th style="width: 12%; text-align: left;">Kelompok & Musyrif</th>
+                    <th style="width: 7%;">Target</th>
                     <th style="width: 16%; text-align: left;">Setoran Terakhir</th>
-                    <th style="width: 9%;">Frekuensi</th>
-                    <th style="width: 9%;">Kualitas Dominan</th>
+                    <th style="width: 8%;">Frekuensi</th>
+                    <th style="width: 6%;">Total Baris</th>
+                    <th style="width: 8%;">Nilai & Mutu</th>
                     <th style="width: 6%;">Presensi</th>
-                    <th style="width: 6%;">Evaluasi</th>
+                    <th style="width: 8%;">Predikat</th>
                 </tr>
             </thead>
             <tbody>
@@ -258,7 +262,7 @@
                                 <strong style="color: #0f172a;">{{ $latest->surah_name }}</strong>
                                 <span style="color: #475569; font-size: 7.5pt;">(Juz {{ $latest->juz ?? '-' }})</span><br>
                                 <small style="color: #64748b; font-size: 7pt;">
-                                    {{ $latest->ayah_range }} &bull; {{ $latest->session_date ? $latest->session_date->format('d/m/Y') : '' }}
+                                    {{ $latest->ayah_range }} &bull; {{ $latest->session_date ? \Carbon\Carbon::parse($latest->session_date)->format('d/m/Y') : '' }}
                                 </small>
                             @else
                                 <span style="color: #94a3b8; font-style: italic;">Belum ada setoran</span>
@@ -270,14 +274,20 @@
                                 Baru: {{ $student->baru_count ?? 0 }} | Murojaah: {{ $student->murojaah_count ?? 0 }}
                             </small>
                         </td>
+                        <td style="text-align: center; font-weight: bold; color: #0f766e;">
+                            {{ number_format($student->total_baris ?? 0, 0, ',', '.') }}
+                        </td>
                         <td style="text-align: center;">
+                            @if($student->avg_nilai !== null)
+                                <strong style="color: #0369a1; font-size: 8.5pt;">{{ $student->avg_nilai }}</strong><br>
+                            @endif
                             @if(($student->total_records_count ?? 0) > 0)
                                 @if($dominant === 'lancar')
-                                    <span class="badge badge-green">Mutqin / Lancar</span>
+                                    <span class="badge badge-green">Lancar</span>
                                 @elseif($dominant === 'cukup')
-                                    <span class="badge badge-yellow">Cukup Lancar</span>
+                                    <span class="badge badge-yellow">Cukup</span>
                                 @else
-                                    <span class="badge badge-red">Perlu Bimbingan</span>
+                                    <span class="badge badge-red">Perbaikan</span>
                                 @endif
                             @else
                                 <span style="color: #94a3b8;">-</span>
@@ -290,19 +300,19 @@
                             <span title="Alpha" style="color: #dc2626;">{{ $attn['alpha'] }}A</span>
                         </td>
                         <td style="text-align: center;">
-                            @if($dominant === 'lancar' && ($student->total_records_count ?? 0) >= 3)
-                                <span class="badge badge-green">Tuntas</span>
-                            @elseif(($student->total_records_count ?? 0) > 0)
-                                <span class="badge badge-yellow">Proses</span>
+                            @if(!empty($student->predikat_label) && $student->predikat_label !== '-')
+                                <span class="badge {{ str_contains($student->predikat_label, 'Mumtaz') || str_contains($student->predikat_label, 'Mutqin') ? 'badge-green' : (str_contains($student->predikat_label, 'Jayyid') ? 'badge-blue' : 'badge-yellow') }}">
+                                    {{ $student->predikat_label }}
+                                </span>
                             @else
-                                <span class="badge badge-red">Mulai</span>
+                                <span style="color: #94a3b8; font-size: 7.5pt;">-</span>
                             @endif
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" style="text-align: center; padding: 25px; color: #94a3b8; font-style: italic;">
-                            Tidak ada data siswa untuk kriteria filter yang dipilih.
+                        <td colspan="12" style="text-align: center; padding: 25px; color: #94a3b8; font-style: italic;">
+                            Tidak ada data siswa untuk kriteria filter periode yang dipilih.
                         </td>
                     </tr>
                 @endforelse

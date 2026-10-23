@@ -146,6 +146,19 @@ class ReportController extends Controller
                 ->orderBy('name')
                 ->get();
 
+            // Self-healing check for live environments
+            \App\Http\Controllers\TahfidzAttendanceController::ensureTableExists();
+
+            // Resolve Period (Semua / Semester 1 / Semester 2 / Bulanan)
+            $selectedPeriodType = $request->input('period_type', 'all');
+            $selectedMonth = $request->input('month');
+            $periodInfo = self::resolveTahfidzPeriod($selectedPeriodType, $selectedMonth, $selectedYearId);
+            $startDate = $periodInfo['start_date'];
+            $endDate = $periodInfo['end_date'];
+            $periodTitle = $periodInfo['period_title'];
+            $periodLabel = $periodInfo['period_label'];
+            $academicMonths = $periodInfo['academic_months'];
+
             if ($selectedClass || $selectedGroupId) {
                 $studentsQuery = Student::forYear($selectedYearId)
                     ->where(function($q) {
@@ -167,8 +180,9 @@ class ReportController extends Controller
                         $q->where('mentoring_groups.type', 'tahfidz')
                           ->when($selectedYearId, fn($sub) => $sub->where('mentoring_groups.academic_year_id', $selectedYearId));
                     },
-                    'tahfidzRecords' => function($q) use ($selectedYearId) {
+                    'tahfidzRecords' => function($q) use ($selectedYearId, $startDate, $endDate) {
                         $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId))
+                          ->when($startDate && $endDate, fn($sub) => $sub->whereBetween('session_date', [$startDate, $endDate]))
                           ->orderBy('session_date', 'desc')
                           ->orderBy('id', 'desc');
                     }
@@ -177,18 +191,22 @@ class ReportController extends Controller
                 // Compute Tahfidz KPI
                 $totalSiswa = $students->count();
                 $totalSetoran = 0;
+                $totalBarisAll = 0;
                 $totalLancar = 0;
                 $allStudentIds = $students->pluck('id');
+                $allScores = [];
 
-                // Load attendances in one batch
+                // Load attendances in one batch with period date filter
                 $attendances = TahfidzAttendance::whereIn('student_id', $allStudentIds)
                     ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                    ->when($startDate && $endDate, fn($q) => $q->whereBetween('session_date', [$startDate, $endDate]))
                     ->get()
                     ->groupBy('student_id');
 
                 foreach ($students as $std) {
                     $records = $std->tahfidzRecords;
                     $std->total_records_count = $records->count();
+                    $std->total_baris = (int) $records->sum('jumlah_baris');
                     $std->baru_count = $records->where('type', 'setoran_baru')->count();
                     $std->murojaah_count = $records->where('type', 'murojaah')->count();
                     $std->latest_record = $records->first();
@@ -204,7 +222,34 @@ class ReportController extends Controller
                     ];
 
                     $totalSetoran += $records->count();
+                    $totalBarisAll += $std->total_baris;
                     $totalLancar += $lancar;
+
+                    // Nilai Rata-rata
+                    $numScores = $records->pluck('nilai')->filter(fn($v) => is_numeric($v))->map(fn($v) => (float)$v);
+                    if ($numScores->isNotEmpty()) {
+                        $std->avg_nilai = round($numScores->average(), 1);
+                        foreach ($numScores as $sc) {
+                            $allScores[] = $sc;
+                        }
+                    } else {
+                        $std->avg_nilai = null;
+                    }
+
+                    // Predikat Mutu
+                    if ($std->avg_nilai !== null) {
+                        if ($std->avg_nilai >= 90) $std->predikat_label = 'Mumtaz (A)';
+                        elseif ($std->avg_nilai >= 80) $std->predikat_label = 'Jayyid Jiddan (B)';
+                        elseif ($std->avg_nilai >= 70) $std->predikat_label = 'Jayyid (C)';
+                        else $std->predikat_label = 'Maqbul (D)';
+                    } elseif ($std->total_records_count > 0) {
+                        $lancarRate = round(($lancar / $std->total_records_count) * 100);
+                        if ($lancarRate >= 80) $std->predikat_label = 'Mutqin / Lancar';
+                        elseif ($lancarRate >= 50) $std->predikat_label = 'Cukup Lancar';
+                        else $std->predikat_label = 'Perlu Bimbingan';
+                    } else {
+                        $std->predikat_label = '-';
+                    }
 
                     $stdAttendances = $attendances->get($std->id, collect());
                     $std->attendance_summary = [
@@ -217,11 +262,14 @@ class ReportController extends Controller
                 }
 
                 $lancarPercentage = $totalSetoran > 0 ? round(($totalLancar / $totalSetoran) * 100, 1) : 0;
+                $overallAvgNilai = count($allScores) > 0 ? round(array_sum($allScores) / count($allScores), 1) : '-';
 
                 $quranStats = [
                     'total_students' => $totalSiswa,
                     'total_setoran' => $totalSetoran,
+                    'total_baris' => $totalBarisAll,
                     'lancar_percentage' => $lancarPercentage,
+                    'avg_nilai' => $overallAvgNilai,
                 ];
             }
         } else {
@@ -267,6 +315,12 @@ class ReportController extends Controller
             }
         }
 
+        $selectedPeriodType = $selectedPeriodType ?? 'all';
+        $selectedMonth = $selectedMonth ?? null;
+        $periodTitle = $periodTitle ?? "REKAPITULASI LAPORAN EVALUASI & CAPAIAN TAHFIDZ AL-QUR'AN";
+        $periodLabel = $periodLabel ?? '';
+        $academicMonths = $academicMonths ?? [];
+
         return view('reports.index', compact(
             'activeTab',
             'classes', 
@@ -280,7 +334,12 @@ class ReportController extends Controller
             'activeYear',
             'tilawatiGroups',
             'tahfidzGroups',
-            'quranStats'
+            'quranStats',
+            'selectedPeriodType',
+            'selectedMonth',
+            'periodTitle',
+            'periodLabel',
+            'academicMonths'
         ));
     }
     public function exportCalistung()
@@ -294,17 +353,23 @@ class ReportController extends Controller
     }
 
     /**
-     * Ekspor Rekap Tahfidz Komprehensif ke Excel
+     * Ekspor Rekap Tahfidz Komprehensif ke Excel (Mendukung Bulanan & Semester)
      */
     public function exportTahfidz(Request $request)
     {
         $class = $request->query('class');
         $groupId = $request->query('group_id');
         $yearId = $request->query('year_id');
+        $periodType = $request->query('period_type', 'all');
+        $month = $request->query('month');
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $yearId ?? ($activeYear?->id);
-        $yearName = $selectedYearId ? (AcademicYear::find($selectedYearId)?->name ?? 'Semua-Tahun') : 'Semua-Tahun';
+
+        $periodInfo = self::resolveTahfidzPeriod($periodType, $month, $selectedYearId);
+        $startDate = $periodInfo['start_date'];
+        $endDate = $periodInfo['end_date'];
+        $periodLabel = $periodInfo['period_label'];
 
         $groupName = '';
         if ($groupId) {
@@ -315,10 +380,20 @@ class ReportController extends Controller
         }
 
         $classClean = ($class && $class !== 'ALL') ? 'Kelas_' . str_replace(' ', '_', $class) . '_' : '';
-        $filename = 'Rekap_Tahfidz_' . $groupName . $classClean . str_replace(['/', '\\', ' '], '_', $yearName) . '_' . date('Ymd_His') . '.xlsx';
+        $periodSlug = 'Semua_Periode';
+        if ($periodType === 'semester_1') {
+            $periodSlug = 'Semester_Ganjil';
+        } elseif ($periodType === 'semester_2') {
+            $periodSlug = 'Semester_Genap';
+        } elseif ($periodType === 'monthly') {
+            $monthNames = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+            $periodSlug = 'Bulanan_' . ($monthNames[$periodInfo['month']] ?? 'Bulan_' . $periodInfo['month']) . '_' . (($periodInfo['month'] >= 7) ? $periodInfo['start_year'] : $periodInfo['end_year']);
+        }
+
+        $filename = 'Laporan_Tahfidz_' . $periodSlug . '_' . $groupName . $classClean . str_replace(['/', '\\', ' '], '_', $periodInfo['year_name']) . '_' . date('Ymd_His') . '.xlsx';
 
         return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\TahfidzRecapExport($selectedYearId, $class, $groupId),
+            new \App\Exports\TahfidzRecapExport($selectedYearId, $class, $groupId, $startDate, $endDate, $periodLabel),
             $filename
         );
     }
@@ -689,6 +764,7 @@ class ReportController extends Controller
 
     /**
      * Cetak Laporan Resmi Pembinaan Tahfidz (Format A4 Resmi & Akuntabel)
+     * Mendukung Laporan Bulanan, Semester (Ganjil/Genap), dan Tahunan
      */
     public function printTahfidz(Request $request)
     {
@@ -696,11 +772,22 @@ class ReportController extends Controller
         $groupId = $request->query('group_id');
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
+        $periodType = $request->query('period_type', 'all');
+        $month = $request->query('month');
 
         $user = Auth::user();
         if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
             $class = $user->homeroom_class;
         }
+
+        // Safe table check
+        \App\Http\Controllers\TahfidzAttendanceController::ensureTableExists();
+
+        $periodInfo = self::resolveTahfidzPeriod($periodType, $month, $yearId);
+        $startDate = $periodInfo['start_date'];
+        $endDate = $periodInfo['end_date'];
+        $periodTitle = $periodInfo['period_title'];
+        $periodLabel = $periodInfo['period_label'];
 
         $query = Student::forYear($yearId)
             ->where(function($q) {
@@ -722,8 +809,9 @@ class ReportController extends Controller
                 $q->where('mentoring_groups.type', 'tahfidz')
                   ->when($yearId, fn($sub) => $sub->where('mentoring_groups.academic_year_id', $yearId));
             },
-            'tahfidzRecords' => function($q) use ($yearId) {
+            'tahfidzRecords' => function($q) use ($yearId, $startDate, $endDate) {
                 $q->when($yearId, fn($sub) => $sub->where('academic_year_id', $yearId))
+                  ->when($startDate && $endDate, fn($sub) => $sub->whereBetween('session_date', [$startDate, $endDate]))
                   ->orderBy('session_date', 'desc')
                   ->orderBy('id', 'desc');
             }
@@ -732,15 +820,19 @@ class ReportController extends Controller
         $allStudentIds = $students->pluck('id');
         $attendances = TahfidzAttendance::whereIn('student_id', $allStudentIds)
             ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+            ->when($startDate && $endDate, fn($q) => $q->whereBetween('session_date', [$startDate, $endDate]))
             ->get()
             ->groupBy('student_id');
 
         $totalAllSetoran = 0;
         $totalAllLancar = 0;
+        $totalAllBaris = 0;
+        $allScores = [];
 
         foreach ($students as $std) {
             $records = $std->tahfidzRecords;
             $std->total_records_count = $records->count();
+            $std->total_baris = (int) $records->sum('jumlah_baris');
             $std->baru_count = $records->where('type', 'setoran_baru')->count();
             $std->murojaah_count = $records->where('type', 'murojaah')->count();
             $std->latest_record = $records->first();
@@ -757,6 +849,33 @@ class ReportController extends Controller
 
             $totalAllSetoran += $records->count();
             $totalAllLancar += $lancar;
+            $totalAllBaris += $std->total_baris;
+
+            // Rata-rata Nilai
+            $numScores = $records->pluck('nilai')->filter(fn($v) => is_numeric($v))->map(fn($v) => (float)$v);
+            if ($numScores->isNotEmpty()) {
+                $std->avg_nilai = round($numScores->average(), 1);
+                foreach ($numScores as $sc) {
+                    $allScores[] = $sc;
+                }
+            } else {
+                $std->avg_nilai = null;
+            }
+
+            // Predikat Mutu
+            if ($std->avg_nilai !== null) {
+                if ($std->avg_nilai >= 90) $std->predikat_label = 'Mumtaz (A)';
+                elseif ($std->avg_nilai >= 80) $std->predikat_label = 'Jayyid Jiddan (B)';
+                elseif ($std->avg_nilai >= 70) $std->predikat_label = 'Jayyid (C)';
+                else $std->predikat_label = 'Maqbul (D)';
+            } elseif ($std->total_records_count > 0) {
+                $lancarRate = round(($lancar / $std->total_records_count) * 100);
+                if ($lancarRate >= 80) $std->predikat_label = 'Mutqin / Lancar';
+                elseif ($lancarRate >= 50) $std->predikat_label = 'Cukup Lancar';
+                else $std->predikat_label = 'Perlu Bimbingan';
+            } else {
+                $std->predikat_label = '-';
+            }
 
             $stdAttendances = $attendances->get($std->id, collect());
             $std->attendance_summary = [
@@ -768,26 +887,25 @@ class ReportController extends Controller
         }
 
         $mutqinPercentage = $totalAllSetoran > 0 ? round(($totalAllLancar / $totalAllSetoran) * 100, 1) : 0;
+        $overallAvgNilai = count($allScores) > 0 ? round(array_sum($allScores) / count($allScores), 1) : '-';
 
-        $yearName = $activeYear ? $activeYear->name : '-';
-        if ($yearId && $activeYear && $activeYear->id != $yearId) {
-            $y = AcademicYear::find($yearId);
-            if ($y) $yearName = $y->name;
-        }
-
+        $yearName = $periodInfo['year_name'];
         $groupObj = $groupId ? MentoringGroup::find($groupId) : null;
         $homeroomTeacher = $class && $class !== 'ALL' 
             ? User::where('role', 'teacher')->where('homeroom_class', $class)->first() 
             : null;
 
         return view('reports.print_tahfidz', compact(
-            'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 'totalAllSetoran', 'mutqinPercentage'
+            'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 
+            'totalAllSetoran', 'mutqinPercentage', 'totalAllBaris', 'overallAvgNilai',
+            'periodTitle', 'periodLabel', 'periodType', 'periodInfo'
         ));
     }
 
     /**
      * Cetak Raport Tahfidz Standar Nasional (Format Resmi A4 Portrait)
      * Dapat mencetak per-siswa maupun massal (se-kelas / se-kelompok)
+     * Mendukung filter Semester 1 (Ganjil) dan Semester 2 (Genap)
      */
     public function raportTahfidz(Request $request)
     {
@@ -796,6 +914,16 @@ class ReportController extends Controller
         $groupId = $request->query('group_id');
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
+
+        $periodType = $request->query('period_type', $request->query('period', 'all'));
+        $semester = $request->query('semester');
+        if ($semester === '1' || $semester === 'ganjil') $periodType = 'semester_1';
+        if ($semester === '2' || $semester === 'genap') $periodType = 'semester_2';
+
+        $periodInfo = self::resolveTahfidzPeriod($periodType, null, $yearId);
+        $startDate = $periodInfo['start_date'];
+        $endDate = $periodInfo['end_date'];
+        $semesterLabel = $periodInfo['semester_name'] ?? ($activeYear && $activeYear->active_semester == '2' ? 'Semester Genap (II)' : 'Semester Ganjil (I)');
 
         $user = Auth::user();
         if ($user->role === 'teacher' && !empty($user->homeroom_class) && !$studentId) {
@@ -825,8 +953,9 @@ class ReportController extends Controller
                 $q->where('mentoring_groups.type', 'tahfidz')
                   ->when($yearId, fn($sub) => $sub->where('mentoring_groups.academic_year_id', $yearId));
             },
-            'tahfidzRecords' => function($q) use ($yearId) {
+            'tahfidzRecords' => function($q) use ($yearId, $startDate, $endDate) {
                 $q->when($yearId, fn($sub) => $sub->where('academic_year_id', $yearId))
+                  ->when($startDate && $endDate, fn($sub) => $sub->whereBetween('session_date', [$startDate, $endDate]))
                   ->orderBy('session_date', 'asc')
                   ->orderBy('id', 'asc');
             }
@@ -835,15 +964,11 @@ class ReportController extends Controller
         $allStudentIds = $students->pluck('id');
         $attendances = TahfidzAttendance::whereIn('student_id', $allStudentIds)
             ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+            ->when($startDate && $endDate, fn($q) => $q->whereBetween('session_date', [$startDate, $endDate]))
             ->get()
             ->groupBy('student_id');
 
-        $yearName = $activeYear ? $activeYear->name : '-';
-        if ($yearId && $activeYear && $activeYear->id != $yearId) {
-            $y = AcademicYear::find($yearId);
-            if ($y) $yearName = $y->name;
-        }
-
+        $yearName = $periodInfo['year_name'];
         $groupObj = $groupId ? MentoringGroup::find($groupId) : null;
         $homeroomTeacher = $class && $class !== 'ALL' 
             ? User::where('role', 'teacher')->where('homeroom_class', $class)->first() 
@@ -857,6 +982,7 @@ class ReportController extends Controller
         foreach ($students as $std) {
             $records = $std->tahfidzRecords;
             $std->total_records_count = $records->count();
+            $std->total_baris = (int) $records->sum('jumlah_baris');
             $std->baru_count = $records->where('type', 'setoran_baru')->count();
             $std->murojaah_count = $records->where('type', 'murojaah')->count();
             $std->latest_record = $records->sortByDesc('session_date')->first();
@@ -966,8 +1092,96 @@ class ReportController extends Controller
         }
 
         return view('reports.raport_tahfidz', compact(
-            'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 'headmasterName', 'studentId'
+            'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 'headmasterName', 'studentId', 'semesterLabel'
         ));
+    }
+
+    /**
+     * Helper resolusi periode Tahfidz (Semua, Semester 1, Semester 2, atau Bulanan)
+     */
+    public static function resolveTahfidzPeriod(?string $periodType, ?string $monthInput, ?int $yearId): array
+    {
+        $periodType = in_array($periodType, ['all', 'semester_1', 'semester_2', 'monthly']) ? $periodType : 'all';
+
+        $yearObj = $yearId ? AcademicYear::find($yearId) : AcademicYear::where('is_active', true)->first();
+        if (!$yearObj) {
+            $yearObj = AcademicYear::orderBy('name', 'desc')->first();
+        }
+
+        $yearName = $yearObj?->name ?? (date('Y') . '/' . (date('Y') + 1));
+        
+        // Parse start and end year from name like "2025/2026"
+        $parts = explode('/', $yearName);
+        $startYear = isset($parts[0]) && is_numeric(trim($parts[0])) ? (int)trim($parts[0]) : (int)date('Y');
+        $endYear = isset($parts[1]) && is_numeric(trim($parts[1])) ? (int)trim($parts[1]) : ($startYear + 1);
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $academicMonths = [
+            ['month' => 7, 'year' => $startYear, 'label' => 'Juli ' . $startYear . ' (Semester Ganjil)'],
+            ['month' => 8, 'year' => $startYear, 'label' => 'Agustus ' . $startYear . ' (Semester Ganjil)'],
+            ['month' => 9, 'year' => $startYear, 'label' => 'September ' . $startYear . ' (Semester Ganjil)'],
+            ['month' => 10, 'year' => $startYear, 'label' => 'Oktober ' . $startYear . ' (Semester Ganjil)'],
+            ['month' => 11, 'year' => $startYear, 'label' => 'November ' . $startYear . ' (Semester Ganjil)'],
+            ['month' => 12, 'year' => $startYear, 'label' => 'Desember ' . $startYear . ' (Semester Ganjil)'],
+            ['month' => 1, 'year' => $endYear, 'label' => 'Januari ' . $endYear . ' (Semester Genap)'],
+            ['month' => 2, 'year' => $endYear, 'label' => 'Februari ' . $endYear . ' (Semester Genap)'],
+            ['month' => 3, 'year' => $endYear, 'label' => 'Maret ' . $endYear . ' (Semester Genap)'],
+            ['month' => 4, 'year' => $endYear, 'label' => 'April ' . $endYear . ' (Semester Genap)'],
+            ['month' => 5, 'year' => $endYear, 'label' => 'Mei ' . $endYear . ' (Semester Genap)'],
+            ['month' => 6, 'year' => $endYear, 'label' => 'Juni ' . $endYear . ' (Semester Genap)'],
+        ];
+
+        $startDate = null;
+        $endDate = null;
+        $periodTitle = "REKAPITULASI LAPORAN EVALUASI & CAPAIAN TAHFIDZ AL-QUR'AN";
+        $periodLabel = "Tahun Pelajaran " . $yearName;
+        $semesterName = null;
+        $selectedMonth = null;
+
+        if ($periodType === 'semester_1') {
+            $startDate = sprintf('%04d-07-01', $startYear);
+            $endDate = sprintf('%04d-12-31', $startYear);
+            $periodTitle = "REKAPITULASI LAPORAN SEMESTER PEMBINAAN TAHFIDZ AL-QUR'AN";
+            $periodLabel = "Semester Ganjil (I) · Tahun Pelajaran " . $yearName;
+            $semesterName = "Semester Ganjil (I)";
+        } elseif ($periodType === 'semester_2') {
+            $startDate = sprintf('%04d-01-01', $endYear);
+            $endDate = sprintf('%04d-06-30', $endYear);
+            $periodTitle = "REKAPITULASI LAPORAN SEMESTER PEMBINAAN TAHFIDZ AL-QUR'AN";
+            $periodLabel = "Semester Genap (II) · Tahun Pelajaran " . $yearName;
+            $semesterName = "Semester Genap (II)";
+        } elseif ($periodType === 'monthly') {
+            $m = is_numeric($monthInput) ? (int)$monthInput : (int)date('n');
+            if ($m < 1 || $m > 12) $m = 7;
+            $selectedMonth = $m;
+            $mYear = ($m >= 7) ? $startYear : $endYear;
+            $daysInMonth = (int)date('t', strtotime(sprintf('%04d-%02d-01', $mYear, $m)));
+            $startDate = sprintf('%04d-%02d-01', $mYear, $m);
+            $endDate = sprintf('%04d-%02d-%02d', $mYear, $m, $daysInMonth);
+            $mName = $monthNames[$m] ?? "Bulan $m";
+            $semLabel = ($m >= 7) ? "Semester Ganjil" : "Semester Genap";
+            $periodTitle = "REKAPITULASI LAPORAN BULANAN PEMBINAAN TAHFIDZ AL-QUR'AN";
+            $periodLabel = "Bulan {$mName} {$mYear} ({$semLabel} · TP {$yearName})";
+            $semesterName = $semLabel;
+        }
+
+        return [
+            'period_type'     => $periodType,
+            'month'           => $selectedMonth,
+            'start_date'      => $startDate,
+            'end_date'        => $endDate,
+            'start_year'      => $startYear,
+            'end_year'        => $endYear,
+            'year_name'       => $yearName,
+            'period_title'    => $periodTitle,
+            'period_label'    => $periodLabel,
+            'academic_months' => $academicMonths,
+            'semester_name'   => $semesterName,
+        ];
     }
 
 }

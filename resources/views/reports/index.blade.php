@@ -459,21 +459,47 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 10px;">
                 <div>
                     <h3 style="margin: 0; font-size: 1.15rem; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-quran" style="color: #0284c7;"></i> Filter Laporan Pembinaan Tahfidz
+                        <i class="fas fa-quran" style="color: #0284c7;"></i> Laporan Pembinaan Tahfidz (Bulanan & Semester)
                     </h3>
                     <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">
-                        Laporan akuntabel setoran hafalan baru, murojaah, mutu kualitas (lancar/cukup/perlu perbaikan), dan rekap sima'an siswa.
+                        Pilih periode <strong>Bulanan</strong>, <strong>Semester 1 (Ganjil)</strong>, <strong>Semester 2 (Genap)</strong>, atau <strong>1 Tahun Penuh</strong> untuk rekapitulasi setoran hafalan, total baris, dan mutu siswa.
                     </p>
                 </div>
-                <span style="font-size: 0.82rem; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 999px; font-weight: 600;">
-                    <i class="fas fa-calendar-alt"></i> TA: {{ \App\Models\AcademicYear::find($selectedYearId)->name ?? '-' }}
-                </span>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.82rem; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 999px; font-weight: 700;">
+                        <i class="fas fa-calendar-check"></i> {{ $periodLabel ?? '1 Tahun Penuh' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Quick Period Filter Tabs -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9;">
+                <a href="{{ route('reports.index', ['tab' => 'tahfidz', 'year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => 'all']) }}" 
+                   class="btn-action-header" 
+                   style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; text-decoration: none; {{ ($selectedPeriodType ?? 'all') === 'all' ? 'background: #0284c7; color: white; border-color: #0284c7; font-weight: 700;' : 'background: #f8fafc; color: #475569; border-color: #e2e8f0;' }}">
+                    <i class="fas fa-calendar-alt"></i> 🌟 Semua Periode (1 Tahun Penuh)
+                </a>
+                <a href="{{ route('reports.index', ['tab' => 'tahfidz', 'year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => 'semester_1']) }}" 
+                   class="btn-action-header" 
+                   style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; text-decoration: none; {{ ($selectedPeriodType ?? '') === 'semester_1' ? 'background: #0284c7; color: white; border-color: #0284c7; font-weight: 700;' : 'background: #f8fafc; color: #475569; border-color: #e2e8f0;' }}">
+                    <i class="fas fa-book-open"></i> 📘 Semester 1 (Ganjil)
+                </a>
+                <a href="{{ route('reports.index', ['tab' => 'tahfidz', 'year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => 'semester_2']) }}" 
+                   class="btn-action-header" 
+                   style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; text-decoration: none; {{ ($selectedPeriodType ?? '') === 'semester_2' ? 'background: #0284c7; color: white; border-color: #0284c7; font-weight: 700;' : 'background: #f8fafc; color: #475569; border-color: #e2e8f0;' }}">
+                    <i class="fas fa-graduation-cap"></i> 📗 Semester 2 (Genap)
+                </a>
+                <a href="{{ route('reports.index', ['tab' => 'tahfidz', 'year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => 'monthly', 'month' => $selectedMonth ?? date('n')]) }}" 
+                   class="btn-action-header" 
+                   style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; text-decoration: none; {{ ($selectedPeriodType ?? '') === 'monthly' ? 'background: #059669; color: white; border-color: #059669; font-weight: 700;' : 'background: #f8fafc; color: #475569; border-color: #e2e8f0;' }}">
+                    <i class="fas fa-calendar-day"></i> 📅 Laporan Bulanan
+                </a>
             </div>
             
             <form action="{{ route('reports.index') }}" method="GET">
                 <input type="hidden" name="tab" value="tahfidz">
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="form-row" style="flex-wrap: wrap;">
+                    <div class="form-group" style="min-width: 170px;">
                         <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Tahun Pelajaran</label>
                         <select name="year_id" class="form-control" required>
                             @foreach($academicYears as $year)
@@ -483,7 +509,8 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group">
+
+                    <div class="form-group" style="min-width: 170px;">
                         <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Kelas</label>
                         <select name="class" class="form-control">
                             <option value="">-- Semua Kelas / Pilih Kelas --</option>
@@ -497,18 +524,43 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Kelompok Tahfidz (Opsional)</label>
+
+                    <div class="form-group" style="min-width: 190px;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Kelompok Tahfidz</label>
                         <select name="group_id" class="form-control">
                             <option value="">-- Semua Kelompok Tahfidz --</option>
                             @foreach($tahfidzGroups as $grp)
                                 <option value="{{ $grp->id }}" {{ $selectedGroupId == $grp->id ? 'selected' : '' }}>
-                                    {{ $grp->name }} (Target: {{ $grp->target_level ?? 'Juz 30' }}) - {{ $grp->mentor_name ?? 'Tanpa Musyrif' }}
+                                    {{ $grp->name }} (Target: {{ $grp->target_level ?? 'Juz 30' }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <div style="padding-bottom: 1px;">
+
+                    <div class="form-group" style="min-width: 180px;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Jenis Periode Laporan</label>
+                        <select name="period_type" id="tahfidz_period_type" class="form-control" onchange="toggleTahfidzMonthDropdown(this.value)">
+                            <option value="all" {{ ($selectedPeriodType ?? 'all') === 'all' ? 'selected' : '' }}>🌟 1 Tahun Penuh (Semua)</option>
+                            <option value="semester_1" {{ ($selectedPeriodType ?? '') === 'semester_1' ? 'selected' : '' }}>📘 Semester 1 (Ganjil: Jul-Des)</option>
+                            <option value="semester_2" {{ ($selectedPeriodType ?? '') === 'semester_2' ? 'selected' : '' }}>📗 Semester 2 (Genap: Jan-Jun)</option>
+                            <option value="monthly" {{ ($selectedPeriodType ?? '') === 'monthly' ? 'selected' : '' }}>📅 Laporan Bulanan (Per Bulan)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="tahfidz_month_wrapper" style="min-width: 180px; {{ ($selectedPeriodType ?? '') === 'monthly' ? '' : 'display: none;' }}">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #059669; font-size: 0.85rem;">
+                            <i class="fas fa-calendar-day"></i> Pilih Bulan
+                        </label>
+                        <select name="month" class="form-control" style="border-color: #059669; font-weight: 600;">
+                            @foreach($academicMonths as $am)
+                                <option value="{{ $am['month'] }}" {{ ($selectedMonth ?? date('n')) == $am['month'] ? 'selected' : '' }}>
+                                    {{ $am['label'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div style="padding-bottom: 1px; min-width: 130px;">
                         <button type="submit" class="btn-action-header btn-blue" style="height: 48px; width: 100%; justify-content: center; background: #0284c7; font-weight: 700; border-color: #0284c7;">
                             <i class="fas fa-filter"></i> Tampilkan
                         </button>
@@ -517,41 +569,65 @@
             </form>
         </div>
 
+        <script>
+            function toggleTahfidzMonthDropdown(val) {
+                var el = document.getElementById('tahfidz_month_wrapper');
+                if (el) {
+                    if (val === 'monthly') {
+                        el.style.display = 'block';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            }
+        </script>
+
         @if($selectedClass || $selectedGroupId)
             @if(isset($students) && count($students) > 0)
                 <!-- Actions Bar -->
                 <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div style="font-size: 0.9rem; color: #475569;">
-                        Menampilkan <strong>{{ count($students) }} Siswa Tahfidz</strong> 
-                        {{ $selectedClass ? ($selectedClass === 'ALL' ? 'seluruh kelas' : 'Kelas ' . $selectedClass) : '' }}
-                        {{ $selectedGroupId ? '(Filter Kelompok aktif)' : '' }}
+                    <div>
+                        <div style="font-size: 0.92rem; color: #1e293b; font-weight: 700;">
+                            Menampilkan {{ count($students) }} Siswa Tahfidz 
+                            {{ $selectedClass ? ($selectedClass === 'ALL' ? 'Seluruh Kelas' : 'Kelas ' . $selectedClass) : '' }}
+                            {{ $selectedGroupId ? '(Filter Kelompok aktif)' : '' }}
+                        </div>
+                        <div style="font-size: 0.82rem; color: #0284c7; font-weight: 600; margin-top: 2px;">
+                            <i class="fas fa-check-circle"></i> Periode Terpilih: {{ $periodLabel }}
+                        </div>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="{{ route('reports.tahfidz.export', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
+                        <a href="{{ route('reports.tahfidz.export', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => $selectedPeriodType, 'month' => $selectedMonth]) }}" 
                            class="btn-action-header btn-green" style="background: #10b981; font-weight: 700; padding: 10px 18px; font-size: 0.92rem;">
-                            <i class="fas fa-file-excel"></i> Download Excel Rekap Tahfidz
+                            <i class="fas fa-file-excel"></i> Download Excel ({{ ($selectedPeriodType ?? 'all') === 'monthly' ? 'Bulanan' : (($selectedPeriodType ?? 'all') !== 'all' ? 'Semester' : 'Tahunan') }})
                         </a>
-                        <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
+                        <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => $selectedPeriodType]) }}" 
                            target="_blank" class="btn-action-header btn-green" style="background: #059669; font-weight: 700; padding: 10px 18px; font-size: 0.92rem; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
-                            <i class="fas fa-file-invoice"></i> Cetak Raport Tahfidz Standar Nasional (A4 Portrait)
+                            <i class="fas fa-file-invoice"></i> Cetak Raport Tahfidz Standar Nasional (A4)
                         </a>
-                        <a href="{{ route('reports.tahfidz.print', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId]) }}" 
+                        <a href="{{ route('reports.tahfidz.print', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'group_id' => $selectedGroupId, 'period_type' => $selectedPeriodType, 'month' => $selectedMonth]) }}" 
                            target="_blank" class="btn-action-header btn-blue" style="background: #0284c7; font-weight: 700; padding: 10px 18px; font-size: 0.92rem;">
-                            <i class="fas fa-table"></i> Cetak Rekap Evaluasi Tahfidz (A4 Landscape)
+                            @if(($selectedPeriodType ?? '') === 'monthly')
+                                <i class="fas fa-calendar-day"></i> Cetak Rekap Laporan Bulanan (A4 Landscape)
+                            @elseif(in_array(($selectedPeriodType ?? ''), ['semester_1', 'semester_2']))
+                                <i class="fas fa-book-open"></i> Cetak Rekap Laporan Semester (A4 Landscape)
+                            @else
+                                <i class="fas fa-table"></i> Cetak Rekap Tahfidz Tahunan (A4 Landscape)
+                            @endif
                         </a>
                     </div>
                 </div>
 
                 <!-- KPI Cards -->
-                <div class="no-print" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div class="no-print" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
                     <div class="kpi-stat-card">
                         <div class="kpi-icon" style="background: #e0f2fe; color: #0284c7;">
-                            <i class="fas fa-quran"></i>
+                            <i class="fas fa-users"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Siswa</div>
-                            <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $quranStats['total_students'] ?? count($students) }}</div>
-                            <div style="font-size: 0.75rem; color: #0284c7;"><i class="fas fa-check-circle"></i> Siswa Terdata</div>
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Siswa</div>
+                            <div style="font-size: 1.45rem; font-weight: 800; color: #1e293b;">{{ $quranStats['total_students'] ?? count($students) }}</div>
+                            <div style="font-size: 0.73rem; color: #0284c7;"><i class="fas fa-check-circle"></i> Siswa Terdaftar</div>
                         </div>
                     </div>
                     <div class="kpi-stat-card">
@@ -559,9 +635,19 @@
                             <i class="fas fa-history"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Setoran</div>
-                            <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $quranStats['total_setoran'] ?? 0 }} <span style="font-size: 0.85rem; font-weight: 500; color: #64748b;">kali</span></div>
-                            <div style="font-size: 0.75rem; color: #16a34a;">Setoran Baru & Murojaah</div>
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Setoran</div>
+                            <div style="font-size: 1.45rem; font-weight: 800; color: #1e293b;">{{ $quranStats['total_setoran'] ?? 0 }} <span style="font-size: 0.8rem; font-weight: 500; color: #64748b;">kali</span></div>
+                            <div style="font-size: 0.73rem; color: #16a34a;">Baru & Murojaah</div>
+                        </div>
+                    </div>
+                    <div class="kpi-stat-card">
+                        <div class="kpi-icon" style="background: #f0fdfa; color: #0f766e;">
+                            <i class="fas fa-align-left"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Baris Dihafal</div>
+                            <div style="font-size: 1.45rem; font-weight: 800; color: #0f766e;">{{ number_format($quranStats['total_baris'] ?? 0, 0, ',', '.') }}</div>
+                            <div style="font-size: 0.73rem; color: #0f766e;">Baris Al-Qur'an Periode Ini</div>
                         </div>
                     </div>
                     <div class="kpi-stat-card">
@@ -569,31 +655,31 @@
                             <i class="fas fa-medal"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Tingkat Mutqin / Lancar</div>
-                            <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">{{ $quranStats['lancar_percentage'] ?? 0 }}%</div>
-                            <div style="font-size: 0.75rem; color: #b45309;">Kualitas Predikat Lancar</div>
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Tingkat Mutqin</div>
+                            <div style="font-size: 1.45rem; font-weight: 800; color: #1e293b;">{{ $quranStats['lancar_percentage'] ?? 0 }}%</div>
+                            <div style="font-size: 0.73rem; color: #b45309;">Setoran Predikat Lancar</div>
                         </div>
                     </div>
                     <div class="kpi-stat-card">
                         <div class="kpi-icon" style="background: #ede9fe; color: #7c3aed;">
-                            <i class="fas fa-file-contract"></i>
+                            <i class="fas fa-star"></i>
                         </div>
                         <div>
-                            <div style="font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Akuntabilitas</div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #1e293b;">Format Terstandar</div>
-                            <div style="font-size: 0.75rem; color: #7c3aed;">3 Tanda Tangan Pengesahan</div>
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Rata-rata Nilai</div>
+                            <div style="font-size: 1.45rem; font-weight: 800; color: #7c3aed;">{{ $quranStats['avg_nilai'] ?? '-' }}</div>
+                            <div style="font-size: 0.73rem; color: #7c3aed;">Skala Standar 0 - 100</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Table Tahfidz -->
                 <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0;">
-                    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <h4 style="margin: 0; font-size: 1rem; color: #1e293b; font-weight: 700;">
-                            <i class="fas fa-table-list" style="color: #0284c7;"></i> Rekapitulasi Capaian & Evaluasi Tahfidz
+                            <i class="fas fa-table-list" style="color: #0284c7;"></i> Rekapitulasi Capaian & Evaluasi Tahfidz Siswa
                         </h4>
-                        <span style="font-size: 0.78rem; color: #64748b;">
-                            Format Akuntabel SDIT AN NADZIR
+                        <span style="font-size: 0.78rem; background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 6px; font-weight: 600;">
+                            Periode: {{ $periodLabel }}
                         </span>
                     </div>
                     <div class="table-responsive">
@@ -607,10 +693,11 @@
                                     <th style="padding: 10px 8px; text-align: left;">Kelompok & Musyrif</th>
                                     <th style="padding: 10px 8px; text-align: left;">Target</th>
                                     <th style="padding: 10px 8px; text-align: left;">Setoran Terakhir</th>
-                                    <th style="padding: 10px 8px; text-align: center; width: 90px;">Frekuensi</th>
-                                    <th style="padding: 10px 8px; text-align: center;">Mutu Hafalan</th>
+                                    <th style="padding: 10px 8px; text-align: center; width: 85px;">Frekuensi</th>
+                                    <th style="padding: 10px 8px; text-align: center; width: 80px;">Total Baris</th>
+                                    <th style="padding: 10px 8px; text-align: center; width: 90px;">Nilai & Mutu</th>
                                     <th style="padding: 10px 8px; text-align: center; width: 90px;">Sima'an</th>
-                                    <th style="padding: 10px 8px; text-align: center; width: 100px;">Aksi</th>
+                                    <th style="padding: 10px 8px; text-align: center; width: 110px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -684,20 +771,31 @@
                                             </div>
                                         </td>
                                         <td style="padding: 10px 8px; text-align: center;">
-                                            <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                            <div style="font-weight: 800; color: #0f766e; font-size: 0.9rem;">
+                                                {{ number_format($student->total_baris ?? 0, 0, ',', '.') }}
+                                            </div>
+                                            <small style="color: #64748b; font-size: 0.68rem;">baris</small>
+                                        </td>
+                                        <td style="padding: 10px 8px; text-align: center;">
+                                            @if($student->avg_nilai !== null)
+                                                <div style="font-weight: 800; color: #0284c7; font-size: 0.88rem;">
+                                                    {{ $student->avg_nilai }}
+                                                </div>
+                                            @endif
+                                            <div style="display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; margin-top: 2px;">
                                                 @if(($qCounts['lancar'] ?? 0) > 0)
-                                                    <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #dcfce7; color: #15803d; font-weight: 700;" title="Lancar/Mutqin">
-                                                        L: {{ $qCounts['lancar'] }}
+                                                    <span style="font-size: 0.68rem; padding: 1px 5px; border-radius: 3px; background: #dcfce7; color: #15803d; font-weight: 700;" title="Lancar">
+                                                        L:{{ $qCounts['lancar'] }}
                                                     </span>
                                                 @endif
                                                 @if(($qCounts['cukup'] ?? 0) > 0)
-                                                    <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 700;" title="Cukup">
-                                                        C: {{ $qCounts['cukup'] }}
+                                                    <span style="font-size: 0.68rem; padding: 1px 5px; border-radius: 3px; background: #fef3c7; color: #b45309; font-weight: 700;" title="Cukup">
+                                                        C:{{ $qCounts['cukup'] }}
                                                     </span>
                                                 @endif
                                                 @if(($qCounts['perlu_perbaikan'] ?? 0) > 0)
-                                                    <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #fee2e2; color: #991b1b; font-weight: 700;" title="Perlu Perbaikan">
-                                                        P: {{ $qCounts['perlu_perbaikan'] }}
+                                                    <span style="font-size: 0.68rem; padding: 1px 5px; border-radius: 3px; background: #fee2e2; color: #991b1b; font-weight: 700;" title="Perlu Perbaikan">
+                                                        P:{{ $qCounts['perlu_perbaikan'] }}
                                                     </span>
                                                 @endif
                                                 @if(($student->total_records_count ?? 0) == 0)
@@ -717,7 +815,7 @@
                                                     <a href="{{ route('tahfidz.student-card', ['group' => $grp->id, 'student' => $student->id]) }}" class="btn-action-header btn-blue" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Lihat Kartu Hafalan">
                                                         <i class="fas fa-id-card"></i> Kartu
                                                     </a>
-                                                    <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'student_id' => $student->id, 'group_id' => $grp->id]) }}" target="_blank" class="btn-action-header btn-green" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none; background: #059669;" title="Cetak Raport Tahfidz Standar Nasional">
+                                                    <a href="{{ route('reports.tahfidz.raport', ['year_id' => $selectedYearId, 'student_id' => $student->id, 'group_id' => $grp->id, 'period_type' => $selectedPeriodType]) }}" target="_blank" class="btn-action-header btn-green" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none; background: #059669;" title="Cetak Raport Tahfidz Standar Nasional">
                                                         <i class="fas fa-print"></i> Raport
                                                     </a>
                                                 </div>

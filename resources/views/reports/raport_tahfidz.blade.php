@@ -465,7 +465,7 @@
                 <h2>LAPORAN HASIL BELAJAR TAHFIDZ AL-QUR'AN</h2>
                 <div class="subtitle">(RAPORT CAPAIAN TAHFIDZ & TILAWAH STANDAR NASIONAL)</div>
                 <div class="semester-info">
-                    Semester {{ $activeYear && $activeYear->active_semester == '2' ? 'Genap (II)' : 'Ganjil (I)' }} · Tahun Pelajaran {{ $yearName }}
+                    {{ $semesterLabel ?? ('Semester ' . ($activeYear && $activeYear->active_semester == '2' ? 'Genap (II)' : 'Ganjil (I)')) }} · Tahun Pelajaran {{ $yearName }}
                 </div>
             </div>
 

@@ -32,6 +32,11 @@
                 <a href="{{ route('mentoring.management', ['tab' => $type]) }}" class="btn-action-header btn-blue" style="padding: 9px 15px; font-size: 0.88rem;">
                     <i class="fas fa-layer-group"></i> Manajemen Kelompok Hub
                 </a>
+                @if($type === 'tahfidz')
+                    <a href="{{ route('reports.index', ['tab' => 'tahfidz', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-blue" style="background: #0284c7; padding: 9px 15px; font-size: 0.88rem;">
+                        <i class="fas fa-chart-pie"></i> Laporan Bulanan & Semester
+                    </a>
+                @endif
                 <a href="{{ $type === 'tilawati' ? route('tilawati-groups.create') : route('tahfidz-groups.create') }}" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }}; padding: 9px 16px; font-size: 0.88rem;">
                     <i class="fas fa-plus"></i> Buat Kelompok Baru
                 </a>

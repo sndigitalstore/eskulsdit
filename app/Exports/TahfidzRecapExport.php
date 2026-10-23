@@ -18,12 +18,18 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
     protected $yearId;
     protected $class;
     protected $groupId;
+    protected $startDate;
+    protected $endDate;
+    protected $periodLabel;
 
-    public function __construct($yearId = null, $class = null, $groupId = null)
+    public function __construct($yearId = null, $class = null, $groupId = null, $startDate = null, $endDate = null, $periodLabel = null)
     {
         $this->yearId = $yearId;
         $this->class = $class;
         $this->groupId = $groupId;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+        $this->periodLabel = $periodLabel;
     }
 
     public function collection()
@@ -53,6 +59,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             },
             'tahfidzRecords' => function($q) use ($selectedYearId) {
                 $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId))
+                  ->when($this->startDate && $this->endDate, fn($sub) => $sub->whereBetween('session_date', [$this->startDate, $this->endDate]))
                   ->orderBy('session_date', 'desc')
                   ->orderBy('id', 'desc');
             }
@@ -61,6 +68,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
         $allStudentIds = $students->pluck('id');
         $attendances = TahfidzAttendance::whereIn('student_id', $allStudentIds)
             ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+            ->when($this->startDate && $this->endDate, fn($q) => $q->whereBetween('session_date', [$this->startDate, $this->endDate]))
             ->get()
             ->groupBy('student_id');
 
@@ -79,6 +87,10 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             $lancarCount = $records->where('quality', 'lancar')->count();
             $lancarPercent = $totalSetoran > 0 ? round(($lancarCount / $totalSetoran) * 100) : 0;
 
+            // Rata-rata Nilai
+            $numNilai = $records->pluck('nilai')->filter(fn($v) => is_numeric($v))->map(fn($v) => (float)$v);
+            $avgNilai = $numNilai->isNotEmpty() ? round($numNilai->average(), 1) : '-';
+
             // Presensi
             $stdAtt = $attendances->get($std->id, collect());
             $hadir = $stdAtt->where('status', 'hadir')->count();
@@ -87,10 +99,13 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             $alpha = $stdAtt->where('status', 'alpha')->count();
 
             // Predikat Mutu
-            if ($lancarPercent >= 85) {
+            if ($totalSetoran === 0) {
+                $pred = 'Belum Ada Setoran';
+                $rekomendasi = 'Perlu Bimbingan Awal';
+            } elseif ($lancarPercent >= 85 || (is_numeric($avgNilai) && $avgNilai >= 90)) {
                 $pred = 'Mumtaz (Istimewa)';
                 $rekomendasi = 'Siap Munaqosah';
-            } elseif ($lancarPercent >= 65) {
+            } elseif ($lancarPercent >= 65 || (is_numeric($avgNilai) && $avgNilai >= 80)) {
                 $pred = 'Jayyid Jiddan (Amat Baik)';
                 $rekomendasi = 'Tingkatkan Muroja\'ah';
             } else {
@@ -113,6 +128,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
                 'latest_capaian' => $capaianStr,
                 'total_records'  => $totalSetoran,
                 'total_baris'    => $totalBaris,
+                'avg_nilai'      => $avgNilai,
                 'ziyadah'        => $baruCount,
                 'murojaah'       => $murojaahCount,
                 'mutqin_rate'    => $lancarPercent . '%',
@@ -141,6 +157,7 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Capaian Terakhir',
             'Total Setoran (Kali)',
             'Total Baris Dihafal',
+            'Rata-rata Nilai',
             'Ziyadah (Baru)',
             'Muroja\'ah',
             'Tingkat Mutqin (%)',
@@ -156,17 +173,17 @@ class TahfidzRecapExport implements FromCollection, WithHeadings, ShouldAutoSize
     public function styles(Worksheet $sheet)
     {
         // Header Styling
-        $sheet->getStyle('A1:S1')->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
-        $sheet->getStyle('A1:S1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-        $sheet->getStyle('A1:S1')->getFill()->getStartColor()->setARGB('FF047857'); // Emerald Green
-        $sheet->getStyle('A1:S1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:T1')->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
+        $sheet->getStyle('A1:T1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+        $sheet->getStyle('A1:T1')->getFill()->getStartColor()->setARGB('FF047857'); // Emerald Green
+        $sheet->getStyle('A1:T1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Center alignments
         $highestRow = $sheet->getHighestRow();
         $sheet->getStyle('A2:A' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('B2:B' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('D2:D' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('I2:Q' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('I2:R' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         return [];
     }
