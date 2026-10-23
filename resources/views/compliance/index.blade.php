@@ -314,26 +314,30 @@
                             <!-- Kolom 6: Tindakan Kontak Pembina -->
                             <td style="padding: 16px 20px; text-align: center; vertical-align: middle;">
                                 @if($viewMode === 'today')
-                                    @if($item['missing_teacher_attendance'] && $pembina && $pembina->phone)
+                                    @php
+                                        $needsContact = $item['missing_teacher_attendance'] || !$item['student_attendance_complete'];
+                                    @endphp
+                                    @if($needsContact && $pembina && $pembina->phone)
                                         @php
                                             $phone = trim($pembina->phone);
                                             if (str_starts_with($phone, '0')) {
                                                 $phone = '62' . substr($phone, 1);
                                             }
                                             $waUrl = "https://api.whatsapp.com/send?phone={$phone}&text=" . rawurlencode($item['wa_message']);
+                                            $btnTitle = $item['missing_teacher_attendance'] ? 'Ingatkan Presensi Pembina via WhatsApp' : 'Ingatkan Absensi Siswa via WhatsApp';
                                         @endphp
                                         <a href="{{ $waUrl }}" target="_blank" 
                                            style="background: #10b981; color: white; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); transition: all 0.2s;"
-                                           title="Ingatkan via WhatsApp">
+                                           title="{{ $btnTitle }}">
                                             <i class="fab fa-whatsapp" style="font-size: 0.95rem;"></i> Hubungi
                                         </a>
-                                    @elseif($item['missing_teacher_attendance'])
+                                    @elseif($needsContact)
                                         <span style="font-size: 0.78rem; color: #94a3b8; font-style: italic; font-weight: 600;">
                                             No. WA belum terdaftar
                                         </span>
                                     @else
                                         <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                            <i class="fas fa-check-circle"></i> Sudah Absen
+                                            <i class="fas fa-check-circle"></i> Lengkap
                                         </span>
                                     @endif
                                 @else

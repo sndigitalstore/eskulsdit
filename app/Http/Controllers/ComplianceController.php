@@ -157,10 +157,22 @@ class ComplianceController extends Controller
                     $actionReasons[] = 'Belum ada akun Pembina yang tertaut';
                 }
 
-                // Pada mode today (Kepatuhan Pembina Hari H), status kepatuhan pembina dinilai dari presensi pembina:
-                // Jika pembina sudah mengisi presensi, maka statusnya adalah SUDAH ABSEN (Tertib).
-                // Hanya butuh tindakan jika pembina belum absen.
-                $needsAction = $missingTeacherAttendance;
+                // Pada mode today (Kepatuhan Pembina Hari H):
+                // Pembina tertib hadir hari ini
+                $isTeacherAttended = !$missingTeacherAttendance;
+
+                // Butuh tindakan/pengingat jika pembina belum absen ATAU siswa belum diabsen
+                $needsAction = $missingTeacherAttendance || !$studentAttendanceComplete;
+
+                // Hitungan KPI hari ini:
+                // Tertib Hari Ini: jumlah pembina yang sudah absen presensi
+                if ($isTeacherAttended) {
+                    $completeCount++;
+                }
+                // Belum Lengkap Hari Ini: eskul yang belum tuntas (pembina belum absen atau siswa belum diisi)
+                if ($needsAction) {
+                    $actionNeededCount++;
+                }
 
             } else {
                 // --- MODE CUMULATIVE (Akumulasi 30 Hari Terakhir & Nilai) ---
@@ -203,12 +215,12 @@ class ComplianceController extends Controller
                 }
 
                 $needsAction = (!$studentAttendanceComplete) || ($missingTeacherAttendance) || (!$gradesComplete);
-            }
 
-            if ($needsAction) {
-                $actionNeededCount++;
-            } else {
-                $completeCount++;
+                if ($needsAction) {
+                    $actionNeededCount++;
+                } else {
+                    $completeCount++;
+                }
             }
 
             // Template Pesan WA Personal per Pembina
@@ -262,21 +274,29 @@ class ComplianceController extends Controller
             if ($statusFilter === 'action_needed' && !$needsAction) {
                 continue;
             }
-            if ($statusFilter === 'complete' && $needsAction) {
-                continue;
+            if ($statusFilter === 'complete') {
+                if ($viewMode === 'today') {
+                    if (!$isTeacherAttended) {
+                        continue;
+                    }
+                } else {
+                    if ($needsAction) {
+                        continue;
+                    }
+                }
             }
 
             $complianceData->push($item);
         }
 
-        // Template Pesan Broadcast WhatsApp (Rekapan Seluruh Pembina yang Belum Lengkap / Belum Absen)
+        // Template Pesan Broadcast WhatsApp (Rekapan Seluruh Pembina yang Belum Lengkap)
         $broadcastLines = [];
-        $broadcastLines[] = "📢 *PENGINGAT PRESENSI PEMBINA ESKUL " . ($viewMode === 'today' ? "HARI INI" : "") . "*";
+        $broadcastLines[] = "📢 *PENGINGAT ADMINISTRASI ESKUL " . ($viewMode === 'today' ? "HARI INI" : "") . "*";
         $broadcastLines[] = "📅 *Hari/Tanggal*: {$fullDateIndo}";
         $broadcastLines[] = "";
         $broadcastLines[] = "Kepada Yth. Ust/Ustazah Pembina Ekstrakurikuler,";
         if ($actionNeededList->isNotEmpty()) {
-            $broadcastLines[] = "Berikut daftar eskul yang pembinanya *belum " . ($viewMode === 'today' ? "melakukan absensi kehadiran hari ini" : "melengkapi administrasi") . "*:";
+            $broadcastLines[] = "Berikut daftar eskul yang *belum melengkapi administrasi " . ($viewMode === 'today' ? "pada pelaksanaan hari ini" : "") . "*:";
             $broadcastLines[] = "";
             $no = 1;
             foreach ($actionNeededList as $act) {
