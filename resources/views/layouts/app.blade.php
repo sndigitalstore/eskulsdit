@@ -187,6 +187,12 @@
             border-color: rgba(255, 255, 255, 0.7);
         }
 
+        .nav-dropdown.active-parent > .nav-dropdown-toggle .dropdown-chevron {
+            transform: rotate(180deg);
+            color: #047857;
+            transition: none !important;
+        }
+
         .nav-dropdown.open > .nav-dropdown-toggle .dropdown-chevron {
             transform: rotate(180deg);
             color: #047857;
@@ -217,6 +223,16 @@
             visibility: visible;
             padding: 4px 0 4px 10px;
             margin: 4px 0 6px 14px;
+        }
+
+        /* Saat menu sedang aktif/dibuka dari server, tampilkan langsung tanpa animasi transisi ulang */
+        .nav-dropdown.active-parent > .nav-submenu {
+            max-height: 520px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            padding: 4px 0 4px 10px !important;
+            margin: 4px 0 6px 14px !important;
+            transition: none !important;
         }
 
         .nav-subitem {

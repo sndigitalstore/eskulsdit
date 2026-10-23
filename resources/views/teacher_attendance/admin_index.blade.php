@@ -1,442 +1,9 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Data Presensi Pembina')
 @section('page-title', 'Data Presensi Pembina')
 
-@section('content')
-@php
-    $totalCount = $attendances->count();
-    $presentCount = $attendances->where('status', 'present')->count();
-    $permissionCount = $attendances->whereIn('status', ['sick', 'permission'])->count();
-    $substituteCount = $attendances->filter(function($item) {
-        return !empty($item->substitute_name) || !empty($item->substitute_user_id);
-    })->count();
-    $monthCarbon = \Carbon\Carbon::parse($month . '-01')->locale('id');
-    $monthIndo = $monthCarbon->isoFormat('MMMM Y');
-@endphp
-
-<div class="presence-container">
-
-    <!-- ========================================== -->
-    <!-- 1. HERO / BANNER IDENTITAS PRESENSI       -->
-    <!-- ========================================== -->
-    <div class="presence-hero-banner">
-        <div class="hero-content-left">
-            <div class="hero-badge-tag">
-                <i class="fas fa-fingerprint"></i>
-                <span>Disiplin Presensi Ekstrakurikuler</span>
-            </div>
-            <h2 class="hero-title">Rekapitulasi Presensi Pembina</h2>
-            <p class="hero-description">
-                Pantau riwayat presensi harian pembina eskul, ketertiban kehadiran, serta penugasan guru pengganti periode <strong>{{ $monthIndo }}</strong>.
-            </p>
-        </div>
-        <div class="hero-content-right">
-            <div class="academic-year-chip">
-                <i class="fas fa-calendar-check"></i>
-                <div>
-                    <div class="chip-label">Tahun Ajaran Aktif</div>
-                    <div class="chip-val">{{ $activeYear ? $activeYear->name : '-' }} (Sem {{ $activeYear ? ($activeYear->active_semester ?? '1') : '-' }})</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- 2. SUMMARY STAT CARDS (KPI WIDGETS)       -->
-    <!-- ========================================== -->
-    <div class="stat-grid-summary">
-        <!-- Card 1: Total Presensi -->
-        <div class="stat-metric-card border-blue">
-            <div class="metric-body">
-                <div class="metric-info">
-                    <span class="metric-label">Total Sesi Presensi</span>
-                    <h3 class="metric-number text-blue">{{ $totalCount }}</h3>
-                    <div class="metric-footnote"><i class="far fa-calendar-alt"></i> Bulan {{ $monthIndo }}</div>
-                </div>
-                <div class="metric-icon-box bg-blue-light text-blue">
-                    <i class="fas fa-clipboard-check"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 2: Hadir Bertugas -->
-        <div class="stat-metric-card border-green">
-            <div class="metric-body">
-                <div class="metric-info">
-                    <span class="metric-label">Hadir Bertugas</span>
-                    <h3 class="metric-number text-green">{{ $presentCount }}</h3>
-                    <div class="metric-footnote"><i class="fas fa-user-check"></i> Pembina Hadir Langsung</div>
-                </div>
-                <div class="metric-icon-box bg-green-light text-green">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3: Izin & Sakit -->
-        <div class="stat-metric-card border-amber">
-            <div class="metric-body">
-                <div class="metric-info">
-                    <span class="metric-label">Izin & Sakit</span>
-                    <h3 class="metric-number text-amber">{{ $permissionCount }}</h3>
-                    <div class="metric-footnote"><i class="fas fa-envelope-open-text"></i> Terkonfirmasi Izin / Sakit</div>
-                </div>
-                <div class="metric-icon-box bg-amber-light text-amber">
-                    <i class="fas fa-notes-medical"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 4: Guru Pengganti -->
-        <div class="stat-metric-card border-purple">
-            <div class="metric-body">
-                <div class="metric-info">
-                    <span class="metric-label">Guru Pengganti</span>
-                    <h3 class="metric-number text-purple">{{ $substituteCount }}</h3>
-                    <div class="metric-footnote"><i class="fas fa-people-arrows"></i> Sesi Didelegasikan</div>
-                </div>
-                <div class="metric-icon-box bg-purple-light text-purple">
-                    <i class="fas fa-user-friends"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- 3. ALERT NOTIFIKASI                        -->
-    <!-- ========================================== -->
-    @if(session('success'))
-        <div class="alert-box alert-success-custom">
-            <div class="alert-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="alert-text">{{ session('success') }}</div>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-box alert-error-custom">
-            <div class="alert-icon"><i class="fas fa-exclamation-circle"></i></div>
-            <div class="alert-text">{{ session('error') }}</div>
-        </div>
-    @endif
-
-    <!-- ========================================== -->
-    <!-- 4. TOOLBAR KONTROL FILTER & AKSI SOLID     -->
-    <!-- ========================================== -->
-    <div class="toolbar-presence-card">
-        <form action="{{ route('teacher-attendance.index') }}" method="GET" class="toolbar-inner-form" id="attendanceFilterForm">
-            
-            <!-- Kolom Kiri: Pilihan Bulan & Filter -->
-            <div class="filter-month-container">
-                <div class="month-label-wrapper">
-                    <i class="fas fa-filter text-muted"></i>
-                    <span>Pilih Periode:</span>
-                </div>
-                <div class="month-controls-row">
-                    <div class="month-input-wrapper">
-                        <i class="far fa-calendar-alt input-calendar-icon"></i>
-                        <input type="month" name="month" value="{{ $month }}" class="form-month-input" onchange="document.getElementById('attendanceFilterForm').submit()">
-                    </div>
-                    <button type="submit" class="btn-solid btn-solid-blue" title="Muat Data Periode Terpilih">
-                        <i class="fas fa-search"></i>
-                        <span>Tampilkan</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Kolom Kanan: Tombol-tombol Aksi Solid -->
-            <div class="action-buttons-group">
-                <a href="{{ route('teacher-attendance.export', ['month' => $month]) }}" class="btn-solid btn-solid-green" title="Export Excel Rekap Bulan Ini">
-                    <i class="fas fa-file-excel"></i>
-                    <span>Excel Bulanan</span>
-                </a>
-
-                <a href="{{ route('teacher-attendance.export') }}" class="btn-solid btn-solid-dark" title="Export Seluruh Data Presensi">
-                    <i class="fas fa-file-download"></i>
-                    <span>Excel Semua</span>
-                </a>
-
-                <button type="button" onclick="openManualAttendanceModal()" class="btn-solid btn-solid-orange" title="Tambah Presensi Pembina Secara Manual">
-                    <i class="fas fa-plus"></i>
-                    <span>Input Manual</span>
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- 5. TABEL DATA PRESENSI PEMBINA             -->
-    <!-- ========================================== -->
-    <div class="presence-table-card">
-        
-        <div class="table-header-meta">
-            <div class="meta-left">
-                <span class="meta-heading">Daftar Kehadiran</span>
-                <span class="meta-badge-count">{{ $attendances->count() }} Data Tercatat</span>
-            </div>
-            <div class="meta-right">
-                <span class="meta-period-text">
-                    <i class="far fa-clock"></i> Periode: <strong>{{ $monthIndo }}</strong>
-                </span>
-            </div>
-        </div>
-
-        <div class="table-responsive-box">
-            <table class="presence-table">
-                <thead>
-                    <tr>
-                        <th style="width: 32%;">Guru Pembina</th>
-                        <th style="width: 22%;">Waktu Presensi</th>
-                        <th style="width: 15%; text-align: center;">Status</th>
-                        <th style="width: 23%;">Catatan / Guru Pengganti</th>
-                        <th style="width: 8%; text-align: center;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($attendances as $attendance)
-                        @php
-                            $user = $attendance->user;
-                            $userName = $user ? $user->name : 'Guru Pembina';
-                            $eskulName = ($user && $user->eskul) ? $user->eskul->name : null;
-                            $dateParsed = \Carbon\Carbon::parse($attendance->date)->locale('id');
-                            $dateStr = $dateParsed->isoFormat('dddd, D MMMM Y');
-                        @endphp
-                        <tr>
-                            <!-- 1. Nama Guru & Eskul -->
-                            <td>
-                                <div class="teacher-profile-flex">
-                                    <div class="teacher-avatar-circle">
-                                        {{ strtoupper(substr($userName, 0, 1)) }}
-                                    </div>
-                                    <div class="teacher-profile-info">
-                                        <div class="teacher-name-text">{{ $userName }}</div>
-                                        @if($eskulName)
-                                            <div class="teacher-eskul-badge">
-                                                <i class="fas fa-medal"></i>
-                                                <span>{{ $eskulName }}</span>
-                                            </div>
-                                        @else
-                                            <div class="teacher-role-muted">Pembina Ekstrakurikuler</div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- 2. Waktu & Tanggal -->
-                            <td>
-                                <div class="time-record-box">
-                                    <div class="time-clock-pill">
-                                        <i class="far fa-clock"></i>
-                                        <span>{{ $attendance->clock_in_time ?? '-' }} WIB</span>
-                                    </div>
-                                    <div class="date-sub-text">
-                                        <i class="far fa-calendar"></i>
-                                        <span>{{ $dateStr }}</span>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- 3. Status Kehadiran -->
-                            <td style="text-align: center;">
-                                @if($attendance->status === 'present')
-                                    <span class="status-pill status-present">
-                                        <i class="fas fa-check-circle"></i> Hadir
-                                    </span>
-                                @elseif($attendance->status === 'sick')
-                                    <span class="status-pill status-sick">
-                                        <i class="fas fa-notes-medical"></i> Sakit
-                                    </span>
-                                @elseif($attendance->status === 'permission')
-                                    <span class="status-pill status-permission">
-                                        <i class="fas fa-envelope-open-text"></i> Izin
-                                    </span>
-                                @else
-                                    <span class="status-pill status-alpha">
-                                        <i class="fas fa-times-circle"></i> Alpha
-                                    </span>
-                                @endif
-                            </td>
-
-                            <!-- 4. Catatan & Guru Pengganti -->
-                            <td>
-                                @if(!empty($attendance->note))
-                                    <div class="note-balloon">
-                                        <i class="far fa-comment-dots"></i>
-                                        <span>{{ $attendance->note }}</span>
-                                    </div>
-                                @endif
-
-                                @if($attendance->substituteUser || $attendance->substitute_name)
-                                    @php
-                                        $subName = $attendance->substituteUser ? $attendance->substituteUser->name : $attendance->substitute_name;
-                                    @endphp
-                                    <div class="substitute-teacher-pill">
-                                        <i class="fas fa-people-arrows"></i>
-                                        <span>Pengganti: <strong>{{ $subName }}</strong></span>
-                                    </div>
-                                @endif
-
-                                @if(empty($attendance->note) && !$attendance->substituteUser && !$attendance->substitute_name)
-                                    <span class="text-dash-muted">-</span>
-                                @endif
-                            </td>
-
-                            <!-- 5. Tombol Aksi Hapus -->
-                            <td style="text-align: center;">
-                                <form action="{{ route('teacher-attendance.destroy', $attendance->id) }}" method="POST" class="confirm-delete" data-confirm="Apakah Anda yakin ingin menghapus data presensi {{ $userName }} pada {{ $dateStr }}?">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-action-delete" title="Hapus Data Presensi Ini">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5">
-                                <div class="empty-state-box">
-                                    <div class="empty-icon-wrapper">
-                                        <i class="fas fa-calendar-times"></i>
-                                    </div>
-                                    <h4 class="empty-title">Belum Ada Presensi Pembina di Bulan Ini</h4>
-                                    <p class="empty-desc">
-                                        Tidak ditemukan data absensi pembina ekstrakurikuler untuk periode <strong>{{ $monthIndo }}</strong>. Silakan pilih bulan lain atau klik <strong>Input Manual</strong> untuk menambahkan presensi baru.
-                                    </p>
-                                    <button type="button" onclick="openManualAttendanceModal()" class="btn-solid btn-solid-orange" style="margin-top: 10px;">
-                                        <i class="fas fa-plus"></i> Input Manual Sekarang
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- ========================================================================= -->
-<!-- 6. MODAL MODERN: INPUT ABSENSI GURU MANUAL                                -->
-<!-- ========================================================================= -->
-<div id="manualAttendanceModal" class="custom-modal-backdrop" style="display: none;">
-    <div class="custom-modal-dialog">
-        
-        <!-- Header Modal -->
-        <div class="modal-dialog-header">
-            <div class="modal-title-left">
-                <div class="modal-icon-header">
-                    <i class="fas fa-fingerprint"></i>
-                </div>
-                <div>
-                    <h3 class="modal-title-text">Input Presensi Pembina Manual</h3>
-                    <p class="modal-subtitle-text">Catat kehadiran atau izin pembina secara langsung ke sistem SIMUTQIN</p>
-                </div>
-            </div>
-            <button type="button" onclick="closeManualAttendanceModal()" class="modal-close-btn" title="Tutup Modal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <!-- Body Form Modal -->
-        <form action="{{ route('teacher-attendance.store') }}" method="POST" class="modal-body-form">
-            @csrf
-            
-            <div class="form-row-modern">
-                <label class="form-label-modern"><i class="fas fa-user-tie"></i> Pilih Guru Pembina <span class="text-danger">*</span></label>
-                <div class="select-wrapper-modern">
-                    <select name="user_id" class="form-control-modern" required>
-                        <option value="">-- Pilih Guru / Pembina --</option>
-                        @foreach($teachers as $t)
-                            <option value="{{ $t->id }}">
-                                {{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-grid-two">
-                <div class="form-row-modern">
-                    <label class="form-label-modern"><i class="far fa-calendar-alt"></i> Tanggal Presensi <span class="text-danger">*</span></label>
-                    <input type="date" name="date" class="form-control-modern" required max="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}">
-                </div>
-
-                <div class="form-row-modern">
-                    <label class="form-label-modern"><i class="far fa-clock"></i> Jam Masuk <span class="text-danger">*</span></label>
-                    <input type="time" name="clock_in_time" class="form-control-modern" required value="{{ date('H:i') }}">
-                </div>
-            </div>
-
-            <div class="form-row-modern">
-                <label class="form-label-modern"><i class="fas fa-clipboard-list"></i> Status Kehadiran <span class="text-danger">*</span></label>
-                <div class="status-options-toggle">
-                    <label class="status-radio-card">
-                        <input type="radio" name="status" value="present" checked onchange="handleStatusChange(this.value)">
-                        <span class="status-radio-pill present-pill"><i class="fas fa-check-circle"></i> Hadir</span>
-                    </label>
-                    <label class="status-radio-card">
-                        <input type="radio" name="status" value="sick" onchange="handleStatusChange(this.value)">
-                        <span class="status-radio-pill sick-pill"><i class="fas fa-notes-medical"></i> Sakit</span>
-                    </label>
-                    <label class="status-radio-card">
-                        <input type="radio" name="status" value="permission" onchange="handleStatusChange(this.value)">
-                        <span class="status-radio-pill permission-pill"><i class="fas fa-envelope-open-text"></i> Izin</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Bagian Guru Pengganti (Khusus jika Sakit/Izin) -->
-            <div id="manualSubstituteGroup" class="substitute-group-container" style="display: none;">
-                <div class="substitute-group-header">
-                    <i class="fas fa-user-friends"></i>
-                    <span>Informasi Guru Pengganti</span>
-                </div>
-
-                <div class="substitute-type-switch">
-                    <label class="type-switch-label">
-                        <input type="radio" name="substitute_type" value="registered" checked id="manualTypeRegistered" onchange="toggleManualSubstituteFields()">
-                        <span><i class="fas fa-user-check"></i> Guru Terdaftar</span>
-                    </label>
-                    <label class="type-switch-label">
-                        <input type="radio" name="substitute_type" value="manual" id="manualTypeManual" onchange="toggleManualSubstituteFields()">
-                        <span><i class="fas fa-keyboard"></i> Ketik Manual</span>
-                    </label>
-                </div>
-
-                <div id="manualSubstituteUserSelect" class="form-row-modern" style="margin-bottom: 0;">
-                    <select name="substitute_user_id" class="form-control-modern bg-white">
-                        <option value="">-- Pilih Guru Pengganti --</option>
-                        @foreach($teachers as $t)
-                            <option value="{{ $t->id }}">{{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div id="manualSubstituteNameInput" class="form-row-modern" style="display: none; margin-bottom: 0;">
-                    <input type="text" name="substitute_name" class="form-control-modern bg-white" placeholder="Ketik nama lengkap guru pengganti...">
-                </div>
-            </div>
-
-            <div class="form-row-modern">
-                <label class="form-label-modern"><i class="far fa-comment-alt"></i> Catatan / Keterangan (Opsional)</label>
-                <input type="text" name="note" class="form-control-modern" placeholder="Contoh: Menggantikan sesi latihan tanding eskul...">
-            </div>
-
-            <div class="modal-dialog-footer">
-                <button type="button" onclick="closeManualAttendanceModal()" class="btn-modal-cancel">
-                    <i class="fas fa-times"></i> Batal
-                </button>
-                <button type="submit" class="btn-solid btn-solid-blue">
-                    <i class="fas fa-save"></i> Simpan Presensi
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- ========================================================================= -->
-<!-- CSS STYLES: MODERN, SOLID, DAN ULTRA RESPONSIF                            -->
-<!-- ========================================================================= -->
+@push('styles')
 <style>
     /* Container Utama */
     .presence-container {
@@ -1403,6 +970,443 @@
         }
     }
 </style>
+@endpush
+
+@section('content')
+@php
+    $totalCount = $attendances->count();
+    $presentCount = $attendances->where('status', 'present')->count();
+    $permissionCount = $attendances->whereIn('status', ['sick', 'permission'])->count();
+    $substituteCount = $attendances->filter(function($item) {
+        return !empty($item->substitute_name) || !empty($item->substitute_user_id);
+    })->count();
+    $monthCarbon = \Carbon\Carbon::parse($month . '-01')->locale('id');
+    $monthIndo = $monthCarbon->isoFormat('MMMM Y');
+@endphp
+
+<div class="presence-container">
+
+    <!-- ========================================== -->
+    <!-- 1. HERO / BANNER IDENTITAS PRESENSI       -->
+    <!-- ========================================== -->
+    <div class="presence-hero-banner">
+        <div class="hero-content-left">
+            <div class="hero-badge-tag">
+                <i class="fas fa-fingerprint"></i>
+                <span>Disiplin Presensi Ekstrakurikuler</span>
+            </div>
+            <h2 class="hero-title">Rekapitulasi Presensi Pembina</h2>
+            <p class="hero-description">
+                Pantau riwayat presensi harian pembina eskul, ketertiban kehadiran, serta penugasan guru pengganti periode <strong>{{ $monthIndo }}</strong>.
+            </p>
+        </div>
+        <div class="hero-content-right">
+            <div class="academic-year-chip">
+                <i class="fas fa-calendar-check"></i>
+                <div>
+                    <div class="chip-label">Tahun Ajaran Aktif</div>
+                    <div class="chip-val">{{ $activeYear ? $activeYear->name : '-' }} (Sem {{ $activeYear ? ($activeYear->active_semester ?? '1') : '-' }})</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. SUMMARY STAT CARDS (KPI WIDGETS)       -->
+    <!-- ========================================== -->
+    <div class="stat-grid-summary">
+        <!-- Card 1: Total Presensi -->
+        <div class="stat-metric-card border-blue">
+            <div class="metric-body">
+                <div class="metric-info">
+                    <span class="metric-label">Total Sesi Presensi</span>
+                    <h3 class="metric-number text-blue">{{ $totalCount }}</h3>
+                    <div class="metric-footnote"><i class="far fa-calendar-alt"></i> Bulan {{ $monthIndo }}</div>
+                </div>
+                <div class="metric-icon-box bg-blue-light text-blue">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Hadir Bertugas -->
+        <div class="stat-metric-card border-green">
+            <div class="metric-body">
+                <div class="metric-info">
+                    <span class="metric-label">Hadir Bertugas</span>
+                    <h3 class="metric-number text-green">{{ $presentCount }}</h3>
+                    <div class="metric-footnote"><i class="fas fa-user-check"></i> Pembina Hadir Langsung</div>
+                </div>
+                <div class="metric-icon-box bg-green-light text-green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Izin & Sakit -->
+        <div class="stat-metric-card border-amber">
+            <div class="metric-body">
+                <div class="metric-info">
+                    <span class="metric-label">Izin & Sakit</span>
+                    <h3 class="metric-number text-amber">{{ $permissionCount }}</h3>
+                    <div class="metric-footnote"><i class="fas fa-envelope-open-text"></i> Terkonfirmasi Izin / Sakit</div>
+                </div>
+                <div class="metric-icon-box bg-amber-light text-amber">
+                    <i class="fas fa-notes-medical"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Guru Pengganti -->
+        <div class="stat-metric-card border-purple">
+            <div class="metric-body">
+                <div class="metric-info">
+                    <span class="metric-label">Guru Pengganti</span>
+                    <h3 class="metric-number text-purple">{{ $substituteCount }}</h3>
+                    <div class="metric-footnote"><i class="fas fa-people-arrows"></i> Sesi Didelegasikan</div>
+                </div>
+                <div class="metric-icon-box bg-purple-light text-purple">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. ALERT NOTIFIKASI                        -->
+    <!-- ========================================== -->
+    @if(session('success'))
+        <div class="alert-box alert-success-custom">
+            <div class="alert-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="alert-text">{{ session('success') }}</div>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert-box alert-error-custom">
+            <div class="alert-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <div class="alert-text">{{ session('error') }}</div>
+        </div>
+    @endif
+
+    <!-- ========================================== -->
+    <!-- 4. TOOLBAR KONTROL FILTER & AKSI SOLID     -->
+    <!-- ========================================== -->
+    <div class="toolbar-presence-card">
+        <form action="{{ route('teacher-attendance.index') }}" method="GET" class="toolbar-inner-form" id="attendanceFilterForm">
+            
+            <!-- Kolom Kiri: Pilihan Bulan & Filter -->
+            <div class="filter-month-container">
+                <div class="month-label-wrapper">
+                    <i class="fas fa-filter text-muted"></i>
+                    <span>Pilih Periode:</span>
+                </div>
+                <div class="month-controls-row">
+                    <div class="month-input-wrapper">
+                        <i class="far fa-calendar-alt input-calendar-icon"></i>
+                        <input type="month" name="month" value="{{ $month }}" class="form-month-input" onchange="document.getElementById('attendanceFilterForm').submit()">
+                    </div>
+                    <button type="submit" class="btn-solid btn-solid-blue" title="Muat Data Periode Terpilih">
+                        <i class="fas fa-search"></i>
+                        <span>Tampilkan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Tombol-tombol Aksi Solid -->
+            <div class="action-buttons-group">
+                <a href="{{ route('teacher-attendance.export', ['month' => $month]) }}" class="btn-solid btn-solid-green" title="Export Excel Rekap Bulan Ini">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Excel Bulanan</span>
+                </a>
+
+                <a href="{{ route('teacher-attendance.export') }}" class="btn-solid btn-solid-dark" title="Export Seluruh Data Presensi">
+                    <i class="fas fa-file-download"></i>
+                    <span>Excel Semua</span>
+                </a>
+
+                <button type="button" onclick="openManualAttendanceModal()" class="btn-solid btn-solid-orange" title="Tambah Presensi Pembina Secara Manual">
+                    <i class="fas fa-plus"></i>
+                    <span>Input Manual</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 5. TABEL DATA PRESENSI PEMBINA             -->
+    <!-- ========================================== -->
+    <div class="presence-table-card">
+        
+        <div class="table-header-meta">
+            <div class="meta-left">
+                <span class="meta-heading">Daftar Kehadiran</span>
+                <span class="meta-badge-count">{{ $attendances->count() }} Data Tercatat</span>
+            </div>
+            <div class="meta-right">
+                <span class="meta-period-text">
+                    <i class="far fa-clock"></i> Periode: <strong>{{ $monthIndo }}</strong>
+                </span>
+            </div>
+        </div>
+
+        <div class="table-responsive-box">
+            <table class="presence-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">Guru Pembina</th>
+                        <th style="width: 22%;">Waktu Presensi</th>
+                        <th style="width: 15%; text-align: center;">Status</th>
+                        <th style="width: 23%;">Catatan / Guru Pengganti</th>
+                        <th style="width: 8%; text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($attendances as $attendance)
+                        @php
+                            $user = $attendance->user;
+                            $userName = $user ? $user->name : 'Guru Pembina';
+                            $eskulName = ($user && $user->eskul) ? $user->eskul->name : null;
+                            $dateParsed = \Carbon\Carbon::parse($attendance->date)->locale('id');
+                            $dateStr = $dateParsed->isoFormat('dddd, D MMMM Y');
+                        @endphp
+                        <tr>
+                            <!-- 1. Nama Guru & Eskul -->
+                            <td>
+                                <div class="teacher-profile-flex">
+                                    <div class="teacher-avatar-circle">
+                                        {{ strtoupper(substr($userName, 0, 1)) }}
+                                    </div>
+                                    <div class="teacher-profile-info">
+                                        <div class="teacher-name-text">{{ $userName }}</div>
+                                        @if($eskulName)
+                                            <div class="teacher-eskul-badge">
+                                                <i class="fas fa-medal"></i>
+                                                <span>{{ $eskulName }}</span>
+                                            </div>
+                                        @else
+                                            <div class="teacher-role-muted">Pembina Ekstrakurikuler</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- 2. Waktu & Tanggal -->
+                            <td>
+                                <div class="time-record-box">
+                                    <div class="time-clock-pill">
+                                        <i class="far fa-clock"></i>
+                                        <span>{{ $attendance->clock_in_time ?? '-' }} WIB</span>
+                                    </div>
+                                    <div class="date-sub-text">
+                                        <i class="far fa-calendar"></i>
+                                        <span>{{ $dateStr }}</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- 3. Status Kehadiran -->
+                            <td style="text-align: center;">
+                                @if($attendance->status === 'present')
+                                    <span class="status-pill status-present">
+                                        <i class="fas fa-check-circle"></i> Hadir
+                                    </span>
+                                @elseif($attendance->status === 'sick')
+                                    <span class="status-pill status-sick">
+                                        <i class="fas fa-notes-medical"></i> Sakit
+                                    </span>
+                                @elseif($attendance->status === 'permission')
+                                    <span class="status-pill status-permission">
+                                        <i class="fas fa-envelope-open-text"></i> Izin
+                                    </span>
+                                @else
+                                    <span class="status-pill status-alpha">
+                                        <i class="fas fa-times-circle"></i> Alpha
+                                    </span>
+                                @endif
+                            </td>
+
+                            <!-- 4. Catatan & Guru Pengganti -->
+                            <td>
+                                @if(!empty($attendance->note))
+                                    <div class="note-balloon">
+                                        <i class="far fa-comment-dots"></i>
+                                        <span>{{ $attendance->note }}</span>
+                                    </div>
+                                @endif
+
+                                @if($attendance->substituteUser || $attendance->substitute_name)
+                                    @php
+                                        $subName = $attendance->substituteUser ? $attendance->substituteUser->name : $attendance->substitute_name;
+                                    @endphp
+                                    <div class="substitute-teacher-pill">
+                                        <i class="fas fa-people-arrows"></i>
+                                        <span>Pengganti: <strong>{{ $subName }}</strong></span>
+                                    </div>
+                                @endif
+
+                                @if(empty($attendance->note) && !$attendance->substituteUser && !$attendance->substitute_name)
+                                    <span class="text-dash-muted">-</span>
+                                @endif
+                            </td>
+
+                            <!-- 5. Tombol Aksi Hapus -->
+                            <td style="text-align: center;">
+                                <form action="{{ route('teacher-attendance.destroy', $attendance->id) }}" method="POST" class="confirm-delete" data-confirm="Apakah Anda yakin ingin menghapus data presensi {{ $userName }} pada {{ $dateStr }}?">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-action-delete" title="Hapus Data Presensi Ini">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state-box">
+                                    <div class="empty-icon-wrapper">
+                                        <i class="fas fa-calendar-times"></i>
+                                    </div>
+                                    <h4 class="empty-title">Belum Ada Presensi Pembina di Bulan Ini</h4>
+                                    <p class="empty-desc">
+                                        Tidak ditemukan data absensi pembina ekstrakurikuler untuk periode <strong>{{ $monthIndo }}</strong>. Silakan pilih bulan lain atau klik <strong>Input Manual</strong> untuk menambahkan presensi baru.
+                                    </p>
+                                    <button type="button" onclick="openManualAttendanceModal()" class="btn-solid btn-solid-orange" style="margin-top: 10px;">
+                                        <i class="fas fa-plus"></i> Input Manual Sekarang
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 6. MODAL MODERN: INPUT ABSENSI GURU MANUAL                                -->
+<!-- ========================================================================= -->
+<div id="manualAttendanceModal" class="custom-modal-backdrop" style="display: none;">
+    <div class="custom-modal-dialog">
+        
+        <!-- Header Modal -->
+        <div class="modal-dialog-header">
+            <div class="modal-title-left">
+                <div class="modal-icon-header">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <div>
+                    <h3 class="modal-title-text">Input Presensi Pembina Manual</h3>
+                    <p class="modal-subtitle-text">Catat kehadiran atau izin pembina secara langsung ke sistem SIMUTQIN</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeManualAttendanceModal()" class="modal-close-btn" title="Tutup Modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Body Form Modal -->
+        <form action="{{ route('teacher-attendance.store') }}" method="POST" class="modal-body-form">
+            @csrf
+            
+            <div class="form-row-modern">
+                <label class="form-label-modern"><i class="fas fa-user-tie"></i> Pilih Guru Pembina <span class="text-danger">*</span></label>
+                <div class="select-wrapper-modern">
+                    <select name="user_id" class="form-control-modern" required>
+                        <option value="">-- Pilih Guru / Pembina --</option>
+                        @foreach($teachers as $t)
+                            <option value="{{ $t->id }}">
+                                {{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid-two">
+                <div class="form-row-modern">
+                    <label class="form-label-modern"><i class="far fa-calendar-alt"></i> Tanggal Presensi <span class="text-danger">*</span></label>
+                    <input type="date" name="date" class="form-control-modern" required max="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}">
+                </div>
+
+                <div class="form-row-modern">
+                    <label class="form-label-modern"><i class="far fa-clock"></i> Jam Masuk <span class="text-danger">*</span></label>
+                    <input type="time" name="clock_in_time" class="form-control-modern" required value="{{ date('H:i') }}">
+                </div>
+            </div>
+
+            <div class="form-row-modern">
+                <label class="form-label-modern"><i class="fas fa-clipboard-list"></i> Status Kehadiran <span class="text-danger">*</span></label>
+                <div class="status-options-toggle">
+                    <label class="status-radio-card">
+                        <input type="radio" name="status" value="present" checked onchange="handleStatusChange(this.value)">
+                        <span class="status-radio-pill present-pill"><i class="fas fa-check-circle"></i> Hadir</span>
+                    </label>
+                    <label class="status-radio-card">
+                        <input type="radio" name="status" value="sick" onchange="handleStatusChange(this.value)">
+                        <span class="status-radio-pill sick-pill"><i class="fas fa-notes-medical"></i> Sakit</span>
+                    </label>
+                    <label class="status-radio-card">
+                        <input type="radio" name="status" value="permission" onchange="handleStatusChange(this.value)">
+                        <span class="status-radio-pill permission-pill"><i class="fas fa-envelope-open-text"></i> Izin</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Bagian Guru Pengganti (Khusus jika Sakit/Izin) -->
+            <div id="manualSubstituteGroup" class="substitute-group-container" style="display: none;">
+                <div class="substitute-group-header">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Informasi Guru Pengganti</span>
+                </div>
+
+                <div class="substitute-type-switch">
+                    <label class="type-switch-label">
+                        <input type="radio" name="substitute_type" value="registered" checked id="manualTypeRegistered" onchange="toggleManualSubstituteFields()">
+                        <span><i class="fas fa-user-check"></i> Guru Terdaftar</span>
+                    </label>
+                    <label class="type-switch-label">
+                        <input type="radio" name="substitute_type" value="manual" id="manualTypeManual" onchange="toggleManualSubstituteFields()">
+                        <span><i class="fas fa-keyboard"></i> Ketik Manual</span>
+                    </label>
+                </div>
+
+                <div id="manualSubstituteUserSelect" class="form-row-modern" style="margin-bottom: 0;">
+                    <select name="substitute_user_id" class="form-control-modern bg-white">
+                        <option value="">-- Pilih Guru Pengganti --</option>
+                        @foreach($teachers as $t)
+                            <option value="{{ $t->id }}">{{ $t->name }} {{ $t->eskul ? '('.$t->eskul->name.')' : '' }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div id="manualSubstituteNameInput" class="form-row-modern" style="display: none; margin-bottom: 0;">
+                    <input type="text" name="substitute_name" class="form-control-modern bg-white" placeholder="Ketik nama lengkap guru pengganti...">
+                </div>
+            </div>
+
+            <div class="form-row-modern">
+                <label class="form-label-modern"><i class="far fa-comment-alt"></i> Catatan / Keterangan (Opsional)</label>
+                <input type="text" name="note" class="form-control-modern" placeholder="Contoh: Menggantikan sesi latihan tanding eskul...">
+            </div>
+
+            <div class="modal-dialog-footer">
+                <button type="button" onclick="closeManualAttendanceModal()" class="btn-modal-cancel">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+                <button type="submit" class="btn-solid btn-solid-blue">
+                    <i class="fas fa-save"></i> Simpan Presensi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CSS STYLES: MODERN, SOLID, DAN ULTRA RESPONSIF                            -->
+<!-- ========================================================================= -->
+
 
 <!-- ========================================================================= -->
 <!-- JAVASCRIPT: LOGIKA MODAL & INTERAKSI                                      -->
