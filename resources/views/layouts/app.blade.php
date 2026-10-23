@@ -356,10 +356,14 @@
             font-weight: 700;
         }
 
+        @keyframes contentFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .content { 
             padding: 2.25rem; 
-            animation: fadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            will-change: opacity, transform;
+            animation: contentFadeIn 0.22s ease-out;
         }
 
         /* Card & Elements */
@@ -481,7 +485,12 @@
         }
 
         @media print {
-            .sidebar, .header, .btn-print, .no-print { display: none; }
+            .sidebar, .header, .btn-print, .no-print,
+            .custom-modal-backdrop,
+            .modal-overlay,
+            .modal-wa,
+            .print-preview-modal-backdrop,
+            div.modal { display: none !important; }
             .card { box-shadow: none; border: none; padding: 0; }
             .content { padding: 0; animation: none; }
             tr:hover td { background: white; transform: none; }
@@ -701,6 +710,71 @@
         .btn-green { background: #2ecc71; color: white; }
         
         .btn-action-header i { font-size: 0.9rem; }
+
+        /* ========================================================
+           UNIVERSAL MOBILE-FIRST MODAL & POPUP VIEWPORT FIX
+           Memastikan semua pop up / modal muncul tepat di tengah
+           layar pandang (viewport) HP secara instan tanpa perlu scroll
+           ======================================================== */
+        .custom-modal-backdrop,
+        .modal-overlay,
+        .modal-wa,
+        .print-preview-modal-backdrop,
+        div.modal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            z-index: 99999 !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 14px !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        .custom-modal-backdrop[style*="display: flex"],
+        .custom-modal-backdrop.active,
+        .modal-overlay.show,
+        .modal-overlay.active,
+        .modal-wa.open,
+        .print-preview-modal-backdrop.active,
+        div.modal.active {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .custom-modal-dialog,
+        .modal-container,
+        .modal-content,
+        .modal-box,
+        .modal-wa-box,
+        .print-preview-dialog {
+            max-height: 90vh !important;
+            max-height: 90dvh !important;
+            margin: auto !important;
+            transform-origin: center center !important;
+        }
+
+        body.modal-open,
+        .main-content.modal-open {
+            overflow: hidden !important;
+            touch-action: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .swal2-popup {
+                width: 92% !important;
+                max-width: 92vw !important;
+                padding: 1.25rem 1rem !important;
+                border-radius: 18px !important;
+            }
+        }
     </style>
     @stack('styles')
 </head>
@@ -1344,6 +1418,41 @@
                     .catch(err => console.log('Service Worker registration failed:', err));
             });
         }
+
+        // Universal Modal Teleport & Viewport Alignment Handler
+        (function() {
+            const modalSelectors = [
+                '.custom-modal-backdrop',
+                '.modal-overlay',
+                '.modal-wa',
+                '.print-preview-modal-backdrop',
+                'div.modal'
+            ];
+
+            function teleportModals() {
+                const modals = document.querySelectorAll(modalSelectors.join(', '));
+                modals.forEach(function(modal) {
+                    if (modal.parentElement && modal.parentElement !== document.body) {
+                        document.body.appendChild(modal);
+                    }
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', teleportModals);
+            } else {
+                teleportModals();
+            }
+
+            // Observer jika ada modal yang dimuat dinamis
+            const observer = new MutationObserver(function() {
+                teleportModals();
+            });
+            window.addEventListener('load', function() {
+                const target = document.querySelector('.content') || document.body;
+                observer.observe(target, { childList: true, subtree: true });
+            });
+        })();
     </script>
 </body>
 </html>

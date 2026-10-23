@@ -1890,7 +1890,12 @@
         const modal = document.getElementById('manualAttendanceModal');
         if (modal) {
             modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) mainContent.classList.add('modal-open');
+            modal.scrollTop = 0;
+            const dialog = modal.querySelector('.custom-modal-dialog');
+            if (dialog) dialog.scrollTop = 0;
         }
     }
 
@@ -1898,7 +1903,9 @@
         const modal = document.getElementById('manualAttendanceModal');
         if (modal) {
             modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            document.body.classList.remove('modal-open');
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) mainContent.classList.remove('modal-open');
         }
     }
 

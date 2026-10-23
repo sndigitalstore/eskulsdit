@@ -593,6 +593,24 @@
         .recap-content-card { padding: 1rem !important; border-radius: 16px !important; }
         .recap-desktop-table { display: none !important; }
         .recap-mobile-cards { display: block !important; }
+
+        /* Print Preview Modal Mobile Adjustments */
+        .print-preview-dialog {
+            max-height: 94vh !important;
+            max-height: 94dvh !important;
+            border-radius: 14px !important;
+        }
+        .print-preview-topbar {
+            padding: 10px 14px !important;
+        }
+        .print-preview-scrollbody {
+            padding: 12px 8px !important;
+            overflow-x: auto !important;
+        }
+        .preview-paper-sheet {
+            padding: 14px 10px !important;
+            min-width: 580px;
+        }
     }
 
     /* ========================================================
@@ -1037,12 +1055,25 @@
 <script>
     function openPrintPreview() {
         const modal = document.getElementById('printPreviewModal');
-        if (modal) modal.classList.add('active');
+        if (modal) {
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) mainContent.classList.add('modal-open');
+            modal.scrollTop = 0;
+            const scrollBody = modal.querySelector('.print-preview-scrollbody');
+            if (scrollBody) scrollBody.scrollTop = 0;
+        }
     }
 
     function closePrintPreview() {
         const modal = document.getElementById('printPreviewModal');
-        if (modal) modal.classList.remove('active');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) mainContent.classList.remove('modal-open');
+        }
     }
 </script>
 @endsection
