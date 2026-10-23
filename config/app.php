@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Q-Talent'),
+    'name' => env('APP_NAME', 'SIMUTQIN SDIT AN NADZIR'),
 
     /*
     |--------------------------------------------------------------------------

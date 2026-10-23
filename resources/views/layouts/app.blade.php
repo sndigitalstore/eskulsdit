@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM SMILE SDIT AN NADZIR - @yield('title', 'Dashboard')</title>
+    <title>SIMUTQIN SDIT AN NADZIR - @yield('title', 'Dashboard')</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -653,7 +653,7 @@
         <div class="sidebar-header">
             <img src="{{ asset('logo.png') }}" alt="Logo">
             <div style="display: flex; flex-direction: column; line-height: 1.25;">
-                <h2 style="font-size: 1.22rem; font-weight: 900; letter-spacing: 0.02em; margin: 0; color: #064e3b;">SIM SMILE</h2>
+                <h2 style="font-size: 1.18rem; font-weight: 900; letter-spacing: 0.02em; margin: 0; color: #064e3b;">SIMUTQIN</h2>
                 <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; letter-spacing: 0.05em; text-transform: uppercase;">SDIT AN NADZIR</span>
             </div>
             <div style="margin-left: auto; display: none;" class="close-sidebar-btn" onclick="toggleSidebar()">

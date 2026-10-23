@@ -1,7 +1,7 @@
 {
-  "name": "Q-Talent SDIT AN NADZIR",
-  "short_name": "Q-Talent",
-  "description": "Sistem Informasi Terpadu Qur'an, Bakat & Minat SDIT AN NADZIR",
+  "name": "SIMUTQIN SDIT AN NADZIR",
+  "short_name": "SIMUTQIN",
+  "description": "Sistem Informasi Mutaba'ah, Tahfidz, Karakter, dan Integrasi Nilai - SDIT AN NADZIR",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

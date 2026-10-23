@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SIM SMILE SDIT AN NADZIR</title>
+    <title>Login - SIMUTQIN SDIT AN NADZIR</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -550,14 +550,15 @@
                 <div class="brand">
                     <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
                     <div style="display: flex; flex-direction: column;">
-                        <h1 style="line-height: 1.1; margin: 0; font-size: 1.75rem;">SIM SMILE</h1>
+                        <h1 style="line-height: 1.1; margin: 0; font-size: 1.75rem;">SIMUTQIN</h1>
                         <span style="font-size: 0.78rem; font-weight: 800; color: #059669; letter-spacing: 0.05em; text-transform: uppercase;">SDIT AN NADZIR</span>
                     </div>
                 </div>
 
                 <div class="welcome-text">
                     <h2>Selamat Datang!</h2>
-                    <p>Sistem Informasi Manajemen Terpadu Pembinaan Qur'an, Karakter SMILE, Kurikulum Akademik, dan Talenta Siswa.</p>
+                    <p style="margin-bottom: 6px;"><strong>Sistem Informasi Mutaba'ah, Tahfidz, Karakter, dan Integrasi Nilai</strong></p>
+                    <p style="font-size: 0.85rem; color: #047857; font-weight: 600; font-style: italic; margin-top: 0;">"Menemani Tumbuh Kembang Prestasi dan Karakter Qur'ani"</p>
                 </div>
 
                 @if ($errors->any())
@@ -604,8 +605,8 @@
                     <!-- Left Pastel Sidebar -->
                     <div class="ui-sidebar">
                         <div class="ui-sidebar-brand">
-                            <div class="ui-sidebar-avatar" style="background: linear-gradient(135deg, #10b981, #047857);">S</div>
-                            <span>SIM SMILE</span>
+                            <div class="ui-sidebar-avatar" style="background: linear-gradient(135deg, #10b981, #047857);">M</div>
+                            <span>SIMUTQIN</span>
                         </div>
                         <div class="ui-menu-item active">
                             <i class="fas fa-home"></i> Beranda

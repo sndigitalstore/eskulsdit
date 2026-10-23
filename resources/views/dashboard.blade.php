@@ -42,7 +42,7 @@
                 </table>
             </div>
             <p style="font-size: 0.8rem; color: #94a3b8; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 6px;">
-                <i class="fas fa-lock"></i> Sistem Penguncian Otomatis - SIM SMILE
+                <i class="fas fa-lock"></i> Sistem Penguncian Otomatis - SIMUTQIN
             </p>
         </div>
     </div>

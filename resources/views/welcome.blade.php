@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM SMILE – Sistem Informasi Manajemen Terpadu SDIT AN NADZIR</title>
+    <title>SIMUTQIN SDIT AN NADZIR – Menemani Tumbuh Kembang Prestasi & Karakter Qur'ani</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="/logo.png">
     
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="SIM SMILE SDIT AN NADZIR - Sistem Informasi Manajemen Terpadu Pembinaan Al-Qur'an (Tilawati & Tahfidz), Pembentukan Karakter SMILE, Raport Akademik Kurikulum Merdeka, dan Manajemen Talenta Siswa.">
+    <meta name="description" content="SIMUTQIN SDIT AN NADZIR - Sistem Informasi Mutaba'ah, Tahfidz, Karakter, dan Integrasi Nilai. Menemani Tumbuh Kembang Prestasi dan Karakter Qur'ani.">
 
     @php
         try {
@@ -865,7 +865,7 @@
         <a href="/" class="brand-container">
             <img src="{{ asset('logo.png') }}" alt="Logo SDIT AN NADZIR" class="brand-logo">
             <div class="brand-text">
-                <span class="brand-title">SIM SMILE</span>
+                <span class="brand-title">SIMUTQIN</span>
                 <span class="brand-subtitle">SDIT AN NADZIR</span>
             </div>
         </a>
@@ -908,7 +908,7 @@
                 Sinergi <span class="highlight-green">Qur'ani</span>, Karakter Unggul & <span class="highlight-blue">Prestasi.</span>
             </h1>
             <p class="hero-desc">
-                <strong>SIM SMILE SDIT AN NADZIR</strong> menghadirkan integrasi holistik pembinaan Tilawati & Tahfidz, pemantauan karakter SMILE, rapor akademik Kurikulum Merdeka (STS & SAS), serta manajemen potensi bakat siswa dalam satu platform akuntabel.
+                <strong>SIMUTQIN SDIT AN NADZIR</strong> (Sistem Informasi Mutaba'ah, Tahfidz, Karakter, dan Integrasi Nilai) hadir menemani tumbuh kembang prestasi dan karakter Qur'ani melalui integrasi holistik pembinaan Tilawati & Tahfidz, pemantauan karakter pembiasaan harian, rapor akademik Kurikulum Merdeka (STS & SAS), serta manajemen potensi bakat siswa dalam satu platform akuntabel.
             </p>
             <div class="hero-cta-group">
                 @auth
@@ -917,7 +917,7 @@
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="btn-hero-primary">
-                        <i class="fas fa-sign-in-alt"></i> Masuk Portal SIM SMILE
+                        <i class="fas fa-sign-in-alt"></i> Masuk Portal SIMUTQIN
                     </a>
                 @endauth
                 <a href="#pilar" class="btn-hero-secondary">
@@ -933,7 +933,7 @@
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <img src="{{ asset('logo.png') }}" style="width: 26px; height: 26px; object-fit: contain;" alt="Logo">
                         <div>
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #064e3b; line-height: 1.1;">SIM SMILE DASHBOARD</div>
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #064e3b; line-height: 1.1;">SIMUTQIN DASHBOARD</div>
                             <div style="font-size: 0.68rem; font-weight: 700; color: #0284c7;">SDIT AN NADZIR</div>
                         </div>
                     </div>
@@ -1006,7 +1006,7 @@
     <section class="section-pillars" id="pilar">
         <div class="section-header">
             <span class="section-tag">Struktur Ekosistem</span>
-            <h2 class="section-title">4 Pilar Utama SIM SMILE</h2>
+            <h2 class="section-title">4 Pilar Utama SIMUTQIN</h2>
             <p class="section-desc">
                 Pondasi terpadu untuk memastikan setiap siswa berkembang optimal dalam pemahaman agama, keluhuran budi pekerti, kecakapan akademis, dan potensi bakat.
             </p>
@@ -1187,7 +1187,7 @@
         <div class="cta-banner-card">
             <div class="cta-banner-content">
                 <h3>Siap Mewujudkan Manajemen Sekolah Modern?</h3>
-                <p>Masuk ke portal SIM SMILE untuk mulai mengelola data akademik, pembinaan Al-Qur'an, dan pembiasaan karakter siswa.</p>
+                <p>Masuk ke portal SIMUTQIN untuk mulai mengelola data akademik, pembinaan Al-Qur'an, dan pembiasaan karakter siswa.</p>
             </div>
             <div>
                 @auth
@@ -1209,10 +1209,10 @@
             <div class="footer-brand">
                 <h4>
                     <img src="{{ asset('logo.png') }}" style="width: 32px; height: 32px; object-fit: contain;" alt="Logo">
-                    SIM SMILE SDIT AN NADZIR
+                    SIMUTQIN SDIT AN NADZIR
                 </h4>
                 <p>
-                    Sistem Informasi Manajemen Terpadu untuk membina generasi Qur'ani yang berakhlak mulia, cerdas, berkarakter unggul, dan siap berprestasi.
+                    Sistem Informasi Mutaba'ah, Tahfidz, Karakter, dan Integrasi Nilai. Menemani tumbuh kembang generasi Qur'ani yang berakhlak mulia, cerdas, berkarakter unggul, dan siap berprestasi.
                 </p>
                 <div style="margin-top: 14px; font-size: 0.85rem; color: #cbd5e1;">
                     <i class="fas fa-map-marker-alt" style="color: #38bdf8; margin-right: 6px;"></i> Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167
@@ -1253,7 +1253,7 @@
                 &copy; {{ date('Y') }} <strong>SDIT AN NADZIR</strong> (Najibudin, S.Pd).
             </div>
             <div>
-                SIM SMILE – Solusi Digital Pendidikan Terpadu
+                SIMUTQIN – Menemani Tumbuh Kembang Prestasi & Karakter Qur'ani
             </div>
         </div>
     </footer>

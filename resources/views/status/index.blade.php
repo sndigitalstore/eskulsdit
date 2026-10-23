@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cek Status Siswa – SIM SMILE SDIT AN NADZIR</title>
+    <title>Cek Status Siswa – SIMUTQIN SDIT AN NADZIR</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -130,7 +130,7 @@
     <div class="header">
         <img src="{{ asset('logo.png') }}" alt="Logo SDIT">
         <h1>Portal Orang Tua</h1>
-        <p>Cek Status, Prestasi & Pembinaan Siswa – SIM SMILE</p>
+        <p>Cek Status, Prestasi & Pembinaan Siswa – SIMUTQIN</p>
     </div>
     
     <div class="content">
