@@ -18,6 +18,7 @@ class TahfidzAttendance extends Model
         'capaian',
         'jumlah_baris',
         'hafalan_status',
+        'nilai',
         'tugas_besok',
         'notes',
         'recorded_by',

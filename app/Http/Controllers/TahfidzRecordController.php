@@ -45,6 +45,11 @@ class TahfidzRecordController extends Controller
                     $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0)->after('end_ayah');
                 });
             }
+            if (!Schema::hasColumn('tahfidz_records', 'nilai')) {
+                Schema::table('tahfidz_records', function ($table) {
+                    $table->string('nilai', 50)->nullable()->after('quality');
+                });
+            }
         }
     }
 
@@ -281,6 +286,7 @@ class TahfidzRecordController extends Controller
             'jumlah_baris' => 'nullable|integer|min:0|max:500',
             'type'         => 'required|in:setoran_baru,murojaah',
             'quality'      => 'required|in:lancar,cukup,perlu_perbaikan',
+            'nilai'        => 'nullable|string|max:50',
             'session_date' => 'required|date',
             'notes'        => 'nullable|string|max:500',
             'academic_year_id' => 'required|exists:academic_years,id',
@@ -289,6 +295,7 @@ class TahfidzRecordController extends Controller
         $newRecord = TahfidzRecord::create([
             ...$validated,
             'jumlah_baris'      => isset($validated['jumlah_baris']) && $validated['jumlah_baris'] !== '' ? max(0, (int)$validated['jumlah_baris']) : 0,
+            'nilai'             => isset($validated['nilai']) && trim($validated['nilai']) !== '' ? trim($validated['nilai']) : null,
             'student_id'        => $student->id,
             'mentoring_group_id'=> $group->id,
             'recorded_by'       => Auth::id(),
@@ -314,6 +321,7 @@ class TahfidzRecordController extends Controller
                     'capaian'          => $capaianStr,
                     'jumlah_baris'     => $newRecord->jumlah_baris ?? 0,
                     'hafalan_status'   => $hafalanStatus,
+                    'nilai'            => $newRecord->nilai,
                     'notes'            => $newRecord->notes,
                     'recorded_by'      => Auth::id(),
                 ]

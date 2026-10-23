@@ -412,6 +412,10 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Nilai (Opsional)</label>
+                        <input type="text" name="nilai" placeholder="cth: 90" value="{{ old('nilai') }}">
+                    </div>
+                    <div class="form-group">
                         <label>Tanggal Setoran <span style="color: red;">*</span></label>
                         <input type="date" name="session_date" required value="{{ old('session_date', date('Y-m-d')) }}">
                     </div>
@@ -454,12 +458,13 @@
                         <tr>
                             <th style="width: 4%; text-align: center;">No</th>
                             <th style="width: 11%;">Tanggal</th>
-                            <th style="width: 20%;">Surah</th>
-                            <th style="width: 8%; text-align: center;">Juz</th>
-                            <th style="width: 11%; text-align: center;">Ayat</th>
-                            <th style="width: 9%; text-align: center;">Baris</th>
-                            <th style="width: 12%; text-align: center;">Jenis</th>
-                            <th style="width: 12%; text-align: center;">Kualitas</th>
+                            <th style="width: 18%;">Surah</th>
+                            <th style="width: 7%; text-align: center;">Juz</th>
+                            <th style="width: 10%; text-align: center;">Ayat</th>
+                            <th style="width: 8%; text-align: center;">Nilai</th>
+                            <th style="width: 8%; text-align: center;">Baris</th>
+                            <th style="width: 11%; text-align: center;">Jenis</th>
+                            <th style="width: 11%; text-align: center;">Kualitas</th>
                             <th>Catatan</th>
                             <th style="width: 9%; text-align: center;">Aksi</th>
                         </tr>
@@ -487,6 +492,9 @@
                                         {{ $rec->start_ayah }} – {{ $rec->end_ayah }}
                                     @else -
                                     @endif
+                                </td>
+                                <td style="text-align: center; font-size: 0.82rem; font-weight: 800; color: #b45309;">
+                                    {{ $rec->nilai ? '⭐ ' . $rec->nilai : '-' }}
                                 </td>
                                 <td style="text-align: center; font-size: 0.82rem; font-weight: 700; color: #047857;">
                                     {{ $rec->jumlah_baris > 0 ? $rec->jumlah_baris . ' Baris' : '-' }}

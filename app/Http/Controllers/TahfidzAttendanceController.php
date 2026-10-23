@@ -173,6 +173,7 @@ class TahfidzAttendanceController extends Controller
                     'jumlah_baris'       => $att->jumlah_baris ?? 0,
                     'type'               => 'setoran_baru',
                     'quality'            => $isLulus ? 'lancar' : 'perlu_perbaikan',
+                    'nilai'              => $att->nilai ?? null,
                     'session_date'       => $att->session_date,
                     'notes'              => $fullNotes !== '' ? $fullNotes : null,
                     'recorded_by'        => $att->recorded_by,
@@ -184,7 +185,7 @@ class TahfidzAttendanceController extends Controller
     /**
      * Auto-create table if not exists (self-healing)
      */
-    private function ensureTableExists(): void
+    public function ensureTableExists(): void
     {
         if (!Schema::hasTable('tahfidz_attendances')) {
             Schema::create('tahfidz_attendances', function ($table) {
@@ -197,6 +198,7 @@ class TahfidzAttendanceController extends Controller
                 $table->string('capaian')->nullable();
                 $table->unsignedSmallInteger('jumlah_baris')->nullable()->default(0);
                 $table->string('hafalan_status')->default('LULUS')->nullable();
+                $table->string('nilai', 50)->nullable();
                 $table->string('tugas_besok')->nullable();
                 $table->text('notes')->nullable();
                 $table->unsignedBigInteger('recorded_by')->nullable();
@@ -220,15 +222,165 @@ class TahfidzAttendanceController extends Controller
                     $table->string('hafalan_status')->default('LULUS')->nullable()->after('jumlah_baris');
                 });
             }
+            if (!Schema::hasColumn('tahfidz_attendances', 'nilai')) {
+                Schema::table('tahfidz_attendances', function ($table) {
+                    $table->string('nilai', 50)->nullable()->after('hafalan_status');
+                });
+            }
             if (!Schema::hasColumn('tahfidz_attendances', 'tugas_besok')) {
                 Schema::table('tahfidz_attendances', function ($table) {
-                    $table->string('tugas_besok')->nullable()->after('hafalan_status');
+                    $table->string('tugas_besok')->nullable()->after('nilai');
                 });
             }
         }
 
+        if (Schema::hasTable('tahfidz_records') && !Schema::hasColumn('tahfidz_records', 'nilai')) {
+            Schema::table('tahfidz_records', function ($table) {
+                $table->string('nilai', 50)->nullable()->after('quality');
+            });
+        }
+
         // Jalankan auto-sync bila ada data riwayat yang belum sinkron
         self::syncPastAttendances();
+    }
+
+    /**
+     * Ekstraksi target Juz dari string target_level (misal: "Juz 29 dan 28", "Juz 30", "28, 29")
+     */
+    public static function extractTargetJuz(?string $targetText): array
+    {
+        if (empty($targetText)) {
+            return [30];
+        }
+
+        $list = [];
+        if (preg_match_all('/(?:juz\s*)(\d+)/i', $targetText, $m) && !empty($m[1])) {
+            foreach ($m[1] as $val) {
+                $n = (int) $val;
+                if ($n >= 1 && $n <= 30 && !in_array($n, $list)) {
+                    $list[] = $n;
+                }
+            }
+        }
+        if (preg_match_all('/\b([1-9]|[12][0-9]|30)\b/', $targetText, $m) && !empty($m[1])) {
+            foreach ($m[1] as $val) {
+                $n = (int) $val;
+                if ($n >= 1 && $n <= 30 && !in_array($n, $list)) {
+                    $list[] = $n;
+                }
+            }
+        }
+
+        return !empty($list) ? $list : [30];
+    }
+
+    /**
+     * Daftar seluruh 114 Surat dalam Al-Qur'an dikelompokkan berdasarkan nomor Juz
+     */
+    public static function getAllJuzSurahs(): array
+    {
+        return [
+            30 => [
+                'An-Naba\'', 'An-Nazi\'at', '\'Abasa', 'At-Takwir', 'Al-Infitar',
+                'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A\'la',
+                'Al-Ghasyiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail',
+                'Ad-Duha', 'Asy-Syarh', 'At-Tin', 'Al-\'Alaq', 'Al-Qadr',
+                'Al-Bayyinah', 'Az-Zalzalah', 'Al-\'Adiyat', 'Al-Qari\'ah', 'At-Takasur',
+                'Al-\'Asr', 'Al-Humazah', 'Al-Fil', 'Quraisy', 'Al-Ma\'un',
+                'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Lahab', 'Al-Ikhlas',
+                'Al-Falaq', 'An-Nas'
+            ],
+            29 => [
+                'Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh',
+                'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan',
+                'Al-Mursalat'
+            ],
+            28 => [
+                'Al-Mujadilah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah',
+                'Al-Munafiqun', 'At-Taghabun', 'At-Talaq', 'At-Tahrim'
+            ],
+            27 => [
+                'Az-Zariyat', 'At-Tur', 'An-Najm', 'Al-Qamar', 'Ar-Rahman', 'Al-Waqi\'ah', 'Al-Hadid'
+            ],
+            26 => [
+                'Al-Ahqaf', 'Muhammad', 'Al-Fath', 'Al-Hujurat', 'Qaf'
+            ],
+            25 => [
+                'Fussilat', 'Asy-Syura', 'Az-Zukhruf', 'Ad-Dukhan', 'Al-Jasiyah'
+            ],
+            24 => [
+                'Az-Zumar', 'Ghafir'
+            ],
+            23 => [
+                'Yasin', 'As-Saffat', 'Sad'
+            ],
+            22 => [
+                'Al-Ahzab', 'Saba\'', 'Fatir'
+            ],
+            21 => [
+                'Al-Anbiya\'', 'Al-Hajj', 'Luqman', 'As-Sajdah', 'Ar-Rum'
+            ],
+            20 => [
+                'An-Naml', 'Al-Qasas', 'Al-\'Ankabut'
+            ],
+            19 => [
+                'Al-Furqan', 'Asy-Syu\'ara\''
+            ],
+            18 => [
+                'Al-Kahf', 'Maryam', 'Thaha', 'Al-Mu\'minun', 'An-Nur'
+            ],
+            17 => [
+                'Al-Isra\''
+            ],
+            16 => [
+                'Al-Kahf'
+            ],
+            15 => [
+                'Al-Hijr', 'An-Nahl'
+            ],
+            14 => [
+                'Al-Hijr', 'An-Nahl'
+            ],
+            13 => [
+                'Yusuf', 'Ar-Ra\'d', 'Ibrahim'
+            ],
+            12 => [
+                'Hud', 'Yusuf'
+            ],
+            11 => [
+                'Yunus', 'Hud'
+            ],
+            10 => [
+                'Al-Anfal', 'At-Taubah'
+            ],
+            9 => [
+                'Al-A\'raf', 'Al-Anfal'
+            ],
+            8 => [
+                'Al-An\'am', 'Al-A\'raf'
+            ],
+            7 => [
+                'Al-Ma\'idah', 'Al-An\'am'
+            ],
+            6 => [
+                'An-Nisa\'', 'Al-Ma\'idah'
+            ],
+            5 => [
+                'An-Nisa\''
+            ],
+            4 => [
+                'Ali \'Imran', 'An-Nisa\''
+            ],
+            3 => [
+                'Al-Baqarah', 'Ali \'Imran'
+            ],
+            2 => [
+                'Al-Baqarah'
+            ],
+            1 => [
+                'Al-Fatihah', 'Al-Baqarah'
+            ],
+        ];
     }
 
     /**
@@ -329,7 +481,10 @@ class TahfidzAttendanceController extends Controller
             'academic_year_id'            => 'required|exists:academic_years,id',
             'attendance'                  => 'required|array',
             'attendance.*.status'         => 'required|in:hadir,sakit,izin,alpha',
+            'attendance.*.surah_name'     => 'nullable|string|max:100',
+            'attendance.*.ayat'           => 'nullable|string|max:100',
             'attendance.*.capaian'        => 'nullable|string|max:255',
+            'attendance.*.nilai'          => 'nullable|string|max:50',
             'attendance.*.jumlah_baris'   => 'nullable|integer|min:0|max:500',
             'attendance.*.hafalan_status' => 'nullable|string|max:50',
             'attendance.*.tugas_besok'    => 'nullable|string|max:255',
@@ -341,7 +496,18 @@ class TahfidzAttendanceController extends Controller
         $userId = Auth::id();
 
         foreach ($request->attendance as $studentId => $data) {
-            $capaian     = trim($data['capaian'] ?? '');
+            $surahNameInput = trim($data['surah_name'] ?? '');
+            $ayatInput      = trim($data['ayat'] ?? '');
+            $capaianInput   = trim($data['capaian'] ?? '');
+
+            if ($surahNameInput !== '') {
+                $ayatPart = $ayatInput !== '' ? (preg_match('/^(?:ayat|:)/i', $ayatInput) ? ' ' . $ayatInput : ' ayat ' . $ayatInput) : '';
+                $capaian  = trim("Surat {$surahNameInput}{$ayatPart}");
+            } else {
+                $capaian  = $capaianInput;
+            }
+
+            $nilai       = isset($data['nilai']) && trim($data['nilai']) !== '' ? trim($data['nilai']) : null;
             $jumlahBaris = isset($data['jumlah_baris']) && $data['jumlah_baris'] !== '' ? max(0, (int)$data['jumlah_baris']) : 0;
             $tugas       = trim($data['tugas_besok'] ?? '');
             $notes       = trim($data['notes'] ?? '');
@@ -360,6 +526,7 @@ class TahfidzAttendanceController extends Controller
                     'capaian'          => $capaian !== '' ? $capaian : null,
                     'jumlah_baris'     => $jumlahBaris,
                     'hafalan_status'   => $hafalanStatus,
+                    'nilai'            => $nilai,
                     'tugas_besok'      => $tugas !== '' ? $tugas : null,
                     'notes'            => $notes !== '' ? $notes : null,
                     'recorded_by'      => $userId,
@@ -391,6 +558,7 @@ class TahfidzAttendanceController extends Controller
                         'jumlah_baris'     => $jumlahBaris,
                         'type'             => 'setoran_baru',
                         'quality'          => $isLulus ? 'lancar' : 'perlu_perbaikan',
+                        'nilai'            => $nilai,
                         'notes'            => $fullNotes !== '' ? $fullNotes : null,
                         'recorded_by'      => $userId,
                     ]
@@ -522,12 +690,16 @@ class TahfidzAttendanceController extends Controller
                     $capaian = !empty($rec->capaian) ? $rec->capaian : '-';
                     $isLulus = (strtoupper($rec->hafalan_status ?? 'LULUS') === 'LULUS');
                     $statusStr = $isLulus ? "✅ *Status:* ✓ LULUS" : "❌ *Status:* ✗ BELUM LULUS";
+                    $nilaiStr = !empty($rec->nilai) ? "⭐ *Nilai:* {$rec->nilai}\n" : "";
                     $tugas = !empty($rec->tugas_besok) ? $rec->tugas_besok : '-';
                     $notes = !empty($rec->notes) ? $rec->notes : ($isLulus ? 'Barakallah..' : 'Lancarkan lagi ya sholih/sholihah..');
 
                     $barisText = ($rec->jumlah_baris && $rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
                     $msg .= "📖 *Capaian Hari Ini:*\n";
-                    $msg .= "{$capaian}{$barisText}\n\n";
+                    $msg .= "{$capaian}{$barisText}\n";
+                    if ($nilaiStr !== "") {
+                        $msg .= "{$nilaiStr}";
+                    }
                     $msg .= "{$statusStr}\n\n";
                     $msg .= "📝 *Tugas Besok:*\n";
                     $msg .= "{$tugas}\n";

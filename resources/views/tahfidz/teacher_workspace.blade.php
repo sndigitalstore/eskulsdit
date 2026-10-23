@@ -279,13 +279,155 @@
         box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
     }
 
-    /* Input Hafalan Section */
+    /* Completion Recap Section */
+    .completion-card {
+        background: white;
+        border: 1.5px solid #a7f3d0;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 16px rgba(5, 150, 105, 0.08);
+    }
+    .completion-hero {
+        background: linear-gradient(135deg, #065f46 0%, #047857 60%, #059669 100%);
+        color: white;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+    .completion-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .completion-title {
+        margin: 0 0 3px 0;
+        font-size: 1.3rem;
+        font-weight: 800;
+    }
+    .completion-subtitle {
+        margin: 0;
+        font-size: 0.84rem;
+        opacity: 0.95;
+    }
+    .completion-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .btn-recap-wa {
+        background: #25D366;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 9px;
+        font-weight: 800;
+        font-size: 0.84rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+        transition: transform 0.15s;
+    }
+    .btn-recap-copy {
+        background: white;
+        color: #065f46;
+        border: 1px solid rgba(255,255,255,0.8);
+        padding: 8px 14px;
+        border-radius: 9px;
+        font-weight: 800;
+        font-size: 0.84rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: transform 0.15s;
+    }
+    .btn-recap-edit {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.4);
+        padding: 8px 14px;
+        border-radius: 9px;
+        font-weight: 700;
+        font-size: 0.84rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.15s;
+    }
+    .btn-recap-edit:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+    }
+
+    /* Recap Table */
+    .recap-table-wrap {
+        overflow-x: auto;
+    }
+    .recap-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+    .recap-table th {
+        background: #f8fafc;
+        padding: 10px 14px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .recap-table td {
+        padding: 11px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.84rem;
+        vertical-align: middle;
+    }
+    .recap-table tr:last-child td {
+        border-bottom: none;
+    }
+    .recap-table tr:hover td {
+        background: #f8fafc;
+    }
+
+    /* Badges */
+    .badge-hadir { background: #dcfce7; color: #15803d; font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; }
+    .badge-sakit { background: #fef3c7; color: #b45309; font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; }
+    .badge-izin  { background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; }
+    .badge-alpha { background: #fee2e2; color: #b91c1c; font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; }
+    
+    .badge-lulus { background: #ecfdf5; color: #047857; font-weight: 800; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; border: 1px solid #a7f3d0; }
+    .badge-ulang { background: #fef2f2; color: #dc2626; font-weight: 800; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; border: 1px solid #fecaca; }
+    .badge-nilai { background: #fef9c3; color: #854d0e; font-weight: 800; padding: 3px 8px; border-radius: 6px; font-size: 0.78rem; border: 1px solid #fde047; display: inline-flex; align-items: center; gap: 3px; }
+
+    .recap-mobile-list {
+        display: none;
+        padding: 12px;
+    }
+
+    /* Input Hafalan Section Desktop */
     .hafalan-box-wrap {
         margin-top: 12px;
         padding-top: 12px;
         border-top: 1px dashed #e2e8f0;
         display: grid;
-        grid-template-columns: 2.2fr 0.9fr 1.2fr 2fr;
+        grid-template-columns: 2fr 1.1fr 0.9fr 0.8fr 1.3fr 2fr;
         gap: 10px;
         align-items: center;
     }
@@ -310,6 +452,7 @@
         transition: border 0.15s, box-shadow 0.15s;
         box-sizing: border-box;
         height: 38px;
+        background: white;
     }
     .input-clean:focus {
         border-color: #059669;
@@ -558,6 +701,12 @@
         .hafalan-col-surah {
             grid-column: span 2;
         }
+        .hafalan-col-ayat {
+            grid-column: span 1;
+        }
+        .hafalan-col-nilai {
+            grid-column: span 1;
+        }
         .hafalan-col-baris {
             grid-column: span 1;
         }
@@ -566,6 +715,26 @@
         }
         .hafalan-col-notes {
             grid-column: span 2;
+        }
+        .recap-table-wrap { display: none; }
+        .recap-mobile-list { display: block; }
+        .completion-hero {
+            padding: 16px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .completion-title {
+            font-size: 1.15rem;
+        }
+        .completion-actions {
+            width: 100%;
+        }
+        .btn-recap-wa, .btn-recap-copy, .btn-recap-edit {
+            flex: 1;
+            justify-content: center;
+            padding: 8px 10px;
+            font-size: 0.8rem;
         }
         .input-clean {
             height: 35px;
@@ -765,213 +934,475 @@
         </div>
     @endif
 
-    {{-- DATALIST SURAH AL-QUR'AN AUTO-COMPLETE --}}
-    <datalist id="surahList">
-        @foreach($allSurahs as $surah)
-            <option value="{{ $surah }}">
-        @endforeach
-    </datalist>
+    {{-- 5. KONTEN RUANG HALAQAH (JIKA SESI SUDAH DISIMPAN VS FORM INPUT BARU) --}}
+    @if($isSessionSaved && !$isEditMode)
+        {{-- TAMPILAN SESI SUDAH SELESAI DIINPUT & DISIMPAN --}}
+        <div class="completion-card">
+            <div class="completion-hero">
+                <div>
+                    <div class="completion-badge">
+                        <i class="fas fa-check-circle"></i> Sesi Selesai Diinput & Tersimpan
+                    </div>
+                    <h2 class="completion-title">
+                        Sesi {{ \Carbon\Carbon::parse($sessionDate)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                    </h2>
+                    <p class="completion-subtitle">
+                        Alhamdulillah, seluruh data absensi & setoran hafalan telah tersimpan. Data siap dibagikan ke orang tua santri.
+                    </p>
+                </div>
+                <div class="completion-actions">
+                    <button type="button" onclick="openWaModal()" class="btn-recap-wa">
+                        <i class="fab fa-whatsapp"></i> <span>Share WA</span>
+                    </button>
+                    <button type="button" onclick="copyWaText()" class="btn-recap-copy">
+                        <i class="fas fa-copy"></i> <span>Salin Laporan</span>
+                    </button>
+                    <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" class="btn-recap-edit">
+                        <i class="fas fa-edit"></i> <span>Koreksi / Ubah Data Sesi</span>
+                    </a>
+                </div>
+            </div>
 
-    {{-- 5. FORMULIR ALL-IN-ONE HALAQAH --}}
-    <form method="POST" action="{{ route('tahfidz.attendance.store', ['group' => $activeGroup->id]) }}" id="mainHalaqahForm">
-        @csrf
-        <input type="hidden" name="session_date" value="{{ $sessionDate }}">
-        <input type="hidden" name="academic_year_id" value="{{ $activeGroup->academic_year_id ?? $activeYear?->id }}">
-        <input type="hidden" name="redirect_to" value="workspace">
+            <!-- Tabel Rekapan Sesi (Desktop) -->
+            <div class="recap-table-wrap">
+                <table class="recap-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 45px; text-align: center;">No</th>
+                            <th>Santri & Kelas</th>
+                            <th style="text-align: center;">Kehadiran</th>
+                            <th>Capaian Setoran</th>
+                            <th style="text-align: center;">Nilai</th>
+                            <th style="text-align: center;">Baris</th>
+                            <th style="text-align: center;">Status</th>
+                            <th>Tugas Besok / Catatan</th>
+                            <th style="text-align: center; width: 60px;">Kartu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($activeGroup->students as $idx => $std)
+                            @php
+                                $att = $sessionAttendances->get($std->id);
+                                $status = $att ? $att->status : 'hadir';
+                                $capaian = $att ? $att->capaian : '-';
+                                $nilai = $att ? $att->nilai : null;
+                                $baris = $att ? $att->jumlah_baris : 0;
+                                $hafalanStatus = $att ? strtoupper($att->hafalan_status ?? 'LULUS') : 'LULUS';
+                                $tugasNotes = $att ? ($att->tugas_besok ?? $att->notes ?? '-') : '-';
+                            @endphp
+                            <tr>
+                                <td style="text-align: center; font-weight: 700; color: #64748b;">{{ $idx + 1 }}</td>
+                                <td>
+                                    <strong style="color: #0f172a; font-size: 0.9rem;">{{ $std->name }}</strong>
+                                    <div style="font-size: 0.74rem; color: #64748b;">Kelas {{ $std->class }}</div>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if($status === 'hadir')
+                                        <span class="badge-hadir">✓ Hadir</span>
+                                    @elseif($status === 'sakit')
+                                        <span class="badge-sakit">🤒 Sakit</span>
+                                    @elseif($status === 'izin')
+                                        <span class="badge-izin">📄 Izin</span>
+                                    @else
+                                        <span class="badge-alpha">❌ Alpha</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($status === 'hadir' && $capaian && $capaian !== '-')
+                                        <strong style="color: #047857; font-size: 0.88rem;">{{ $capaian }}</strong>
+                                    @else
+                                        <span style="color: #94a3b8; font-style: italic;">{{ $status !== 'hadir' ? ucfirst($status) : '-' }}</span>
+                                    @endif
+                                </td>
+                                <td style="text-align: center;">
+                                    @if($status === 'hadir' && $nilai)
+                                        <span class="badge-nilai">⭐ {{ $nilai }}</span>
+                                    @else
+                                        <span style="color: #94a3b8;">-</span>
+                                    @endif
+                                </td>
+                                <td style="text-align: center; font-weight: 700; color: #047857;">
+                                    {{ $status === 'hadir' && $baris > 0 ? $baris . ' Baris' : '-' }}
+                                </td>
+                                <td style="text-align: center;">
+                                    @if($status === 'hadir')
+                                        @if($hafalanStatus === 'LULUS')
+                                            <span class="badge-lulus">✓ Lulus</span>
+                                        @else
+                                            <span class="badge-ulang">✗ Ulang</span>
+                                        @endif
+                                    @else
+                                        <span style="color: #94a3b8;">-</span>
+                                    @endif
+                                </td>
+                                <td style="font-size: 0.8rem; color: #475569; max-width: 200px;">
+                                    {{ $tugasNotes }}
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{{ route('tahfidz.student-card', ['group' => $activeGroup->id, 'student' => $std->id]) }}" 
+                                       target="_blank" title="Kartu Hafalan"
+                                       style="color: #047857; font-size: 1rem;">
+                                        <i class="fas fa-book-reader"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-        {{-- DAFTAR SANTRI --}}
-        @forelse($activeGroup->students as $idx => $std)
-            @php
-                $existingAtt = $sessionAttendances->get($std->id);
-                $currentStatus = $existingAtt ? $existingAtt->status : 'hadir';
-                $currentCapaian = $existingAtt ? $existingAtt->capaian : '';
-                $currentBaris = $existingAtt ? ($existingAtt->jumlah_baris ?? 0) : '';
-                $currentLulus = $existingAtt ? strtoupper($existingAtt->hafalan_status ?? 'LULUS') : 'LULUS';
-                $currentNotes = $existingAtt ? ($existingAtt->tugas_besok ?? $existingAtt->notes ?? '') : '';
-
-                // Riwayat hafalan sebelumnya untuk panduan guru
-                $lastRec = $latestRecords->get($std->id)?->first();
-                $cleanPhone = preg_replace('/[^0-9]/', '', $std->parent_phone ?? '');
-                if (str_starts_with($cleanPhone, '0')) {
-                    $cleanPhone = '62' . substr($cleanPhone, 1);
-                }
-            @endphp
-
-            <div class="student-entry-card {{ $currentStatus !== 'hadir' ? 'is-absent' : '' }}" id="card-student-{{ $std->id }}">
-                
-                {{-- BARIS ATAS: IDENTITAS + QUICK ACTIONS --}}
-                <div class="student-card-header-row">
-                    <div class="student-info-flex">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div class="student-avatar-num">
-                                {{ $idx + 1 }}
+            <!-- Kartu Rekapan Sesi (Mobile) -->
+            <div class="recap-mobile-list">
+                @foreach($activeGroup->students as $idx => $std)
+                    @php
+                        $att = $sessionAttendances->get($std->id);
+                        $status = $att ? $att->status : 'hadir';
+                        $capaian = $att ? $att->capaian : '-';
+                        $nilai = $att ? $att->nilai : null;
+                        $baris = $att ? $att->jumlah_baris : 0;
+                        $hafalanStatus = $att ? strtoupper($att->hafalan_status ?? 'LULUS') : 'LULUS';
+                        $tugasNotes = $att ? ($att->tugas_besok ?? $att->notes ?? '-') : '-';
+                    @endphp
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.8rem; font-weight: 800; color: #64748b;">{{ $idx + 1 }}.</span>
+                                <div>
+                                    <strong style="color: #0f172a; font-size: 0.88rem;">{{ $std->name }}</strong>
+                                    <span style="font-size: 0.72rem; color: #64748b; margin-left: 4px;">({{ $std->class }})</span>
+                                </div>
                             </div>
                             <div>
-                                <div class="student-fullname">
-                                    {{ $std->name }}
-                                </div>
-                                <div class="student-meta-row">
-                                    <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 700; color: #334155;">
-                                        Kelas {{ $std->class }}
-                                    </span>
-                                    @if($lastRec)
-                                        <span style="color: #047857; font-weight: 600;">
-                                            📌 Lalu: <strong>{{ $lastRec->surah_name }}</strong>{{ $lastRec->start_ayah ? " ({$lastRec->start_ayah}-{$lastRec->end_ayah})" : '' }}
-                                        </span>
-                                        <button type="button" 
-                                                onclick="copyLastSurah('{{ $std->id }}', '{{ addslashes($lastRec->surah_name) }}')"
-                                                style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; border-radius: 4px; padding: 1px 5px; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
-                                            Gunakan
-                                        </button>
-                                    @endif
-                                </div>
+                                @if($status === 'hadir')
+                                    <span class="badge-hadir" style="font-size: 0.72rem;">✓ Hadir</span>
+                                @elseif($status === 'sakit')
+                                    <span class="badge-sakit" style="font-size: 0.72rem;">🤒 Sakit</span>
+                                @elseif($status === 'izin')
+                                    <span class="badge-izin" style="font-size: 0.72rem;">📄 Izin</span>
+                                @else
+                                    <span class="badge-alpha" style="font-size: 0.72rem;">❌ Alpha</span>
+                                @endif
                             </div>
                         </div>
 
-                        {{-- QUICK BUTTONS: KARTU & WA ORTU --}}
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <a href="{{ route('tahfidz.student-card', ['group' => $activeGroup->id, 'student' => $std->id]) }}" 
-                               target="_blank" title="Buka Kartu Hafalan"
-                               style="background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 5px 8px; border-radius: 7px; text-decoration: none; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                <i class="fas fa-book-reader" style="color: #047857;"></i>
-                                <span style="display: none; @media(min-width: 600px){display: inline;}">Kartu</span>
-                            </a>
-
-                            @if($cleanPhone)
-                                <a href="https://api.whatsapp.com/send?phone={{ $cleanPhone }}" target="_blank" title="Chat Ortu"
-                                   style="background: #ecfdf5; border: 1px solid #86efac; color: #166534; padding: 5px 8px; border-radius: 7px; text-decoration: none; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center;">
-                                    <i class="fab fa-whatsapp" style="color: #25D366; font-size: 0.85rem;"></i>
-                                </a>
-                            @endif
-                        </div>
+                        @if($status === 'hadir' && $capaian && $capaian !== '-')
+                            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; margin-top: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                    <span style="font-weight: 700; color: #047857; font-size: 0.84rem;">📖 {{ $capaian }}</span>
+                                    <div style="display: flex; gap: 4px; align-items: center;">
+                                        @if($nilai)
+                                            <span class="badge-nilai" style="font-size: 0.72rem;">⭐ {{ $nilai }}</span>
+                                        @endif
+                                        @if($baris > 0)
+                                            <span style="font-size: 0.72rem; font-weight: 700; color: #047857;">{{ $baris }} Baris</span>
+                                        @endif
+                                        @if($hafalanStatus === 'LULUS')
+                                            <span class="badge-lulus" style="font-size: 0.7rem;">✓ Lulus</span>
+                                        @else
+                                            <span class="badge-ulang" style="font-size: 0.7rem;">✗ Ulang</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if($tugasNotes !== '-')
+                                    <div style="font-size: 0.75rem; color: #475569; margin-top: 4px; border-top: 1px dashed #f1f5f9; padding-top: 4px;">
+                                        📝 {{ $tugasNotes }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
-
-                    {{-- PILIHAN KEHADIRAN (SEGMENTED CONTROL 1-TAP) --}}
-                    <div class="att-segmented-container">
-                        <label class="att-segmented-item">
-                            <input type="radio" name="attendance[{{ $std->id }}][status]" value="hadir" 
-                                   class="att-pill-radio" {{ $currentStatus === 'hadir' ? 'checked' : '' }}
-                                   onchange="toggleAttendanceStatus('{{ $std->id }}', 'hadir')">
-                            <span class="att-segmented-btn att-pill-hadir">✓ Hadir</span>
-                        </label>
-                        <label class="att-segmented-item">
-                            <input type="radio" name="attendance[{{ $std->id }}][status]" value="sakit" 
-                                   class="att-pill-radio" {{ $currentStatus === 'sakit' ? 'checked' : '' }}
-                                   onchange="toggleAttendanceStatus('{{ $std->id }}', 'sakit')">
-                            <span class="att-segmented-btn att-pill-sakit">Sakit</span>
-                        </label>
-                        <label class="att-segmented-item">
-                            <input type="radio" name="attendance[{{ $std->id }}][status]" value="izin" 
-                                   class="att-pill-radio" {{ $currentStatus === 'izin' ? 'checked' : '' }}
-                                   onchange="toggleAttendanceStatus('{{ $std->id }}', 'izin')">
-                            <span class="att-segmented-btn att-pill-izin">Izin</span>
-                        </label>
-                        <label class="att-segmented-item">
-                            <input type="radio" name="attendance[{{ $std->id }}][status]" value="alpha" 
-                                   class="att-pill-radio" {{ $currentStatus === 'alpha' ? 'checked' : '' }}
-                                   onchange="toggleAttendanceStatus('{{ $std->id }}', 'alpha')">
-                            <span class="att-segmented-btn att-pill-alpha">Alpha</span>
-                        </label>
-                    </div>
-                </div>
-
-                {{-- BARIS BAWAH: INPUT CAPAIAN HAFALAN (HANYA AKTIF JIKA HADIR) --}}
-                <div class="hafalan-box-wrap" id="hafalan-section-{{ $std->id }}" 
-                     style="{{ $currentStatus !== 'hadir' ? 'display: none;' : '' }}">
-                    
-                    {{-- 1. SURAH & AYAT --}}
-                    <div class="hafalan-col-surah">
-                        <label class="hafalan-field-label">📖 Surah & Ayat</label>
-                        <input type="text" name="attendance[{{ $std->id }}][capaian]" 
-                               id="capaian-input-{{ $std->id }}"
-                               list="surahList"
-                               class="input-clean" 
-                               value="{{ $currentCapaian }}"
-                               placeholder="Cth: An-Naba' 1-20"
-                               autocomplete="off">
-                    </div>
-
-                    {{-- 2. JUMLAH BARIS (OPSIONAL) --}}
-                    <div class="hafalan-col-baris">
-                        <label class="hafalan-field-label">📏 Baris</label>
-                        <input type="number" name="attendance[{{ $std->id }}][jumlah_baris]" 
-                               class="input-clean" 
-                               min="0" max="500"
-                               value="{{ $currentBaris !== '' ? $currentBaris : '' }}"
-                               placeholder="0">
-                    </div>
-
-                    {{-- 3. STATUS LULUS / BELUM --}}
-                    <div class="hafalan-col-status">
-                        <label class="hafalan-field-label">🎯 Status</label>
-                        <div class="lulus-pills">
-                            <label class="lulus-pill-btn" style="padding: 0; margin: 0; width: 100%;">
-                                <input type="radio" name="attendance[{{ $std->id }}][hafalan_status]" value="LULUS" 
-                                       class="lulus-radio" style="display: none;" 
-                                       {{ $currentLulus === 'LULUS' ? 'checked' : '' }}>
-                                <span class="lulus-pill-btn btn-lulus">✓ Lulus</span>
-                            </label>
-                            <label class="lulus-pill-btn" style="padding: 0; margin: 0; width: 100%;">
-                                <input type="radio" name="attendance[{{ $std->id }}][hafalan_status]" value="BELUM LULUS" 
-                                       class="lulus-radio" style="display: none;"
-                                       {{ $currentLulus === 'BELUM LULUS' ? 'checked' : '' }}>
-                                <span class="lulus-pill-btn btn-ulang">✗ Ulang</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 4. TUGAS BESOK / CATATAN GURU --}}
-                    <div class="hafalan-col-notes">
-                        <label class="hafalan-field-label">📝 Tugas Besok / Catatan</label>
-                        <input type="text" name="attendance[{{ $std->id }}][tugas_besok]" 
-                               class="input-clean" 
-                               value="{{ $currentNotes }}"
-                               placeholder="Cth: Lanjut ayat 21-40">
-                    </div>
-
-                </div>
-
-                {{-- KETERANGAN TIDAK HADIR --}}
-                <div id="absent-note-{{ $std->id }}" 
-                     style="margin-top: 8px; font-size: 0.78rem; color: #64748b; font-style: italic; {{ $currentStatus === 'hadir' ? 'display: none;' : '' }}">
-                    Santri berstatus <strong id="absent-text-{{ $std->id }}">{{ strtoupper($currentStatus) }}</strong> (tidak perlu mengisi setoran hafalan).
-                </div>
-
+                @endforeach
             </div>
-        @empty
-            <div style="background: white; border-radius: 14px; padding: 36px 16px; text-align: center; color: #94a3b8; border: 1px solid #e2e8f0;">
-                <i class="fas fa-users-slash" style="font-size: 2.2rem; margin-bottom: 10px; color: #cbd5e1;"></i>
-                <h4 style="margin: 0; color: #475569;">Belum Ada Santri di Kelompok Ini</h4>
-                <p style="font-size: 0.82rem; margin-top: 4px;">Hubungi Admin / Tim Kurikulum untuk memasukkan santri ke kelompok Anda.</p>
+
+            <!-- Petunjuk Ganti Tanggal -->
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span style="font-size: 0.8rem; color: #64748b;">
+                    💡 <strong>Ingin menginput sesi berikutnya?</strong> Cukup ganti tanggal pada pemilih tanggal di atas. Form santri otomatis siap diinput untuk tanggal baru.
+                </span>
+                <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" 
+                   style="font-size: 0.8rem; font-weight: 700; color: #047857; text-decoration: none;">
+                    ✏️ Koreksi / Ubah Data Sesi Ini &rarr;
+                </a>
             </div>
-        @endforelse
+        </div>
 
-        {{-- 6. STICKY BOTTOM BAR (TOMBOL SIMPAN UTAMA - COMPACT & CLEAN) --}}
-        @if($activeGroup->students->isNotEmpty())
-            <div class="sticky-bottom-bar">
-                <div class="sticky-content">
-                    <div class="sticky-info-text">
-                        <i class="fas fa-calendar-day" style="color: #059669; margin-right: 4px;"></i>
-                        Sesi: <strong>{{ \Carbon\Carbon::parse($sessionDate)->locale('id')->isoFormat('D MMMM Y') }}</strong>
-                        <span style="margin: 0 6px; color: #cbd5e1;">·</span>
-                        Total: <strong>{{ $activeGroup->students->count() }} Santri</strong>
-                    </div>
-
-                    <div class="sticky-actions-wrap">
-                        <button type="button" onclick="openWaModal()" class="btn-sticky-wa">
-                            <i class="fab fa-whatsapp"></i> Share WA
-                        </button>
-
-                        <button type="submit" class="btn-sticky-save">
-                            <i class="fas fa-save"></i>
-                            <span>Simpan Sesi</span>
-                        </button>
+    @else
+        {{-- FORM INPUT ABSENSI & CAPAIAN HARIAN --}}
+        @if($isEditMode)
+            <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-edit" style="color: #2563eb; font-size: 1.1rem;"></i>
+                    <div>
+                        <strong style="color: #1e40af; font-size: 0.88rem;">Mode Koreksi Sesi Tanggal {{ \Carbon\Carbon::parse($sessionDate)->locale('id')->isoFormat('D MMMM Y') }}</strong>
+                        <p style="margin: 1px 0 0 0; color: #3b82f6; font-size: 0.78rem;">Silakan ubah data yang diperlukan, lalu klik "Simpan Sesi" di bawah.</p>
                     </div>
                 </div>
+                <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate]) }}" 
+                   style="background: white; border: 1px solid #93c5fd; color: #1e40af; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-times"></i> Batal / Kembali ke Ringkasan
+                </a>
             </div>
         @endif
 
-    </form>
+        <form method="POST" action="{{ route('tahfidz.attendance.store', ['group' => $activeGroup->id]) }}" id="mainHalaqahForm">
+            @csrf
+            <input type="hidden" name="session_date" value="{{ $sessionDate }}">
+            <input type="hidden" name="academic_year_id" value="{{ $activeGroup->academic_year_id ?? $activeYear?->id }}">
+            <input type="hidden" name="redirect_to" value="workspace">
+
+            {{-- DAFTAR SANTRI --}}
+            @forelse($activeGroup->students as $idx => $std)
+                @php
+                    $existingAtt = $sessionAttendances->get($std->id);
+                    $currentStatus = $existingAtt ? $existingAtt->status : 'hadir';
+                    $currentCapaian = $existingAtt ? $existingAtt->capaian : '';
+                    $currentNilai = $existingAtt ? ($existingAtt->nilai ?? '') : '';
+                    $currentBaris = $existingAtt ? ($existingAtt->jumlah_baris ?? 0) : '';
+                    $currentLulus = $existingAtt ? strtoupper($existingAtt->hafalan_status ?? 'LULUS') : 'LULUS';
+                    $currentNotes = $existingAtt ? ($existingAtt->tugas_besok ?? $existingAtt->notes ?? '') : '';
+
+                    // Parse capaian untuk auto-select dropdown surat & input ayat
+                    $parsedCapaian = \App\Http\Controllers\TahfidzAttendanceController::parseCapaian($currentCapaian);
+                    $selectedSurah = $parsedCapaian['surah_name'] ?? '';
+                    $selectedAyat = '';
+                    if (!empty($parsedCapaian['start_ayah'])) {
+                        $selectedAyat = $parsedCapaian['start_ayah'] . (!empty($parsedCapaian['end_ayah']) && $parsedCapaian['end_ayah'] != $parsedCapaian['start_ayah'] ? '-' . $parsedCapaian['end_ayah'] : '');
+                    }
+
+                    // Riwayat hafalan sebelumnya untuk panduan guru
+                    $lastRec = $latestRecords->get($std->id)?->first();
+                    $cleanPhone = preg_replace('/[^0-9]/', '', $std->parent_phone ?? '');
+                    if (str_starts_with($cleanPhone, '0')) {
+                        $cleanPhone = '62' . substr($cleanPhone, 1);
+                    }
+                @endphp
+
+                <div class="student-entry-card {{ $currentStatus !== 'hadir' ? 'is-absent' : '' }}" id="card-student-{{ $std->id }}">
+                    
+                    {{-- BARIS ATAS: IDENTITAS + QUICK ACTIONS --}}
+                    <div class="student-card-header-row">
+                        <div class="student-info-flex">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="student-avatar-num">
+                                    {{ $idx + 1 }}
+                                </div>
+                                <div>
+                                    <div class="student-fullname">
+                                        {{ $std->name }}
+                                    </div>
+                                    <div class="student-meta-row">
+                                        <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 700; color: #334155;">
+                                            Kelas {{ $std->class }}
+                                        </span>
+                                        @if($lastRec)
+                                            <span style="color: #047857; font-weight: 600;">
+                                                📌 Lalu: <strong>{{ $lastRec->surah_name }}</strong>{{ $lastRec->start_ayah ? " ({$lastRec->start_ayah}-{$lastRec->end_ayah})" : '' }}
+                                            </span>
+                                            <button type="button" 
+                                                    onclick="selectStudentSurah('{{ $std->id }}', '{{ addslashes($lastRec->surah_name) }}', '{{ $lastRec->start_ayah ? $lastRec->start_ayah . ($lastRec->end_ayah && $lastRec->end_ayah != $lastRec->start_ayah ? '-' . $lastRec->end_ayah : '') : '' }}')"
+                                                    style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; border-radius: 4px; padding: 1px 5px; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
+                                                Gunakan
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- QUICK BUTTONS: KARTU & WA ORTU --}}
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <a href="{{ route('tahfidz.student-card', ['group' => $activeGroup->id, 'student' => $std->id]) }}" 
+                                   target="_blank" title="Buka Kartu Hafalan"
+                                   style="background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 5px 8px; border-radius: 7px; text-decoration: none; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-book-reader" style="color: #047857;"></i>
+                                    <span style="display: none; @media(min-width: 600px){display: inline;}">Kartu</span>
+                                </a>
+
+                                @if($cleanPhone)
+                                    <a href="https://api.whatsapp.com/send?phone={{ $cleanPhone }}" target="_blank" title="Chat Ortu"
+                                       style="background: #ecfdf5; border: 1px solid #86efac; color: #166534; padding: 5px 8px; border-radius: 7px; text-decoration: none; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center;">
+                                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 0.85rem;"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- PILIHAN KEHADIRAN (SEGMENTED CONTROL 1-TAP) --}}
+                        <div class="att-segmented-container">
+                            <label class="att-segmented-item">
+                                <input type="radio" name="attendance[{{ $std->id }}][status]" value="hadir" 
+                                       class="att-pill-radio" {{ $currentStatus === 'hadir' ? 'checked' : '' }}
+                                       onchange="toggleAttendanceStatus('{{ $std->id }}', 'hadir')">
+                                <span class="att-segmented-btn att-pill-hadir">✓ Hadir</span>
+                            </label>
+                            <label class="att-segmented-item">
+                                <input type="radio" name="attendance[{{ $std->id }}][status]" value="sakit" 
+                                       class="att-pill-radio" {{ $currentStatus === 'sakit' ? 'checked' : '' }}
+                                       onchange="toggleAttendanceStatus('{{ $std->id }}', 'sakit')">
+                                <span class="att-segmented-btn att-pill-sakit">Sakit</span>
+                            </label>
+                            <label class="att-segmented-item">
+                                <input type="radio" name="attendance[{{ $std->id }}][status]" value="izin" 
+                                       class="att-pill-radio" {{ $currentStatus === 'izin' ? 'checked' : '' }}
+                                       onchange="toggleAttendanceStatus('{{ $std->id }}', 'izin')">
+                                <span class="att-segmented-btn att-pill-izin">Izin</span>
+                            </label>
+                            <label class="att-segmented-item">
+                                <input type="radio" name="attendance[{{ $std->id }}][status]" value="alpha" 
+                                       class="att-pill-radio" {{ $currentStatus === 'alpha' ? 'checked' : '' }}
+                                       onchange="toggleAttendanceStatus('{{ $std->id }}', 'alpha')">
+                                <span class="att-segmented-btn att-pill-alpha">Alpha</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- BARIS BAWAH: INPUT CAPAIAN HAFALAN (HANYA AKTIF JIKA HADIR) --}}
+                    <div class="hafalan-box-wrap" id="hafalan-section-{{ $std->id }}" 
+                         style="{{ $currentStatus !== 'hadir' ? 'display: none;' : '' }}">
+                        
+                        {{-- 1. SURAH (DROPDOWN TARGET SESUAI JUZ ADMIN) --}}
+                        <div class="hafalan-col-surah">
+                            <label class="hafalan-field-label">📖 Surat (Target Juz)</label>
+                            <select name="attendance[{{ $std->id }}][surah_name]" 
+                                    id="surah-select-{{ $std->id }}"
+                                    class="input-clean" style="cursor: pointer;">
+                                <option value="">-- Pilih Surat --</option>
+                                
+                                {{-- TARGET JUZ KELOMPOK DARI ADMIN (MUNCUL PALING ATAS) --}}
+                                @foreach($targetJuzGroups as $juzNum => $sList)
+                                    <optgroup label="⭐ Target: Juz {{ $juzNum }}">
+                                        @foreach($sList as $sName)
+                                            @php
+                                                $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
+                                                $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));
+                                                $isSel = ($cleanS === $cleanSel || str_contains($cleanSel, $cleanS) || str_contains($cleanS, $cleanSel));
+                                            @endphp
+                                            <option value="{{ $sName }}" {{ $isSel ? 'selected' : '' }}>
+                                                {{ $sName }} (Juz {{ $juzNum }})
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+
+                                {{-- JUZ LAINNYA --}}
+                                @if(!empty($otherSurahs))
+                                    <optgroup label="📖 Surat / Juz Lainnya">
+                                        @foreach($otherSurahs as $sName)
+                                            @php
+                                                $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
+                                                $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));
+                                                $isSel = ($cleanS === $cleanSel || str_contains($cleanSel, $cleanS) || str_contains($cleanS, $cleanSel));
+                                            @endphp
+                                            <option value="{{ $sName }}" {{ $isSel ? 'selected' : '' }}>
+                                                {{ $sName }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
+                            </select>
+                        </div>
+
+                        {{-- 2. AYAT --}}
+                        <div class="hafalan-col-ayat">
+                            <label class="hafalan-field-label">🔢 Ayat</label>
+                            <input type="text" name="attendance[{{ $std->id }}][ayat]" 
+                                   id="ayat-input-{{ $std->id }}"
+                                   class="input-clean" 
+                                   value="{{ $selectedAyat }}"
+                                   placeholder="cth: 1-15">
+                        </div>
+
+                        {{-- 3. NILAI SETORAN --}}
+                        <div class="hafalan-col-nilai">
+                            <label class="hafalan-field-label">⭐ Nilai</label>
+                            <input type="text" name="attendance[{{ $std->id }}][nilai]" 
+                                   class="input-clean" 
+                                   value="{{ $currentNilai }}"
+                                   placeholder="cth: 90"
+                                   style="text-align: center; font-weight: 800; color: #065f46;">
+                        </div>
+
+                        {{-- 4. JUMLAH BARIS (OPSIONAL) --}}
+                        <div class="hafalan-col-baris">
+                            <label class="hafalan-field-label">📏 Baris</label>
+                            <input type="number" name="attendance[{{ $std->id }}][jumlah_baris]" 
+                                   class="input-clean" 
+                                   min="0" max="500"
+                                   value="{{ $currentBaris !== '' ? $currentBaris : '' }}"
+                                   placeholder="0">
+                        </div>
+
+                        {{-- 5. STATUS LULUS / BELUM --}}
+                        <div class="hafalan-col-status">
+                            <label class="hafalan-field-label">🎯 Status</label>
+                            <div class="lulus-pills">
+                                <label class="lulus-pill-btn" style="padding: 0; margin: 0; width: 100%;">
+                                    <input type="radio" name="attendance[{{ $std->id }}][hafalan_status]" value="LULUS" 
+                                           class="lulus-radio" style="display: none;" 
+                                           {{ $currentLulus === 'LULUS' ? 'checked' : '' }}>
+                                    <span class="lulus-pill-btn btn-lulus">✓ Lulus</span>
+                                </label>
+                                <label class="lulus-pill-btn" style="padding: 0; margin: 0; width: 100%;">
+                                    <input type="radio" name="attendance[{{ $std->id }}][hafalan_status]" value="BELUM LULUS" 
+                                           class="lulus-radio" style="display: none;"
+                                           {{ $currentLulus === 'BELUM LULUS' ? 'checked' : '' }}>
+                                    <span class="lulus-pill-btn btn-ulang">✗ Ulang</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- 6. TUGAS BESOK / CATATAN GURU --}}
+                        <div class="hafalan-col-notes">
+                            <label class="hafalan-field-label">📝 Tugas Besok / Catatan</label>
+                            <input type="text" name="attendance[{{ $std->id }}][tugas_besok]" 
+                                   class="input-clean" 
+                                   value="{{ $currentNotes }}"
+                                   placeholder="Cth: Lanjut ayat 16-25">
+                        </div>
+
+                    </div>
+
+                    {{-- KETERANGAN TIDAK HADIR --}}
+                    <div id="absent-note-{{ $std->id }}" 
+                         style="margin-top: 8px; font-size: 0.78rem; color: #64748b; font-style: italic; {{ $currentStatus === 'hadir' ? 'display: none;' : '' }}">
+                        Santri berstatus <strong id="absent-text-{{ $std->id }}">{{ strtoupper($currentStatus) }}</strong> (tidak perlu mengisi setoran hafalan).
+                    </div>
+
+                </div>
+            @empty
+                <div style="background: white; border-radius: 14px; padding: 36px 16px; text-align: center; color: #94a3b8; border: 1px solid #e2e8f0;">
+                    <i class="fas fa-users-slash" style="font-size: 2.2rem; margin-bottom: 10px; color: #cbd5e1;"></i>
+                    <h4 style="margin: 0; color: #475569;">Belum Ada Santri di Kelompok Ini</h4>
+                    <p style="font-size: 0.82rem; margin-top: 4px;">Hubungi Admin / Tim Kurikulum untuk memasukkan santri ke kelompok Anda.</p>
+                </div>
+            @endforelse
+
+            {{-- 6. STICKY BOTTOM BAR (TOMBOL SIMPAN UTAMA - COMPACT & CLEAN) --}}
+            @if($activeGroup->students->isNotEmpty())
+                <div class="sticky-bottom-bar">
+                    <div class="sticky-content">
+                        <div class="sticky-info-text">
+                            <i class="fas fa-calendar-day" style="color: #059669; margin-right: 4px;"></i>
+                            Sesi: <strong>{{ \Carbon\Carbon::parse($sessionDate)->locale('id')->isoFormat('D MMMM Y') }}</strong>
+                            <span style="margin: 0 6px; color: #cbd5e1;">·</span>
+                            Total: <strong>{{ $activeGroup->students->count() }} Santri</strong>
+                        </div>
+
+                        <div class="sticky-actions-wrap">
+                            <button type="button" onclick="openWaModal()" class="btn-sticky-wa">
+                                <i class="fab fa-whatsapp"></i> Share WA
+                            </button>
+
+                            <button type="submit" class="btn-sticky-save">
+                                <i class="fas fa-save"></i>
+                                <span>Simpan Sesi</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+        </form>
+    @endif
 
 </div>
 
@@ -1039,12 +1470,34 @@
         }
     }
 
-    // Salin nama surah dari riwayat sebelumnya
-    function copyLastSurah(studentId, surahName) {
-        const input = document.getElementById('capaian-input-' + studentId);
-        if (input) {
-            input.value = surahName + ' ';
-            input.focus();
+    // Pilih nama surah pada dropdown dan set ayat dari riwayat sebelumnya
+    function selectStudentSurah(studentId, surahName, ayat) {
+        const select = document.getElementById('surah-select-' + studentId);
+        const ayatInput = document.getElementById('ayat-input-' + studentId);
+
+        if (select) {
+            const cleanTarget = surahName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            let found = false;
+            for (let i = 0; i < select.options.length; i++) {
+                const optVal = select.options[i].value.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (optVal && (optVal === cleanTarget || optVal.includes(cleanTarget) || cleanTarget.includes(optVal))) {
+                    select.selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                const opt = document.createElement('option');
+                opt.value = surahName;
+                opt.text = surahName;
+                opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
+        if (ayatInput && ayat) {
+            ayatInput.value = ayat;
+            ayatInput.focus();
         }
     }
 

@@ -338,31 +338,38 @@ class MentoringGroupController extends Controller
 
             $openShare = (bool) $request->input('open_share', false);
 
-            // Daftar Surah Lengkap untuk datalist auto-complete cerdas
-            $allSurahs = [
-                'An-Nas', 'Al-Falaq', 'Al-Ikhlas', 'Al-Lahab', 'An-Nasr', 'Al-Kafirun', 'Al-Kausar',
-                'Al-Ma\'un', 'Quraisy', 'Al-Fil', 'Al-Humazah', 'Al-\'Asr', 'At-Takasur', 'Al-Qari\'ah',
-                'Al-\'Adiyat', 'Az-Zalzalah', 'Al-Bayyinah', 'Al-Qadr', 'Al-\'Alaq', 'At-Tin',
-                'Asy-Syarh', 'Ad-Duha', 'Al-Lail', 'Asy-Syams', 'Al-Balad', 'Al-Fajr', 'Al-Ghasyiyah',
-                'Al-A\'la', 'At-Tariq', 'Al-Buruj', 'Al-Insyiqaq', 'Al-Mutaffifin', 'Al-Infitar',
-                'At-Takwir', '\'Abasa', 'An-Nazi\'at', 'An-Naba\'',
-                'Al-Mursalat', 'Al-Insan', 'Al-Qiyamah', 'Al-Muddassir', 'Al-Muzzammil', 'Al-Jinn',
-                'Nuh', 'Al-Ma\'arij', 'Al-Haqqah', 'Al-Qalam', 'Al-Mulk',
-                'At-Tahrim', 'At-Talaq', 'At-Taghabun', 'Al-Munafiqun', 'Al-Jumu\'ah', 'As-Saff',
-                'Al-Mumtahanah', 'Al-Hasyr', 'Al-Mujadilah',
-                'Al-Hadid', 'Al-Waqi\'ah', 'Ar-Rahman', 'Al-Qamar', 'An-Najm', 'At-Tur', 'Az-Zariyat',
-                'Qaf', 'Al-Hujurat', 'Al-Fath', 'Muhammad', 'Al-Ahqaf',
-                'Yasin', 'Fatir', 'Saba\'', 'Al-Ahzab', 'As-Sajdah', 'Luqman', 'Ar-Rum', 'Al-\'Ankabut',
-                'Al-Qasas', 'An-Naml', 'Asy-Syu\'ara\'', 'Al-Furqan', 'An-Nur', 'Al-Mu\'minun', 'Al-Hajj',
-                'Al-Anbiya\'', 'Thaha', 'Maryam', 'Al-Kahf', 'Al-Isra\'', 'An-Nahl', 'Al-Hijr', 'Ibrahim',
-                'Ar-Ra\'d', 'Yusuf', 'Hud', 'Yunus', 'At-Taubah', 'Al-Anfal', 'Al-A\'raf', 'Al-An\'am',
-                'Al-Ma\'idah', 'An-Nisa\'', 'Ali \'Imran', 'Al-Baqarah', 'Al-Fatihah'
-            ];
+            // Deteksi target Juz dari target_level grup secara dinamis
+            $targetJuzList = \App\Http\Controllers\TahfidzAttendanceController::extractTargetJuz($activeGroup->target_level ?? 'Juz 30');
+            $allJuzSurahs  = \App\Http\Controllers\TahfidzAttendanceController::getAllJuzSurahs();
+
+            $targetJuzGroups = [];
+            $surahsInTarget  = [];
+            foreach ($targetJuzList as $juzNum) {
+                if (isset($allJuzSurahs[$juzNum])) {
+                    $targetJuzGroups[$juzNum] = $allJuzSurahs[$juzNum];
+                    foreach ($allJuzSurahs[$juzNum] as $s) {
+                        $surahsInTarget[] = strtolower(preg_replace('/[^a-z0-9]/', '', $s));
+                    }
+                }
+            }
+
+            $otherSurahs = [];
+            foreach ($allSurahs as $s) {
+                $clean = strtolower(preg_replace('/[^a-z0-9]/', '', $s));
+                if (!in_array($clean, $surahsInTarget)) {
+                    $otherSurahs[] = $s;
+                }
+            }
+
+            // Status apakah sesi tanggal ini sudah pernah disimpan
+            $isSessionSaved = $sessionAttendances->isNotEmpty();
+            $isEditMode     = (bool) $request->input('edit', false);
 
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
                 'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines',
-                'allSurahs', 'today', 'sessionDate', 'openShare'
+                'allSurahs', 'targetJuzList', 'targetJuzGroups', 'otherSurahs',
+                'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare'
             ));
         }
 

@@ -20,6 +20,7 @@ class TahfidzRecord extends Model
         'jumlah_baris',
         'type',
         'quality',
+        'nilai',
         'session_date',
         'notes',
         'recorded_by',
