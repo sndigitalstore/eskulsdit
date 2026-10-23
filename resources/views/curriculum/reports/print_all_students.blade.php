@@ -232,6 +232,7 @@
                     <h1>SDIT AN NADZIR</h1>
                     <h2>LAPORAN HASIL BELAJAR PESERTA DIDIK (RAPOR AKADEMIK)</h2>
                     <p>SMILE Kurikulum Merdeka – Membentuk Generasi Qur'ani, Cerdas, dan Berkarakter Mulia</p>
+                    <p style="font-size: 8pt; color: #475569; margin: 1px 0;">NNS: 101280432037 · NPSN: 20616174</p>
                     <p style="font-size: 8pt; font-style: italic;">Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
                 </div>
             </div>

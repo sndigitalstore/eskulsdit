@@ -214,8 +214,9 @@
         <div class="kop-surat">
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
-                <h2>YAYASAN PENDIDIKAN DAN SOSIAL AN NADZIR</h2>
+                <h2>YAYASAN AN NADZIR ISLAMIC SCHOOL</h2>
                 <h1>SDIT AN NADZIR</h1>
+                <p style="font-size: 8.5pt; color: #475569; margin: 1px 0;">NNS: 101280432037 · NPSN: 20616174</p>
                 <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             </div>
         </div>

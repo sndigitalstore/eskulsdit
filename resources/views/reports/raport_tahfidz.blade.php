@@ -453,9 +453,9 @@
             <div class="kop-surat">
                 <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo SDIT AN NADZIR">
                 <div class="kop-text">
-                    <p class="instansi-yayasan">YAYASAN PENDIDIKAN DAN SOSIAL AN NADZIR</p>
+                    <p class="instansi-yayasan">YAYASAN AN NADZIR ISLAMIC SCHOOL</p>
                     <h1 class="instansi-nama">SDIT AN NADZIR</h1>
-                    <p class="instansi-npsn">NSS: 102026501053 · NPSN: 69949618 · Akreditasi: A (Amat Baik)</p>
+                    <p class="instansi-npsn">NNS: 101280432037 · NPSN: 20616174 · Akreditasi: A (Amat Baik)</p>
                     <p class="instansi-alamat">Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
                 </div>
             </div>

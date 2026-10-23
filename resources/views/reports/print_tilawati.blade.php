@@ -170,6 +170,7 @@
             <div class="kop-text">
                 <h1>SDIT AN NADZIR</h1>
                 <h2>SISTEM PEMBINAAN QUR'AN & PRESTASI TERPADU (SIM SMILE)</h2>
+                <p style="font-size: 8.5pt; color: #475569; margin: 1px 0;">NNS: 101280432037 · NPSN: 20616174</p>
                 <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             </div>
         </div>

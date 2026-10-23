@@ -110,8 +110,9 @@
     <div class="header">
         <img src="{{ asset('logo.png') }}" class="logo" alt="Logo">
         <div class="school-info">
-            <h2>YAYASAN PENDIDIKAN ISLAM AN NADZIR</h2>
+            <h2>YAYASAN AN NADZIR ISLAMIC SCHOOL</h2>
             <h3>SDIT AN NADZIR KABUPATEN SERANG</h3>
+            <p style="font-size: 8.5pt; color: #475569; margin: 1px 0;">NNS: 101280432037 · NPSN: 20616174</p>
             <p>Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167</p>
             <p>Website: sditannadzir.sch.id | Email: sditannadzir@gmail.com</p>
         </div>
