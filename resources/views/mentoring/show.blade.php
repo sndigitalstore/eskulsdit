@@ -78,6 +78,42 @@
         </a>
     </div>
 
+    {{-- BANNER SUKSES PENDAFTARAN MUNAQOSAH + TOMBOL KIRIM WA KE WALI SISWA --}}
+    @if(session('munaqosah_wa_data'))
+        @php
+            $waData = session('munaqosah_wa_data');
+            $waUrl = "https://api.whatsapp.com/send?phone=" . ($waData['phone'] ?? '') . "&text=" . urlencode($waData['message'] ?? '');
+        @endphp
+        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1.5px solid #6ee7b7; border-radius: 16px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.12);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #064e3b;">
+                        Alhamdulillah! Pendaftaran Munaqosah {{ $waData['student_name'] }} Berhasil
+                    </h4>
+                    <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #047857;">
+                        Siswa telah terplot ke dewan penguji. Bagikan kabar gembira dan jadwal ujian ke Orang Tua / Wali Siswa?
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                @if(!empty($waData['phone']))
+                    <a href="{{ $waUrl }}" target="_blank" 
+                       style="background: #25D366; color: white; padding: 9px 16px; border-radius: 10px; font-size: 0.84rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.35);">
+                        <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Kirim Jadwal ke WhatsApp Ortu
+                    </a>
+                @else
+                    <button type="button" onclick="copyMunaqosahWa('{{ addslashes($waData['message']) }}')"
+                            style="background: #059669; color: white; border: none; padding: 9px 16px; border-radius: 10px; font-size: 0.84rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-copy"></i> Salin Pesan WA
+                    </button>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <!-- GROUP HEADER CARD -->
     <div class="card" style="padding: 24px; margin-bottom: 24px; border-top: 4px solid {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
@@ -183,9 +219,7 @@
                         <th style="padding: 12px 16px; text-align: center; width: 10%;">Kelas</th>
                         <th style="padding: 12px 16px; text-align: left;">Catatan / Target Siswa</th>
                         <th style="padding: 12px 16px; text-align: center; width: 14%;">Tanggal Masuk</th>
-                        @if($isAdmin || $type === 'tahfidz')
-                            <th style="padding: 12px 16px; text-align: center; width: 10%;">Aksi</th>
-                        @endif
+                        <th style="padding: 12px 16px; text-align: center; width: 14%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -221,19 +255,33 @@
                             <td style="padding: 14px 16px; text-align: center; color: #64748b; font-size: 0.85rem;">
                                 {{ $student->pivot->created_at ? $student->pivot->created_at->format('d/m/Y') : '-' }}
                             </td>
-                            @if($isAdmin || $type === 'tahfidz')
                             <td style="padding: 14px 16px; text-align: center;">
-                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; align-items: center;">
+                                    {{-- Status / Pendaftaran Munaqosah Cepat --}}
+                                    @if(isset($munaqosahRegistrations[$student->id]))
+                                        <span style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;" title="Terdaftar: {{ $munaqosahRegistrations[$student->id]->exam_time ?? 'Menunggu Jadwal' }}">
+                                            <i class="fas fa-award"></i> Terdaftar
+                                        </span>
+                                    @else
+                                        <button type="button" 
+                                                onclick="openQuickMunaqosahTilawatiModal({{ $student->id }}, '{{ addslashes($student->name) }}', '{{ $student->class }}', '{{ $group->target_level ?? '' }}')"
+                                                style="padding: 5px 10px; font-size: 0.75rem; background: #0284c7; color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.25);"
+                                                title="Daftarkan Munaqosah {{ $typeLabel }}">
+                                            <i class="fas fa-award"></i> Munaqosah
+                                        </button>
+                                    @endif
+
                                     @if($type === 'tahfidz')
                                         <a href="{{ route('tahfidz.student-card', ['group' => $group->id, 'student' => $student->id]) }}" 
                                            class="btn-action-header" 
-                                           style="padding: 5px 10px; font-size: 0.78rem; background: #0f766e; color: white; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;"
+                                           style="padding: 5px 10px; font-size: 0.75rem; background: #0f766e; color: white; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;"
                                            title="Lihat Kartu Hafalan">
                                             <i class="fas fa-quran"></i> Hafalan
                                         </a>
                                     @endif
+
                                     @if($isAdmin)
-                                        <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 5px 10px; font-size: 0.78rem;" title="Keluarkan dari Kelompok">
+                                        <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 5px 10px; font-size: 0.75rem;" title="Keluarkan dari Kelompok">
                                             <i class="fas fa-user-minus"></i> Hapus
                                         </button>
                                         <form id="remove-form-{{ $student->id }}" action="{{ route('mentoring-groups.remove-student', ['group' => $group->id, 'student' => $student->id]) }}" method="POST" style="display: none;">
@@ -243,11 +291,10 @@
                                     @endif
                                 </div>
                             </td>
-                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ ($isAdmin || $type === 'tahfidz') ? 7 : 6 }}" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
                                 <div style="font-size: 2.2rem; margin-bottom: 8px; color: #cbd5e1;">
                                     <i class="fas fa-users-slash"></i>
                                 </div>
@@ -576,4 +623,157 @@
     });
 </script>
 @endif
+
+<!-- Modal Pop-up Daftarkan Munaqosah Cepat untuk Kelompok Tilawati / Mentoring -->
+<div id="quickMunaqosahTilawatiModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: white; border-radius: 20px; width: 100%; max-width: 520px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #eff6ff; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">Daftarkan Munaqosah {{ $typeLabel }}</h3>
+                    <p style="margin: 2px 0 0 0; color: #64748b; font-size: 0.8rem;">Daftarkan siswa langsung ke dewan penguji</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeQuickMunaqosahTilawatiModal()" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer; padding: 4px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="{{ route('munaqosah.register.store') }}">
+            @csrf
+            <input type="hidden" name="redirect_back" value="1">
+            <input type="hidden" name="student_id" id="quick_tilawati_student_id">
+            <input type="hidden" name="type" value="{{ $type }}">
+            <input type="hidden" name="from_group_id" value="{{ $group->id }}">
+            <input type="hidden" name="proposer_name" value="{{ Auth::user()->name }}">
+
+            <!-- Info Siswa & Kelompok -->
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;" id="quick_tilawati_student_name">
+                    Nama Siswa
+                </div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 3px; display: flex; gap: 10px; align-items: center;">
+                    <span id="quick_tilawati_student_class">Kelas -</span>
+                    <span>•</span>
+                    <span>Kelompok: <strong>{{ $group->name }}</strong></span>
+                </div>
+            </div>
+
+            <!-- Jenjang Munaqosah -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 5px;">
+                        Jenjang Diuji <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="current_level" id="quick_tilawati_current_level" required 
+                           value="{{ $group->target_level ?? ($type === 'tilawati' ? 'Jilid 1' : 'Juz 30') }}"
+                           style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 700; background: #fff;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 5px;">
+                        Target Lanjutan <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="target_level" id="quick_tilawati_target_level" required 
+                           value="{{ $type === 'tilawati' ? 'Jilid 2' : 'Juz 29' }}"
+                           style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 700; background: #fff;">
+                </div>
+            </div>
+
+            <!-- Dropdown Pilihan Jadwal & Penguji Munaqisy -->
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 700; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    <i class="far fa-calendar-check" style="color: #0284c7;"></i> Pilih Jadwal & Penguji / Munaqisy Tersedia
+                </label>
+                <select name="schedule_id" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #0284c7; font-size: 0.86rem; font-weight: 600; background: #f0f9ff;">
+                    <option value="">-- Tanpa Jadwal (Jadwalkan Nanti oleh Panitia) --</option>
+                    @foreach($munaqosahSchedules as $sch)
+                        @php
+                            $isFull = $sch->is_full;
+                            $exName = $sch->examiner?->user?->name ?? 'Penguji';
+                            $slotTxt = "{$exName} • {$sch->day_name} ({$sch->time_start} - {$sch->time_end} WIB)";
+                            if ($sch->room_location) {
+                                $slotTxt .= " · {$sch->room_location}";
+                            }
+                        @endphp
+                        <option value="{{ $sch->id }}" {{ $isFull ? 'disabled' : '' }}>
+                            {{ $slotTxt }} {{ $isFull ? '[SUDAH TERPENUHI ✓]' : "(Sisa: " . ($sch->quota - $sch->used_slots) . " kuota)" }}
+                        </option>
+                    @endforeach
+                </select>
+                <span style="font-size: 0.74rem; color: #64748b; margin-top: 4px; display: block;">
+                    Jadwal ini diatur oleh Admin & Kurikulum. Jika dipilih, siswa langsung otomatis terplot ke penguji tersebut.
+                </span>
+            </div>
+
+            <!-- Catatan Pengusul (Opsional) -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 5px;">
+                    Catatan Guru Pembimbing (Opsional)
+                </label>
+                <textarea name="proposer_notes" rows="2" placeholder="Contoh: Siswa sudah tuntas fashohah dan gharib jilid ini..." style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.84rem;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                <button type="button" onclick="closeQuickMunaqosahTilawatiModal()" style="padding: 10px 18px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; cursor: pointer;">
+                    Batal
+                </button>
+                <button type="submit" style="padding: 10px 22px; border-radius: 10px; border: none; background: #0284c7; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-check-circle"></i> Konfirmasi & Daftarkan Langsung
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openQuickMunaqosahTilawatiModal(studentId, studentName, studentClass, targetLevel) {
+        document.getElementById('quick_tilawati_student_id').value = studentId;
+        document.getElementById('quick_tilawati_student_name').textContent = studentName;
+        document.getElementById('quick_tilawati_student_class').textContent = 'Kelas ' + (studentClass || '-');
+
+        const curLevel = targetLevel || '{{ $group->target_level ?? ($type === "tilawati" ? "Jilid 1" : "Juz 30") }}';
+        document.getElementById('quick_tilawati_current_level').value = curLevel;
+
+        // Auto suggest target lanjutan
+        let nextLevel = 'Jilid 2';
+        const curLower = curLevel.toLowerCase();
+        if (curLower.includes('jilid 1')) nextLevel = 'Jilid 2';
+        else if (curLower.includes('jilid 2')) nextLevel = 'Jilid 3';
+        else if (curLower.includes('jilid 3')) nextLevel = 'Jilid 4';
+        else if (curLower.includes('jilid 4')) nextLevel = 'Jilid 5';
+        else if (curLower.includes('jilid 5')) nextLevel = 'Al-Qur\'an';
+        else if (curLower.includes('al-qur\'an') || curLower.includes('alquran')) nextLevel = 'Gharib / Tajwid';
+        else if (curLower.includes('30')) nextLevel = 'Juz 29';
+        else if (curLower.includes('29')) nextLevel = 'Juz 28';
+        else if (curLower.includes('28')) nextLevel = 'Juz 27';
+        else if (curLower.includes('27')) nextLevel = 'Juz 26';
+        else if (curLower.includes('26')) nextLevel = 'Juz 25';
+
+        document.getElementById('quick_tilawati_target_level').value = nextLevel;
+
+        const modal = document.getElementById('quickMunaqosahTilawatiModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeQuickMunaqosahTilawatiModal() {
+        const modal = document.getElementById('quickMunaqosahTilawatiModal');
+        modal.style.display = 'none';
+    }
+
+    function copyMunaqosahWa(msg) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(msg).then(() => {
+                alert('✅ Pesan jadwal munaqosah berhasil disalin! Silakan paste/tempel ke WhatsApp orang tua.');
+            }).catch(() => {
+                prompt('Salin pesan pengumuman munaqosah berikut:', msg);
+            });
+        } else {
+            prompt('Salin pesan pengumuman munaqosah berikut:', msg);
+        }
+    }
+</script>
 @endsection

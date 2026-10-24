@@ -380,7 +380,32 @@ class MunaqosahController extends Controller
         ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran', "Mendaftarkan siswa {$student->name} untuk munaqosah {$typeLabel} ({$request->current_level} -> {$request->target_level})");
 
         if ($request->filled('redirect_back')) {
-            return back()->with('success', "Alhamdulillah! Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} ({$request->current_level}) berhasil didaftarkan!");
+            $cleanPhone = preg_replace('/[^0-9]/', '', $student->parent_phone ?? '');
+            if (str_starts_with($cleanPhone, '0')) {
+                $cleanPhone = '62' . substr($cleanPhone, 1);
+            }
+
+            $examinerName = $sch?->examiner?->user?->name ?? 'Dewan Munaqisy';
+            $examScheduleTxt = $examTime ? "pada {$examTime}" : "menunggu penetapan jadwal dari panitia";
+            if ($examDate) {
+                $examScheduleTxt = \Carbon\Carbon::parse($examDate)->locale('id')->isoFormat('dddd, D MMMM Y') . " ({$examScheduleTxt})";
+            }
+
+            $waParentMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh Ayah/Bunda Ananda {$student->name} 🌙\n\n" .
+                "Kabar gembira, ananda {$student->name} (Kelas {$student->class}) telah menuntaskan target pembelajaran {$request->current_level} dan telah resmi didaftarkan untuk UJIAN MUNAQOSAH:\n\n" .
+                "• Bidang: " . ($request->type === 'tilawati' ? 'Tilawati Qur\'an' : 'Tahfidz Al-Qur\'an') . "\n" .
+                "• Jenjang Diuji: {$request->current_level}\n" .
+                "• Dewan Penguji: {$examinerName}\n" .
+                "• Jadwal Ujian: {$examScheduleTxt}\n" .
+                ($roomLocation ? "• Lokasi: {$roomLocation}\n" : "") .
+                "\nMohon doa restu dan pendampingan muroja'ah ananda di rumah agar ujian berjalan lancar, berkah, dan mutqin. Terima kasih 🤲";
+
+            return back()->with('success', "Alhamdulillah! Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} ({$request->current_level}) berhasil didaftarkan!")
+                ->with('munaqosah_wa_data', [
+                    'student_name' => $student->name,
+                    'phone' => $cleanPhone,
+                    'message' => $waParentMsg,
+                ]);
         }
 
         return redirect()->route('munaqosah.index')->with('success', "Alhamdulillah! Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} ({$request->current_level}) berhasil diajukan!");

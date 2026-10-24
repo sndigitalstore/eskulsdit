@@ -386,12 +386,58 @@ class MentoringGroupController extends Controller
                     ->keyBy('student_id');
             }
 
+            // 1. Hitung progress capaian target juz setiap siswa di kelompok (Indikator Tuntas Target 100%)
+            $studentTargetProgress = [];
+            if (\Illuminate\Support\Facades\Schema::hasTable('tahfidz_records') && count($surahsInTarget) > 0) {
+                $allStudentRecords = \App\Models\TahfidzRecord::whereIn('student_id', $studentIds)
+                    ->whereIn('quality', ['lancar', 'cukup'])
+                    ->get();
+
+                foreach ($studentIds as $sId) {
+                    $stRecs = $allStudentRecords->where('student_id', $sId);
+                    $stSurahs = $stRecs->pluck('surah_name')->map(function($n) {
+                        return strtolower(preg_replace('/[^a-z0-9]/', '', $n));
+                    })->unique();
+
+                    $completedCount = 0;
+                    foreach ($surahsInTarget as $reqSurah) {
+                        if ($stSurahs->contains($reqSurah)) {
+                            $completedCount++;
+                        }
+                    }
+
+                    $totalReq = count($surahsInTarget);
+                    $percent = $totalReq > 0 ? min(100, round(($completedCount / $totalReq) * 100)) : 0;
+                    $isCompleted = ($totalReq > 0) && ($completedCount >= $totalReq);
+
+                    $studentTargetProgress[$sId] = [
+                        'completed' => $completedCount,
+                        'total' => $totalReq,
+                        'percent' => $percent,
+                        'is_completed' => $isCompleted,
+                    ];
+                }
+            }
+
+            // 2. Pengingat tugas menguji munaqosah bagi guru yang bertugas sebagai dewan penguji
+            $myUpcomingExams = collect();
+            if (\Illuminate\Support\Facades\Schema::hasTable('munaqosah_registrations')) {
+                $myUpcomingExams = \App\Models\MunaqosahRegistration::with(['student', 'examiner.user', 'schedule'])
+                    ->where(function($q) use ($user) {
+                        $q->where('examiner_user_id', $user->id)
+                          ->orWhereHas('examiner', fn($e) => $e->where('user_id', $user->id));
+                    })
+                    ->where('status', 'scheduled')
+                    ->orderBy('exam_date')
+                    ->get();
+            }
+
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
                 'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines',
                 'allSurahs', 'targetJuzList', 'targetJuzGroups', 'otherSurahs',
                 'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare',
-                'munaqosahSchedules', 'munaqosahRegistrations'
+                'munaqosahSchedules', 'munaqosahRegistrations', 'studentTargetProgress', 'myUpcomingExams'
             ));
         }
 
@@ -583,7 +629,26 @@ class MentoringGroupController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        return view('mentoring.show', compact('group', 'type', 'typeLabel', 'classes', 'enrolledStudentIds', 'studentsInOtherGroups', 'isAdmin', 'isMyGroup'));
+        // Data munaqosah untuk kelompok Tilawati / Tahfidz
+        $munaqosahSchedules = collect();
+        $munaqosahRegistrations = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('munaqisy_schedules')) {
+            $munaqosahSchedules = \App\Models\MunaqisySchedule::with('examiner.user')
+                ->where('status', '!=', 'inactive')
+                ->whereIn('exam_type', ['all', $type])
+                ->orderBy('day_name')
+                ->orderBy('time_start')
+                ->get();
+        }
+        if (\Illuminate\Support\Facades\Schema::hasTable('munaqosah_registrations') && !empty($enrolledStudentIds)) {
+            $munaqosahRegistrations = \App\Models\MunaqosahRegistration::with(['examiner.user', 'schedule'])
+                ->whereIn('student_id', $enrolledStudentIds)
+                ->whereIn('status', ['pending', 'scheduled'])
+                ->get()
+                ->keyBy('student_id');
+        }
+
+        return view('mentoring.show', compact('group', 'type', 'typeLabel', 'classes', 'enrolledStudentIds', 'studentsInOtherGroups', 'isAdmin', 'isMyGroup', 'munaqosahSchedules', 'munaqosahRegistrations'));
     }
 
     public function edit(Request $request, $id)

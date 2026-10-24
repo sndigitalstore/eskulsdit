@@ -1049,6 +1049,72 @@
                 </a>
             @endforeach
         </div>
+    {{-- PENGINGAT JADWAL MENGUJI MUNAQISY --}}
+    @if(isset($myUpcomingExams) && $myUpcomingExams->isNotEmpty())
+        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(49, 46, 129, 0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                        <span>Pengingat Dewan Munaqisy:</span>
+                        <span style="background: #e0e7ff; color: #3730a3; padding: 1px 8px; border-radius: 20px; font-size: 0.75rem;">
+                            {{ $myUpcomingExams->count() }} Siswa Terjadwal Ujian
+                        </span>
+                    </h4>
+                    <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #c7d2fe;">
+                        Antum memiliki tugas menguji munaqosah: 
+                        <strong>{{ $myUpcomingExams->first()->student->name ?? 'Siswa' }}</strong> 
+                        ({{ $myUpcomingExams->first()->current_level }}) • 
+                        {{ $myUpcomingExams->first()->exam_time ?? 'Waktu Belum Diisi' }}
+                        @if($myUpcomingExams->count() > 1)
+                            dan {{ $myUpcomingExams->count() - 1 }} siswa lainnya.
+                        @endif
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('munaqosah.index', ['examiner' => 'me']) }}" 
+               style="background: #4f46e5; color: white; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.2);">
+                <i class="fas fa-edit"></i> Buka Lembar Ujian
+            </a>
+        </div>
+    @endif
+
+    {{-- BANNER SUKSES PENDAFTARAN MUNAQOSAH + TOMBOL KIRIM WA KE WALI SISWA --}}
+    @if(session('munaqosah_wa_data'))
+        @php
+            $waData = session('munaqosah_wa_data');
+            $waUrl = "https://api.whatsapp.com/send?phone=" . ($waData['phone'] ?? '') . "&text=" . urlencode($waData['message'] ?? '');
+        @endphp
+        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1.5px solid #6ee7b7; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.12); animation: fadeInDown 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #064e3b;">
+                        Alhamdulillah! Pendaftaran Munaqosah {{ $waData['student_name'] }} Berhasil
+                    </h4>
+                    <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #047857;">
+                        Siswa telah terplot ke dewan penguji. Bagikan kabar gembira dan jadwal ujian ke Orang Tua / Wali Siswa?
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                @if(!empty($waData['phone']))
+                    <a href="{{ $waUrl }}" target="_blank" 
+                       style="background: #25D366; color: white; padding: 9px 16px; border-radius: 10px; font-size: 0.84rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.35);">
+                        <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Kirim Jadwal ke WhatsApp Ortu
+                    </a>
+                @else
+                    <button type="button" onclick="copyMunaqosahWa('{{ addslashes($waData['message']) }}')"
+                            style="background: #059669; color: white; border: none; padding: 9px 16px; border-radius: 10px; font-size: 0.84rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-copy"></i> Salin Pesan WA
+                    </button>
+                @endif
+            </div>
+        </div>
     @endif
 
     {{-- 2. BANNER UTAMA RUANG HALAQAH --}}
@@ -1287,10 +1353,21 @@
                                            style="color: #047857; font-size: 1rem;">
                                             <i class="fas fa-book-reader"></i>
                                         </a>
+                                        @php
+                                            $prog = $studentTargetProgress[$std->id] ?? null;
+                                            $isTuntas = $prog && ($prog['is_completed'] || $prog['percent'] >= 100);
+                                        @endphp
                                         @if(isset($munaqosahRegistrations[$std->id]))
                                             <span style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 2px 6px; border-radius: 6px; font-size: 0.68rem; font-weight: 800; display: inline-flex; align-items: center; gap: 3px;" title="Terdaftar Munaqosah: {{ $munaqosahRegistrations[$std->id]->exam_time ?? 'Menunggu Jadwal' }}">
                                                 <i class="fas fa-award"></i> Terdaftar
                                             </span>
+                                        @elseif($isTuntas)
+                                            <button type="button" 
+                                                    onclick="openQuickMunaqosahModal({{ $std->id }}, '{{ addslashes($std->name) }}', '{{ $std->class }}')"
+                                                    style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35);"
+                                                    title="Target 100% Tuntas! Klik untuk Daftarkan Munaqosah">
+                                                <i class="fas fa-star" style="color: #fef08a;"></i> ⭐ Tuntas (Daftar)
+                                            </button>
                                         @else
                                             <button type="button" 
                                                     onclick="openQuickMunaqosahModal({{ $std->id }}, '{{ addslashes($std->name) }}', '{{ $std->class }}')"
@@ -1450,6 +1527,19 @@
                                         <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 700; color: #334155;">
                                             Kelas {{ $std->class }}
                                         </span>
+                                        @php
+                                            $prog = $studentTargetProgress[$std->id] ?? null;
+                                            $isTuntas = $prog && ($prog['is_completed'] || $prog['percent'] >= 100);
+                                        @endphp
+                                        @if($isTuntas)
+                                            <span style="background: #fef3c7; color: #92400e; border: 1.5px solid #fde68a; font-weight: 800; font-size: 0.72rem; padding: 1px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;">
+                                                <i class="fas fa-star" style="color: #f59e0b;"></i> Target 100% Tuntas ⭐
+                                            </span>
+                                        @elseif($prog && $prog['percent'] > 0)
+                                            <span style="background: #f0fdf4; color: #166534; font-size: 0.72rem; font-weight: 700; padding: 1px 6px; border-radius: 4px;">
+                                                Target: {{ $prog['completed'] }}/{{ $prog['total'] }} ({{ $prog['percent'] }}%)
+                                            </span>
+                                        @endif
                                         @if($lastRec)
                                             <span style="color: #047857; font-weight: 600;">
                                                 📌 Lalu: <strong>{{ $lastRec->surah_name }}</strong>{{ $lastRec->start_ayah ? " ({$lastRec->start_ayah}-{$lastRec->end_ayah})" : '' }}
@@ -1470,6 +1560,13 @@
                                     <span style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 7px; font-size: 0.72rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;" title="Terdaftar Munaqosah: {{ $munaqosahRegistrations[$std->id]->exam_time ?? 'Menunggu Jadwal' }}">
                                         <i class="fas fa-award"></i> <span style="display: none; @media(min-width: 600px){display: inline;}">Munaqosah</span>
                                     </span>
+                                @elseif($isTuntas)
+                                    <button type="button" 
+                                            onclick="openQuickMunaqosahModal({{ $std->id }}, '{{ addslashes($std->name) }}', '{{ $std->class }}')"
+                                            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);"
+                                            title="Target 100% Tuntas! Klik untuk Daftarkan Munaqosah">
+                                        <i class="fas fa-star" style="color: #fef08a;"></i> <span style="display: none; @media(min-width: 600px){display: inline;}">⭐ Tuntas (Daftar Munaqosah)</span>
+                                    </button>
                                 @else
                                     <button type="button" 
                                             onclick="openQuickMunaqosahModal({{ $std->id }}, '{{ addslashes($std->name) }}', '{{ $std->class }}')"
@@ -2064,6 +2161,18 @@
 
     function closeQuickMunaqosahModal() {
         document.getElementById('quickMunaqosahModal').style.display = 'none';
+    }
+
+    function copyMunaqosahWa(msg) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(msg).then(() => {
+                alert('✅ Pesan jadwal munaqosah berhasil disalin! Silakan paste/tempel ke WhatsApp orang tua.');
+            }).catch(() => {
+                prompt('Salin pesan pengumuman munaqosah berikut:', msg);
+            });
+        } else {
+            prompt('Salin pesan pengumuman munaqosah berikut:', msg);
+        }
     }
 
     @if($openShare)
