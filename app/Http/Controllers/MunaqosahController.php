@@ -315,7 +315,13 @@ class MunaqosahController extends Controller
             ->orderBy('class')
             ->orderBy('name')
             ->get();
-        $groups = MentoringGroup::when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))->orderBy('name')->get();
+        $groups = MentoringGroup::with(['mentorUser', 'students' => function($q) {
+                $q->orderBy('class')->orderBy('name');
+            }])
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->orderBy('name')
+            ->get();
+        $tilawatiGroups = $groups->where('type', 'tilawati')->values();
         $examiners = MunaqisyExaminer::with('user')->where('status', 'active')->get();
 
         $selectedStudentId = $request->input('student_id');
@@ -357,6 +363,7 @@ class MunaqosahController extends Controller
         return view('munaqosah.register', compact(
             'students', 
             'groups', 
+            'tilawatiGroups',
             'examiners', 
             'schedules',
             'activeYear',
@@ -373,6 +380,112 @@ class MunaqosahController extends Controller
      */
     public function registerStore(Request $request)
     {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+
+        // 1. Jika Pendaftaran Tilawati Kolektif 1 Kelompok
+        if ($request->type === 'tilawati' && $request->filled('group_id')) {
+            $request->validate([
+                'group_id' => 'required|exists:mentoring_groups,id',
+                'current_level' => 'required|string|max:100',
+                'target_level' => 'required|string|max:100',
+                'proposer_notes' => 'nullable|string',
+                'proposer_name' => 'nullable|string|max:150',
+                'proposer_phone' => 'nullable|string|max:30',
+                'schedule_id' => 'nullable|exists:munaqisy_schedules,id',
+                'exam_date' => 'nullable|date',
+                'examiner_id' => 'nullable|exists:munaqisy_examiners,id',
+            ]);
+
+            $group = MentoringGroup::with('students')->findOrFail($request->group_id);
+            if ($group->students->isEmpty()) {
+                return back()->with('error', "Kelompok {$group->name} belum memiliki anggota santri.")->withInput();
+            }
+
+            $examinerId = $request->examiner_id;
+            $examinerUserId = null;
+            $examDate = $request->exam_date;
+            $examTime = $request->exam_time;
+            $roomLocation = $request->room_location;
+            $scheduleId = $request->schedule_id;
+
+            if ($scheduleId) {
+                $sch = MunaqisySchedule::with('examiner')->find($scheduleId);
+                if ($sch) {
+                    $examinerId = $sch->examiner_id;
+                    $examinerUserId = $sch->examiner?->user_id;
+                    $examTime = $examTime ?: ($sch->time_start . ' - ' . $sch->time_end);
+                    $roomLocation = $roomLocation ?: $sch->room_location;
+                    if ($sch->date) $examDate = $sch->date;
+                }
+            } elseif ($examinerId) {
+                $examiner = MunaqisyExaminer::find($examinerId);
+                if ($examiner) $examinerUserId = $examiner->user_id;
+            }
+
+            $status = ($examinerId && ($examDate || $scheduleId)) ? 'scheduled' : 'pending';
+            $user = Auth::user();
+            $proposerName = $request->proposer_name ?: ($user?->name ?? 'Guru Pembimbing');
+            $proposerPhone = $request->proposer_phone ?: ($user?->phone ?? null);
+
+            $registeredCount = 0;
+            $skippedCount = 0;
+
+            DB::beginTransaction();
+            try {
+                foreach ($group->students as $student) {
+                    $existing = MunaqosahRegistration::where('student_id', $student->id)
+                        ->where('type', 'tilawati')
+                        ->where('academic_year_id', $activeYear?->id)
+                        ->whereIn('status', ['pending', 'scheduled'])
+                        ->first();
+
+                    if ($existing) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    MunaqosahRegistration::create([
+                        'student_id' => $student->id,
+                        'academic_year_id' => $activeYear?->id,
+                        'type' => 'tilawati',
+                        'current_level' => $request->current_level,
+                        'target_level' => $request->target_level,
+                        'from_group_id' => $group->id,
+                        'proposed_by' => Auth::id(),
+                        'proposer_user_id' => Auth::id(),
+                        'proposer_name' => $proposerName,
+                        'proposer_phone' => $proposerPhone,
+                        'proposer_notes' => $request->proposer_notes ?: "Pendaftaran Kolektif Kelompok Tilawati {$group->name}",
+                        'schedule_id' => $scheduleId,
+                        'examiner_id' => $examinerId,
+                        'examiner_user_id' => $examinerUserId,
+                        'exam_date' => $examDate,
+                        'exam_time' => $examTime,
+                        'room_location' => $roomLocation,
+                        'status' => $status,
+                        'registration_date' => now(),
+                    ]);
+
+                    $registeredCount++;
+                }
+
+                DB::commit();
+
+                ActivityLog::log('Munaqosah Tilawati', 'Pendaftaran Kolektif Kelompok', "Mendaftarkan {$registeredCount} siswa kelompok {$group->name} ke Munaqosah Tilawati ({$request->current_level} -> {$request->target_level})");
+
+                $msg = "Alhamdulillah! Sebanyak {$registeredCount} santri dari kelompok {$group->name} berhasil didaftarkan secara kolektif untuk Munaqosah Tilawati ({$request->target_level}).";
+                if ($skippedCount > 0) {
+                    $msg .= " ({$skippedCount} santri dilewati karena sudah memiliki jadwal munaqosah aktif).";
+                }
+
+                return redirect()->route('munaqosah.index')->with('success', $msg);
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return back()->withInput()->with('error', 'Gagal mendaftarkan kelompok: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Mode Pendaftaran Perorangan (Tahfidz atau Siswa Tunggal)
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'type' => 'required|in:tilawati,tahfidz',
@@ -491,7 +604,13 @@ class MunaqosahController extends Controller
     {
         $activeYear = AcademicYear::where('is_active', true)->first();
         $classes = Student::activeYear()->active()->distinct()->orderBy('class')->pluck('class');
-        $groups = MentoringGroup::when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))->orderBy('name')->get();
+        $groups = MentoringGroup::with(['mentorUser', 'students' => function($q) {
+                $q->orderBy('class')->orderBy('name');
+            }])
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->orderBy('name')
+            ->get();
+        $tilawatiGroups = $groups->where('type', 'tilawati')->values();
         $students = Student::activeYear()->active()->orderBy('class')->orderBy('name')->get(['id', 'name', 'class', 'nis']);
         $schedules = MunaqisySchedule::with(['examiner.user', 'registrations.student'])
             ->where('status', '!=', 'inactive')
@@ -499,7 +618,7 @@ class MunaqosahController extends Controller
             ->orderBy('time_start')
             ->get();
 
-        return view('munaqosah.public_register', compact('activeYear', 'classes', 'groups', 'students', 'schedules'));
+        return view('munaqosah.public_register', compact('activeYear', 'classes', 'groups', 'tilawatiGroups', 'students', 'schedules'));
     }
 
     /**
@@ -507,6 +626,108 @@ class MunaqosahController extends Controller
      */
     public function publicRegisterStore(Request $request)
     {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+
+        // 1. Jika Pendaftaran Tilawati Kolektif 1 Kelompok
+        if ($request->type === 'tilawati' && $request->filled('group_id')) {
+            $request->validate([
+                'group_id' => 'required|exists:mentoring_groups,id',
+                'current_level' => 'required|string|max:100',
+                'target_level' => 'required|string|max:100',
+                'proposer_name' => 'required|string|max:150',
+                'proposer_phone' => 'nullable|string|max:30',
+                'proposer_role' => 'nullable|string|max:50',
+                'schedule_id' => 'nullable|exists:munaqisy_schedules,id',
+                'proposer_notes' => 'nullable|string',
+            ]);
+
+            $group = MentoringGroup::with('students')->findOrFail($request->group_id);
+            if ($group->students->isEmpty()) {
+                return back()->with('error', "Kelompok {$group->name} belum memiliki anggota santri.")->withInput();
+            }
+
+            $examinerId = null;
+            $examinerUserId = null;
+            $examDate = null;
+            $examTime = null;
+            $roomLocation = null;
+            $status = 'pending';
+            $sch = null;
+
+            if ($request->schedule_id) {
+                $sch = MunaqisySchedule::with('examiner')->find($request->schedule_id);
+                if ($sch) {
+                    $examinerId = $sch->examiner_id;
+                    $examinerUserId = $sch->examiner?->user_id;
+                    $examTime = "{$sch->time_start} - {$sch->time_end} WIB";
+                    $roomLocation = $sch->room_location;
+                    if ($sch->date) $examDate = $sch->date;
+                    $status = 'scheduled';
+                }
+            }
+
+            $notes = $request->proposer_notes;
+            if ($request->proposer_role) {
+                $notes = "[Pendaftar: " . strtoupper($request->proposer_role) . "] " . ($notes ?? '');
+            }
+
+            $registeredCount = 0;
+            $firstRegistrationId = null;
+
+            DB::beginTransaction();
+            try {
+                foreach ($group->students as $student) {
+                    $existing = MunaqosahRegistration::where('student_id', $student->id)
+                        ->where('type', 'tilawati')
+                        ->where('academic_year_id', $activeYear?->id)
+                        ->whereIn('status', ['pending', 'scheduled'])
+                        ->first();
+
+                    if ($existing) continue;
+
+                    $reg = MunaqosahRegistration::create([
+                        'student_id' => $student->id,
+                        'academic_year_id' => $activeYear ? $activeYear->id : null,
+                        'from_group_id' => $group->id,
+                        'proposer_user_id' => Auth::id(),
+                        'proposer_name' => $request->proposer_name,
+                        'proposer_phone' => $request->proposer_phone,
+                        'proposer_notes' => trim($notes),
+                        'schedule_id' => $request->schedule_id,
+                        'examiner_id' => $examinerId,
+                        'examiner_user_id' => $examinerUserId,
+                        'exam_date' => $examDate,
+                        'exam_time' => $examTime,
+                        'room_location' => $roomLocation,
+                        'type' => 'tilawati',
+                        'current_level' => $request->current_level,
+                        'target_level' => $request->target_level,
+                        'registration_date' => now()->toDateString(),
+                        'status' => $status,
+                        'transition_status' => 'none',
+                    ]);
+
+                    if (!$firstRegistrationId) $firstRegistrationId = $reg->id;
+                    $registeredCount++;
+                }
+
+                DB::commit();
+
+                ActivityLog::log("Munaqosah Tilawati", 'Pendaftaran Kolektif Mandiri', "Pendaftaran kelompok {$group->name} ({$registeredCount} siswa) oleh {$request->proposer_name}");
+
+                if ($firstRegistrationId) {
+                    return redirect()->route('munaqosah.public-register.success', $firstRegistrationId)
+                        ->with('group_success_msg', "Alhamdulillah! Sebanyak {$registeredCount} santri dari kelompok {$group->name} berhasil didaftarkan ke Munaqosah Tilawati.");
+                }
+
+                return back()->with('info', "Seluruh santri di kelompok {$group->name} sudah terdaftar sebelumnya dalam jadwal munaqosah aktif.");
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return back()->withInput()->with('error', 'Gagal mendaftarkan kelompok: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Mode Pendaftaran Perorangan (Tahfidz atau Siswa Tunggal)
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'type' => 'required|in:tilawati,tahfidz',

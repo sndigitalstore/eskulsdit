@@ -258,46 +258,111 @@
                 </div>
             </div>
 
-            <!-- 2. Pilih Siswa (Live Search) -->
+            <!-- 2. Pilih Siswa (Tahfidz) atau Pilih Kelompok (Tilawati) -->
             <div class="form-section">
-                <label class="section-label">2. Pilih Siswa Peserta Munaqosah <span style="color: red;">*</span></label>
-                <p style="font-size: 0.78rem; color: #64748b; margin-top: -4px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label id="point2_title" class="section-label" style="margin-bottom: 0;">
+                        2. Pilih Siswa Peserta Munaqosah <span style="color: red;">*</span>
+                    </label>
+                    <span id="point2_badge" style="font-size: 0.76rem; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 12px; font-weight: 700;">
+                        Total {{ $students->count() }} siswa
+                    </span>
+                </div>
+                <p id="point2_desc" style="font-size: 0.78rem; color: #64748b; margin-top: 0; margin-bottom: 10px;">
                     Ketik nama lengkap siswa di bawah, pilihan nama & kelas akan muncul otomatis:
                 </p>
 
-                <!-- Input Pencarian Langsung -->
-                <div style="position: relative;">
-                    <input type="text" id="student_search_live" autocomplete="off"
-                           placeholder="Ketik nama lengkap siswa di sini (cth: Muhammad, Aisyah, dll)..." 
-                           class="input-control" 
-                           oninput="onSearchStudentLive(this.value)"
-                           style="padding-left: 42px; font-size: 0.95rem; font-weight: 600;">
-                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 15px; color: #059669; font-size: 1.05rem;"></i>
-                </div>
+                <!-- A. Mode Tahfidz: Input Pencarian Langsung -->
+                <div id="point2_tahfidz_container">
+                    <div style="position: relative;">
+                        <input type="text" id="student_search_live" autocomplete="off"
+                               placeholder="Ketik nama lengkap siswa di sini (cth: Muhammad, Aisyah, dll)..." 
+                               class="input-control" 
+                               oninput="onSearchStudentLive(this.value)"
+                               style="padding-left: 42px; font-size: 0.95rem; font-weight: 600;">
+                        <i class="fas fa-search" style="position: absolute; left: 14px; top: 15px; color: #059669; font-size: 1.05rem;"></i>
+                    </div>
 
-                <!-- Floating Container Hasil Pencarian -->
-                <div id="student_search_results" style="display: none; max-height: 230px; overflow-y: auto; background: white; border: 1.5px solid #10b981; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 6px; z-index: 50;">
-                    <!-- Diisi dinamis oleh JavaScript -->
-                </div>
+                    <!-- Floating Container Hasil Pencarian -->
+                    <div id="student_search_results" style="display: none; max-height: 230px; overflow-y: auto; background: white; border: 1.5px solid #10b981; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 6px; z-index: 50;">
+                        <!-- Diisi dinamis oleh JavaScript -->
+                    </div>
 
-                <!-- Hidden Input untuk dikirim ke backend -->
-                <input type="hidden" name="student_id" id="selected_student_id" required>
+                    <!-- Hidden Input untuk dikirim ke backend -->
+                    <input type="hidden" name="student_id" id="selected_student_id">
 
-                <!-- Siswa Terpilih (Card Konfirmasi) -->
-                <div id="student_selected_card" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 12px; padding: 12px 16px; margin-top: 10px; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 42px; height: 42px; border-radius: 10px; background: #d1fae5; color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
-                            <i class="fas fa-user-check"></i>
+                    <!-- Siswa Terpilih (Card Konfirmasi) -->
+                    <div id="student_selected_card" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 12px; padding: 12px 16px; margin-top: 10px; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 42px; height: 42px; border-radius: 10px; background: #d1fae5; color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.74rem; color: #059669; font-weight: 800; text-transform: uppercase;">Siswa Terpilih:</div>
+                                <h4 id="selected_student_name_label" style="margin: 0; font-size: 1rem; font-weight: 800; color: #065f46;"></h4>
+                                <p id="selected_student_meta_label" style="margin: 2px 0 0 0; font-size: 0.78rem; color: #047857;"></p>
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-size: 0.74rem; color: #059669; font-weight: 800; text-transform: uppercase;">Siswa Terpilih:</div>
-                            <h4 id="selected_student_name_label" style="margin: 0; font-size: 1rem; font-weight: 800; color: #065f46;"></h4>
-                            <p id="selected_student_meta_label" style="margin: 2px 0 0 0; font-size: 0.78rem; color: #047857;"></p>
+                        <button type="button" onclick="clearStudentSelection()" style="background: white; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-sync-alt"></i> Ganti
+                        </button>
+                    </div>
+                </div>
+
+                <!-- B. Mode Tilawati: Pilih Kelompok Tilawati yang Diatur Kurikulum -->
+                <div id="point2_tilawati_container" style="display: none;">
+                    <div style="position: relative;">
+                        <select name="group_id" id="tilawati_group_select" class="input-control form-control-pro" style="height: 46px; font-weight: 700;" onchange="onSelectTilawatiGroup(this.value)">
+                            <option value="">-- Silakan Pilih Kelompok Tilawati --</option>
+                            @foreach($tilawatiGroups as $tGrp)
+                                @php
+                                    $studentCount = $tGrp->students->count();
+                                    $mentor = $tGrp->mentor_name ?? ($tGrp->mentorUser->name ?? 'Pembimbing');
+                                    $targetLvl = $tGrp->target_level ?? 'Jilid 1';
+                                @endphp
+                                <option value="{{ $tGrp->id }}">
+                                    📖 {{ $tGrp->name }} • Pembimbing: {{ $mentor }} ({{ $studentCount }} Santri) • Tingkat: {{ $targetLvl }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Kartu Detail & Preview Anggota Santri -->
+                    <div id="tilawati_group_preview_card" style="display: none; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 14px; padding: 16px; margin-top: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 10px; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div>
+                                    <h4 id="preview_group_name" style="margin: 0; font-size: 0.98rem; font-weight: 800; color: #92400e;">
+                                        Kelompok Tilawati
+                                    </h4>
+                                    <span id="preview_group_meta" style="font-size: 0.78rem; color: #b45309; font-weight: 600;">
+                                        Pembimbing: -
+                                    </span>
+                                </div>
+                            </div>
+                            <span id="preview_group_count_badge" style="background: #f59e0b; color: white; font-weight: 800; font-size: 0.74rem; padding: 3px 8px; border-radius: 16px;">
+                                0 Santri
+                            </span>
+                        </div>
+
+                        <!-- Daftar Nama Santri dalam Kelompok -->
+                        <div style="margin-top: 10px; border-top: 1px dashed #fcd34d; padding-top: 8px;">
+                            <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #78350f; text-transform: uppercase; margin-bottom: 6px;">
+                                <i class="fas fa-users" style="color: #f59e0b; margin-right: 4px;"></i> Anggota Santri yang Akan Dimunaqosah:
+                            </label>
+                            <div id="preview_group_students_list" style="display: flex; flex-wrap: wrap; gap: 5px; max-height: 160px; overflow-y: auto;">
+                                <!-- Chips nama siswa -->
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px; font-size: 0.76rem; color: #92400e; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                            <span>Sekali klik pendaftaran, <strong>seluruh santri di kelompok ini</strong> akan langsung diajukan bersamaan.</span>
                         </div>
                     </div>
-                    <button type="button" onclick="clearStudentSelection()" style="background: white; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer;">
-                        <i class="fas fa-sync-alt"></i> Ganti
-                    </button>
                 </div>
             </div>
 
@@ -426,6 +491,7 @@
 
 <script>
 const allStudentsData = @json($students);
+const allTilawatiGroupsData = @json($tilawatiGroups);
 
 function onTypeChanged(type) {
     const cardTahfidz = document.getElementById('card_tahfidz');
@@ -435,20 +501,113 @@ function onTypeChanged(type) {
     const cur = document.getElementById('current_level');
     const tgt = document.getElementById('target_level');
 
+    const point2Title = document.getElementById('point2_title');
+    const point2Badge = document.getElementById('point2_badge');
+    const point2Desc = document.getElementById('point2_desc');
+    const p2Tahfidz = document.getElementById('point2_tahfidz_container');
+    const p2Tilawati = document.getElementById('point2_tilawati_container');
+    const selectTilawatiGroup = document.getElementById('tilawati_group_select');
+
     if (type === 'tahfidz') {
         cardTahfidz.className = 'type-card active-tahfidz';
         cardTilawati.className = 'type-card';
         pillsTahfidz.style.display = 'block';
         pillsTilawati.style.display = 'none';
-        cur.value = 'Juz 30';
-        tgt.value = 'Juz 29';
+
+        // Poin 2: Kembali ke Mode Pencarian Siswa Tahfidz
+        if (point2Title) point2Title.innerHTML = '2. Pilih Siswa Peserta Munaqosah <span style="color: red;">*</span>';
+        if (point2Badge) point2Badge.textContent = 'Total ' + allStudentsData.length + ' siswa';
+        if (point2Desc) point2Desc.textContent = 'Ketik nama lengkap siswa di bawah, pilihan nama & kelas akan muncul otomatis:';
+
+        if (p2Tahfidz) p2Tahfidz.style.display = 'block';
+        if (p2Tilawati) p2Tilawati.style.display = 'none';
+
+        if (!cur.value || cur.value.startsWith('Jilid')) {
+            cur.value = 'Juz 30';
+            tgt.value = 'Juz 29';
+        }
     } else {
         cardTilawati.className = 'type-card active-tilawati';
         cardTahfidz.className = 'type-card';
         pillsTahfidz.style.display = 'none';
         pillsTilawati.style.display = 'block';
-        cur.value = 'Jilid 1';
-        tgt.value = 'Jilid 2';
+
+        // Poin 2: Pindah ke Mode Pilihan Kelompok Tilawati
+        if (point2Title) point2Title.innerHTML = '2. Pilih Kelompok Tilawati Peserta Munaqosah <span style="color: red;">*</span>';
+        if (point2Badge) point2Badge.textContent = allTilawatiGroupsData.length + ' Kelompok Tilawati';
+        if (point2Desc) point2Desc.textContent = 'Silakan pilih kelompok. Pada kolom tersebut berisi seluruh kelompok Tilawati yang sudah diatur oleh Admin atau Kurikulum:';
+
+        if (p2Tahfidz) p2Tahfidz.style.display = 'none';
+        if (p2Tilawati) p2Tilawati.style.display = 'block';
+
+        if (!cur.value || cur.value.startsWith('Juz')) {
+            cur.value = 'Jilid 1';
+            tgt.value = 'Jilid 2';
+        }
+
+        if (selectTilawatiGroup && selectTilawatiGroup.value) {
+            onSelectTilawatiGroup(selectTilawatiGroup.value);
+        }
+    }
+}
+
+function onSelectTilawatiGroup(groupId) {
+    const card = document.getElementById('tilawati_group_preview_card');
+    if (!groupId) {
+        if (card) card.style.display = 'none';
+        return;
+    }
+
+    const grp = allTilawatiGroupsData.find(g => String(g.id) === String(groupId));
+    if (!grp) {
+        if (card) card.style.display = 'none';
+        return;
+    }
+
+    const nameEl = document.getElementById('preview_group_name');
+    const metaEl = document.getElementById('preview_group_meta');
+    const badgeEl = document.getElementById('preview_group_count_badge');
+    const listEl = document.getElementById('preview_group_students_list');
+
+    const mentorName = grp.mentor_name || (grp.mentor_user ? grp.mentor_user.name : '-');
+    const students = grp.students || [];
+
+    if (nameEl) nameEl.textContent = grp.name;
+    if (metaEl) metaEl.textContent = 'Pembimbing: ' + mentorName + ' • Target: ' + (grp.target_level || 'Jilid 1');
+    if (badgeEl) badgeEl.textContent = students.length + ' Santri';
+
+    if (listEl) {
+        if (students.length === 0) {
+            listEl.innerHTML = '<span style="font-size: 0.8rem; color: #94a3b8; font-style: italic;">Belum ada anggota santri di kelompok ini.</span>';
+        } else {
+            let html = '';
+            students.forEach((st, idx) => {
+                html += '<span style="background: white; border: 1px solid #fde68a; color: #92400e; font-size: 0.76rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;">' +
+                        '<strong>' + (idx + 1) + '.</strong> ' + escapeHtml(st.name) + ' (' + escapeHtml(st.class) + ')' +
+                        '</span>';
+            });
+            listEl.innerHTML = html;
+        }
+    }
+
+    if (card) card.style.display = 'block';
+
+    // Otomatis isi Jenjang di Poin 3
+    const targetLvl = grp.target_level || 'Jilid 1';
+    const cur = document.getElementById('current_level');
+    const tgt = document.getElementById('target_level');
+    if (cur && tgt) {
+        cur.value = targetLvl;
+        const jilidMap = {
+            'Jilid 1': 'Jilid 2',
+            'Jilid 2': 'Jilid 3',
+            'Jilid 3': 'Jilid 4',
+            'Jilid 4': 'Jilid 5',
+            'Jilid 5': 'Jilid 6',
+            'Jilid 6': 'Al-Qur\'an / Ghorib',
+            'Al-Qur\'an / Ghorib': 'Tashih Akhir'
+        };
+        tgt.value = jilidMap[targetLvl] || 'Jenjang Lanjutan';
     }
 }
 
@@ -547,19 +706,43 @@ function escapeHtml(text) {
 }
 
 function validatePublicForm() {
-    const studentId = document.getElementById('selected_student_id').value;
-    if (!studentId) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Pilih Siswa Terlebih Dahulu',
-            text: 'Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.',
-            confirmButtonColor: '#059669'
-        });
-        document.getElementById('student_search_live').focus();
-        return false;
+    const curType = document.querySelector('input[name="type"]:checked')?.value || 'tahfidz';
+    if (curType === 'tahfidz') {
+        const studentId = document.getElementById('selected_student_id').value;
+        if (!studentId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Siswa Terlebih Dahulu',
+                text: 'Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.',
+                confirmButtonColor: '#059669'
+            });
+            document.getElementById('student_search_live').focus();
+            return false;
+        }
+    } else {
+        const groupId = document.getElementById('tilawati_group_select').value;
+        if (!groupId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Kelompok Tilawati',
+                text: 'Silakan pilih kelompok Tilawati yang akan diajukan untuk munaqosah.',
+                confirmButtonColor: '#d97706'
+            });
+            document.getElementById('tilawati_group_select').focus();
+            return false;
+        }
     }
     return true;
 }
+
+// Tutup floating search box jika klik di luar
+document.addEventListener('click', function(e) {
+    const box = document.getElementById('student_search_results');
+    const input = document.getElementById('student_search_live');
+    if (box && input && !box.contains(e.target) && e.target !== input) {
+        box.style.display = 'none';
+    }
+});
 </script>
 
 </body>
