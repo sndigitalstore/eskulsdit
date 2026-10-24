@@ -151,13 +151,13 @@
 
         <!-- Paragraf Pembuka -->
         <p class="intro-text">
-            Dewan Munaqisy Lembaga Penjamin Mutu Al-Qur'an SDIT An Nadzir menerangkan dengan sesungguhnya bahwa santri:
+            Dewan Munaqisy Lembaga Penjamin Mutu Al-Qur'an SDIT An Nadzir menerangkan dengan sesungguhnya bahwa siswa:
         </p>
 
         <!-- Biodata Siswa -->
         <table class="bio-table">
             <tr>
-                <td style="width: 32%;"><strong>Nama Santri</strong></td>
+                <td style="width: 32%;"><strong>Nama Siswa</strong></td>
                 <td style="width: 3%;">:</td>
                 <td style="font-weight: bold; font-size: 11pt;">{{ strtoupper($registration->student->name ?? '-') }}</td>
             </tr>
@@ -234,7 +234,7 @@
         </table>
 
         <p class="intro-text" style="margin-top: 10px;">
-            Berdasarkan hasil penilaian di atas, santri dinyatakan 
+            Berdasarkan hasil penilaian di atas, siswa dinyatakan 
             <strong style="color: #065f46; font-size: 11pt;">LULUS MUNAQOSAH</strong> 
             dan direkomendasikan untuk melanjutkan ke <strong>{{ $registration->target_level }}</strong>.
         </p>

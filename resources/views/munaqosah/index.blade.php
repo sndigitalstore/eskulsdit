@@ -132,9 +132,13 @@
                style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $statusFilter === 'failed' ? 'background: #ef4444; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-times-circle"></i> Belum Lulus ({{ $failedCount }})
             </a>
+            <a href="{{ route('munaqosah.index', ['tab' => 'schedules', 'year_id' => $selectedYearId]) }}" 
+               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $activeTab === 'schedules' ? 'background: #0284c7; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
+                <i class="fas fa-calendar-check"></i> Jadwal & Ketersediaan Penguji ({{ $schedulesCount }})
+            </a>
             <a href="{{ route('munaqosah.index', ['tab' => 'examiners', 'year_id' => $selectedYearId]) }}" 
                style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $activeTab === 'examiners' ? 'background: #4f46e5; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
-                <i class="fas fa-user-graduate"></i> Manajemen Mentor Penguji ({{ $examinersCount }})
+                <i class="fas fa-user-graduate"></i> Dewan Penguji ({{ $examinersCount }})
             </a>
         </div>
 
@@ -180,7 +184,7 @@
                         Daftar Mentor Penguji (Dewan Munaqisy)
                     </h3>
                     <p style="color: #64748b; font-size: 0.86rem; margin: 0;">
-                        Guru dan asatidz yang memiliki wewenang untuk menguji dan menilai kenaikan juz/jilid tilawati santri.
+                        Guru dan asatidz yang memiliki wewenang untuk menguji dan menilai kenaikan juz/jilid tilawati siswa.
                     </p>
                 </div>
                 @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
@@ -282,6 +286,138 @@
                                 <td colspan="8" style="padding: 35px; text-align: center; color: #94a3b8;">
                                     <i class="fas fa-user-slash" style="font-size: 2.5rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
                                     Belum ada mentor penguji (munaqisy) yang didaftarkan.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @elseif($activeTab === 'schedules')
+        {{-- TAB JADWAL & KETERSEDIAAN PENGUJI (MUNAQISY) --}}
+        <div style="background: white; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0 0 4px 0;">
+                        Jadwal & Ketersediaan Penguji (Munaqisy)
+                    </h3>
+                    <p style="color: #64748b; font-size: 0.86rem; margin: 0;">
+                        Atur jadwal ketersediaan hari, jam, dan kuota para penguji. Jadwal ini akan muncul otomatis di formulir pendaftaran siswa.
+                    </p>
+                </div>
+                @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                    <button type="button" onclick="openAddScheduleModal()" class="btn-action-header" style="background: #0284c7; padding: 9px 18px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-calendar-plus"></i> + Tambah Jadwal Penguji
+                    </button>
+                @endif
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left;">
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700; width: 45px;">No</th>
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700;">Nama Penguji (Munaqisy)</th>
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700;">Hari & Waktu</th>
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700;">Ruangan / Tempat</th>
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700;">Kategori</th>
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Ketersediaan / Kuota</th>
+                            <th style="padding: 12px 14px; color: #475569; font-weight: 700;">Siswa Terdaftar di Sesi Ini</th>
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                                <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Aksi</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($schedules as $index => $sch)
+                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                <td style="padding: 12px 14px; color: #64748b; font-weight: 600;">{{ $index + 1 }}</td>
+                                <td style="padding: 12px 14px;">
+                                    <div style="font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; border-radius: 8px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                                            <i class="fas fa-user-tie"></i>
+                                        </div>
+                                        <span>{{ $sch->examiner?->user?->name ?? 'Penguji' }}</span>
+                                    </div>
+                                    @if($sch->examiner?->phone)
+                                        <div style="font-size: 0.74rem; color: #64748b; margin-left: 40px;">
+                                            <i class="fab fa-whatsapp" style="color: #10b981;"></i> {{ $sch->examiner->phone }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td style="padding: 12px 14px;">
+                                    <div style="font-weight: 800; color: #0369a1;">
+                                        <i class="far fa-calendar-alt"></i> Hari {{ $sch->day_name }}
+                                        @if($sch->date)
+                                            <span style="font-weight: 500; font-size: 0.78rem; color: #64748b;">({{ $sch->date->format('d/m/Y') }})</span>
+                                        @endif
+                                    </div>
+                                    <div style="font-size: 0.82rem; color: #334155; font-weight: 600;">
+                                        <i class="far fa-clock"></i> Pukul {{ $sch->time_start }} s/d {{ $sch->time_end }} WIB
+                                    </div>
+                                </td>
+                                <td style="padding: 12px 14px; color: #475569;">
+                                    <i class="fas fa-map-marker-alt" style="color: #94a3b8; margin-right: 4px;"></i>
+                                    {{ $sch->room_location ?? 'Ruang Munaqosah' }}
+                                </td>
+                                <td style="padding: 12px 14px;">
+                                    @if($sch->exam_type === 'all')
+                                        <span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 700;">
+                                            Semua
+                                        </span>
+                                    @elseif($sch->exam_type === 'tahfidz')
+                                        <span style="background: #ecfdf5; color: #047857; padding: 3px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 700;">
+                                            Tahfidz
+                                        </span>
+                                    @else
+                                        <span style="background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 700;">
+                                            Tilawati
+                                        </span>
+                                    @endif
+                                </td>
+                                <td style="padding: 12px 14px; text-align: center;">
+                                    @if($sch->is_full)
+                                        <span style="background: #ecfdf5; color: #047857; font-weight: 800; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; border: 1.5px solid #10b981; display: inline-flex; align-items: center; gap: 5px;">
+                                            <i class="fas fa-check-circle" style="color: #10b981;"></i> Sudah Terpenuhi ({{ $sch->used_slots }}/{{ $sch->quota }})
+                                        </span>
+                                    @else
+                                        <span style="background: #eff6ff; color: #1e40af; font-weight: 800; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; border: 1.5px solid #60a5fa; display: inline-flex; align-items: center; gap: 5px;">
+                                            <i class="fas fa-clock" style="color: #3b82f6;"></i> Tersedia ({{ $sch->used_slots }}/{{ $sch->quota }})
+                                        </span>
+                                    @endif
+                                </td>
+                                <td style="padding: 12px 14px;">
+                                    @if($sch->registrations->isNotEmpty())
+                                        @foreach($sch->registrations as $reg)
+                                            <div style="font-size: 0.8rem; color: #0f172a; font-weight: 700;">
+                                                <i class="fas fa-user-check" style="color: #10b981; margin-right: 4px;"></i>
+                                                {{ $reg->student->name ?? 'Siswa' }} 
+                                                <span style="font-weight: normal; color: #64748b; font-size: 0.75rem;">(Kelas {{ $reg->student->class ?? '-' }} • {{ $reg->current_level }})</span>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <span style="color: #94a3b8; font-size: 0.78rem; font-style: italic;">Belum ada siswa yang mendaftar di slot ini</span>
+                                    @endif
+                                </td>
+                                @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                                    <td style="padding: 12px 14px; text-align: center;">
+                                        <form method="POST" action="{{ route('munaqosah.schedules.destroy', $sch->id) }}" onsubmit="return confirm('Hapus slot jadwal penguji ini?')" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" title="Hapus Slot Jadwal" 
+                                                    style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                @endif
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" style="padding: 35px; text-align: center; color: #94a3b8;">
+                                    <i class="fas fa-calendar-times" style="font-size: 2.5rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
+                                    Belum ada jadwal ketersediaan penguji yang ditambahkan.<br>
+                                    <span style="font-size: 0.82rem; color: #64748b;">Klik tombol <strong>+ Tambah Jadwal Penguji</strong> di atas untuk mengatur ketersediaan hari dan jam penguji.</span>
                                 </td>
                             </tr>
                         @endforelse
@@ -667,7 +803,7 @@
     <div style="background: white; border-radius: 20px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden;">
         <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-user-check"></i> Pindahkan Kelompok Santri Lulus
+                <i class="fas fa-user-check"></i> Pindahkan Kelompok Siswa Lulus
             </h3>
             <button type="button" onclick="closePromoteModal()" style="background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer;">&times;</button>
         </div>
@@ -708,12 +844,122 @@
     </div>
 </div>
 
+{{-- MODAL TAMBAH JADWAL KETERSEDIAAN PENGUJI --}}
+<div id="addScheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+    <div style="background: white; border-radius: 20px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; animation: fadeIn 0.25s ease-out;">
+        <div style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-calendar-plus"></i> Atur Jadwal & Ketersediaan Penguji
+            </h3>
+            <button type="button" onclick="closeAddScheduleModal()" style="background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer;">&times;</button>
+        </div>
+        <form method="POST" action="{{ route('munaqosah.schedules.store') }}" style="padding: 24px;">
+            @csrf
+            
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                    Pilih Mentor Penguji (Munaqisy) <span style="color: #ef4444;">*</span>
+                </label>
+                <select name="examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600;">
+                    <option value="">-- Pilih Penguji --</option>
+                    @foreach($examiners->where('status', 'active') as $ex)
+                        <option value="{{ $ex->id }}">{{ $ex->user->name ?? 'Penguji' }} ({{ ucfirst($ex->specialization) }})</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Hari Ketersediaan <span style="color: #ef4444;">*</span>
+                    </label>
+                    <select name="day_name" required style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600;">
+                        <option value="Senin">Senin</option>
+                        <option value="Selasa">Selasa</option>
+                        <option value="Rabu" selected>Rabu</option>
+                        <option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Sabtu">Sabtu</option>
+                        <option value="Ahad">Ahad</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Tanggal Spesifik (Opsional)
+                    </label>
+                    <input type="date" name="date" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Jam Mulai <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="time_start" required value="08:00" placeholder="08:00" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Jam Selesai <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="time_end" required value="09:00" placeholder="09:00" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Ruangan / Lokasi Ujian
+                    </label>
+                    <input type="text" name="room_location" placeholder="Contoh: Ruang Musholla / Kelas 1A" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Kuota Siswa <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="number" name="quota" required min="1" max="20" value="1" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 700;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                    Kategori Ujian
+                </label>
+                <select name="exam_type" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 600;">
+                    <option value="all">Semua (Tahfidz & Tilawati)</option>
+                    <option value="tahfidz">Khusus Tahfidz</option>
+                    <option value="tilawati">Khusus Tilawati</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Catatan (Opsional)</label>
+                <textarea name="notes" rows="2" placeholder="Catatan kesiapan penguji..." style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="closeAddScheduleModal()" style="padding: 9px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; cursor: pointer;">Batal</button>
+                <button type="submit" style="padding: 9px 20px; border-radius: 10px; border: none; background: #0284c7; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);">
+                    <i class="fas fa-save"></i> Simpan Jadwal Ketersediaan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function openRegisterModal() {
     document.getElementById('registerModal').style.display = 'flex';
 }
 function closeRegisterModal() {
     document.getElementById('registerModal').style.display = 'none';
+}
+
+function openAddScheduleModal() {
+    document.getElementById('addScheduleModal').style.display = 'flex';
+}
+function closeAddScheduleModal() {
+    document.getElementById('addScheduleModal').style.display = 'none';
 }
 
 function openScheduleModal(id, studentName, examinerId, examDate, examTime, room) {
@@ -763,8 +1009,8 @@ function closePromoteModal() {
 }
 
 function shareWhatsAppRegistrationLink() {
-    const publicUrl = window.location.origin + "{{ route('munaqosah.public-register') }}";
-    const waMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\nBapak/Ibu Guru Pembimbing & Wali Santri SDIT AN NADZIR yang dirahmati Allah,\n\nBagi santriwan/santriwati yang telah menuntaskan target hafalan Juz Al-Qur'an (Tahfidz) atau Jilid (Tilawati), pendaftaran Ujian Munaqosah resmi kini dapat diajukan secara online melalui tautan berikut:\n\n🔗 " + publicUrl + "\n\nMohon pastikan ananda telah menyelesaikan tasmi' mandiri di hadapan guru pembimbing.\n\nJazakumullah Khairan Katsiran 🤲";
+    const publicUrl = "{{ route('munaqosah.public-register') }}";
+    const waMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\nBapak/Ibu Guru Pembimbing & Orang Tua / Wali Siswa SDIT AN NADZIR yang dirahmati Allah,\n\nBagi siswa yang telah menuntaskan target hafalan Juz Al-Qur'an (Tahfidz) atau Jilid (Tilawati), pendaftaran Ujian Munaqosah resmi kini dapat diajukan secara online melalui tautan berikut:\n\n🔗 " + publicUrl + "\n\nMohon pastikan ananda telah menyelesaikan tasmi' mandiri di hadapan guru pembimbing.\n\nJazakumullah Khairan Katsiran 🤲";
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(waMsg).then(() => {

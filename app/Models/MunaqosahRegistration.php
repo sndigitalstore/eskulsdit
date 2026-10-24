@@ -16,6 +16,7 @@ class MunaqosahRegistration extends Model
         'proposer_notes',
         'examiner_id',
         'examiner_user_id',
+        'schedule_id',
         'type', // 'tilawati', 'tahfidz'
         'current_level',
         'target_level',
@@ -79,6 +80,11 @@ class MunaqosahRegistration extends Model
     public function examinerUser()
     {
         return $this->belongsTo(User::class, 'examiner_user_id');
+    }
+
+    public function schedule()
+    {
+        return $this->belongsTo(MunaqisySchedule::class, 'schedule_id');
     }
 
     public function promotedToGroup()

@@ -237,6 +237,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/munaqosah/examiners/store',                             [\App\Http\Controllers\MunaqosahController::class, 'examinerStore'])->name('munaqosah.examiners.store');
     Route::post('/munaqosah/examiners/{examiner}/toggle',                 [\App\Http\Controllers\MunaqosahController::class, 'examinerToggle'])->name('munaqosah.examiners.toggle');
     Route::delete('/munaqosah/examiners/{examiner}',                      [\App\Http\Controllers\MunaqosahController::class, 'examinerDestroy'])->name('munaqosah.examiners.destroy');
+    Route::post('/munaqosah/schedules/store',                             [\App\Http\Controllers\MunaqosahController::class, 'scheduleStore'])->name('munaqosah.schedules.store');
+    Route::delete('/munaqosah/schedules/{schedule}',                      [\App\Http\Controllers\MunaqosahController::class, 'scheduleDestroy'])->name('munaqosah.schedules.destroy');
     Route::get('/munaqosah/{registration}/print-certificate',             [\App\Http\Controllers\MunaqosahController::class, 'printCertificate'])->name('munaqosah.print-certificate');
     Route::get('/munaqosah/print/recap',                                  [\App\Http\Controllers\MunaqosahController::class, 'printRecap'])->name('munaqosah.print-recap');
 

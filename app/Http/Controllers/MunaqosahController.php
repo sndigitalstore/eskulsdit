@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\ActivityLog;
 use App\Models\MentoringGroup;
 use App\Models\MunaqisyExaminer;
+use App\Models\MunaqisySchedule;
 use App\Models\MunaqosahRegistration;
 use App\Models\Student;
 use App\Models\User;
@@ -23,7 +24,7 @@ class MunaqosahController extends Controller
     }
 
     /**
-     * Self-healing: memastikan tabel munaqisy_examiners dan munaqosah_registrations selalu ada
+     * Self-healing: memastikan tabel munaqisy_examiners, munaqosah_registrations, dan munaqisy_schedules selalu ada
      */
     protected function ensureTablesExist(): void
     {
@@ -35,6 +36,24 @@ class MunaqosahController extends Controller
                 $table->string('certificate_number')->nullable();
                 $table->string('phone')->nullable();
                 $table->enum('status', ['active', 'inactive'])->default('active');
+                $table->text('notes')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('munaqisy_schedules')) {
+            Schema::create('munaqisy_schedules', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('examiner_id')->constrained('munaqisy_examiners')->cascadeOnDelete();
+                $table->foreignId('academic_year_id')->nullable()->constrained('academic_years')->nullOnDelete();
+                $table->string('day_name')->nullable();
+                $table->date('date')->nullable();
+                $table->string('time_start', 10)->default('08:00');
+                $table->string('time_end', 10)->default('09:00');
+                $table->enum('exam_type', ['all', 'tilawati', 'tahfidz'])->default('all');
+                $table->string('room_location')->nullable();
+                $table->integer('quota')->default(1);
+                $table->enum('status', ['available', 'full', 'inactive'])->default('available');
                 $table->text('notes')->nullable();
                 $table->timestamps();
             });
@@ -53,6 +72,7 @@ class MunaqosahController extends Controller
                 
                 $table->foreignId('examiner_id')->nullable()->constrained('munaqisy_examiners')->nullOnDelete();
                 $table->foreignId('examiner_user_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('schedule_id')->nullable();
                 $table->enum('type', ['tilawati', 'tahfidz'])->index();
                 $table->string('current_level');
                 $table->string('target_level');
@@ -80,11 +100,16 @@ class MunaqosahController extends Controller
                 $table->timestamps();
             });
         } else {
-            // Self-healing: tambahkan kolom proposer_name & proposer_phone jika tabel sudah ada dari versi sebelumnya
+            // Self-healing: tambahkan kolom proposer_name & proposer_phone jika belum ada
             if (!Schema::hasColumn('munaqosah_registrations', 'proposer_name')) {
                 Schema::table('munaqosah_registrations', function (Blueprint $table) {
                     $table->string('proposer_name')->nullable()->after('proposer_user_id');
                     $table->string('proposer_phone')->nullable()->after('proposer_name');
+                });
+            }
+            if (!Schema::hasColumn('munaqosah_registrations', 'schedule_id')) {
+                Schema::table('munaqosah_registrations', function (Blueprint $table) {
+                    $table->foreignId('schedule_id')->nullable()->after('examiner_user_id');
                 });
             }
         }
@@ -150,6 +175,14 @@ class MunaqosahController extends Controller
         $examiners = MunaqisyExaminer::with('user')->withCount('registrations')->get();
         $examinersCount = $examiners->where('status', 'active')->count();
 
+        // Jadwal Ketersediaan Penguji (Munaqisy)
+        $schedules = MunaqisySchedule::with(['examiner.user', 'registrations.student'])
+            ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+            ->orderBy('day_name')
+            ->orderBy('time_start')
+            ->get();
+        $schedulesCount = $schedules->count();
+
         // Data Guru & Siswa untuk modal pendaftaran & penugasan penguji
         $teachers = User::whereIn('role', ['teacher', 'admin', 'curriculum'])->orderBy('name')->get();
         $groups = MentoringGroup::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))->orderBy('name')->get();
@@ -157,6 +190,8 @@ class MunaqosahController extends Controller
         return view('munaqosah.index', compact(
             'registrations',
             'examiners',
+            'schedules',
+            'schedulesCount',
             'academicYears',
             'selectedYearId',
             'activeYear',
@@ -216,10 +251,17 @@ class MunaqosahController extends Controller
             }
         }
 
+        $schedules = MunaqisySchedule::with(['examiner.user', 'registrations.student'])
+            ->where('status', '!=', 'inactive')
+            ->orderBy('day_name')
+            ->orderBy('time_start')
+            ->get();
+
         return view('munaqosah.register', compact(
             'students', 
             'groups', 
             'examiners', 
+            'schedules',
             'activeYear',
             'selectedStudentId',
             'selectedType',
@@ -243,6 +285,7 @@ class MunaqosahController extends Controller
             'proposer_notes' => 'nullable|string',
             'proposer_name' => 'nullable|string|max:150',
             'proposer_phone' => 'nullable|string|max:30',
+            'schedule_id' => 'nullable|exists:munaqisy_schedules,id',
             'exam_date' => 'nullable|date',
             'examiner_id' => 'nullable|exists:munaqisy_examiners,id',
         ]);
@@ -250,16 +293,35 @@ class MunaqosahController extends Controller
         $activeYear = AcademicYear::where('is_active', true)->first();
         $student = Student::findOrFail($request->student_id);
 
-        $examiner = null;
+        $examinerId = $request->examiner_id;
         $examinerUserId = null;
-        if ($request->examiner_id) {
-            $examiner = MunaqisyExaminer::find($request->examiner_id);
+        $examDate = $request->exam_date;
+        $examTime = $request->exam_time;
+        $roomLocation = $request->room_location;
+        $scheduleId = $request->schedule_id;
+        $sch = null;
+
+        if ($scheduleId) {
+            $sch = MunaqisySchedule::with('examiner')->find($scheduleId);
+            if ($sch) {
+                $examinerId = $sch->examiner_id;
+                $examinerUserId = $sch->examiner?->user_id;
+                $examTime = "{$sch->time_start} - {$sch->time_end} WIB";
+                if ($sch->date) {
+                    $examDate = $sch->date;
+                }
+                if ($sch->room_location) {
+                    $roomLocation = $sch->room_location;
+                }
+            }
+        } elseif ($examinerId) {
+            $examiner = MunaqisyExaminer::find($examinerId);
             if ($examiner) {
                 $examinerUserId = $examiner->user_id;
             }
         }
 
-        $status = ($request->exam_date && $request->examiner_id) ? 'scheduled' : 'pending';
+        $status = ($examinerId && ($examDate || $scheduleId)) ? 'scheduled' : 'pending';
 
         $proposerName = $request->proposer_name ?: (Auth::user()?->name ?? 'Guru Pembimbing');
         $proposerPhone = $request->proposer_phone ?: (Auth::user()?->phone ?? null);
@@ -272,18 +334,23 @@ class MunaqosahController extends Controller
             'proposer_name' => $proposerName,
             'proposer_phone' => $proposerPhone,
             'proposer_notes' => $request->proposer_notes,
-            'examiner_id' => $request->examiner_id,
+            'schedule_id' => $scheduleId,
+            'examiner_id' => $examinerId,
             'examiner_user_id' => $examinerUserId,
             'type' => $request->type,
             'current_level' => $request->current_level,
             'target_level' => $request->target_level,
             'registration_date' => now()->toDateString(),
-            'exam_date' => $request->exam_date,
-            'exam_time' => $request->exam_time,
-            'room_location' => $request->room_location,
+            'exam_date' => $examDate,
+            'exam_time' => $examTime,
+            'room_location' => $roomLocation,
             'status' => $status,
             'transition_status' => 'none',
         ]);
+
+        if (!empty($sch) && $sch->quota > 0 && ($sch->registrations()->count() >= $sch->quota)) {
+            $sch->update(['status' => 'full']);
+        }
 
         $typeLabel = $request->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran', "Mendaftarkan siswa {$student->name} untuk munaqosah {$typeLabel} ({$request->current_level} -> {$request->target_level})");
@@ -300,8 +367,13 @@ class MunaqosahController extends Controller
         $classes = Student::activeYear()->active()->distinct()->orderBy('class')->pluck('class');
         $groups = MentoringGroup::when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))->orderBy('name')->get();
         $students = Student::activeYear()->active()->orderBy('class')->orderBy('name')->get(['id', 'name', 'class', 'nis']);
+        $schedules = MunaqisySchedule::with(['examiner.user', 'registrations.student'])
+            ->where('status', '!=', 'inactive')
+            ->orderBy('day_name')
+            ->orderBy('time_start')
+            ->get();
 
-        return view('munaqosah.public_register', compact('activeYear', 'classes', 'groups', 'students'));
+        return view('munaqosah.public_register', compact('activeYear', 'classes', 'groups', 'students', 'schedules'));
     }
 
     /**
@@ -315,14 +387,37 @@ class MunaqosahController extends Controller
             'current_level' => 'required|string|max:100',
             'target_level' => 'required|string|max:100',
             'proposer_name' => 'required|string|max:150',
-            'proposer_phone' => 'required|string|max:30',
+            'proposer_phone' => 'nullable|string|max:30', // Opsional sesuai permintaan
             'proposer_role' => 'nullable|string|max:50',
             'from_group_id' => 'nullable|exists:mentoring_groups,id',
+            'schedule_id' => 'nullable|exists:munaqisy_schedules,id',
             'proposer_notes' => 'nullable|string',
         ]);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $student = Student::findOrFail($request->student_id);
+
+        $examinerId = null;
+        $examinerUserId = null;
+        $examDate = null;
+        $examTime = null;
+        $roomLocation = null;
+        $status = 'pending';
+        $sch = null;
+
+        if ($request->schedule_id) {
+            $sch = MunaqisySchedule::with('examiner')->find($request->schedule_id);
+            if ($sch) {
+                $examinerId = $sch->examiner_id;
+                $examinerUserId = $sch->examiner?->user_id;
+                $examTime = "{$sch->time_start} - {$sch->time_end} WIB";
+                $roomLocation = $sch->room_location;
+                if ($sch->date) {
+                    $examDate = $sch->date;
+                }
+                $status = 'scheduled';
+            }
+        }
 
         $notes = $request->proposer_notes;
         if ($request->proposer_role) {
@@ -337,16 +432,27 @@ class MunaqosahController extends Controller
             'proposer_name' => $request->proposer_name,
             'proposer_phone' => $request->proposer_phone,
             'proposer_notes' => trim($notes),
+            'schedule_id' => $request->schedule_id,
+            'examiner_id' => $examinerId,
+            'examiner_user_id' => $examinerUserId,
+            'exam_date' => $examDate,
+            'exam_time' => $examTime,
+            'room_location' => $roomLocation,
             'type' => $request->type,
             'current_level' => $request->current_level,
             'target_level' => $request->target_level,
             'registration_date' => now()->toDateString(),
-            'status' => 'pending',
+            'status' => $status,
             'transition_status' => 'none',
         ]);
 
+        if (!empty($sch) && $sch->quota > 0 && ($sch->registrations()->count() >= $sch->quota)) {
+            $sch->update(['status' => 'full']);
+        }
+
         $typeLabel = $request->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
-        ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran Publik', "Pendaftaran mandiri ananda {$student->name} ({$request->current_level} -> {$request->target_level}) oleh {$request->proposer_name} ({$request->proposer_phone})");
+        $phoneInfo = $request->proposer_phone ? " ({$request->proposer_phone})" : "";
+        ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran Publik', "Pendaftaran mandiri siswa {$student->name} ({$request->current_level} -> {$request->target_level}) oleh {$request->proposer_name}{$phoneInfo}");
 
         return redirect()->route('munaqosah.public-register.success', $registration->id);
     }
@@ -629,6 +735,70 @@ class MunaqosahController extends Controller
     }
 
     /**
+     * Simpan Jadwal Ketersediaan Penguji (Munaqisy Schedule) oleh Admin & Kurikulum
+     */
+    public function scheduleStore(Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return back()->with('error', 'Hanya Administrator dan Kurikulum yang dapat mengatur jadwal penguji.');
+        }
+
+        $request->validate([
+            'examiner_id' => 'required|exists:munaqisy_examiners,id',
+            'day_name' => 'required|string|max:20',
+            'date' => 'nullable|date',
+            'time_start' => 'required|string|max:10',
+            'time_end' => 'required|string|max:10',
+            'quota' => 'required|integer|min:1|max:50',
+            'room_location' => 'nullable|string|max:100',
+            'exam_type' => 'required|in:all,tilawati,tahfidz',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+
+        $schedule = MunaqisySchedule::create([
+            'examiner_id' => $request->examiner_id,
+            'academic_year_id' => $activeYear?->id,
+            'day_name' => $request->day_name,
+            'date' => $request->date,
+            'time_start' => $request->time_start,
+            'time_end' => $request->time_end,
+            'quota' => $request->quota ?? 1,
+            'room_location' => $request->room_location,
+            'exam_type' => $request->exam_type ?? 'all',
+            'status' => 'available',
+            'notes' => $request->notes,
+        ]);
+
+        $examiner = MunaqisyExaminer::find($request->examiner_id);
+        $examinerName = $examiner?->user?->name ?? 'Penguji';
+
+        ActivityLog::log('Munaqosah', 'Jadwal Penguji', "Menambahkan ketersediaan jadwal {$examinerName} ({$request->day_name}, {$request->time_start}-{$request->time_end})");
+
+        return back()->with('success', "Alhamdulillah! Jadwal ketersediaan {$examinerName} hari {$request->day_name} ({$request->time_start} s/d {$request->time_end}) berhasil ditambahkan.");
+    }
+
+    /**
+     * Hapus Slot Jadwal Penguji
+     */
+    public function scheduleDestroy($id)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            return back()->with('error', 'Hanya Administrator dan Kurikulum yang dapat menghapus jadwal penguji.');
+        }
+
+        $schedule = MunaqisySchedule::findOrFail($id);
+        $schedule->delete();
+
+        ActivityLog::log('Munaqosah', 'Hapus Jadwal', "Menghapus slot jadwal penguji ID: {$id}");
+
+        return back()->with('success', 'Jadwal ketersediaan penguji berhasil dihapus.');
+    }
+
+    /**
      * Hapus Pendaftaran Munaqosah
      */
     public function destroy($id)
@@ -640,8 +810,16 @@ class MunaqosahController extends Controller
             return back()->with('error', 'Anda tidak berhak menghapus data ini.');
         }
 
+        $scheduleId = $registration->schedule_id;
         $studentName = $registration->student->name ?? 'Siswa';
         $registration->delete();
+
+        if ($scheduleId) {
+            $sch = MunaqisySchedule::find($scheduleId);
+            if ($sch && $sch->status === 'full' && $sch->registrations()->count() < $sch->quota) {
+                $sch->update(['status' => 'available']);
+            }
+        }
 
         ActivityLog::log('Munaqosah', 'Hapus Data', "Menghapus data munaqosah siswa {$studentName}");
 

@@ -53,7 +53,7 @@
                     <div>
                         <h2 style="font-size: 1.55rem; font-weight: 800; margin: 0; letter-spacing: -0.5px;">Formulir Pendaftaran Munaqosah</h2>
                         <p style="margin: 2px 0 0 0; font-size: 0.88rem; opacity: 0.92;">
-                            Pengajuan evaluasi kelulusan santri tuntas Juz (Tahfidz) atau Jilid (Tilawati) oleh Guru / Pembimbing.
+                            Pengajuan evaluasi kelulusan siswa tuntas Juz (Tahfidz) atau Jilid (Tilawati) oleh Guru / Pembimbing.
                         </p>
                     </div>
                 </div>
@@ -98,11 +98,11 @@
                     <label style="font-weight: 800; font-size: 0.92rem; color: #0f172a;">
                         2. Pilih Siswa Peserta Munaqosah <span style="color: #ef4444;">*</span>
                     </label>
-                    <span style="font-size: 0.78rem; color: #64748b;">Total {{ $students->count() }} santri aktif</span>
+                    <span style="font-size: 0.78rem; color: #64748b;">Total {{ $students->count() }} siswa aktif</span>
                 </div>
 
                 <div style="position: relative; margin-bottom: 8px;">
-                    <input type="text" id="student_search_box" placeholder="Ketik nama santri atau kelas (cth: Andra, 3A, dll)..." onkeyup="filterStudentList()" 
+                    <input type="text" id="student_search_box" placeholder="Ketik nama siswa atau kelas (cth: Andra, 3A, dll)..." onkeyup="filterStudentList()" 
                            style="width: 100%; padding: 11px 14px 11px 38px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.9rem; background: #f8fafc; color: #0f172a; box-sizing: border-box; transition: all 0.2s;">
                     <i class="fas fa-search" style="position: absolute; left: 14px; top: 14px; color: #94a3b8; font-size: 0.9rem;"></i>
                 </div>
@@ -237,7 +237,33 @@
                 </div>
             </div>
 
-            <!-- 6. Plotting Jadwal & Penguji Langsung (Khusus Admin & Kurikulum) -->
+            <!-- 6. Jadwal & Ketersediaan Penguji / Munaqisy -->
+            <div style="margin-bottom: 24px; background: #f0fdf4; border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 18px 20px;">
+                <label style="display: block; font-weight: 800; font-size: 0.92rem; color: #065f46; margin-bottom: 6px;">
+                    <i class="fas fa-calendar-check" style="color: #059669; margin-right: 6px;"></i>
+                    6. Pilih Jadwal & Penguji / Munaqisy Tersedia (Opsional)
+                </label>
+                <p style="font-size: 0.8rem; color: #047857; margin: 0 0 10px 0;">
+                    Pilih sesi penguji yang sudah disiapkan oleh Admin & Kurikulum. Jika kuota sesi sudah penuh, akan muncul tanda centang/penuh.
+                </p>
+
+                <select name="schedule_id" id="schedule_id" style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #10b981; font-size: 0.88rem; font-weight: 600; color: #065f46; background: white;">
+                    <option value="">-- Tetapkan / Jadwalkan Nanti oleh Panitia Munaqosah --</option>
+                    @foreach($schedules as $sch)
+                        @if(!$sch->is_full)
+                            <option value="{{ $sch->id }}">
+                                ✓ {{ $sch->examiner?->user?->name ?? 'Penguji' }} — Hari {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }} WIB) [{{ $sch->room_location ?? 'Ruang Munaqosah' }}] • Tersedia (Sisa {{ $sch->quota - $sch->used_slots }} Slot)
+                            </option>
+                        @else
+                            <option value="{{ $sch->id }}" disabled style="color: #94a3b8; background: #f8fafc;">
+                                🔒 {{ $sch->examiner?->user?->name ?? 'Penguji' }} — Hari {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }} WIB) • (Sudah Terpenuhi ✓)
+                            </option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- 7. Plotting Jadwal Langsung Khusus Admin & Kurikulum -->
             @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
                 <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 18px 20px; margin-bottom: 26px;">
                     <div style="font-size: 0.86rem; font-weight: 800; color: #1e40af; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
@@ -386,7 +412,7 @@ function appendNote(text) {
 
 function copyPublicLink() {
     const url = "{{ route('munaqosah.public-register') }}";
-    const waText = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\nBapak/Ibu Guru Pembimbing & Wali Santri SDIT An Nadzir yang kami hormati,\n\nPendaftaran Ujian Munaqosah Qur'an (Tahfidz & Tilawati) kini dapat diajukan secara online melalui tautan resmi berikut:\n\n🔗 " + url + "\n\nMohon pastikan santri telah menuntaskan seluruh materi Juz/Jilid dengan tasmi' mandiri di hadapan guru pembimbing.\n\nJazakumullah Khairan Katsiran 🤲";
+    const waText = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\nBapak/Ibu Guru Pembimbing & Orang Tua / Wali Siswa SDIT An Nadzir yang kami hormati,\n\nPendaftaran Ujian Munaqosah Qur'an (Tahfidz & Tilawati) kini dapat diajukan secara online melalui tautan resmi berikut:\n\n🔗 " + url + "\n\nMohon pastikan siswa telah menuntaskan seluruh materi Juz/Jilid dengan tasmi' mandiri di hadapan guru pembimbing.\n\nJazakumullah Khairan Katsiran 🤲";
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(waText).then(() => {

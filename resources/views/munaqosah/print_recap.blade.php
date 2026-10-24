@@ -133,7 +133,7 @@
         <thead>
             <tr>
                 <th style="width: 30px;">No</th>
-                <th>Nama Santri</th>
+                <th>Nama Siswa</th>
                 <th style="width: 50px;">Kelas</th>
                 <th style="width: 65px;">NIS</th>
                 <th style="width: 75px;">Bidang</th>

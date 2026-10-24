@@ -30,6 +30,11 @@ class MunaqisyExaminer extends Model
         return $this->hasMany(MunaqosahRegistration::class, 'examiner_id')->whereIn('status', ['passed', 'failed']);
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(MunaqisySchedule::class, 'examiner_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');

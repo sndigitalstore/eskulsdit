@@ -180,7 +180,7 @@
                 <label style="display: block; font-weight: 800; font-size: 0.88rem; color: #0f172a; margin-bottom: 6px;">
                     Catatan Munaqisy untuk Siswa & Guru Pembimbing
                 </label>
-                <textarea name="examiner_notes" rows="3" placeholder="Tuliskan catatan khusus, kelebihan bacaan santri, atau bagian yang perlu dimutqinkan kembali..." 
+                <textarea name="examiner_notes" rows="3" placeholder="Tuliskan catatan khusus, kelebihan bacaan siswa, atau bagian yang perlu dimutqinkan kembali..." 
                           style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.88rem; line-height: 1.5;">{{ old('examiner_notes', $registration->examiner_notes) }}</textarea>
             </div>
 

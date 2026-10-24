@@ -154,7 +154,7 @@
 
         <h1 class="title">Alhamdulillah, Terkirim!</h1>
         <p class="subtitle">
-            Pendaftaran Munaqosah santri telah berhasil dicatat dalam sistem SIMUTQIN SDIT AN NADZIR.
+            Pendaftaran Munaqosah siswa telah berhasil dicatat dalam sistem SIMUTQIN SDIT AN NADZIR.
         </p>
 
         <!-- Details Box -->
@@ -164,7 +164,7 @@
                 <span class="detail-val" style="color: #059669;">#MNQ-{{ str_pad($registration->id, 4, '0', STR_PAD_LEFT) }}</span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Nama Santri</span>
+                <span class="detail-label">Nama Siswa</span>
                 <span class="detail-val">{{ $registration->student->name ?? '-' }}</span>
             </div>
             <div class="detail-row">
@@ -183,25 +183,52 @@
                     {{ $registration->current_level }} <i class="fas fa-arrow-right" style="font-size: 0.7rem; margin: 0 4px;"></i> {{ $registration->target_level }}
                 </span>
             </div>
+            @if($registration->examiner)
+            <div class="detail-row">
+                <span class="detail-label">Penguji / Munaqisy</span>
+                <span class="detail-val" style="color: #1e3a8a; font-weight: 700;">{{ $registration->examiner->name }}</span>
+            </div>
+            @endif
+            @if($registration->exam_time)
+            <div class="detail-row">
+                <span class="detail-label">Waktu Ujian</span>
+                <span class="detail-val" style="color: #047857; font-weight: 600;">{{ $registration->exam_time }}</span>
+            </div>
+            @endif
             <div class="detail-row">
                 <span class="detail-label">Pendaftar / Pengusul</span>
                 <span class="detail-val">{{ $registration->proposer_name ?? ($registration->proposer->name ?? 'Guru') }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Status Verifikasi</span>
-                <span class="badge-status">
-                    <i class="fas fa-clock"></i> Menunggu Jadwal Panitia
-                </span>
+                @if($registration->status === 'scheduled')
+                    <span class="badge-status" style="background: #ecfdf5; color: #047857;">
+                        <i class="fas fa-calendar-check"></i> Terjadwal Otomatis
+                    </span>
+                @else
+                    <span class="badge-status">
+                        <i class="fas fa-clock"></i> Menunggu Jadwal Panitia
+                    </span>
+                @endif
             </div>
         </div>
 
         @php
-            $waText = urlencode("Assalamu'alaikum Warahmatullahi Wabarakatuh Panitia Munaqosah SDIT AN NADZIR 🌙\n\nSaya telah mengajukan pendaftaran munaqosah santri:\n\n" .
+            $slotInfo = '';
+            if ($registration->examiner) {
+                $slotInfo .= "• Penguji: " . $registration->examiner->name . "\n";
+            }
+            if ($registration->exam_time) {
+                $slotInfo .= "• Jadwal: " . $registration->exam_time . "\n";
+            }
+
+            $waText = urlencode("Assalamu'alaikum Warahmatullahi Wabarakatuh Panitia Munaqosah SDIT AN NADZIR 🌙\n\nSaya telah mengajukan pendaftaran munaqosah siswa:\n\n" .
                 "• No. Pengajuan: #MNQ-" . str_pad($registration->id, 4, '0', STR_PAD_LEFT) . "\n" .
-                "• Nama Santri: " . ($registration->student->name ?? '-') . " (Kelas " . ($registration->student->class ?? '-') . ")\n" .
+                "• Nama Siswa: " . ($registration->student->name ?? '-') . " (Kelas " . ($registration->student->class ?? '-') . ")\n" .
                 "• Bidang: " . ($registration->type === 'tahfidz' ? 'Tahfidz' : 'Tilawati') . "\n" .
                 "• Jenjang Diuji: " . $registration->current_level . " -> Target: " . $registration->target_level . "\n" .
-                "• Pengusul: " . ($registration->proposer_name ?? 'Guru/Wali') . " (" . ($registration->proposer_phone ?? '-') . ")\n\n" .
+                $slotInfo .
+                "• Pengusul: " . ($registration->proposer_name ?? 'Guru/Wali') . ($registration->proposer_phone ? " (" . $registration->proposer_phone . ")" : "") . "\n\n" .
                 "Mohon konfirmasi verifikasi dan penjadwalan ujian dari Panitia Munaqosah. Terima kasih 🤲");
         @endphp
 
@@ -212,10 +239,10 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
             <a href="{{ route('munaqosah.public-register') }}" class="btn-back">
-                <i class="fas fa-plus-circle"></i> Daftar Santri Lain
+                <i class="fas fa-plus-circle"></i> Daftar Siswa Lain
             </a>
             <a href="{{ route('student-status.index') }}" class="btn-back" style="background: white;">
-                <i class="fas fa-chart-line"></i> Cek Status Santri
+                <i class="fas fa-chart-line"></i> Cek Status Siswa
             </a>
         </div>
     </div>

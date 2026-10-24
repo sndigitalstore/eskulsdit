@@ -215,7 +215,7 @@
     <div class="form-main-card">
         <div class="card-hero">
             <h2>Formulir Pendaftaran Munaqosah</h2>
-            <p>Pengajuan evaluasi kelulusan santri tuntas Juz (Tahfidz) atau Jilid (Tilawati) oleh Guru Pembimbing / Wali Santri.</p>
+            <p>Pengajuan evaluasi kelulusan siswa tuntas Juz (Tahfidz) atau Jilid (Tilawati) oleh Guru Pembimbing / Orang Tua / Wali Siswa.</p>
         </div>
 
         <form action="{{ route('munaqosah.public-register.store') }}" method="POST" class="form-body" onsubmit="return validatePublicForm()">
@@ -247,40 +247,46 @@
                 </div>
             </div>
 
-            <!-- 2. Pilih Santri -->
+            <!-- 2. Pilih Siswa (Live Search) -->
             <div class="form-section">
-                <label class="section-label">2. Pilih Santri Peserta Munaqosah <span style="color: red;">*</span></label>
-                
-                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 8px;">
-                    <div>
-                        <select id="class_filter" onchange="filterStudentsByClass()" class="input-control" style="padding: 11px 10px; font-weight: 600;">
-                            <option value="ALL">Semua Kelas</option>
-                            @foreach($classes as $cls)
-                                <option value="{{ $cls }}">Kelas {{ $cls }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div style="position: relative;">
-                        <input type="text" id="student_search" placeholder="Cari nama santri..." onkeyup="filterStudentOptions()" class="input-control" style="padding-left: 36px;">
-                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 15px; color: #94a3b8; font-size: 0.85rem;"></i>
-                    </div>
+                <label class="section-label">2. Pilih Siswa Peserta Munaqosah <span style="color: red;">*</span></label>
+                <p style="font-size: 0.78rem; color: #64748b; margin-top: -4px; margin-bottom: 10px;">
+                    Ketik nama lengkap siswa di bawah, pilihan nama & kelas akan muncul otomatis:
+                </p>
+
+                <!-- Input Pencarian Langsung -->
+                <div style="position: relative;">
+                    <input type="text" id="student_search_live" autocomplete="off"
+                           placeholder="Ketik nama lengkap siswa di sini (cth: Muhammad, Aisyah, dll)..." 
+                           class="input-control" 
+                           oninput="onSearchStudentLive(this.value)"
+                           style="padding-left: 42px; font-size: 0.95rem; font-weight: 600;">
+                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 15px; color: #059669; font-size: 1.05rem;"></i>
                 </div>
 
-                <select name="student_id" id="student_select" required size="5" onchange="onStudentPicked(this)" class="input-control" style="padding: 6px; height: 130px;">
-                    <option value="" disabled selected>-- Pilih salah satu santri dari daftar di bawah --</option>
-                    @foreach($students as $st)
-                        <option value="{{ $st->id }}" data-class="{{ $st->class }}" data-name="{{ $st->name }}">
-                            {{ $st->name }} — Kelas {{ $st->class }} @if($st->nis) (NIS: {{ $st->nis }}) @endif
-                        </option>
-                    @endforeach
-                </select>
+                <!-- Floating Container Hasil Pencarian -->
+                <div id="student_search_results" style="display: none; max-height: 230px; overflow-y: auto; background: white; border: 1.5px solid #10b981; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 6px; z-index: 50;">
+                    <!-- Diisi dinamis oleh JavaScript -->
+                </div>
 
-                <div id="student_badge" style="display: none; align-items: center; justify-content: space-between; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 10px 14px; margin-top: 8px;">
-                    <span style="color: #065f46; font-size: 0.86rem;">
-                        <i class="fas fa-check-circle" style="color: #10b981; margin-right: 6px;"></i>
-                        Santri terpilih: <strong id="student_badge_name"></strong>
-                    </span>
-                    <span style="font-size: 0.75rem; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-weight: 700;">OK</span>
+                <!-- Hidden Input untuk dikirim ke backend -->
+                <input type="hidden" name="student_id" id="selected_student_id" required>
+
+                <!-- Siswa Terpilih (Card Konfirmasi) -->
+                <div id="student_selected_card" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 12px; padding: 12px 16px; margin-top: 10px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 42px; height: 42px; border-radius: 10px; background: #d1fae5; color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.74rem; color: #059669; font-weight: 800; text-transform: uppercase;">Siswa Terpilih:</div>
+                            <h4 id="selected_student_name_label" style="margin: 0; font-size: 1rem; font-weight: 800; color: #065f46;"></h4>
+                            <p id="selected_student_meta_label" style="margin: 2px 0 0 0; font-size: 0.78rem; color: #047857;"></p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="clearStudentSelection()" style="background: white; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> Ganti
+                    </button>
                 </div>
             </div>
 
@@ -326,16 +332,42 @@
                 </div>
             </div>
 
-            <!-- 4. Data Pendaftar / Pengusul -->
+            <!-- 4. Pilih Jadwal & Ketersediaan Penguji (Munaqisy) -->
+            <div class="form-section" style="background: #f0fdf4; border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 18px;">
+                <label class="section-label" style="color: #065f46; margin-bottom: 4px;">
+                    <i class="fas fa-calendar-check" style="color: #059669; margin-right: 4px;"></i>
+                    4. Pilih Jadwal & Penguji / Munaqisy (Opsional)
+                </label>
+                <p style="font-size: 0.78rem; color: #047857; margin-bottom: 12px;">
+                    Pilih sesi ketersediaan penguji yang sudah disiapkan Admin & Kurikulum. Jika slot sudah terisi, akan muncul tanda centang/penuh (✓).
+                </p>
+
+                <select name="schedule_id" id="schedule_id" class="input-control" style="font-weight: 600; color: #065f46; border-color: #10b981; background: white;">
+                    <option value="">-- Tetapkan / Jadwalkan Nanti oleh Panitia Munaqosah --</option>
+                    @foreach($schedules as $sch)
+                        @if(!$sch->is_full)
+                            <option value="{{ $sch->id }}">
+                                ✓ {{ $sch->examiner?->user?->name ?? 'Penguji' }} — Hari {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }} WIB) [{{ $sch->room_location ?? 'Ruang Munaqosah' }}] • Tersedia
+                            </option>
+                        @else
+                            <option value="{{ $sch->id }}" disabled style="color: #94a3b8; background: #f8fafc;">
+                                🔒 {{ $sch->examiner?->user?->name ?? 'Penguji' }} — Hari {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }} WIB) • (Sudah Terpenuhi ✓)
+                            </option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- 5. Data Pendaftar / Pengusul -->
             <div class="form-section">
-                <label class="section-label">4. Identitas Pengusul / Pendaftar <span style="color: red;">*</span></label>
+                <label class="section-label">5. Identitas Pengusul / Pendaftar <span style="color: red;">*</span></label>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                     <div>
                         <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Status Pendaftar:</label>
                         <select name="proposer_role" class="input-control" style="font-weight: 600;">
                             <option value="Guru Pembimbing / Asatidz">Guru Pembimbing / Asatidz</option>
-                            <option value="Orang Tua / Wali Santri">Orang Tua / Wali Santri</option>
+                            <option value="Orang Tua / Wali Siswa">Orang Tua / Wali Siswa</option>
                             <option value="Koordinator Qur'an">Koordinator Qur'an</option>
                         </select>
                     </div>
@@ -346,12 +378,14 @@
                 </div>
 
                 <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Nomor WhatsApp Aktif Pengusul <span style="color: red;">*</span></label>
-                    <input type="tel" name="proposer_phone" required placeholder="Contoh: 081234567890 (Untuk konfirmasi jadwal ujian)" class="input-control">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">
+                        Nomor WhatsApp Pengusul <span style="font-weight: normal; color: #64748b;">(Opsional)</span>
+                    </label>
+                    <input type="tel" name="proposer_phone" placeholder="Contoh: 081234567890 (Untuk konfirmasi panitia)" class="input-control">
                 </div>
 
                 <div>
-                    <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Catatan Kesiapan Santri (Opsional):</label>
+                    <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Catatan Kesiapan Siswa (Opsional):</label>
                     <textarea name="proposer_notes" rows="2" placeholder="Contoh: Ananda telah menyelesaikan hafalan Juz 30 dan tasmi' 1 majelis dengan lancar..." class="input-control" style="font-size: 0.86rem; line-height: 1.4;"></textarea>
                 </div>
             </div>
@@ -360,7 +394,7 @@
             <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 14px; margin-bottom: 24px; display: flex; gap: 10px; align-items: flex-start;">
                 <input type="checkbox" id="check_agree" required style="width: 20px; height: 20px; accent-color: #059669; margin-top: 2px;">
                 <label for="check_agree" style="font-size: 0.82rem; color: #065f46; line-height: 1.45; cursor: pointer;">
-                    <strong>Konfirmasi Kesiapan:</strong> Santri yang diajukan telah menyelesaikan materi target Juz/Jilid dengan bimbingan dan siap mengikuti evaluasi Munaqosah resmi SDIT AN NADZIR.
+                    <strong>Konfirmasi Kesiapan:</strong> Siswa yang diajukan telah menyelesaikan materi target Juz/Jilid dengan bimbingan dan siap mengikuti evaluasi Munaqosah resmi SDIT AN NADZIR.
                 </label>
             </div>
 
@@ -374,12 +408,14 @@
     <!-- Footer -->
     <div class="footer-text">
         <p>&copy; {{ date('Y') }} SDIT AN NADZIR. All rights reserved.</p>
-        <p style="margin-top: 4px;">Ingin cek rekapan capaian? <a href="{{ route('student-status.index') }}">Cek Status & Rapor Santri</a></p>
+        <p style="margin-top: 4px;">Ingin cek rekapan capaian? <a href="{{ route('student-status.index') }}">Cek Status & Rapor Siswa</a></p>
     </div>
 
 </div>
 
 <script>
+const allStudentsData = @json($students);
+
 function onTypeChanged(type) {
     const cardTahfidz = document.getElementById('card_tahfidz');
     const cardTilawati = document.getElementById('card_tilawati');
@@ -433,49 +469,82 @@ function chooseJilid(jilid) {
     tgt.value = jilidMap[jilid] || 'Jenjang Lanjutan';
 }
 
-function filterStudentsByClass() {
-    const selectedClass = document.getElementById('class_filter').value;
-    const select = document.getElementById('student_select');
-    const query = document.getElementById('student_search').value.toLowerCase();
+function onSearchStudentLive(query) {
+    const q = query.trim().toLowerCase();
+    const box = document.getElementById('student_search_results');
 
-    for (let opt of select.options) {
-        if (!opt.value) continue;
-        const optClass = opt.getAttribute('data-class');
-        const text = opt.text.toLowerCase();
-        const matchClass = (selectedClass === 'ALL' || optClass === selectedClass);
-        const matchQuery = text.includes(query);
-
-        opt.style.display = (matchClass && matchQuery) ? '' : 'none';
+    if (q.length < 2) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
     }
+
+    const matches = allStudentsData.filter(st => {
+        const nameMatch = st.name && st.name.toLowerCase().includes(q);
+        const nisMatch = st.nis && String(st.nis).toLowerCase().includes(q);
+        return nameMatch || nisMatch;
+    }).slice(0, 15);
+
+    if (matches.length === 0) {
+        box.innerHTML = '<div style="padding: 14px 16px; font-size: 0.85rem; color: #94a3b8; text-align: center;">Tidak ditemukan siswa dengan nama "<strong>' + escapeHtml(query) + '</strong>"</div>';
+        box.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    matches.forEach(st => {
+        const studentName = escapeHtml(st.name);
+        const studentClass = escapeHtml(st.class);
+        const studentNis = escapeHtml(st.nis || '');
+        
+        html += '<div onclick="selectStudentLive(' + st.id + ', \'' + studentName + '\', \'' + studentClass + '\', \'' + studentNis + '\')" ' +
+                'style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s;" ' +
+                'onmouseover="this.style.background=\'#ecfdf5\'" onmouseout="this.style.background=\'white\'">' +
+                '<div>' +
+                    '<strong style="color: #0f172a; font-size: 0.92rem; display: block;">' + studentName + '</strong>' +
+                    '<span style="font-size: 0.76rem; color: #64748b;">Kelas ' + studentClass + (studentNis ? ' • NIS: ' + studentNis : '') + '</span>' +
+                '</div>' +
+                '<span style="font-size: 0.75rem; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Pilih</span>' +
+                '</div>';
+    });
+
+    box.innerHTML = html;
+    box.style.display = 'block';
 }
 
-function filterStudentOptions() {
-    filterStudentsByClass();
+function selectStudentLive(id, name, cls, nis) {
+    document.getElementById('selected_student_id').value = id;
+    document.getElementById('selected_student_name_label').textContent = name;
+    document.getElementById('selected_student_meta_label').textContent = 'Kelas ' + cls + (nis ? ' • NIS: ' + nis : '');
+    document.getElementById('student_selected_card').style.display = 'flex';
+
+    document.getElementById('student_search_live').value = name;
+    document.getElementById('student_search_results').style.display = 'none';
 }
 
-function onStudentPicked(select) {
-    const opt = select.options[select.selectedIndex];
-    const badge = document.getElementById('student_badge');
-    const badgeName = document.getElementById('student_badge_name');
+function clearStudentSelection() {
+    document.getElementById('selected_student_id').value = '';
+    document.getElementById('student_selected_card').style.display = 'none';
+    const input = document.getElementById('student_search_live');
+    input.value = '';
+    input.focus();
+}
 
-    if (opt && opt.value) {
-        badge.style.display = 'flex';
-        badgeName.textContent = opt.getAttribute('data-name') + ' (Kelas ' + opt.getAttribute('data-class') + ')';
-    } else {
-        badge.style.display = 'none';
-    }
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 function validatePublicForm() {
-    const studentSelect = document.getElementById('student_select');
-    if (!studentSelect.value) {
+    const studentId = document.getElementById('selected_student_id').value;
+    if (!studentId) {
         Swal.fire({
             icon: 'warning',
-            title: 'Pilih Santri Terlebih Dahulu',
-            text: 'Silakan pilih santri yang akan diajukan dari kotak daftar santri.',
+            title: 'Pilih Siswa Terlebih Dahulu',
+            text: 'Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.',
             confirmButtonColor: '#059669'
         });
-        studentSelect.focus();
+        document.getElementById('student_search_live').focus();
         return false;
     }
     return true;
