@@ -74,28 +74,51 @@ class AcademicReportController extends Controller
         $assessmentInfo = self::ASSESSMENT_TYPES[$selectedAssessment];
 
         // Available classes
-        if ($isHomeroom) {
-            $selectedClass = $user->homeroom_class;
-            $classes = collect([$user->homeroom_class]);
+        if ($isTeacher) {
+            if ($isHomeroom && !$isSubjectTeacher) {
+                // Hanya Wali Kelas murni: hanya kelas perwaliannya
+                $selectedClass = $user->homeroom_class;
+                $classes = collect([$user->homeroom_class]);
+            } elseif ($isHomeroom && $isSubjectTeacher) {
+                // Tugas Ganda: Wali Kelas sekaligus Guru Mapel di kelas lain
+                $allClasses = Student::forYear($selectedYearId)
+                    ->select('class')->distinct()->whereNotNull('class')->orderBy('class')->pluck('class');
+                $classes = $allClasses;
+                $selectedClass = $request->class ?? $user->homeroom_class;
+                if (!$classes->contains($selectedClass)) {
+                    $selectedClass = $user->homeroom_class;
+                }
+            } else {
+                // Guru Mapel murni (bukan wali kelas)
+                $classes = Student::forYear($selectedYearId)
+                    ->select('class')->distinct()->whereNotNull('class')->orderBy('class')->pluck('class');
+                $selectedClass = $request->class ?? ($classes->first() ?? null);
+            }
         } else {
+            // Admin, Kepala Sekolah, Kurikulum
             $classes = Student::forYear($selectedYearId)
                 ->select('class')->distinct()->whereNotNull('class')->orderBy('class')->pluck('class');
             $selectedClass = $request->class ?? ($classes->first() ?? null);
         }
 
+        $isViewingOwnHomeroom = $isHomeroom && ($selectedClass === $user->homeroom_class);
+
         // Active tab: 'recap', 'input', 'attendance'
-        $defaultTab = ($isTeacher && !$isHomeroom) ? 'input' : 'recap';
+        // Jika sedang membuka kelas perwalian sendiri: default 'recap' dan bisa akses presensi raport
+        // Jika sedang membuka kelas lain (sebagai guru mapel): wajib 'input'
+        $defaultTab = ($isTeacher && !$isViewingOwnHomeroom) ? 'input' : 'recap';
         $activeTab = $request->tab ?? $defaultTab;
         if (!in_array($activeTab, ['recap', 'input', 'attendance'])) {
             $activeTab = $defaultTab;
         }
-        if ($isTeacher && !$isHomeroom && $activeTab === 'attendance') {
+        if ($isTeacher && !$isViewingOwnHomeroom && in_array($activeTab, ['recap', 'attendance'])) {
             $activeTab = 'input';
         }
 
         // Active subjects
         $subjectsQuery = Subject::where('is_active', true)->orderBy('order_num', 'asc');
-        if ($isTeacher && !$isHomeroom && $isSubjectTeacher) {
+        if ($isTeacher && !$isViewingOwnHomeroom && $isSubjectTeacher) {
+            // Ketika mengajar mapel di kelas lain: HANYA tampilkan mapel yang diampunya
             $subjectsQuery->whereIn('id', $user->teaching_subject_ids);
         }
         $subjects = $subjectsQuery->get();
@@ -229,7 +252,9 @@ class AcademicReportController extends Controller
             'summariesMap',
             'recapTable',
             'classStats',
-            'isHomeroom'
+            'isHomeroom',
+            'isSubjectTeacher',
+            'isViewingOwnHomeroom'
         ));
     }
 

@@ -139,7 +139,7 @@
                 <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #475569; font-size: 0.85rem;">
                     <i class="fas fa-chalkboard" style="color: #0284c7;"></i> Kelas
                 </label>
-                <select name="class" class="form-control" onchange="this.form.submit()" required {{ $isHomeroom ? 'disabled' : '' }}>
+                <select name="class" class="form-control" onchange="this.form.submit()" required {{ ($isHomeroom && empty(Auth::user()->teaching_subject_ids)) ? 'disabled' : '' }}>
                     @foreach($classes as $c)
                         <option value="{{ $c }}" {{ $selectedClass == $c ? 'selected' : '' }}>Kelas {{ $c }}</option>
                     @endforeach
@@ -183,18 +183,22 @@
 
         <!-- NAVIGATION TABS -->
         <div style="display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px;">
+            @if(Auth::user()->role !== 'teacher' || ($isHomeroom && ($isViewingOwnHomeroom ?? ($selectedClass === Auth::user()->homeroom_class))))
             <a href="{{ route('academic-reports.index', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment, 'tab' => 'recap', 'subject_id' => $selectedSubjectId]) }}" 
                style="padding: 12px 20px; font-weight: 700; font-size: 0.92rem; text-decoration: none; color: {{ $activeTab === 'recap' ? '#0284c7' : '#64748b' }}; border-bottom: 3px solid {{ $activeTab === 'recap' ? '#0284c7' : 'transparent' }}; margin-bottom: -2px; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-table"></i> Rekapitulasi Rapor Kelas
             </a>
+            @endif
             <a href="{{ route('academic-reports.index', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment, 'tab' => 'input', 'subject_id' => $selectedSubjectId]) }}" 
                style="padding: 12px 20px; font-weight: 700; font-size: 0.92rem; text-decoration: none; color: {{ $activeTab === 'input' ? '#0284c7' : '#64748b' }}; border-bottom: 3px solid {{ $activeTab === 'input' ? '#0284c7' : 'transparent' }}; margin-bottom: -2px; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-edit"></i> Input Nilai per Mapel
             </a>
+            @if(Auth::user()->role !== 'teacher' || ($isHomeroom && ($isViewingOwnHomeroom ?? ($selectedClass === Auth::user()->homeroom_class))))
             <a href="{{ route('academic-reports.index', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment, 'tab' => 'attendance', 'subject_id' => $selectedSubjectId]) }}" 
                style="padding: 12px 20px; font-weight: 700; font-size: 0.92rem; text-decoration: none; color: {{ $activeTab === 'attendance' ? '#0284c7' : '#64748b' }}; border-bottom: 3px solid {{ $activeTab === 'attendance' ? '#0284c7' : 'transparent' }}; margin-bottom: -2px; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-clipboard-list"></i> Kehadiran & Catatan Wali
             </a>
+            @endif
         </div>
 
         <!-- TAB 1: REKAPITULASI RAPOR KELAS -->
