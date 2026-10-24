@@ -273,6 +273,7 @@ class MunaqosahController extends Controller
      */
     public function registerForm(Request $request)
     {
+        $activeYear = AcademicYear::where('is_active', true)->first();
         $students = Student::activeYear()->active()
             ->with(['mentoringGroups' => function($q) use ($activeYear) {
                 if ($activeYear) $q->wherePivot('academic_year_id', $activeYear->id);
