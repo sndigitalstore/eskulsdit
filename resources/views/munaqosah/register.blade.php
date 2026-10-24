@@ -315,12 +315,14 @@
                 <label style="display: block; font-weight: 800; font-size: 0.92rem; color: #0f172a; margin-bottom: 8px;">
                     4. Kelompok Mentoring Asal Siswa
                 </label>
-                <select name="from_group_id" id="from_group_select" class="form-control-pro" style="width: 100%;">
+                <select name="from_group_id" id="from_group_select" class="form-control-pro" style="width: 100%;" onchange="currentSelectedGroupId = this.value">
                     <option value="">-- Pilih Kelompok Asal (Opsional) --</option>
                     @foreach($groups as $grp)
-                        <option value="{{ $grp->id }}" data-type="{{ $grp->type }}" {{ $selectedGroupId == $grp->id ? 'selected' : '' }} style="{{ $selectedType && $grp->type !== $selectedType ? 'display: none;' : '' }}">
-                            {{ $grp->name }} (Mentor: {{ $grp->mentor_name ?? '-' }})
-                        </option>
+                        @if($grp->type === $selectedType)
+                            <option value="{{ $grp->id }}" {{ $selectedGroupId == $grp->id ? 'selected' : '' }}>
+                                {{ $grp->name }} (Mentor: {{ $grp->mentor_name ?? '-' }})
+                            </option>
+                        @endif
                     @endforeach
                 </select>
                 <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 4px;">
@@ -371,14 +373,16 @@
                             $isFull = $sch->is_full;
                             $schType = $sch->exam_type ?? 'all';
                         @endphp
-                        @if(!$isFull)
-                            <option value="{{ $sch->id }}" data-exam-type="{{ $schType }}" data-full="0" style="{{ ($selectedType && $schType !== 'all' && $schType !== $selectedType) ? 'display: none;' : '' }}">
-                                ✓ {{ $sch->examiner?->user?->name ?? 'Penguji' }} — {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }}) [{{ $sch->room_location ?? 'Ruang Munaqosah' }}] • Sisa {{ $sch->quota - $sch->used_slots }} Slot
-                            </option>
-                        @else
-                            <option value="{{ $sch->id }}" data-exam-type="{{ $schType }}" data-full="1" disabled style="color: #94a3b8; background: #f8fafc; {{ ($selectedType && $schType !== 'all' && $schType !== $selectedType) ? 'display: none;' : '' }}">
-                                🔒 {{ $sch->examiner?->user?->name ?? 'Penguji' }} — {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }}) • (Penuh ✓)
-                            </option>
+                        @if($schType === 'all' || $schType === $selectedType)
+                            @if(!$isFull)
+                                <option value="{{ $sch->id }}">
+                                    ✓ {{ $sch->examiner?->user?->name ?? 'Penguji' }} — {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }}) [{{ $sch->room_location ?? 'Ruang Munaqosah' }}] • Sisa {{ $sch->quota - $sch->used_slots }} Slot
+                                </option>
+                            @else
+                                <option value="{{ $sch->id }}" disabled style="color: #94a3b8; background: #f8fafc;">
+                                    🔒 {{ $sch->examiner?->user?->name ?? 'Penguji' }} — {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }}) • (Penuh ✓)
+                                </option>
+                            @endif
                         @endif
                     @endforeach
                 </select>
@@ -429,6 +433,59 @@
 
 <script>
 const allStudentsData = @json($students);
+const allGroupsData = @json($groups);
+const allSchedulesData = @json($schedules);
+let currentSelectedGroupId = "{{ $selectedGroupId ?? '' }}";
+
+function renderGroupsForType(type, forceSelectedId = null) {
+    const select = document.getElementById('from_group_select');
+    if (!select) return;
+
+    const targetSelected = forceSelectedId !== null ? forceSelectedId : (currentSelectedGroupId || select.value);
+    select.innerHTML = '<option value="">-- Pilih Kelompok Asal (Opsional) --</option>';
+
+    const filtered = allGroupsData.filter(g => g.type === type);
+    filtered.forEach(grp => {
+        const opt = document.createElement('option');
+        opt.value = grp.id;
+        opt.textContent = grp.name + (grp.mentor_name ? ' (Mentor: ' + grp.mentor_name + ')' : '');
+        if (String(grp.id) === String(targetSelected)) {
+            opt.selected = true;
+        }
+        select.appendChild(opt);
+    });
+}
+
+function renderSchedulesForType(type) {
+    const select = document.getElementById('schedule_id');
+    if (!select) return;
+
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">-- Tetapkan / Jadwalkan Nanti oleh Panitia Munaqosah --</option>';
+
+    allSchedulesData.forEach(sch => {
+        const schType = sch.exam_type || 'all';
+        if (schType === 'all' || schType === type) {
+            const opt = document.createElement('option');
+            opt.value = sch.id;
+            const examinerName = sch.examiner && sch.examiner.user ? sch.examiner.user.name : 'Penguji';
+            const location = sch.room_location || 'Ruang Munaqosah';
+            const sisa = (sch.quota || 0) - (sch.used_slots || 0);
+
+            if (!sch.is_full) {
+                opt.textContent = '✓ ' + examinerName + ' — ' + (sch.day_name || '') + ' (' + sch.time_start + ' - ' + sch.time_end + ') [' + location + '] • Sisa ' + sisa + ' Slot';
+                if (String(sch.id) === String(currentVal)) {
+                    opt.selected = true;
+                }
+            } else {
+                opt.textContent = '🔒 ' + examinerName + ' — ' + (sch.day_name || '') + ' (' + sch.time_start + ' - ' + sch.time_end + ') • (Penuh ✓)';
+                opt.disabled = true;
+                opt.style.color = '#94a3b8';
+            }
+            select.appendChild(opt);
+        }
+    });
+}
 
 function switchMunaqosahType(type) {
     const labelTahfidz = document.getElementById('label_tahfidz');
@@ -470,50 +527,9 @@ function switchMunaqosahType(type) {
         }
     }
 
-    // Filter dropdown kelompok asal siswa sesuai tipe
-    const grpSelect = document.getElementById('from_group_select');
-    if (grpSelect) {
-        let hasValidSelected = false;
-        for (let opt of grpSelect.options) {
-            if (!opt.value) continue;
-            const optType = opt.getAttribute('data-type');
-            if (optType === type) {
-                opt.style.display = '';
-                opt.disabled = false;
-                if (opt.selected) hasValidSelected = true;
-            } else {
-                opt.style.display = 'none';
-                opt.disabled = true;
-                if (opt.selected) opt.selected = false;
-            }
-        }
-        if (!hasValidSelected && !grpSelect.value) {
-            grpSelect.selectedIndex = 0;
-        }
-    }
-
-    // Filter dropdown jadwal & penguji sesuai tipe
-    const schSelect = document.getElementById('schedule_id');
-    if (schSelect) {
-        let hasValidSch = false;
-        for (let opt of schSelect.options) {
-            if (!opt.value) continue;
-            const exType = opt.getAttribute('data-exam-type');
-            const isFull = opt.getAttribute('data-full') === '1';
-            if (!exType || exType === 'all' || exType === type) {
-                opt.style.display = '';
-                opt.disabled = isFull;
-                if (opt.selected) hasValidSch = true;
-            } else {
-                opt.style.display = 'none';
-                opt.disabled = true;
-                if (opt.selected) opt.selected = false;
-            }
-        }
-        if (!hasValidSch && !schSelect.value) {
-            schSelect.selectedIndex = 0;
-        }
-    }
+    // Re-render dinamis kelompok dan jadwal (100% andal di seluruh browser)
+    renderGroupsForType(type);
+    renderSchedulesForType(type);
 }
 
 function setQuickJuz(juz) {
@@ -605,10 +621,8 @@ function selectStudentLive(id, name, cls, nis) {
         const curType = document.querySelector('input[name="type"]:checked')?.value || 'tahfidz';
         const matchedGrp = studentObj.mentoring_groups.find(g => g.type === curType);
         if (matchedGrp) {
-            const grpSelect = document.getElementById('from_group_select');
-            if (grpSelect) {
-                grpSelect.value = matchedGrp.id;
-            }
+            currentSelectedGroupId = matchedGrp.id;
+            renderGroupsForType(curType, matchedGrp.id);
         }
     }
 }
