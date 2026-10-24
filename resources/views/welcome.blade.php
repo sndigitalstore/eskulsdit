@@ -806,20 +806,229 @@
             color: #64748b;
         }
 
+        /* ===== MOBILE DRAWER & NAV ACTIONS ===== */
+        .mobile-nav-actions {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-quick-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(6, 78, 59, 0.08);
+            color: #064e3b;
+            border: 1px solid rgba(6, 78, 59, 0.18);
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-quick-btn:active {
+            background: rgba(6, 78, 59, 0.16);
+            transform: scale(0.97);
+        }
+
+        .mobile-menu-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-toggle:active {
+            background: #e2e8f0;
+            transform: scale(0.95);
+        }
+
+        .mobile-drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .mobile-drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 82%;
+            max-width: 320px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1200;
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .mobile-drawer.active {
+            transform: translateX(0);
+        }
+
+        .mobile-drawer-header {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .mobile-drawer-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: #f1f5f9;
+            border: none;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mobile-drawer-close:active {
+            background: #ea5455;
+            color: white;
+        }
+
+        .mobile-drawer-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .m-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .m-nav-link i {
+            color: #047857;
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .m-nav-link:hover, .m-nav-link:active {
+            background: #f1f5f9;
+            color: #064e3b;
+        }
+
+        .m-nav-highlight {
+            background: #ecfdf5;
+            color: #064e3b;
+            border: 1px solid #bbf7d0;
+            justify-content: space-between;
+        }
+
+        .m-badge-pill {
+            font-size: 0.68rem;
+            font-weight: 800;
+            background: #10b981;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .mobile-drawer-footer {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .m-btn-portal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+            color: white;
+            text-decoration: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            box-shadow: 0 4px 14px rgba(6, 78, 59, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .m-btn-portal:active {
+            transform: scale(0.98);
+        }
+
         /* Responsive Breakpoints */
         @media (max-width: 1024px) {
             header.hero-section {
                 grid-template-columns: 1fr;
-                padding-top: 130px;
+                padding: 120px 6% 60px;
                 text-align: center;
+                gap: 40px;
             }
 
             .hero-desc {
-                margin: 0 auto 30px;
+                margin: 0 auto 28px;
             }
 
             .hero-cta-group {
                 justify-content: center;
+            }
+
+            .hero-mockup-wrapper {
+                max-width: 580px;
+                margin: 0 auto;
+                width: 100%;
             }
 
             .footer-grid {
@@ -828,25 +1037,361 @@
         }
 
         @media (max-width: 768px) {
+            nav.main-nav {
+                padding: 0.75rem 5%;
+            }
+
+            nav.scrolled {
+                padding: 0.65rem 5%;
+            }
+
             nav.main-nav .nav-menu {
                 display: none;
             }
 
+            .mobile-nav-actions {
+                display: flex;
+            }
+
+            .brand-logo {
+                width: 38px;
+                height: 38px;
+            }
+
+            .brand-title {
+                font-size: 1.18rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.65rem;
+            }
+
+            /* Hero Section on Mobile */
+            header.hero-section {
+                padding: 95px 5% 45px;
+                gap: 32px;
+            }
+
+            .hero-badge {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+                margin-bottom: 14px;
+            }
+
             .hero-title {
-                font-size: 2.35rem;
+                font-size: 1.95rem;
+                line-height: 1.22;
+                margin-bottom: 14px;
+            }
+
+            .hero-desc {
+                font-size: 0.92rem;
+                line-height: 1.6;
+                margin-bottom: 22px;
+            }
+
+            .hero-cta-group {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+                max-width: 380px;
+                margin: 0 auto;
+            }
+
+            .btn-hero-primary,
+            .btn-hero-secondary {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 18px;
+                font-size: 0.9rem;
+                border-radius: 12px;
+            }
+
+            /* Mockup Card on Mobile */
+            .hero-mockup-card {
+                padding: 18px 14px;
+                border-radius: 18px;
+            }
+
+            .mockup-header {
+                padding-bottom: 10px;
+                margin-bottom: 12px;
+            }
+
+            .mockup-metric {
+                padding: 10px 12px;
+            }
+
+            .mockup-metric .metric-val {
+                font-size: 1.3rem;
+            }
+
+            .mockup-feed {
+                padding: 9px 10px;
+                gap: 8px;
+            }
+
+            .mockup-feed-left {
+                gap: 8px;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .mockup-feed-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.78rem;
+            }
+
+            .mockup-feed-left div:last-child {
+                flex: 1;
+                min-width: 0;
+                text-align: left;
+            }
+
+            .mockup-feed-left div:last-child div:first-child {
+                font-size: 0.78rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .mockup-feed-left div:last-child div:last-child {
+                font-size: 0.68rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .mockup-feed > span {
+                flex-shrink: 0;
+                font-size: 0.65rem;
+                padding: 2px 6px;
+            }
+
+            /* 4 Pillars Section on Mobile */
+            section.section-pillars {
+                padding: 55px 5%;
+            }
+
+            .section-header {
+                margin-bottom: 35px;
+            }
+
+            .section-tag {
+                font-size: 0.72rem;
+                padding: 4px 12px;
             }
 
             .section-title {
-                font-size: 1.95rem;
+                font-size: 1.7rem;
+                line-height: 1.25;
+            }
+
+            .section-desc {
+                font-size: 0.9rem;
+                line-height: 1.55;
+            }
+
+            .pillars-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .pillar-card {
+                padding: 20px 18px;
+                border-radius: 16px;
+            }
+
+            .pillar-icon-box {
+                width: 44px;
+                height: 44px;
+                font-size: 1.15rem;
+                margin-bottom: 14px;
+                border-radius: 10px;
+            }
+
+            .pillar-title {
+                font-size: 1.15rem;
+                margin-bottom: 6px;
+            }
+
+            .pillar-text {
+                font-size: 0.88rem;
+                line-height: 1.55;
+                margin-bottom: 14px;
+            }
+
+            .pillar-features-list {
+                padding-top: 12px;
+            }
+
+            .pillar-features-list li {
+                font-size: 0.8rem;
+                margin-bottom: 6px;
+            }
+
+            /* Stats Grid 2x2 on Mobile */
+            section.section-stats {
+                padding: 50px 5%;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px;
+            }
+
+            .stat-item {
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 14px;
+                padding: 16px 10px;
+            }
+
+            .stat-number {
+                font-size: 2.1rem;
+            }
+
+            .stat-label {
+                font-size: 0.82rem;
+                margin-top: 4px;
+            }
+
+            .stat-desc {
+                font-size: 0.7rem;
+            }
+
+            /* Features Grid on Mobile */
+            section.section-features {
+                padding: 55px 5%;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .feature-box {
+                padding: 16px;
+                border-radius: 14px;
+                gap: 12px;
+            }
+
+            .feature-box-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1.05rem;
+                border-radius: 9px;
+            }
+
+            .feature-box-content h4 {
+                font-size: 0.95rem;
+                margin-bottom: 4px;
+            }
+
+            .feature-box-content p {
+                font-size: 0.82rem;
+                line-height: 1.5;
+            }
+
+            /* CTA Banner on Mobile */
+            section.section-cta {
+                padding: 30px 5% 60px;
             }
 
             .cta-banner-card {
-                padding: 30px 24px;
+                padding: 28px 18px;
+                border-radius: 18px;
                 text-align: center;
+                flex-direction: column;
+                gap: 18px;
+            }
+
+            .cta-banner-content h3 {
+                font-size: 1.4rem;
+                line-height: 1.25;
+            }
+
+            .cta-banner-content p {
+                font-size: 0.86rem;
+            }
+
+            .cta-banner-card .btn-hero-primary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Footer on Mobile */
+            footer.main-footer {
+                padding: 45px 5% 20px;
             }
 
             .footer-grid {
                 grid-template-columns: 1fr;
+                gap: 28px;
+                margin-bottom: 35px;
+            }
+
+            .footer-brand h4 {
+                font-size: 1.15rem;
+            }
+
+            .footer-brand p {
+                font-size: 0.84rem;
+            }
+
+            .footer-col h5 {
+                font-size: 0.88rem;
+                margin-bottom: 12px;
+            }
+
+            .footer-links-list li {
+                margin-bottom: 8px;
+            }
+
+            .footer-links-list a {
+                font-size: 0.84rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+                font-size: 0.78rem;
+                padding-top: 18px;
+            }
+        }
+
+        /* Narrow Phones (< 380px) */
+        @media (max-width: 380px) {
+            .brand-title {
+                font-size: 1.05rem;
+            }
+
+            .hero-title {
+                font-size: 1.72rem;
+            }
+
+            .mobile-quick-btn span {
+                display: none;
+            }
+
+            .mobile-quick-btn {
+                padding: 7px 9px;
+            }
+
+            .stats-grid {
+                gap: 8px;
+            }
+
+            .stat-number {
+                font-size: 1.85rem;
+            }
+
+            .stat-item {
+                padding: 12px 6px;
             }
         }
     </style>
@@ -888,15 +1433,69 @@
             @endauth
         </div>
 
-        <!-- Mobile Login Icon -->
-        <div style="display: none;" class="mobile-only-btn">
-            @auth
-                <a href="{{ url('/dashboard') }}" class="btn-nav-portal" style="padding: 6px 14px; font-size: 0.8rem;">Dashboard</a>
-            @else
-                <a href="{{ route('login') }}" class="btn-nav-portal" style="padding: 6px 14px; font-size: 0.8rem;">Login</a>
-            @endauth
+        <!-- Mobile Navigation Actions -->
+        <div class="mobile-nav-actions">
+            <a href="{{ route('student-status.index') }}" class="mobile-quick-btn" title="Portal Ayah Bunda">
+                <i class="fas fa-search"></i>
+                <span>Cek Ananda</span>
+            </a>
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Buka Menu" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars" id="menuIcon"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Drawer Overlay & Sidebar -->
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileMenu()"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-header">
+            <div class="brand-container">
+                <img src="{{ asset('logo.png') }}" alt="Logo" class="brand-logo" style="width: 36px; height: 36px;">
+                <div class="brand-text">
+                    <span class="brand-title" style="font-size: 1.15rem;">SIMUTQIN</span>
+                    <span class="brand-subtitle" style="font-size: 0.65rem;">SDIT AN NADZIR</span>
+                </div>
+            </div>
+            <button type="button" class="mobile-drawer-close" onclick="closeMobileMenu()" aria-label="Tutup Menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-drawer-body">
+            <div class="mobile-nav-links">
+                <a href="#pilar" class="m-nav-link" onclick="closeMobileMenu()">
+                    <i class="fas fa-cubes"></i>
+                    <span>4 Pilar Pendidikan</span>
+                </a>
+                <a href="#keunggulan" class="m-nav-link" onclick="closeMobileMenu()">
+                    <i class="fas fa-star"></i>
+                    <span>Fitur Terpadu</span>
+                </a>
+                <a href="#statistik" class="m-nav-link" onclick="closeMobileMenu()">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Statistik Sekolah</span>
+                </a>
+                <a href="{{ route('student-status.index') }}" class="m-nav-link m-nav-highlight" onclick="closeMobileMenu()">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-search"></i>
+                        <span>Portal Ayah Bunda</span>
+                    </div>
+                    <span class="m-badge-pill">Mandiri</span>
+                </a>
+            </div>
+
+            <div class="mobile-drawer-footer">
+                @auth
+                    <a href="{{ url('/dashboard') }}" class="m-btn-portal">
+                        <i class="fas fa-tachometer-alt"></i> Buka Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="m-btn-portal">
+                        <i class="fas fa-lock"></i> Masuk Portal Guru & Staf
+                    </a>
+                @endauth
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <header class="hero-section">
@@ -1259,6 +1858,33 @@
     </footer>
 
     <script>
+        // Mobile Drawer Navigation
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            const overlay = document.getElementById('mobileDrawerOverlay');
+            if (!drawer || !overlay) return;
+            const isOpen = drawer.classList.contains('active');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            const overlay = document.getElementById('mobileDrawerOverlay');
+            if (drawer) drawer.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeMobileMenu();
+        });
+
         // Navbar scroll effect
         window.addEventListener('scroll', function() {
             const nav = document.getElementById('navbar');
