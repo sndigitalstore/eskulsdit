@@ -132,6 +132,12 @@
                style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $statusFilter === 'failed' ? 'background: #ef4444; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-times-circle"></i> Belum Lulus ({{ $failedCount }})
             </a>
+            @if($examinerRecord || $myExamsCount > 0)
+            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'examiner' => $examinerFilter === 'me' ? 'all' : 'me', 'year_id' => $selectedYearId]) }}" 
+               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $examinerFilter === 'me' ? 'background: #4338ca; color: white;' : 'background: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe;' }}">
+                <i class="fas fa-user-check"></i> Peserta Ujian Saya ({{ $myExamsCount }})
+            </a>
+            @endif
             <a href="{{ route('munaqosah.index', ['tab' => 'schedules', 'year_id' => $selectedYearId]) }}" 
                style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $activeTab === 'schedules' ? 'background: #0284c7; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-calendar-check"></i> Jadwal & Ketersediaan Penguji ({{ $schedulesCount }})
@@ -146,6 +152,7 @@
         <form method="GET" action="{{ route('munaqosah.index') }}" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <input type="hidden" name="tab" value="{{ $activeTab }}">
             <input type="hidden" name="status" value="{{ $statusFilter }}">
+            <input type="hidden" name="examiner" value="{{ $examinerFilter }}">
 
             <select name="type" onchange="this.form.submit()" style="padding: 8px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.84rem; background: #f8fafc; font-weight: 600; color: #334155;">
                 <option value="all" {{ $typeFilter === 'all' ? 'selected' : '' }}>Semua Tipe (Tilawati & Tahfidz)</option>
@@ -456,13 +463,21 @@
                     </thead>
                     <tbody>
                         @forelse($registrations as $index => $item)
-                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-                                <td style="padding: 12px 14px; color: #64748b; font-weight: 600;">
+                            @php
+                                $isMyStudent = ($item->examiner_user_id == Auth::id()) || ($item->examiner && $item->examiner->user_id == Auth::id());
+                            @endphp
+                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s; {{ $isMyStudent ? 'background: #f8faff;' : '' }}" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='{{ $isMyStudent ? '#f8faff' : 'white' }}'">
+                                <td style="padding: 12px 14px; color: #64748b; font-weight: 600; {{ $isMyStudent ? 'border-left: 3.5px solid #4f46e5;' : '' }}">
                                     {{ $registrations->firstItem() + $index }}
                                 </td>
                                 <td style="padding: 12px 14px;">
-                                    <div style="font-weight: 800; color: #0f172a; font-size: 0.92rem;">
-                                        {{ $item->student->name ?? 'Siswa Tidak Ditemukan' }}
+                                    <div style="font-weight: 800; color: #0f172a; font-size: 0.92rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                        <span>{{ $item->student->name ?? 'Siswa Tidak Ditemukan' }}</span>
+                                        @if($isMyStudent)
+                                            <span style="background: #e0e7ff; color: #3730a3; font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-user-check"></i> Ujian Saya
+                                            </span>
+                                        @endif
                                     </div>
                                     <div style="font-size: 0.76rem; color: #64748b; display: flex; gap: 8px; align-items: center;">
                                         <span style="background: #e2e8f0; color: #334155; padding: 1px 6px; border-radius: 4px; font-weight: 700;">

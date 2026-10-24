@@ -105,14 +105,14 @@
                 <div>
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
                         <h3 style="font-size: 1.15rem; font-weight: 800; color: #064e3b; margin: 0;">
-                            Pemberitahuan Munaqosah: {{ $pendingMunaqosahPromotions->count() }} Santri Lulus & Siap Pindah Jenjang!
+                            Pemberitahuan Munaqosah: {{ $pendingMunaqosahPromotions->count() }} Siswa Lulus & Siap Pindah Jenjang!
                         </h3>
                         <span style="background: #10b981; color: white; font-size: 0.74rem; font-weight: 800; padding: 3px 10px; border-radius: 20px;">
                             Perlu Tindak Lanjut
                         </span>
                     </div>
                     <p style="color: #047857; font-size: 0.88rem; margin: 0; font-weight: 500;">
-                        Santri di bawah ini telah menyelesaikan ujian dan dinyatakan <strong>LULUS MUNAQOSAH</strong> oleh dewan penguji. Silakan alokasikan ke kelompok jenjang lanjutan sesuai arahan kurikulum.
+                        Siswa di bawah ini telah menyelesaikan ujian dan dinyatakan <strong>LULUS MUNAQOSAH</strong> oleh dewan penguji. Silakan alokasikan ke kelompok jenjang lanjutan sesuai arahan kurikulum.
                     </p>
                 </div>
             </div>

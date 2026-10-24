@@ -127,7 +127,11 @@ class MunaqosahController extends Controller
         $activeTab = $request->input('tab', 'recap'); // 'recap', 'examiners', 'pending_promotions'
         $statusFilter = $request->input('status', 'all'); // 'all', 'pending', 'scheduled', 'passed', 'failed'
         $typeFilter = $request->input('type', 'all'); // 'all', 'tilawati', 'tahfidz'
+        $examinerFilter = $request->input('examiner', 'all'); // 'all', 'me'
         $search = $request->input('search');
+
+        $user = Auth::user();
+        $examinerRecord = MunaqisyExaminer::where('user_id', $user->id)->first();
 
         // Query Registrations
         $query = MunaqosahRegistration::with([
@@ -152,6 +156,15 @@ class MunaqosahController extends Controller
             $query->where('type', $typeFilter);
         }
 
+        if ($examinerFilter === 'me') {
+            $query->where(function($q) use ($user, $examinerRecord) {
+                $q->where('examiner_user_id', $user->id);
+                if ($examinerRecord) {
+                    $q->orWhere('examiner_id', $examinerRecord->id);
+                }
+            });
+        }
+
         if ($search) {
             $query->whereHas('student', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -170,6 +183,14 @@ class MunaqosahController extends Controller
         $passedCount = (clone $baseKpiQuery)->where('status', 'passed')->count();
         $failedCount = (clone $baseKpiQuery)->where('status', 'failed')->count();
         $pendingPromotionCount = (clone $baseKpiQuery)->where('status', 'passed')->where('transition_status', 'pending_promotion')->count();
+
+        // Hitung jumlah siswa ujian khusus penguji yang login
+        $myExamsCount = (clone $baseKpiQuery)->where(function($q) use ($user, $examinerRecord) {
+            $q->where('examiner_user_id', $user->id);
+            if ($examinerRecord) {
+                $q->orWhere('examiner_id', $examinerRecord->id);
+            }
+        })->count();
 
         // Dewan Penguji (Munaqisy)
         $examiners = MunaqisyExaminer::with('user')->withCount('registrations')->get();
@@ -198,6 +219,9 @@ class MunaqosahController extends Controller
             'activeTab',
             'statusFilter',
             'typeFilter',
+            'examinerFilter',
+            'examinerRecord',
+            'myExamsCount',
             'search',
             'totalCount',
             'pendingCount',
