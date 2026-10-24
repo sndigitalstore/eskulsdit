@@ -224,14 +224,29 @@
                 <span style="background: rgba(255,255,255,0.15); font-size: 0.76rem; font-weight: 700; padding: 4px 12px; border-radius: 20px;">
                     Tahun Ajaran {{ $activeYear->name ?? '-' }}
                 </span>
+                @if(!$isAdminOrCurriculum)
+                <span style="background: rgba(16, 185, 129, 0.35); border: 1px solid rgba(255,255,255,0.3); font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
+                    <i class="fas fa-user-check"></i> Dewan Penguji Aktif
+                </span>
+                @endif
             </div>
-            <h2 style="font-size: 1.85rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px;">
-                Munaqisy & Evaluasi Munaqosah
-            </h2>
-            <p style="margin: 0; font-size: 0.92rem; opacity: 0.92; max-width: 680px; line-height: 1.55;">
-                Kelola pendaftaran siswa tuntas juz tahfidz & jilid tilawati, manajemen mentor penguji (munaqisy), penilaian kelulusan berstandar, serta pemindahan otomatis ke jenjang lanjutan.
-            </p>
+            @if($isAdminOrCurriculum)
+                <h2 style="font-size: 1.85rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px;">
+                    Munaqisy & Evaluasi Munaqosah
+                </h2>
+                <p style="margin: 0; font-size: 0.92rem; opacity: 0.92; max-width: 680px; line-height: 1.55;">
+                    Kelola pendaftaran siswa tuntas juz tahfidz & jilid tilawati, manajemen mentor penguji (munaqisy), penilaian kelulusan berstandar, serta pemindahan otomatis ke jenjang lanjutan.
+                </p>
+            @else
+                <h2 style="font-size: 1.85rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px;">
+                    Rekapan Peserta Munaqosah
+                </h2>
+                <p style="margin: 0; font-size: 0.92rem; opacity: 0.92; max-width: 680px; line-height: 1.55;">
+                    Daftar siswa peserta ujian munaqosah tahfidz dan tilawati yang siap untuk diuji dan dinilai kelulusan serta kualitas bacaannya.
+                </p>
+            @endif
         </div>
+        @if($isAdminOrCurriculum)
         <div class="munaqosah-hero-actions">
             <a href="{{ route('munaqosah.register') }}" class="munaqosah-hero-btn" style="background: #ffffff; color: #065f46; box-shadow: 0 4px 15px rgba(0,0,0,0.12);">
                 <i class="fas fa-plus-circle" style="color: #059669;"></i> Ajukan Siswa Munaqosah
@@ -243,6 +258,7 @@
                 <i class="fas fa-print"></i> Cetak Rekap
             </a>
         </div>
+        @endif
         <i class="fas fa-quran" style="position: absolute; right: -20px; bottom: -30px; font-size: 11rem; color: rgba(255,255,255,0.06); z-index: 1;"></i>
     </div>
 
@@ -267,7 +283,8 @@
         </div>
     @endif
 
-    <!-- KPI Metric Cards Simetris -->
+    @if($isAdminOrCurriculum)
+    <!-- KPI Metric Cards Simetris (Khusus Admin & Kurikulum) -->
     <div class="munaqosah-kpi-grid">
         <!-- Total Registrations -->
         <div class="munaqosah-kpi-card">
@@ -321,7 +338,6 @@
             </div>
         </div>
 
-        @if($isAdminOrCurriculum)
         <!-- Dewan Penguji (Munaqisy) - Admin/Kurikulum -->
         <div class="munaqosah-kpi-card" style="border-color: #c7d2fe;">
             <div>
@@ -332,22 +348,12 @@
                 <i class="fas fa-user-tie"></i>
             </div>
         </div>
-        @else
-        <!-- Peserta Ujian Saya - Penguji -->
-        <div class="munaqosah-kpi-card" style="border-color: #c7d2fe; background: linear-gradient(to bottom, #ffffff, #eef2ff);">
-            <div>
-                <span style="font-size: 0.78rem; font-weight: 700; color: #4338ca; text-transform: uppercase; letter-spacing: 0.03em;">Peserta Saya</span>
-                <h3 style="font-size: 1.85rem; font-weight: 800; color: #3730a3; margin: 4px 0 0 0;">{{ $myExamsCount }}</h3>
-            </div>
-            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
-                <i class="fas fa-user-check"></i>
-            </div>
-        </div>
-        @endif
     </div>
+    @endif
 
     <!-- Navigation Tabs & Filters Modern & Responsif -->
     <div style="background: white; border-radius: 20px; padding: 18px 20px; border: 1px solid #e2e8f0; margin-bottom: 22px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 14px;">
+        @if($isAdminOrCurriculum)
         <div class="munaqosah-tabs-bar">
             <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'all', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
@@ -372,7 +378,6 @@
             </a>
             @endif
 
-            @if($isAdminOrCurriculum)
             <a href="{{ route('munaqosah.index', ['tab' => 'schedules', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $activeTab === 'schedules' ? 'background: #0284c7; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
@@ -383,11 +388,11 @@
                style="{{ $activeTab === 'examiners' ? 'background: #4f46e5; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-user-graduate"></i> Dewan Penguji ({{ $examinersCount }})
             </a>
-            @endif
         </div>
+        @endif
 
         <!-- Filter Form Simetris & Responsif -->
-        <form method="GET" action="{{ route('munaqosah.index') }}" class="munaqosah-filter-form" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+        <form method="GET" action="{{ route('munaqosah.index') }}" class="munaqosah-filter-form" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; {{ $isAdminOrCurriculum ? 'border-top: 1px solid #f1f5f9; padding-top: 12px;' : '' }}">
             <input type="hidden" name="tab" value="{{ $activeTab }}">
             <input type="hidden" name="status" value="{{ $statusFilter }}">
             <input type="hidden" name="examiner" value="{{ $examinerFilter }}">
@@ -444,7 +449,7 @@
         </form>
     </div>
 
-    @if($activeTab === 'examiners')
+    @if($isAdminOrCurriculum && $activeTab === 'examiners')
         {{-- TAB DEWAN PENGUJI (MUNAQISY) --}}
         <div style="background: white; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
@@ -648,7 +653,7 @@
                 @endforelse
             </div>
         </div>
-    @elseif($activeTab === 'schedules')
+    @elseif($isAdminOrCurriculum && $activeTab === 'schedules')
         {{-- TAB JADWAL & KETERSEDIAAN PENGUJI (MUNAQISY) --}}
         <div style="background: white; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
@@ -901,7 +906,9 @@
                             <th style="padding: 12px 14px; color: #475569; font-weight: 700;">Penguji & Jadwal</th>
                             <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Nilai & Predikat</th>
                             <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Hasil</th>
-                            <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Status Jenjang</th>
+                            @if($isAdminOrCurriculum)
+                                <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Status Jenjang</th>
+                            @endif
                             <th style="padding: 12px 14px; color: #475569; font-weight: 700; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
@@ -1002,6 +1009,7 @@
                                         </span>
                                     @endif
                                 </td>
+                                @if($isAdminOrCurriculum)
                                 <td style="padding: 12px 14px; text-align: center;">
                                     @if($item->status === 'passed')
                                         @if($item->transition_status === 'promoted')
@@ -1017,57 +1025,60 @@
                                         <span style="color: #94a3b8; font-size: 0.8rem;">-</span>
                                     @endif
                                 </td>
+                                @endif
                                 <td style="padding: 12px 14px; text-align: center;">
                                     <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
                                         {{-- 1. Penilaian Penguji --}}
                                         <a href="{{ route('munaqosah.score', $item->id) }}" title="Form Penilaian Penguji" 
-                                           style="background: #10b981; color: white; padding: 6px 10px; border-radius: 8px; text-decoration: none; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                            <i class="fas fa-edit"></i> {{ $item->final_score !== null ? 'Nilai' : 'Uji' }}
+                                           style="background: #10b981; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);">
+                                            <i class="fas fa-edit"></i> {{ $item->final_score !== null ? 'Nilai' : 'Uji Sekarang' }}
                                         </a>
 
-                                        {{-- 2. Jadwalkan / Pilih Penguji (jika pending) --}}
-                                        @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && in_array($item->status, ['pending', 'scheduled']))
-                                            <button type="button" onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->examiner_id ?? '' }}', '{{ $item->exam_date ? $item->exam_date->format('Y-m-d') : '' }}', '{{ $item->exam_time ?? '' }}', '{{ $item->room_location ?? '' }}')" 
-                                                    title="Tetapkan Jadwal & Penguji" 
-                                                    style="background: #3b82f6; color: white; border: none; padding: 6px 9px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;">
-                                                <i class="fas fa-calendar-alt"></i>
-                                            </button>
-                                        @endif
-
-                                        {{-- 3. Pindahkan Kelompok (Jika Lulus & belum dipindah) --}}
-                                        @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && $item->status === 'passed' && $item->transition_status !== 'promoted')
-                                            <button type="button" onclick="openPromoteModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->type }}', '{{ addslashes($item->target_level) }}')" 
-                                                    title="Pindahkan ke Kelompok Baru" 
-                                                    style="background: #f59e0b; color: white; border: none; padding: 6px 9px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;">
-                                                <i class="fas fa-user-check"></i>
-                                            </button>
-                                        @endif
-
-                                        {{-- 4. Cetak Sertifikat / Berita Acara (Jika Lulus) --}}
-                                        @if($item->status === 'passed')
-                                            <a href="{{ route('munaqosah.print-certificate', $item->id) }}" target="_blank" title="Cetak Surat Tanda Lulus" 
-                                               style="background: #6366f1; color: white; padding: 6px 9px; border-radius: 8px; text-decoration: none; font-size: 0.78rem;">
-                                                <i class="fas fa-certificate"></i>
-                                            </a>
-                                        @endif
-
-                                        {{-- 5. Hapus Pendaftaran (Khusus Admin / Pembuat) --}}
-                                        @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || $item->proposer_user_id === Auth::id())
-                                            <form method="POST" action="{{ route('munaqosah.destroy', $item->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data munaqosah ini?')" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Hapus" 
-                                                        style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 9px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;">
-                                                    <i class="fas fa-trash-alt"></i>
+                                        @if($isAdminOrCurriculum)
+                                            {{-- 2. Jadwalkan / Pilih Penguji (jika pending) --}}
+                                            @if(in_array($item->status, ['pending', 'scheduled']))
+                                                <button type="button" onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->examiner_id ?? '' }}', '{{ $item->exam_date ? $item->exam_date->format('Y-m-d') : '' }}', '{{ $item->exam_time ?? '' }}', '{{ $item->room_location ?? '' }}')" 
+                                                        title="Tetapkan Jadwal & Penguji" 
+                                                        style="background: #3b82f6; color: white; border: none; padding: 6px 9px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;">
+                                                    <i class="fas fa-calendar-alt"></i>
                                                 </button>
-                                            </form>
+                                            @endif
+
+                                            {{-- 3. Pindahkan Kelompok (Jika Lulus & belum dipindah) --}}
+                                            @if($item->status === 'passed' && $item->transition_status !== 'promoted')
+                                                <button type="button" onclick="openPromoteModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->type }}', '{{ addslashes($item->target_level) }}')" 
+                                                        title="Pindahkan ke Kelompok Baru" 
+                                                        style="background: #f59e0b; color: white; border: none; padding: 6px 9px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;">
+                                                    <i class="fas fa-user-check"></i>
+                                                </button>
+                                            @endif
+
+                                            {{-- 4. Cetak Sertifikat / Berita Acara (Jika Lulus) --}}
+                                            @if($item->status === 'passed')
+                                                <a href="{{ route('munaqosah.print-certificate', $item->id) }}" target="_blank" title="Cetak Surat Tanda Lulus" 
+                                                   style="background: #6366f1; color: white; padding: 6px 9px; border-radius: 8px; text-decoration: none; font-size: 0.78rem;">
+                                                    <i class="fas fa-certificate"></i>
+                                                </a>
+                                            @endif
+
+                                            {{-- 5. Hapus Pendaftaran (Khusus Admin / Pembuat) --}}
+                                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || $item->proposer_user_id === Auth::id())
+                                                <form method="POST" action="{{ route('munaqosah.destroy', $item->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data munaqosah ini?')" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Hapus" 
+                                                            style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 9px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" style="padding: 40px; text-align: center; color: #94a3b8;">
+                                <td colspan="{{ $isAdminOrCurriculum ? 9 : 8 }}" style="padding: 40px; text-align: center; color: #94a3b8;">
                                     <i class="fas fa-inbox" style="font-size: 2.8rem; margin-bottom: 12px; display: block; opacity: 0.4;"></i>
                                     Tidak ada data pendaftaran munaqosah untuk kriteria ini.
                                 </td>
@@ -1162,31 +1173,29 @@
                                     {{ $item->proposer_name ?? ($item->proposer->name ?? '-') }}
                                 </span>
                             </div>
-                        </div>
-
-                        <!-- Skor & Status Promoted jika ada -->
-                        @if($item->final_score !== null || ($item->status === 'passed'))
+                                              <!-- Skor & Status Promoted jika ada -->
+                        @if($item->final_score !== null || ($isAdminOrCurriculum && $item->status === 'passed'))
                             <div style="display: flex; justify-content: space-between; align-items: center; background: {{ $item->status === 'passed' ? '#f0fdf4' : '#fef2f2' }}; border: 1px solid {{ $item->status === 'passed' ? '#bbf7d0' : '#fecaca' }}; border-radius: 12px; padding: 8px 12px; margin-bottom: 12px;">
                                 <div>
                                     <span style="font-size: 0.72rem; color: #64748b; display: block;">Nilai Akhir:</span>
                                     <strong style="font-size: 1.15rem; color: {{ $item->status === 'passed' ? '#047857' : '#b91c1c' }};">
-                                        {{ number_format($item->final_score, 1) }}
+                                        {{ $item->final_score !== null ? number_format($item->final_score, 1) : '-' }}
                                     </strong>
                                     <span style="font-size: 0.75rem; color: #475569; font-weight: 700; margin-left: 4px;">({{ $item->predicate ?? '-' }})</span>
                                 </div>
+                                @if($isAdminOrCurriculum && $item->status === 'passed')
                                 <div>
-                                    @if($item->status === 'passed')
-                                        @if($item->transition_status === 'promoted')
-                                            <span style="background: #e2e8f0; color: #334155; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
-                                                <i class="fas fa-check"></i> Sudah Dipindah
-                                            </span>
-                                        @else
-                                            <span style="background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
-                                                <i class="fas fa-exclamation-circle"></i> Belum Dipindah
-                                            </span>
-                                        @endif
+                                    @if($item->transition_status === 'promoted')
+                                        <span style="background: #e2e8f0; color: #334155; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                                            <i class="fas fa-check"></i> Sudah Dipindah
+                                        </span>
+                                    @else
+                                        <span style="background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                                            <i class="fas fa-exclamation-circle"></i> Belum Dipindah
+                                        </span>
                                     @endif
                                 </div>
+                                @endif
                             </div>
                         @endif
 
@@ -1194,36 +1203,36 @@
                         <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 10px;">
                             {{-- 1. Penilaian Penguji --}}
                             <a href="{{ route('munaqosah.score', $item->id) }}" 
-                               style="flex: 2; background: #10b981; color: white; padding: 9px 12px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);">
+                               style="flex: {{ $isAdminOrCurriculum ? 2 : 1 }}; background: #10b981; color: white; padding: 9px 12px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);">
                                 <i class="fas fa-edit"></i> {{ $item->final_score !== null ? 'Nilai / Uji' : 'Mulai Uji' }}
                             </a>
 
-                            {{-- 2. Jadwalkan / Pilih Penguji --}}
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && in_array($item->status, ['pending', 'scheduled']))
-                                <button type="button" onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->examiner_id ?? '' }}', '{{ $item->exam_date ? $item->exam_date->format('Y-m-d') : '' }}', '{{ $item->exam_time ?? '' }}', '{{ $item->room_location ?? '' }}')" 
-                                        style="flex: 1; background: #3b82f6; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                                    <i class="fas fa-calendar-alt"></i> Jadwal
-                                </button>
-                            @endif
+                            @if($isAdminOrCurriculum)
+                                {{-- 2. Jadwalkan / Pilih Penguji --}}
+                                @if(in_array($item->status, ['pending', 'scheduled']))
+                                    <button type="button" onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->examiner_id ?? '' }}', '{{ $item->exam_date ? $item->exam_date->format('Y-m-d') : '' }}', '{{ $item->exam_time ?? '' }}', '{{ $item->room_location ?? '' }}')" 
+                                            style="flex: 1; background: #3b82f6; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <i class="fas fa-calendar-alt"></i> Jadwal
+                                    </button>
+                                @endif
 
-                            {{-- 3. Pindahkan Kelompok --}}
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && $item->status === 'passed' && $item->transition_status !== 'promoted')
-                                <button type="button" onclick="openPromoteModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->type }}', '{{ addslashes($item->target_level) }}')" 
-                                        style="flex: 1; background: #f59e0b; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                                    <i class="fas fa-user-check"></i> Pindah
-                                </button>
-                            @endif
+                                {{-- 3. Pindahkan Kelompok --}}
+                                @if($item->status === 'passed' && $item->transition_status !== 'promoted')
+                                    <button type="button" onclick="openPromoteModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->type }}', '{{ addslashes($item->target_level) }}')" 
+                                            style="flex: 1; background: #f59e0b; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <i class="fas fa-user-check"></i> Pindah
+                                    </button>
+                                @endif
 
-                            {{-- 4. Cetak Sertifikat --}}
-                            @if($item->status === 'passed')
-                                <a href="{{ route('munaqosah.print-certificate', $item->id) }}" target="_blank" 
-                                   style="flex: 1; background: #6366f1; color: white; padding: 9px 10px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
-                                    <i class="fas fa-certificate"></i> Surat
-                                </a>
-                            @endif
+                                {{-- 4. Cetak Sertifikat --}}
+                                @if($item->status === 'passed')
+                                    <a href="{{ route('munaqosah.print-certificate', $item->id) }}" target="_blank" 
+                                       style="flex: 1; background: #6366f1; color: white; padding: 9px 10px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <i class="fas fa-certificate"></i> Surat
+                                    </a>
+                                @endif
 
-                            {{-- 5. Hapus Pendaftaran --}}
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || $item->proposer_user_id === Auth::id())
+                                {{-- 5. Hapus Pendaftaran --}}
                                 <form method="POST" action="{{ route('munaqosah.destroy', $item->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data munaqosah ini?')" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -1251,6 +1260,7 @@
 
 </div>
 
+@if($isAdminOrCurriculum)
 {{-- MODAL PENDAFTARAN SISWA MUNAQOSAH --}}
 <div id="registerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
     <div class="munaqosah-modal-card" style="overflow: hidden; animation: fadeIn 0.25s ease-out;">
@@ -1571,66 +1581,81 @@
         </form>
     </div>
 </div>
+@endif
 
 <script>
 function openRegisterModal() {
-    document.getElementById('registerModal').style.display = 'flex';
+    const el = document.getElementById('registerModal');
+    if (el) el.style.display = 'flex';
 }
 function closeRegisterModal() {
-    document.getElementById('registerModal').style.display = 'none';
+    const el = document.getElementById('registerModal');
+    if (el) el.style.display = 'none';
 }
 
 function openAddScheduleModal() {
-    document.getElementById('addScheduleModal').style.display = 'flex';
+    const el = document.getElementById('addScheduleModal');
+    if (el) el.style.display = 'flex';
 }
 function closeAddScheduleModal() {
-    document.getElementById('addScheduleModal').style.display = 'none';
+    const el = document.getElementById('addScheduleModal');
+    if (el) el.style.display = 'none';
 }
 
 function openScheduleModal(id, studentName, examinerId, examDate, examTime, room) {
+    const el = document.getElementById('scheduleModal');
+    if (!el) return;
     document.getElementById('schedule_student_name').textContent = studentName;
     document.getElementById('schedule_examiner_id').value = examinerId || '';
     document.getElementById('schedule_exam_date').value = examDate || '';
     document.getElementById('schedule_exam_time').value = examTime || '';
     document.getElementById('schedule_room_location').value = room || '';
     document.getElementById('scheduleForm').action = '/munaqosah/' + id + '/schedule';
-    document.getElementById('scheduleModal').style.display = 'flex';
+    el.style.display = 'flex';
 }
 function closeScheduleModal() {
-    document.getElementById('scheduleModal').style.display = 'none';
+    const el = document.getElementById('scheduleModal');
+    if (el) el.style.display = 'none';
 }
 
 function openExaminerModal() {
-    document.getElementById('examinerModal').style.display = 'flex';
+    const el = document.getElementById('examinerModal');
+    if (el) el.style.display = 'flex';
 }
 function closeExaminerModal() {
-    document.getElementById('examinerModal').style.display = 'none';
+    const el = document.getElementById('examinerModal');
+    if (el) el.style.display = 'none';
 }
 
 function openPromoteModal(id, studentName, type, targetLevel) {
+    const el = document.getElementById('promoteModal');
+    if (!el) return;
     document.getElementById('promote_student_name').textContent = studentName;
     document.getElementById('promote_target_level').textContent = targetLevel;
     document.getElementById('promoteForm').action = '/munaqosah/' + id + '/promote';
     
     // Auto-filter or highlight matching group options
     const select = document.getElementById('target_group_select');
-    for (let opt of select.options) {
-        if (!opt.value) continue;
-        const optType = opt.getAttribute('data-type');
-        const optTarget = opt.getAttribute('data-target') || '';
-        if (optType === type) {
-            opt.style.display = '';
-            if (targetLevel && optTarget.toLowerCase().includes(targetLevel.toLowerCase())) {
-                opt.selected = true;
+    if (select) {
+        for (let opt of select.options) {
+            if (!opt.value) continue;
+            const optType = opt.getAttribute('data-type');
+            const optTarget = opt.getAttribute('data-target') || '';
+            if (optType === type) {
+                opt.style.display = '';
+                if (targetLevel && optTarget.toLowerCase().includes(targetLevel.toLowerCase())) {
+                    opt.selected = true;
+                }
+            } else {
+                opt.style.display = 'none';
             }
-        } else {
-            opt.style.display = 'none';
         }
     }
-    document.getElementById('promoteModal').style.display = 'flex';
+    el.style.display = 'flex';
 }
 function closePromoteModal() {
-    document.getElementById('promoteModal').style.display = 'none';
+    const el = document.getElementById('promoteModal');
+    if (el) el.style.display = 'none';
 }
 
 function shareWhatsAppRegistrationLink() {
