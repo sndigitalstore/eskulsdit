@@ -74,6 +74,98 @@
 .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
 .empty-state i { font-size: 3rem; margin-bottom: 12px; display: block; }
 
+/* SYNC INFO CARD & COLLAPSIBLE FORM */
+.sync-info-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1.5px solid #a7f3d0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.06);
+}
+.sync-info-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 260px;
+}
+.sync-info-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #10b981;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+}
+.sync-info-title {
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: #065f46;
+    margin-bottom: 2px;
+}
+.sync-info-desc {
+    font-size: 0.83rem;
+    color: #047857;
+    line-height: 1.45;
+}
+.btn-toggle-manual-entry {
+    background: white;
+    border: 1.5px solid #0f766e;
+    color: #0f766e;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    white-space: nowrap;
+}
+.btn-toggle-manual-entry:hover {
+    background: #0f766e;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+}
+.btn-toggle-manual-entry.is-open {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #475569;
+    box-shadow: none;
+}
+.manual-form-wrapper {
+    display: none;
+    margin-bottom: 24px;
+    animation: fadeInDown 0.3s ease forwards;
+}
+.manual-form-wrapper.is-open {
+    display: block;
+}
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* RESPONSIVE MOBILE STYLES */
 @media (max-width: 768px) {
     .card-header-custom {
@@ -326,7 +418,31 @@
             }
         }
 
+        function toggleManualForm(forceOpen = null) {
+            const wrapper = document.getElementById('manualFormWrapper');
+            const btn = document.getElementById('btnToggleManual');
+            const icon = document.getElementById('manualToggleIcon');
+            const text = document.getElementById('manualToggleText');
+            if (!wrapper) return;
+
+            const willOpen = (forceOpen !== null) ? forceOpen : !wrapper.classList.contains('is-open');
+
+            if (willOpen) {
+                wrapper.classList.add('is-open');
+                if (btn) btn.classList.add('is-open');
+                if (icon) icon.className = 'fas fa-chevron-up';
+                if (text) text.innerText = 'Tutup Form Susulan';
+            } else {
+                wrapper.classList.remove('is-open');
+                if (btn) btn.classList.remove('is-open');
+                if (icon) icon.className = 'fas fa-plus-circle';
+                if (text) text.innerText = 'Input Setoran Susulan';
+            }
+        }
+
         function selectSurah(surahName, juz) {
+            toggleManualForm(true);
+
             const inputSurah = document.querySelector('input[name="surah_name"]');
             const inputJuz = document.querySelector('input[name="juz"]');
             const formCard = document.querySelector('.form-card');
@@ -348,94 +464,130 @@
         }
         </script>
 
-        {{-- FORM INPUT SETORAN --}}
-        <div class="form-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
-                <h4 style="margin: 0; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-plus-circle" style="color: #0f766e;"></i> Tambah Catatan Setoran
-                </h4>
-                <div style="font-size: 0.78rem; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
-                    <i class="fas fa-sync-alt"></i> Otomatis masuk ke Absensi Hadir & Rapor
+        {{-- INFO SYNC DARI RUANG HALAQAH + TOMBOL FORM SUSULAN --}}
+        <div class="sync-info-card">
+            <div class="sync-info-left">
+                <div class="sync-info-icon">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="sync-info-content">
+                    <div class="sync-info-title">Pencatatan Hafalan Otomatis</div>
+                    <div class="sync-info-desc">Setoran hafalan dan kehadiran santri otomatis tersinkron saat guru menginput di <strong>Ruang Halaqah</strong>. Kartu ini menampilkan rekapitulasi resmi ananda.</div>
                 </div>
             </div>
-
-            <form method="POST" action="{{ route('tahfidz.store', ['group' => $group->id, 'student' => $student->id]) }}">
-                @csrf
-
-                <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
-
-                <div class="form-row">
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Nama Surah <span style="color: red;">*</span></label>
-                        <input type="text" name="surah_name" list="surah-list" placeholder="misal: Al-Baqarah" required value="{{ old('surah_name') }}">
-                        <datalist id="surah-list">
-                            @php
-                            $surahs = ['Al-Fatihah','Al-Baqarah','Ali Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal','At-Taubah','Yunus','Hud','Yusuf','Ar-Rad','Ibrahim','Al-Hijr','An-Nahl','Al-Isra','Al-Kahfi','Maryam','Thaha','Al-Anbiya','Al-Hajj','Al-Mu\'minun','An-Nur','Al-Furqan','Asy-Syuara','An-Naml','Al-Qasas','Al-Ankabut','Ar-Rum','Luqman','As-Sajdah','Al-Ahzab','Saba','Fatir','Yasin','As-Saffat','Sad','Az-Zumar','Ghafir','Fussilat','Asy-Syura','Az-Zukhruf','Ad-Dukhan','Al-Jatsiyah','Al-Ahqaf','Muhammad','Al-Fath','Al-Hujurat','Qaf','Az-Zariyat','At-Tur','An-Najm','Al-Qamar','Ar-Rahman','Al-Waqi\'ah','Al-Hadid','Al-Mujadilah','Al-Hasyr','Al-Mumtahanah','As-Saf','Al-Jumuah','Al-Munafiqun','At-Taghabun','At-Talaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah','Al-Ma\'arij','Nuh','Al-Jinn','Al-Muzammil','Al-Muddassir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba','An-Nazi\'at','Abasa','At-Takwir','Al-Infitar','Al-Mutaffifin','Al-Insyiqaq','Al-Buruj','At-Tariq','Al-A\'la','Al-Ghasyiyah','Al-Fajr','Al-Balad','Asy-Syams','Al-Lail','Ad-Duha','Asy-Syarh','At-Tin','Al-\'Alaq','Al-Qadr','Al-Bayyinah','Az-Zalzalah','Al-\'Adiyat','Al-Qari\'ah','At-Takasur','Al-\'Asr','Al-Humazah','Al-Fil','Quraisy','Al-Ma\'un','Al-Kausar','Al-Kafirun','An-Nasr','Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'];
-                            @endphp
-                            @foreach($surahs as $s)
-                                <option value="{{ $s }}">
-                            @endforeach
-                        </datalist>
-                    </div>
-                    <div class="form-group">
-                        <label>Juz Ke-</label>
-                        <input type="number" name="juz" min="1" max="30" placeholder="1-30" value="{{ old('juz') }}">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Ayat Mulai</label>
-                        <input type="number" name="start_ayah" min="1" placeholder="Ayat pertama" value="{{ old('start_ayah') }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Ayat Selesai</label>
-                        <input type="number" name="end_ayah" min="1" placeholder="Ayat terakhir" value="{{ old('end_ayah') }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Jumlah Baris</label>
-                        <input type="number" name="jumlah_baris" min="0" max="500" placeholder="mis: 15 baris" value="{{ old('jumlah_baris') }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Jenis <span style="color: red;">*</span></label>
-                        <select name="type" required>
-                            <option value="setoran_baru" {{ old('type') == 'setoran_baru' ? 'selected' : '' }}>Setoran Baru</option>
-                            <option value="murojaah" {{ old('type') == 'murojaah' ? 'selected' : '' }}>Muroja'ah</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kualitas <span style="color: red;">*</span></label>
-                        <select name="quality" required>
-                            <option value="lancar" {{ old('quality') == 'lancar' ? 'selected' : '' }}>⭐ Lancar</option>
-                            <option value="cukup" {{ old('quality') == 'cukup' ? 'selected' : '' }}>👍 Cukup</option>
-                            <option value="perlu_perbaikan" {{ old('quality') == 'perlu_perbaikan' ? 'selected' : '' }}>⚠️ Perlu Perbaikan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nilai (Opsional)</label>
-                        <input type="text" name="nilai" placeholder="cth: 90" value="{{ old('nilai') }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Tanggal Setoran <span style="color: red;">*</span></label>
-                        <input type="date" name="session_date" required value="{{ old('session_date', date('Y-m-d')) }}">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 18px;">
-                    <label>Catatan Mentor (opsional)</label>
-                    <textarea name="notes" rows="2" placeholder="Catatan tambahan untuk siswa...">{{ old('notes') }}</textarea>
-                </div>
-
-                @if($errors->any())
-                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 12px;">
-                        @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
-                    </div>
-                @endif
-
-                <button type="submit" class="btn-save">
-                    <i class="fas fa-save"></i> Simpan Setoran
+            <div>
+                <button type="button" class="btn-toggle-manual-entry {{ $errors->any() ? 'is-open' : '' }}" id="btnToggleManual" onclick="toggleManualForm()">
+                    <i class="fas {{ $errors->any() ? 'fa-chevron-up' : 'fa-plus-circle' }}" id="manualToggleIcon"></i>
+                    <span id="manualToggleText">{{ $errors->any() ? 'Tutup Form Susulan' : 'Input Setoran Susulan' }}</span>
                 </button>
-            </form>
+            </div>
+        </div>
+
+        {{-- FORM INPUT SETORAN SUSULAN (COLLAPSIBLE) --}}
+        <div id="manualFormWrapper" class="manual-form-wrapper {{ $errors->any() ? 'is-open' : '' }}">
+            <div class="form-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+                    <div>
+                        <h4 style="margin: 0; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-plus-circle" style="color: #0f766e;"></i> Form Setoran Susulan / Tambahan
+                        </h4>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                            Gunakan form ini hanya jika ananda menyetor di luar jam KBM halaqah reguler.
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.76rem; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 8px; border-radius: 6px; font-weight: 600;">
+                            <i class="fas fa-sync-alt"></i> Auto-Sync Rapor & Absensi
+                        </span>
+                        <button type="button" onclick="toggleManualForm(false)" style="background: none; border: none; color: #64748b; font-size: 0.85rem; cursor: pointer; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;" title="Tutup Formulir">
+                            <i class="fas fa-times"></i> Tutup
+                        </button>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('tahfidz.store', ['group' => $group->id, 'student' => $student->id]) }}">
+                    @csrf
+
+                    <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
+
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Nama Surah <span style="color: red;">*</span></label>
+                            <input type="text" name="surah_name" list="surah-list" placeholder="misal: Al-Baqarah" required value="{{ old('surah_name') }}">
+                            <datalist id="surah-list">
+                                @php
+                                $surahs = ['Al-Fatihah','Al-Baqarah','Ali Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal','At-Taubah','Yunus','Hud','Yusuf','Ar-Rad','Ibrahim','Al-Hijr','An-Nahl','Al-Isra','Al-Kahfi','Maryam','Thaha','Al-Anbiya','Al-Hajj','Al-Mu\'minun','An-Nur','Al-Furqan','Asy-Syuara','An-Naml','Al-Qasas','Al-Ankabut','Ar-Rum','Luqman','As-Sajdah','Al-Ahzab','Saba','Fatir','Yasin','As-Saffat','Sad','Az-Zumar','Ghafir','Fussilat','Asy-Syura','Az-Zukhruf','Ad-Dukhan','Al-Jatsiyah','Al-Ahqaf','Muhammad','Al-Fath','Al-Hujurat','Qaf','Az-Zariyat','At-Tur','An-Najm','Al-Qamar','Ar-Rahman','Al-Waqi\'ah','Al-Hadid','Al-Mujadilah','Al-Hasyr','Al-Mumtahanah','As-Saf','Al-Jumuah','Al-Munafiqun','At-Taghabun','At-Talaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah','Al-Ma\'arij','Nuh','Al-Jinn','Al-Muzammil','Al-Muddassir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba','An-Nazi\'at','Abasa','At-Takwir','Al-Infitar','Al-Mutaffifin','Al-Insyiqaq','Al-Buruj','At-Tariq','Al-A\'la','Al-Ghasyiyah','Al-Fajr','Al-Balad','Asy-Syams','Al-Lail','Ad-Duha','Asy-Syarh','At-Tin','Al-\'Alaq','Al-Qadr','Al-Bayyinah','Az-Zalzalah','Al-\'Adiyat','Al-Qari\'ah','At-Takasur','Al-\'Asr','Al-Humazah','Al-Fil','Quraisy','Al-Ma\'un','Al-Kausar','Al-Kafirun','An-Nasr','Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'];
+                                @endphp
+                                @foreach($surahs as $s)
+                                    <option value="{{ $s }}">
+                                @endforeach
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Juz Ke-</label>
+                            <input type="number" name="juz" min="1" max="30" placeholder="1-30" value="{{ old('juz') }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ayat Mulai</label>
+                            <input type="number" name="start_ayah" min="1" placeholder="Ayat pertama" value="{{ old('start_ayah') }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Ayat Selesai</label>
+                            <input type="number" name="end_ayah" min="1" placeholder="Ayat terakhir" value="{{ old('end_ayah') }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Baris</label>
+                            <input type="number" name="jumlah_baris" min="0" max="500" placeholder="mis: 15 baris" value="{{ old('jumlah_baris') }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Jenis <span style="color: red;">*</span></label>
+                            <select name="type" required>
+                                <option value="setoran_baru" {{ old('type') == 'setoran_baru' ? 'selected' : '' }}>Setoran Baru</option>
+                                <option value="murojaah" {{ old('type') == 'murojaah' ? 'selected' : '' }}>Muroja'ah</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Kualitas <span style="color: red;">*</span></label>
+                            <select name="quality" required>
+                                <option value="lancar" {{ old('quality') == 'lancar' ? 'selected' : '' }}>⭐ Lancar</option>
+                                <option value="cukup" {{ old('quality') == 'cukup' ? 'selected' : '' }}>👍 Cukup</option>
+                                <option value="perlu_perbaikan" {{ old('quality') == 'perlu_perbaikan' ? 'selected' : '' }}>⚠️ Perlu Perbaikan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nilai (Opsional)</label>
+                            <input type="text" name="nilai" placeholder="cth: 90" value="{{ old('nilai') }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal Setoran <span style="color: red;">*</span></label>
+                            <input type="date" name="session_date" required value="{{ old('session_date', date('Y-m-d')) }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 18px;">
+                        <label>Catatan Mentor (opsional)</label>
+                        <textarea name="notes" rows="2" placeholder="Catatan tambahan untuk siswa...">{{ old('notes') }}</textarea>
+                    </div>
+
+                    @if($errors->any())
+                        <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 12px;">
+                            @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
+                        </div>
+                    @endif
+
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i> Simpan Setoran
+                        </button>
+                        <button type="button" onclick="toggleManualForm(false)" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 10px 18px; border-radius: 9px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         {{-- TABEL RIWAYAT SETORAN --}}
