@@ -141,6 +141,11 @@ class Student extends Model
         return $this->hasMany(AcademicSummary::class);
     }
 
+    public function munaqosahRegistrations()
+    {
+        return $this->hasMany(MunaqosahRegistration::class);
+    }
+
     /**
      * Accessor untuk menyamarkan nomor telepon wali (Privacy Masking).
      * Contoh: 081234567890 -> 0812-****-7890

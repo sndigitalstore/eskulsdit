@@ -672,9 +672,10 @@ class MunaqosahController extends Controller
         ]);
 
         $statusLabel = $status === 'passed' ? 'LULUS' : 'BELUM LULUS';
-        ActivityLog::log('Munaqosah', 'Penilaian', "Munaqisy menginput nilai ujian {$registration->student->name}: Nilai {$finalScore} ({$predicate}) - Status: {$statusLabel}");
+        $studentClass = $registration->student->class ?? '-';
+        ActivityLog::log('Munaqosah', 'Penilaian', "Munaqisy menginput nilai ujian {$registration->student->name} (Kelas {$studentClass}): Nilai {$finalScore} ({$predicate}) - Status: {$statusLabel}");
 
-        return redirect()->route('munaqosah.index')->with('success', "Penilaian munaqosah ananda {$registration->student->name} berhasil disimpan dengan status: {$statusLabel}!");
+        return redirect()->route('munaqosah.index')->with('success', "Alhamdulillah! Penilaian munaqosah ananda {$registration->student->name} (Kelas {$studentClass}) berhasil disimpan ({$statusLabel}). Informasi hasil penilaian dan rekomendasi jenjang telah otomatis terhubung ke akun Wali Kelas {$studentClass} dan Pembimbing Halaqah santri.");
     }
 
     /**

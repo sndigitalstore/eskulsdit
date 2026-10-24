@@ -358,6 +358,14 @@ class DashboardController extends Controller
         $homeroomUnregisteredCount = 0;
         $homeroomUnregisteredList = collect();
         $homeroomEskulDistribution = collect();
+        $homeroomMunaqosahResults = collect();
+        $homeroomUpcomingExams = collect();
+        $homeroomMunaqosahStats = [
+            'total_tested' => 0,
+            'passed' => 0,
+            'failed' => 0,
+            'waiting' => 0,
+        ];
 
         if ($isHomeroomTeacher) {
             $class = $homeroomClass;
@@ -417,6 +425,40 @@ class DashboardController extends Controller
                 ->groupBy('eskuls.name')
                 ->orderByDesc('total')
                 ->get();
+
+            // Hasil & Antrean Munaqosah Kelas Binaan
+            if (Schema::hasTable('munaqosah_registrations')) {
+                $homeroomMunaqosahQuery = \App\Models\MunaqosahRegistration::with([
+                    'student',
+                    'examiner.user',
+                    'examinerUser',
+                    'fromGroup',
+                    'promotedToGroup'
+                ])
+                ->whereHas('student', function($q) use ($class) {
+                    $q->where('class', $class);
+                })
+                ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId));
+
+                // Hasil yang sudah diuji oleh penguji munaqisy (Lulus maupun Belum Lulus)
+                $homeroomMunaqosahResults = (clone $homeroomMunaqosahQuery)
+                    ->whereIn('status', ['passed', 'failed'])
+                    ->orderBy('tested_at', 'desc')
+                    ->limit(10)
+                    ->get();
+
+                // Santri kelas yang sedang terjadwal / menunggu ujian
+                $homeroomUpcomingExams = (clone $homeroomMunaqosahQuery)
+                    ->whereIn('status', ['pending', 'scheduled'])
+                    ->orderBy('exam_date', 'asc')
+                    ->limit(6)
+                    ->get();
+
+                $homeroomMunaqosahStats['total_tested'] = (clone $homeroomMunaqosahQuery)->whereIn('status', ['passed', 'failed'])->count();
+                $homeroomMunaqosahStats['passed'] = (clone $homeroomMunaqosahQuery)->where('status', 'passed')->count();
+                $homeroomMunaqosahStats['failed'] = (clone $homeroomMunaqosahQuery)->where('status', 'failed')->count();
+                $homeroomMunaqosahStats['waiting'] = (clone $homeroomMunaqosahQuery)->whereIn('status', ['pending', 'scheduled'])->count();
+            }
         }
 
         // 6. Eskul Attendance Compliance Check (Missing Dates)
@@ -433,6 +475,7 @@ class DashboardController extends Controller
         $myTilawatiGroups = collect();
         $myTahfidzGroups = collect();
         $myMentoringStudentCount = 0;
+        $mentorMunaqosahResults = collect();
 
         if ($isTeacher) {
             $myTilawatiGroups = \App\Models\MentoringGroup::where('type', 'tilawati')
@@ -459,6 +502,29 @@ class DashboardController extends Controller
                     ->whereIn('mentoring_group_id', $allMyMentoringGroupIds)
                     ->distinct('student_id')
                     ->count('student_id');
+
+                // Hasil Ujian Munaqosah Santri Binaan Halaqah Qur'an
+                if (Schema::hasTable('munaqosah_registrations')) {
+                    $mentorMunaqosahResults = \App\Models\MunaqosahRegistration::with([
+                        'student',
+                        'examiner.user',
+                        'examinerUser',
+                        'fromGroup',
+                        'promotedToGroup'
+                    ])
+                    ->where(function($q) use ($user, $allMyMentoringGroupIds) {
+                        $q->whereIn('from_group_id', $allMyMentoringGroupIds)
+                          ->orWhere('proposer_user_id', $user->id)
+                          ->orWhereHas('student.mentoringGroups', function($sub) use ($allMyMentoringGroupIds) {
+                              $sub->whereIn('mentoring_groups.id', $allMyMentoringGroupIds);
+                          });
+                    })
+                    ->whereIn('status', ['passed', 'failed'])
+                    ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+                    ->orderBy('tested_at', 'desc')
+                    ->limit(8)
+                    ->get();
+                }
             }
 
             if ($studentCount === 0 && $myMentoringStudentCount > 0) {
@@ -698,10 +764,11 @@ class DashboardController extends Controller
             'homeroomClass', 'isHomeroomTeacher', 'homeroomStudentCount', 
             'homeroomRegisteredCount', 'homeroomUnregisteredCount', 
             'homeroomUnregisteredList', 'homeroomEskulDistribution',
+            'homeroomMunaqosahResults', 'homeroomUpcomingExams', 'homeroomMunaqosahStats',
             
             'missingDates', 'teacherEskul',
             
-            'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount',
+            'myTilawatiGroups', 'myTahfidzGroups', 'myMentoringStudentCount', 'mentorMunaqosahResults',
             'mySubjects', 'mySubjectsCount', 'teacherRoleCount',
             'programAchievements',
             'pendingMunaqosahPromotions',

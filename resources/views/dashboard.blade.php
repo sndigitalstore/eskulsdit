@@ -500,6 +500,29 @@
                     </svg>
                 </div>
             </div>
+
+            <!-- Wali Kelas: Munaqosah Tuntas & Antrean -->
+            <div class="card teacher-stat-card" data-duty="homeroom" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(5, 150, 105, 0.4);">
+                <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
+                    <div>
+                        <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">
+                            {{ $homeroomMunaqosahStats['passed'] ?? 0 }} <span style="font-size: 1rem; opacity: 0.85;">/ {{ ($homeroomMunaqosahStats['total_tested'] ?? 0) }} Diuji</span>
+                        </h3>
+                        <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px;">Siswa Lulus Munaqosah</p>
+                        <span style="background: rgba(255,255,255,0.25); font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;">
+                            {{ $homeroomMunaqosahStats['waiting'] ?? 0 }} Menunggu Ujian
+                        </span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                         <i class="fas fa-award" style="font-size: 1.25rem;"></i>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; z-index: 1;">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:40px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.15));">
+                        <path d="M0,5 C15,20 20,5 35,5 C50,5 65,15 80,10 C90,5 95,15 100,5" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
         @endif
 
         @if(Auth::user()->eskul_id)
@@ -1171,6 +1194,57 @@
                 </div>
             @endforeach
         </div>
+
+        {{-- PEMBERITAHUAN HASIL MUNAQOSAH UNTUK PEMBIMBING HALAQAH --}}
+        @if(isset($mentorMunaqosahResults) && $mentorMunaqosahResults->isNotEmpty())
+            <div style="margin-top: 22px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #064e3b; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-bell" style="color: #059669;"></i> Hasil Ujian Munaqosah Santri Binaan Halaqah Anda
+                        </h4>
+                        <p style="margin: 2px 0 0 0; color: #64748b; font-size: 0.8rem;">
+                            Laporan tindak lanjut santri dari kelompok bimbingan Anda yang telah dinilai oleh dewan penguji (Munaqisy).
+                        </p>
+                    </div>
+                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid #a7f3d0;">
+                        {{ $mentorMunaqosahResults->count() }} Santri Dinilai
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px;">
+                    @foreach($mentorMunaqosahResults as $menRes)
+                        @php
+                            $mPassed = $menRes->status === 'passed';
+                        @endphp
+                        <div style="background: white; border: 1px solid {{ $mPassed ? '#bbf7d0' : '#fecaca' }}; border-radius: 12px; padding: 12px 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                <strong style="color: #0f172a; font-size: 0.92rem;">{{ $menRes->student->name ?? 'Siswa' }}</strong>
+                                <span style="background: {{ $mPassed ? '#ecfdf5' : '#fef2f2' }}; color: {{ $mPassed ? '#047857' : '#b91c1c' }}; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">
+                                    {{ $mPassed ? 'LULUS' : 'MENGULANG' }}
+                                </span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #475569;">
+                                Kelas {{ $menRes->student->class ?? '-' }} • <strong>{{ $menRes->current_level }}</strong> 
+                                @if($mPassed)
+                                    &rarr; <span style="color: #059669; font-weight: 700;">Lanjut ke {{ $menRes->target_level }}</span>
+                                @else
+                                    &bull; <span style="color: #b91c1c; font-weight: 600;">Ulangi {{ $menRes->current_level }}</span>
+                                @endif
+                            </div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">
+                                Penguji: <strong>{{ $menRes->examinerUser->name ?? ($menRes->examiner->user->name ?? 'Dewan Munaqisy') }}</strong> • Nilai: <strong style="color: {{ $mPassed ? '#059669' : '#dc2626' }};">{{ $menRes->final_score ?? '-' }} ({{ $menRes->predicate ?? '-' }})</strong>
+                            </div>
+                            @if($menRes->examiner_notes)
+                                <div style="background: #f8fafc; border-radius: 6px; padding: 6px 8px; font-size: 0.74rem; color: #334155; margin-top: 6px; font-style: italic;">
+                                    Catatan: "{{ $menRes->examiner_notes }}"
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 @endif
 
@@ -1362,6 +1436,183 @@
         <!-- Wali Kelas Widgets: Belum Daftar & Sebaran Eskul -->
         @if($isHomeroomTeacher)
             <div class="duty-block" data-duty="homeroom" style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- Hasil Ujian Munaqosah Siswa Kelas Binaan (Lanjut / Belum Lanjut) -->
+                <div class="card" style="border-top: 5px solid #059669; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div style="display: inline-flex; align-items: center; gap: 8px; background: #ecfdf5; color: #047857; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                <i class="fas fa-quran"></i> Evaluasi Dewan Munaqisy
+                            </div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                Hasil Ujian Munaqosah Siswa (Kelas {{ $homeroomClass }})
+                            </h3>
+                            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.86rem;">
+                                Informasi status kenaikan jilid Tilawati / juz Tahfidz dari penguji munaqisy untuk disampaikan ke orang tua siswa.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-check-circle"></i> {{ $homeroomMunaqosahStats['passed'] ?? 0 }} Lulus
+                            </span>
+                            @if(($homeroomMunaqosahStats['failed'] ?? 0) > 0)
+                                <span style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-redo"></i> {{ $homeroomMunaqosahStats['failed'] ?? 0 }} Mengulang
+                                </span>
+                            @endif
+                            @if(($homeroomMunaqosahStats['waiting'] ?? 0) > 0)
+                                <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="far fa-clock"></i> {{ $homeroomMunaqosahStats['waiting'] ?? 0 }} Antre Ujian
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    @if(!isset($homeroomMunaqosahResults) || $homeroomMunaqosahResults->isEmpty())
+                        <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 14px; padding: 24px; text-align: center;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.1rem;">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <strong style="color: #334155; font-size: 0.92rem; display: block; margin-bottom: 4px;">Belum Ada Hasil Ujian Munaqosah</strong>
+                            <p style="color: #64748b; font-size: 0.82rem; margin: 0;">Siswa kelas {{ $homeroomClass }} yang telah dinilai oleh dewan penguji akan otomatis tampil di sini beserta hasil nilai dan rekomendasinya.</p>
+                        </div>
+                    @else
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            @foreach($homeroomMunaqosahResults as $mRes)
+                                @php
+                                    $isPassed = $mRes->status === 'passed';
+                                    $studentName = $mRes->student->name ?? 'Siswa';
+                                    $cleanPhone = preg_replace('/[^0-9]/', '', $mRes->student->parent_phone ?? '');
+                                    if (str_starts_with($cleanPhone, '0')) {
+                                        $cleanPhone = '62' . substr($cleanPhone, 1);
+                                    }
+                                    
+                                    $typeTxt = $mRes->type === 'tilawati' ? 'Tilawati Qur\'an' : 'Tahfidz Al-Qur\'an';
+                                    $examinerName = $mRes->examinerUser->name ?? ($mRes->examiner->user->name ?? 'Dewan Munaqisy');
+                                    $recomTxt = $mRes->recommendation ?? ($isPassed ? "Lanjut ke {$mRes->target_level}" : "Perlu muroja'ah {$mRes->current_level}");
+                                    
+                                    // WhatsApp template untuk orang tua dari Wali Kelas
+                                    $waText = "Assalamu'alaikum Warahmatullahi Wabarakatuh Ayah/Bunda Ananda {$studentName} 🌸\n\n" .
+                                              "Kami dari pihak Wali Kelas {$homeroomClass} SDIT AN NADZIR ingin menginformasikan hasil Ujian Munaqosah ananda:\n\n" .
+                                              "• Nama Siswa: *{$studentName}* (Kelas {$homeroomClass})\n" .
+                                              "• Bidang: *{$typeTxt}*\n" .
+                                              "• Jenjang Diuji: *{$mRes->current_level}*\n" .
+                                              "• Hasil Akhir: *" . ($isPassed ? "ALHAMDULILLAH LULUS 🌟" : "PERLU PEMANTAPAN / MENGULANG 📖") . "*\n" .
+                                              "• Nilai: *{$mRes->final_score}* ({$mRes->predicate})\n" .
+                                              "• Dewan Penguji: {$examinerName}\n" .
+                                              "• Rekomendasi/Tindak Lanjut: {$recomTxt}\n" .
+                                              ($mRes->examiner_notes ? "• Catatan Penguji: \"{$mRes->examiner_notes}\"\n" : "") .
+                                              "\nTerima kasih atas bimbingan, muroja'ah, dan doa Ayah/Bunda di rumah. Semoga ananda senantiasa istiqomah dan cinta Al-Qur'an 🤲";
+                                    $waEncoded = urlencode($waText);
+                                @endphp
+                                <div style="background: {{ $isPassed ? 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)' : 'linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)' }}; border: 1px solid {{ $isPassed ? '#a7f3d0' : '#fecaca' }}; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                            <div style="width: 42px; height: 42px; border-radius: 10px; background: {{ $isPassed ? '#dcfce7' : '#fee2e2' }}; color: {{ $isPassed ? '#059669' : '#dc2626' }}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                                                <i class="fas {{ $isPassed ? 'fa-check-circle' : 'fa-redo' }}"></i>
+                                            </div>
+                                            <div>
+                                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                    <strong style="color: #0f172a; font-size: 1rem;">{{ $studentName }}</strong>
+                                                    <span style="background: {{ $mRes->type === 'tilawati' ? '#fef3c7' : '#e0f2fe' }}; color: {{ $mRes->type === 'tilawati' ? '#92400e' : '#0369a1' }}; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; text-transform: uppercase;">
+                                                        {{ $mRes->type }}
+                                                    </span>
+                                                    <span style="background: {{ $isPassed ? '#10b981' : '#ef4444' }}; color: white; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">
+                                                        {{ $isPassed ? 'LULUS / LANJUT' : 'MENGULANG' }}
+                                                    </span>
+                                                </div>
+                                                <div style="color: #475569; font-size: 0.84rem; margin-top: 3px;">
+                                                    Jenjang: <strong style="color: #1e293b;">{{ $mRes->current_level }}</strong> 
+                                                    @if($isPassed)
+                                                        &rarr; <strong style="color: #059669;">Lanjut ke {{ $mRes->target_level }}</strong>
+                                                    @else
+                                                        &bull; <span style="color: #b91c1c; font-weight: 600;">Mengulang {{ $mRes->current_level }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 1.15rem; font-weight: 900; color: {{ $isPassed ? '#059669' : '#dc2626' }}; line-height: 1;">
+                                                {{ $mRes->final_score ?? '-' }}
+                                            </div>
+                                            <span style="font-size: 0.74rem; font-weight: 700; color: #64748b; display: block; margin-top: 2px;">
+                                                Predikat: <strong>{{ $mRes->predicate ?? '-' }}</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Catatan / Rekomendasi Penguji -->
+                                    <div style="background: rgba(255, 255, 255, 0.7); border: 1px solid {{ $isPassed ? '#d1fae5' : '#fee2e2' }}; border-radius: 10px; padding: 10px 12px; font-size: 0.82rem; color: #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                        <div>
+                                            <span style="color: #64748b; font-weight: 600;">Penguji:</span> 
+                                            <strong>{{ $examinerName }}</strong> • 
+                                            <span style="color: #64748b;">Rekomendasi:</span> 
+                                            <strong style="color: {{ $isPassed ? '#059669' : '#b91c1c' }};">{{ $recomTxt }}</strong>
+                                            @if($mRes->examiner_notes)
+                                                <div style="font-style: italic; color: #475569; margin-top: 2px;">
+                                                    "{{ $mRes->examiner_notes }}"
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div style="font-size: 0.74rem; color: #94a3b8;">
+                                            <i class="far fa-clock"></i> {{ $mRes->tested_at ? \Carbon\Carbon::parse($mRes->tested_at)->locale('id')->isoFormat('D MMM Y, HH:mm') : '-' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons untuk Wali Kelas -->
+                                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; border-top: 1px dashed {{ $isPassed ? '#d1fae5' : '#fee2e2' }}; padding-top: 8px; flex-wrap: wrap;">
+                                        @if($cleanPhone)
+                                            <a href="https://wa.me/{{ $cleanPhone }}?text={{ $waEncoded }}" target="_blank" 
+                                               style="background: #25d366; color: white; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);">
+                                                <i class="fab fa-whatsapp"></i> Kirim Hasil ke Ortu
+                                            </a>
+                                        @else
+                                            <span style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">
+                                                <i class="fas fa-info-circle"></i> No WA Ortu Belum Diisi
+                                            </span>
+                                        @endif
+
+                                        @if($isPassed)
+                                            <a href="{{ route('munaqosah.print-certificate', $mRes->id) }}" target="_blank" 
+                                               style="background: #047857; color: white; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(4, 120, 87, 0.25);">
+                                                <i class="fas fa-print"></i> Cetak Piagam Kelulusan
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Antrean Ujian Munaqosah Terjadwal (Kelas Binaan) -->
+                @if(isset($homeroomUpcomingExams) && $homeroomUpcomingExams->isNotEmpty())
+                    <div class="card" style="border-left: 5px solid #3b82f6; border-radius: 16px; padding: 18px 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1e3a8a; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-user-clock" style="color: #3b82f6;"></i> Santri Terjadwal Ujian Munaqosah (Kelas {{ $homeroomClass }})
+                            </h4>
+                            <span style="background: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 12px;">
+                                {{ $homeroomUpcomingExams->count() }} Santri Siap Diuji
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
+                            @foreach($homeroomUpcomingExams as $upExam)
+                                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px;">
+                                    <strong style="color: #0f172a; font-size: 0.88rem; display: block;">{{ $upExam->student->name ?? 'Siswa' }}</strong>
+                                    <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">
+                                        {{ ucfirst($upExam->type) }}: <strong>{{ $upExam->current_level }}</strong> &rarr; {{ $upExam->target_level }}
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">
+                                        <i class="far fa-calendar-alt"></i> {{ $upExam->exam_date ? \Carbon\Carbon::parse($upExam->exam_date)->locale('id')->isoFormat('D MMM Y') : 'Menunggu Jadwal' }}
+                                        • Penguji: {{ $upExam->examinerUser->name ?? ($upExam->examiner->user->name ?? 'Munaqisy') }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Siswa Belum Memilih Eskul -->
                 <div class="card" style="border-left: 5px solid #e74c3c;">
                     <h3 style="margin-bottom: 1rem; color: #c0392b; display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem; font-weight: 700;">
