@@ -53,12 +53,39 @@ class TahfidzRecordController extends Controller
         }
     }
 
+    private function checkAccess(MentoringGroup $group, ?Student $student = null, bool $mustBeMentor = false): void
+    {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            $isMentor = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
+            if ($mustBeMentor) {
+                if (!$isMentor) {
+                    abort(403, 'Akses ditolak. Anda bukan pembimbing halaqah kelompok ini.');
+                }
+            } else {
+                $isHomeroom = !empty($user->homeroom_class);
+                $allowed = $isMentor;
+                if (!$allowed && $isHomeroom) {
+                    if ($student) {
+                        $allowed = ($student->class === $user->homeroom_class);
+                    } else {
+                        $allowed = $group->students()->where('class', $user->homeroom_class)->exists();
+                    }
+                }
+                if (!$allowed) {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki akses ke kelompok atau siswa ini.');
+                }
+            }
+        }
+    }
+
     /**
      * Halaman kartu hafalan seorang siswa dalam kelompok
      */
     public function studentCard(Request $request, MentoringGroup $group, Student $student)
     {
         $this->ensureTableExists();
+        $this->checkAccess($group, $student);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);
@@ -277,6 +304,7 @@ class TahfidzRecordController extends Controller
     public function store(Request $request, MentoringGroup $group, Student $student)
     {
         $this->ensureTableExists();
+        $this->checkAccess($group, $student, true);
 
         $validated = $request->validate([
             'surah_name'   => 'required|string|max:100',
@@ -369,6 +397,8 @@ class TahfidzRecordController extends Controller
     public function destroy(Request $request, TahfidzRecord $record)
     {
         $this->ensureTableExists();
+        $group = MentoringGroup::findOrFail($record->mentoring_group_id);
+        $this->checkAccess($group, null, true);
 
         $groupId    = $record->mentoring_group_id;
         $studentId  = $record->student_id;
@@ -416,6 +446,7 @@ class TahfidzRecordController extends Controller
     public function printCard(Request $request, MentoringGroup $group, Student $student)
     {
         $this->ensureTableExists();
+        $this->checkAccess($group, $student);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);
@@ -433,6 +464,7 @@ class TahfidzRecordController extends Controller
     public function printGroup(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkAccess($group);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);

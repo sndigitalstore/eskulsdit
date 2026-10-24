@@ -180,7 +180,19 @@ class GradeController extends Controller
 
     public function report(Request $request)
     {
-        $eskulId = $request->eskul_id;
+        $user = auth()->user();
+        if ($user->role == 'teacher') {
+            if (!$user->eskul_id) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki penugasan pembina eskul.');
+            }
+            if ($request->filled('eskul_id') && $request->eskul_id != $user->eskul_id) {
+                abort(403, 'Anda tidak memiliki akses ke laporan nilai eskul ini.');
+            }
+            $eskulId = $user->eskul_id;
+        } else {
+            $eskulId = $request->eskul_id;
+        }
+
         $selectedEskul = null;
         $students = [];
         $grades = [];

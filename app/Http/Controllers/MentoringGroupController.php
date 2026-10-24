@@ -791,6 +791,19 @@ class MentoringGroupController extends Controller
             $q->orderBy('class')->orderBy('name');
         }, 'academicYear'])->findOrFail($id);
 
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class);
+            $isMentor = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
+            $hasStudentInClass = false;
+            if ($isHomeroom) {
+                $hasStudentInClass = $group->students->where('class', $user->homeroom_class)->isNotEmpty();
+            }
+            if (!$isMentor && !$hasStudentInClass) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki akses ke kelompok mentoring ini.');
+            }
+        }
+
         $type = $group->type;
         $typeLabel = $type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         $yearName = $group->academicYear ? $group->academicYear->name : '-';
@@ -803,6 +816,11 @@ class MentoringGroupController extends Controller
      */
     public function printAll(Request $request)
     {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            abort(403, 'Akses ditolak. Cetak seluruh kelompok mentoring hanya untuk Admin dan Pimpinan.');
+        }
+
         $type = $this->resolveType($request);
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->input('year_id', $activeYear ? $activeYear->id : null);

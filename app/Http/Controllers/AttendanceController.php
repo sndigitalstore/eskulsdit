@@ -194,6 +194,20 @@ class AttendanceController extends Controller
     {
         $eskulId = $request->eskul_id;
         $yearId = $request->academic_year_id;
+
+        if (auth()->user()->role == 'teacher') {
+            $allowedIds = $this->getAllowedEskulIds(auth()->user());
+            if (empty($allowedIds)) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki penugasan pembina eskul.');
+            }
+            if ($eskulId && !in_array($eskulId, $allowedIds)) {
+                abort(403, 'Anda tidak memiliki akses ke laporan absensi eskul ini.');
+            }
+            if (empty($eskulId)) {
+                $eskulId = $allowedIds[0];
+            }
+        }
+
         // Context
         if ($yearId) {
              $year = \App\Models\AcademicYear::find($yearId);

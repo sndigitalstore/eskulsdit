@@ -430,12 +430,35 @@ class TahfidzAttendanceController extends Controller
         ];
     }
 
+    private function checkGroupAccess(MentoringGroup $group, bool $mustBeMentor = false): void
+    {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            $isMentor = ($group->mentor_user_id == $user->id) || (trim(strtolower($group->mentor_name)) == trim(strtolower($user->name)));
+            if ($mustBeMentor) {
+                if (!$isMentor) {
+                    abort(403, 'Akses ditolak. Anda bukan pembimbing halaqah kelompok ini.');
+                }
+            } else {
+                $isHomeroom = !empty($user->homeroom_class);
+                $hasStudentInClass = false;
+                if ($isHomeroom) {
+                    $hasStudentInClass = $group->students()->where('class', $user->homeroom_class)->exists();
+                }
+                if (!$isMentor && !$hasStudentInClass) {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki akses ke kelompok Tahfidz ini.');
+                }
+            }
+        }
+    }
+
     /**
      * Daftar sesi absensi untuk satu kelompok
      */
     public function index(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);
@@ -467,6 +490,7 @@ class TahfidzAttendanceController extends Controller
     public function create(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group, true);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);
@@ -522,6 +546,7 @@ class TahfidzAttendanceController extends Controller
     public function store(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group, true);
 
         $request->validate([
             'session_date'                => 'required|date',
@@ -645,6 +670,7 @@ class TahfidzAttendanceController extends Controller
     public function destroySession(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group, true);
 
         $date = $request->input('date');
         if (!$date) {
@@ -672,6 +698,7 @@ class TahfidzAttendanceController extends Controller
     public function showSession(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group);
 
         $date = $request->input('date');
         if (!$date) {
@@ -774,6 +801,7 @@ class TahfidzAttendanceController extends Controller
     public function printSession(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group);
 
         $date = $request->input('date');
         if (!$date) {
@@ -805,6 +833,7 @@ class TahfidzAttendanceController extends Controller
     public function printRecap(Request $request, MentoringGroup $group)
     {
         $this->ensureTableExists();
+        $this->checkGroupAccess($group);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId     = $request->input('year_id', $activeYear?->id);

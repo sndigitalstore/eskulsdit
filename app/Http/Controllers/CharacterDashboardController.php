@@ -33,13 +33,18 @@ class CharacterDashboardController extends Controller
         $selectedClass = $request->class;
 
         $user = Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class) && !$selectedClass) {
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki penugasan Wali Kelas.');
+            }
             $selectedClass = $user->homeroom_class;
+            $classes = collect([$user->homeroom_class]);
+        } else {
+            $classes = Student::forYear($selectedYearId)
+                ->select('class')->distinct()->orderBy('class')->pluck('class');
         }
 
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
-        $classes = Student::forYear($selectedYearId)
-            ->select('class')->distinct()->orderBy('class')->pluck('class');
 
         // Scopes
         $caseBase = CharacterCase::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
@@ -117,13 +122,18 @@ class CharacterDashboardController extends Controller
         $selectedClass = $request->class;
 
         $user = Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class) && !$selectedClass) {
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki penugasan Wali Kelas.');
+            }
             $selectedClass = $user->homeroom_class;
+            $classes = collect([$user->homeroom_class]);
+        } else {
+            $classes = Student::forYear($selectedYearId)
+                ->select('class')->distinct()->orderBy('class')->pluck('class');
         }
 
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
-        $classes = Student::forYear($selectedYearId)
-            ->select('class')->distinct()->orderBy('class')->pluck('class');
 
         $students = collect();
 
@@ -182,6 +192,14 @@ class CharacterDashboardController extends Controller
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $selectedClass = $request->class;
+
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || ($selectedClass && $selectedClass !== $user->homeroom_class)) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mencetak laporan karakter untuk kelas binaan Anda.');
+            }
+            $selectedClass = $user->homeroom_class;
+        }
 
         $year = AcademicYear::find($selectedYearId);
 

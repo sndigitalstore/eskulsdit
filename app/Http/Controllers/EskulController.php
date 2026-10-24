@@ -195,6 +195,13 @@ class EskulController extends Controller
 
     public function export(Eskul $eskul)
     {
+        $user = auth()->user();
+        if ($user->role === 'teacher') {
+            if ($user->eskul_id != $eskul->id) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mengunduh data eskul yang Anda bina.');
+            }
+        }
+
         // Contextualize export to active year and active students
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearId = $activeYear ? $activeYear->id : null;
@@ -214,6 +221,11 @@ class EskulController extends Controller
 
     public function exportAll()
     {
+        $user = auth()->user();
+        if ($user->role === 'teacher') {
+            abort(403, 'Akses ditolak. Ekspor seluruh eskul hanya untuk Admin dan Pimpinan.');
+        }
+
         $filename = 'Data_Semua_Eskul_' . date('Y-m-d') . '.xls';
         
         $headers = [

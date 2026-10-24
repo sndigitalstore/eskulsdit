@@ -54,6 +54,11 @@ class AcademicReportController extends Controller
         $user = Auth::user();
         $isTeacher = $user->role === 'teacher';
         $isHomeroom = $isTeacher && !empty($user->homeroom_class);
+        $isSubjectTeacher = $isTeacher && !empty($user->teaching_subject_ids);
+
+        if ($isTeacher && !$isHomeroom && !$isSubjectTeacher) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki penugasan Wali Kelas atau Guru Mata Pelajaran.');
+        }
 
         // Active & available academic years
         $activeYear = AcademicYear::where('is_active', true)->first();
@@ -79,13 +84,22 @@ class AcademicReportController extends Controller
         }
 
         // Active tab: 'recap', 'input', 'attendance'
-        $activeTab = $request->tab ?? 'recap';
+        $defaultTab = ($isTeacher && !$isHomeroom) ? 'input' : 'recap';
+        $activeTab = $request->tab ?? $defaultTab;
         if (!in_array($activeTab, ['recap', 'input', 'attendance'])) {
-            $activeTab = 'recap';
+            $activeTab = $defaultTab;
+        }
+        if ($isTeacher && !$isHomeroom && $activeTab === 'attendance') {
+            $activeTab = 'input';
         }
 
         // Active subjects
-        $subjects = Subject::where('is_active', true)->orderBy('order_num', 'asc')->get();
+        $subjectsQuery = Subject::where('is_active', true)->orderBy('order_num', 'asc');
+        if ($isTeacher && !$isHomeroom && $isSubjectTeacher) {
+            $subjectsQuery->whereIn('id', $user->teaching_subject_ids);
+        }
+        $subjects = $subjectsQuery->get();
+
         $selectedSubjectId = $request->subject_id ?? ($subjects->first()?->id ?? null);
         $selectedSubject = Subject::find($selectedSubjectId);
 
@@ -232,12 +246,21 @@ class AcademicReportController extends Controller
             'scores' => 'required|array',
         ]);
 
+        $user = Auth::user();
         $yearId = $request->academic_year_id;
         $subjectId = $request->subject_id;
         $assessmentType = $request->assessment_type;
         $scoresData = $request->scores;
         $notesData = $request->notes ?? [];
         $predicatesData = $request->predicates ?? [];
+
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class) && $user->homeroom_class === $request->class;
+            $isAllowedSubject = !empty($user->teaching_subject_ids) && in_array((int)$subjectId, array_map('intval', $user->teaching_subject_ids));
+            if (!$isHomeroom && !$isAllowedSubject) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki hak akses menginput nilai untuk mata pelajaran atau kelas ini.');
+            }
+        }
 
         $savedCount = 0;
         foreach ($scoresData as $studentId => $scoreVal) {
@@ -294,6 +317,13 @@ class AcademicReportController extends Controller
             'students' => 'required|array',
         ]);
 
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $request->class) {
+                abort(403, 'Akses ditolak. Hanya Wali Kelas yang dapat mengisi presensi dan catatan raport.');
+            }
+        }
+
         $yearId = $request->academic_year_id;
         $assessmentType = $request->assessment_type;
         $students = $request->students;
@@ -327,6 +357,13 @@ class AcademicReportController extends Controller
      */
     public function printStudent(Request $request, Student $student)
     {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $student->class) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport untuk siswa kelas binaan Anda.');
+            }
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $academicYear = AcademicYear::find($yearId);
@@ -409,6 +446,14 @@ class AcademicReportController extends Controller
      */
     public function printAllStudents(Request $request)
     {
+        $class = $request->class;
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $class) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport untuk kelas binaan Anda.');
+            }
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $academicYear = AcademicYear::find($yearId);
@@ -419,7 +464,6 @@ class AcademicReportController extends Controller
         }
         $assessmentInfo = self::ASSESSMENT_TYPES[$assessmentType];
 
-        $class = $request->class;
         $students = Student::forYear($yearId)
             ->where('class', $class)
             ->where('status', 'active')
@@ -498,6 +542,14 @@ class AcademicReportController extends Controller
      */
     public function printClassRecap(Request $request)
     {
+        $class = $request->class;
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $class) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mencetak rekap nilai untuk kelas binaan Anda.');
+            }
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $academicYear = AcademicYear::find($yearId);
@@ -508,7 +560,6 @@ class AcademicReportController extends Controller
         }
         $assessmentInfo = self::ASSESSMENT_TYPES[$assessmentType];
 
-        $class = $request->class;
         $students = Student::forYear($yearId)
             ->where('class', $class)
             ->where('status', 'active')
@@ -550,6 +601,15 @@ class AcademicReportController extends Controller
         $class = $request->class;
         $subjectId = $request->subject_id;
         $assessment = $request->assessment ?? 'STS_1';
+
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class) && $user->homeroom_class === $class;
+            $isAllowedSubject = !empty($user->teaching_subject_ids) && in_array((int)$subjectId, array_map('intval', $user->teaching_subject_ids));
+            if (!$isHomeroom && !$isAllowedSubject) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki hak akses format nilai mata pelajaran atau kelas ini.');
+            }
+        }
 
         $subject = Subject::findOrFail($subjectId);
         $students = Student::forYear($yearId)
@@ -606,6 +666,15 @@ class AcademicReportController extends Controller
         $subjectId = $request->subject_id;
         $assessmentType = $request->assessment_type;
         $class = $request->class;
+
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class) && $user->homeroom_class === $class;
+            $isAllowedSubject = !empty($user->teaching_subject_ids) && in_array((int)$subjectId, array_map('intval', $user->teaching_subject_ids));
+            if (!$isHomeroom && !$isAllowedSubject) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki hak akses mengimpor nilai untuk mata pelajaran atau kelas ini.');
+            }
+        }
 
         $students = Student::forYear($yearId)
             ->where('class', $class)
@@ -703,6 +772,13 @@ class AcademicReportController extends Controller
         $class = $request->class;
         $assessment = $request->assessment ?? 'STS_1';
         $assessmentInfo = self::ASSESSMENT_TYPES[$assessment] ?? self::ASSESSMENT_TYPES['STS_1'];
+
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $class) {
+                abort(403, 'Akses ditolak. Hanya Wali Kelas yang dapat mengunduh leger nilai kelas.');
+            }
+        }
 
         $subjects = Subject::where('is_active', true)->orderBy('order_num', 'asc')->get();
         $students = Student::forYear($yearId)

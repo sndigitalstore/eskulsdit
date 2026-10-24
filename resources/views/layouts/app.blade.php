@@ -852,8 +852,8 @@
                 // 5. Kesiswaan & Guru: Admin dan Headmaster
                 $showKesiswaanMenu = $isAdminOrHeadmaster;
 
-                // 6. Laporan & Rapor: Admin, Headmaster, Kurikulum, atau Wali Kelas
-                $showReportMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
+                // 6. Laporan & Rapor: Admin, Headmaster, Kurikulum, Wali Kelas, Pembina Eskul, atau Guru Mentoring
+                $showReportMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isEskulCoach || $hasTilawati || $hasTahfidz;
 
                 $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*');
             @endphp
@@ -913,9 +913,9 @@
                     </li>
                     @endif
 
-                    @if($isAdminOrCurriculumOrHeadmaster)
+                    @if($isAdminOrCurriculumOrHeadmaster || ($isTeacher && ($hasTilawati || $hasTahfidz)))
                     <li class="nav-subitem">
-                        <a href="{{ route('reports.index', ['tab' => 'tilawati']) }}" class="nav-sublink {{ request()->is('reports*') && request()->get('tab') !== 'eskul' ? 'active' : '' }}">
+                        <a href="{{ route('reports.index', ['tab' => $hasTilawati ? 'tilawati' : 'tahfidz']) }}" class="nav-sublink {{ request()->is('reports*') && request()->get('tab') !== 'eskul' ? 'active' : '' }}">
                             <i class="fas fa-file-alt"></i>
                             <span>Laporan & Rekap Qur'an</span>
                         </a>
@@ -1162,9 +1162,9 @@
                 $isCharacterReportActive = request()->is('character/report*');
                 $isAnyReportActive = $isReportActive || $isAcademicReportActive || $isCharacterReportActive;
 
-                $canSeeEskulReport = $isAdminOrHeadmaster || $isHomeroom;
-                $canSeeTilawatiReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
-                $canSeeTahfidzReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
+                $canSeeEskulReport = $isAdminOrHeadmaster || $isHomeroom || $isEskulCoach;
+                $canSeeTilawatiReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || ($isTeacher && $hasTilawati);
+                $canSeeTahfidzReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || ($isTeacher && $hasTahfidz);
                 $canSeeAcademicReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
                 $canSeeCharacterReport = $isAdminOrHeadmaster || $isHomeroom;
             @endphp

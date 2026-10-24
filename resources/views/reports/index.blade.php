@@ -158,7 +158,7 @@
     <!-- 5-Tab Selector: Eskul vs Tilawati vs Tahfidz vs Akademik vs Karakter -->
     <div class="no-print">
         <div class="report-tabs">
-            @if(Auth::user()->role !== 'curriculum')
+            @if(in_array('eskul', $allowedTabs ?? ['eskul']))
             <a href="{{ route('reports.index', ['tab' => 'eskul', 'year_id' => $selectedYearId, 'class' => $selectedClass]) }}" 
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'eskul' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'eskul' ? 'color: #2563eb;' : '' }}">
@@ -167,6 +167,7 @@
             </a>
             @endif
             
+            @if(in_array('tilawati', $allowedTabs ?? ['tilawati']))
             <a href="{{ route('reports.index', ['tab' => 'tilawati', 'year_id' => $selectedYearId, 'class' => $selectedClass]) }}" 
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'tilawati' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'tilawati' ? 'color: #16a34a;' : '' }}">
@@ -174,7 +175,9 @@
                 <span>Laporan Tilawati</span>
                 <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: {{ ($activeTab ?? 'eskul') === 'tilawati' ? '#dcfce7; color: #15803d;' : '#e2e8f0; color: #64748b;' }}">Jilid</span>
             </a>
+            @endif
             
+            @if(in_array('tahfidz', $allowedTabs ?? ['tahfidz']))
             <a href="{{ route('reports.index', ['tab' => 'tahfidz', 'year_id' => $selectedYearId, 'class' => $selectedClass]) }}" 
                class="report-tab-btn {{ ($activeTab ?? 'eskul') === 'tahfidz' ? 'active' : 'inactive' }}"
                style="{{ ($activeTab ?? 'eskul') === 'tahfidz' ? 'color: #0284c7;' : '' }}">
@@ -182,7 +185,9 @@
                 <span>Laporan Tahfidz</span>
                 <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: {{ ($activeTab ?? 'eskul') === 'tahfidz' ? '#e0f2fe; color: #0369a1;' : '#e2e8f0; color: #64748b;' }}">Hafalan</span>
             </a>
+            @endif
 
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || (Auth::user()->role === 'teacher' && (!empty(Auth::user()->homeroom_class) || !empty(Auth::user()->teaching_subject_ids))))
             <a href="{{ route('academic-reports.index') }}" 
                class="report-tab-btn inactive"
                style="color: #7c3aed;">
@@ -190,8 +195,9 @@
                 <span>Laporan Akademik</span>
                 <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; background: #f3e8ff; color: #7c3aed;">Raport</span>
             </a>
+            @endif
 
-            @if(Auth::user()->role !== 'curriculum')
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role === 'teacher' && !empty(Auth::user()->homeroom_class)))
             <a href="{{ route('character.report') }}" 
                class="report-tab-btn inactive"
                style="color: #d97706;">
@@ -423,9 +429,13 @@
                                                     <i class="fas fa-eye"></i> Detail
                                                 </a>
                                             @else
-                                                <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tilawati', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 4px 10px; font-size: 0.78rem; text-decoration: none;" title="Petakan Siswa">
-                                                    <i class="fas fa-user-plus"></i> Petakan
-                                                </a>
+                                                @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                                                    <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tilawati', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 4px 10px; font-size: 0.78rem; text-decoration: none;" title="Petakan Siswa">
+                                                        <i class="fas fa-user-plus"></i> Petakan
+                                                    </a>
+                                                @else
+                                                    <span style="color: #94a3b8; font-size: 0.78rem; font-style: italic;">Belum dipetakan</span>
+                                                @endif
                                             @endif
                                         </td>
                                     </tr>
@@ -820,9 +830,13 @@
                                                     </a>
                                                 </div>
                                             @else
-                                                <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tahfidz', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Petakan Siswa">
-                                                    <i class="fas fa-user-plus"></i> Petakan
-                                                </a>
+                                                @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                                                    <a href="{{ route('mentoring.management', ['tab' => 'unassigned', 'unassigned_type' => 'tahfidz', 'year_id' => $selectedYearId]) }}" class="btn-action-header btn-orange" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none;" title="Petakan Siswa">
+                                                        <i class="fas fa-user-plus"></i> Petakan
+                                                    </a>
+                                                @else
+                                                    <span style="color: #94a3b8; font-size: 0.75rem; font-style: italic;">Belum dipetakan</span>
+                                                @endif
                                             @endif
                                         </td>
                                     </tr>
@@ -897,6 +911,7 @@
         </div>
 
         <!-- Special Feature: Calistung Export -->
+        @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
         <div class="card no-print" style="margin-bottom: 20px; border-left: 5px solid #2ecc71;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
@@ -913,8 +928,9 @@
                 </div>
             </div>
         </div>
+        @endif
 
-        @if($selectedClass === 'ALL')
+        @if($selectedClass === 'ALL' && Auth::user()->role !== 'teacher')
         <!-- Action Buttons for ALL Classes -->
         <div class="no-print" style="margin: 20px 0; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
             <a href="{{ route('reports.print-all-recap', ['year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-green">
@@ -947,15 +963,19 @@
         
         <!-- Action Buttons -->
         <div class="no-print" style="margin: 20px 0; display: flex; gap: 8px; justify-content: flex-end;">
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || $isHomeroom)
              <a href="{{ route('reports.print-recap-class', ['class' => $selectedClass, 'year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-green">
                 <i class="fas fa-print"></i> Cetak Rekap (Wali Kelas)
             </a>
+            @endif
              <button onclick="togglePreview()" id="btnPreview" class="btn-action-header btn-blue">
                 <i class="fas fa-eye"></i> Mode Preview Cetak
             </button>
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || $isHomeroom)
             <a href="{{ route('reports.print-full', ['class' => $selectedClass, 'year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-dark">
                 <i class="fas fa-print"></i> Cetak Laporan (Nilai & Absensi)
             </a>
+            @endif
         </div>
 
         <!-- Printable Content (Container for A4 preview) -->

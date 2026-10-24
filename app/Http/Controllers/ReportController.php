@@ -20,7 +20,43 @@ class ReportController extends Controller
         $user = Auth::user();
         $isTeacher = $user->role === 'teacher';
         $isHomeroom = $isTeacher && !empty($user->homeroom_class);
+        $isEskulCoach = $isTeacher && !empty($user->eskul_id);
         $isCurriculum = $user->role === 'curriculum';
+        $isAdminOrHeadmaster = in_array($user->role, ['admin', 'headmaster']);
+
+        // Deteksi peran mentoring Qur'an untuk guru
+        $hasTilawati = false;
+        $hasTahfidz = false;
+        if ($isTeacher) {
+            $hasTilawati = MentoringGroup::where('type', 'tilawati')->where(function($q) use ($user) {
+                $q->where('mentor_user_id', $user->id)->orWhere('mentor_name', $user->name);
+            })->exists();
+            $hasTahfidz = MentoringGroup::where('type', 'tahfidz')->where(function($q) use ($user) {
+                $q->where('mentor_user_id', $user->id)->orWhere('mentor_name', $user->name);
+            })->exists();
+        }
+
+        // Tentukan tab laporan yang diizinkan sesuai tugas akun
+        $allowedTabs = [];
+        if ($isAdminOrHeadmaster) {
+            $allowedTabs = ['eskul', 'tilawati', 'tahfidz'];
+        } elseif ($isCurriculum) {
+            $allowedTabs = ['tilawati', 'tahfidz'];
+        } elseif ($isTeacher) {
+            if ($isHomeroom) {
+                // Wali Kelas berhak atas laporan eskul, tilawati, dan tahfidz kelasnya
+                $allowedTabs = ['eskul', 'tilawati', 'tahfidz'];
+            } else {
+                // Guru spesialis hanya berhak atas modul tugasnya saja
+                if ($isEskulCoach) $allowedTabs[] = 'eskul';
+                if ($hasTilawati) $allowedTabs[] = 'tilawati';
+                if ($hasTahfidz) $allowedTabs[] = 'tahfidz';
+            }
+        }
+
+        if (empty($allowedTabs)) {
+            return redirect()->route('dashboard')->with('error', 'Akun Anda tidak memiliki penugasan laporan (bukan Wali Kelas, Pembina Eskul, atau Guru Mentoring).');
+        }
 
         $activeTab = $request->query('tab');
         if ($activeTab === 'akademik') {
@@ -29,14 +65,8 @@ class ReportController extends Controller
         if ($activeTab === 'karakter') {
             return redirect()->route('character.report');
         }
-        if (!$activeTab) {
-            $activeTab = $isCurriculum ? 'tilawati' : 'eskul';
-        }
-        if ($isCurriculum && $activeTab === 'eskul') {
-            $activeTab = 'tilawati';
-        }
-        if (!in_array($activeTab, ['eskul', 'tilawati', 'tahfidz'])) {
-            $activeTab = $isCurriculum ? 'tilawati' : 'eskul';
+        if (!$activeTab || !in_array($activeTab, $allowedTabs)) {
+            $activeTab = $allowedTabs[0];
         }
 
         // Get active academic year
@@ -49,11 +79,39 @@ class ReportController extends Controller
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $selectedGroupId = $request->group_id;
 
+        // Scoping daftar kelas dropdown agar tidak bocor data kelas lain
         if ($isHomeroom) {
             $selectedClass = $user->homeroom_class;
             $classes = collect([$user->homeroom_class]);
+        } elseif ($isTeacher) {
+            if ($activeTab === 'eskul' && $isEskulCoach) {
+                // Pembina Eskul: hanya kelas yang siswanya ikut eskul binaannya
+                $classes = Student::forYear($selectedYearId)
+                    ->whereHas('eskuls', fn($q) => $q->where('eskuls.id', $user->eskul_id))
+                    ->select('class')->distinct()->orderBy('class')->pluck('class');
+                if ($selectedClass && !$classes->contains($selectedClass)) {
+                    $selectedClass = null;
+                }
+            } elseif (in_array($activeTab, ['tilawati', 'tahfidz'])) {
+                // Guru Mentoring: hanya kelas siswa yang tergabung di kelompok binaannya
+                $classes = Student::forYear($selectedYearId)
+                    ->whereHas('mentoringGroups', function($q) use ($user, $activeTab) {
+                        $q->where('mentoring_groups.type', $activeTab)
+                          ->where(function($sub) use ($user) {
+                              $sub->where('mentor_user_id', $user->id)
+                                  ->orWhere('mentor_name', $user->name);
+                          });
+                    })
+                    ->select('class')->distinct()->orderBy('class')->pluck('class');
+                if ($selectedClass && !$classes->contains($selectedClass)) {
+                    $selectedClass = null;
+                }
+            } else {
+                $classes = collect();
+                $selectedClass = null;
+            }
         } else {
-            // Get all unique classes for the filter dropdown, scoped to the selected year
+            // Admin, Headmaster, Kurikulum
             $classes = Student::forYear($selectedYearId)
                 ->select('class')->distinct()->orderBy('class')->pluck('class');
         }
@@ -67,14 +125,34 @@ class ReportController extends Controller
         if ($activeTab === 'tilawati') {
             $tilawatiGroups = MentoringGroup::where('type', 'tilawati')
                 ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
-                ->when($isTeacher && !$isHomeroom, function($q) use ($user) {
-                    $q->where(function($sub) use ($user) {
-                        $sub->where('mentor_user_id', $user->id)
-                            ->orWhere('mentor_name', $user->name);
-                    });
+                ->when($isTeacher, function($q) use ($user, $isHomeroom, $hasTilawati) {
+                    if ($hasTilawati) {
+                        // Guru Tilawati: HANYA melihat kelompok halaqah yang diampunya
+                        $q->where(function($sub) use ($user) {
+                            $sub->where('mentor_user_id', $user->id)
+                                ->orWhere('mentor_name', $user->name);
+                        });
+                    } elseif ($isHomeroom) {
+                        // Wali kelas murni: hanya melihat kelompok yang ada siswa kelasnya
+                        $q->whereHas('students', function($sub) use ($user) {
+                            $sub->where('students.class', $user->homeroom_class);
+                        });
+                    } else {
+                        $q->whereRaw('1 = 0');
+                    }
                 })
                 ->orderBy('name')
                 ->get();
+
+            // Default group untuk Guru Mentoring non-wali-kelas agar langsung melihat halaqahnya
+            if (!$selectedGroupId && $isTeacher && !$isHomeroom && $tilawatiGroups->isNotEmpty()) {
+                $selectedGroupId = $tilawatiGroups->first()->id;
+            }
+
+            // Validasi kelompok terpilih
+            if ($selectedGroupId && $isTeacher && !$tilawatiGroups->pluck('id')->contains($selectedGroupId)) {
+                $selectedGroupId = $tilawatiGroups->first()?->id ?? null;
+            }
 
             if ($selectedClass || $selectedGroupId) {
                 $studentsQuery = Student::forYear($selectedYearId)
@@ -137,14 +215,34 @@ class ReportController extends Controller
         } elseif ($activeTab === 'tahfidz') {
             $tahfidzGroups = MentoringGroup::where('type', 'tahfidz')
                 ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
-                ->when($isTeacher && !$isHomeroom, function($q) use ($user) {
-                    $q->where(function($sub) use ($user) {
-                        $sub->where('mentor_user_id', $user->id)
-                            ->orWhere('mentor_name', $user->name);
-                    });
+                ->when($isTeacher, function($q) use ($user, $isHomeroom, $hasTahfidz) {
+                    if ($hasTahfidz) {
+                        // Guru Tahfidz: HANYA melihat kelompok halaqah yang diampunya
+                        $q->where(function($sub) use ($user) {
+                            $sub->where('mentor_user_id', $user->id)
+                                ->orWhere('mentor_name', $user->name);
+                        });
+                    } elseif ($isHomeroom) {
+                        // Wali kelas murni: hanya melihat kelompok yang ada siswa kelasnya
+                        $q->whereHas('students', function($sub) use ($user) {
+                            $sub->where('students.class', $user->homeroom_class);
+                        });
+                    } else {
+                        $q->whereRaw('1 = 0');
+                    }
                 })
                 ->orderBy('name')
                 ->get();
+
+            // Default group untuk Guru Mentoring non-wali-kelas agar langsung melihat halaqahnya
+            if (!$selectedGroupId && $isTeacher && !$isHomeroom && $tahfidzGroups->isNotEmpty()) {
+                $selectedGroupId = $tahfidzGroups->first()->id;
+            }
+
+            // Validasi kelompok terpilih
+            if ($selectedGroupId && $isTeacher && !$tahfidzGroups->pluck('id')->contains($selectedGroupId)) {
+                $selectedGroupId = $tahfidzGroups->first()?->id ?? null;
+            }
 
             // Self-healing check for live environments
             \App\Http\Controllers\TahfidzAttendanceController::ensureTableExists();
@@ -273,15 +371,67 @@ class ReportController extends Controller
                 ];
             }
         } else {
-            // Existing eskul logic
-            if ($selectedClass && $selectedYearId) {
-                if ($selectedClass === 'ALL') {
-                    foreach ($classes as $cls) {
-                        $clsStudents = Student::forYear($selectedYearId)
-                            ->where('class', $cls)
-                            ->where(function($q) {
-                                $q->where('status', '!=', 'graduated')->orWhereNull('status');
-                            })
+            // Tab Eskul: Diproteksi agar tidak bocor antar eskul dan antar kelas
+            if ($isTeacher && $isEskulCoach && !$isHomeroom) {
+                // Pembina Eskul (bukan wali kelas): HANYA melihat siswa yang mengikuti eskul binaannya
+                $query = Student::forYear($selectedYearId)
+                    ->whereHas('eskuls', function($query) use ($user, $selectedYearId) {
+                        $query->where('eskuls.id', $user->eskul_id)
+                              ->wherePivot('academic_year_id', $selectedYearId);
+                    })
+                    ->where(function($q) {
+                        $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                    });
+
+                if ($selectedClass && $selectedClass !== 'ALL') {
+                    $query->where('class', $selectedClass);
+                }
+
+                $students = $query->with([
+                    'eskuls' => function($query) use ($user, $selectedYearId) {
+                        $query->where('eskuls.id', $user->eskul_id)
+                              ->wherePivot('academic_year_id', $selectedYearId);
+                    }, 
+                    'grades' => function($query) use ($user, $selectedYearId) {
+                        $query->where('eskul_id', $user->eskul_id)
+                              ->where('academic_year_id', $selectedYearId)
+                              ->whereIn('type', ['sas1', 'sas2'])
+                              ->with('eskul'); 
+                    }
+                ])
+                ->orderBy('class')
+                ->orderBy('name')
+                ->get();
+            } else {
+                // Wali Kelas atau Admin/Headmaster
+                if ($isHomeroom) {
+                    $selectedClass = $user->homeroom_class;
+                }
+                if ($selectedClass && $selectedYearId) {
+                    if ($selectedClass === 'ALL' && !$isHomeroom) {
+                        foreach ($classes as $cls) {
+                            $clsStudents = Student::forYear($selectedYearId)
+                                ->where('class', $cls)
+                                ->where(function($q) {
+                                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                                })
+                                ->with([
+                                    'eskuls' => function($query) use ($selectedYearId) {
+                                        $query->wherePivot('academic_year_id', $selectedYearId);
+                                    }, 
+                                    'grades' => function($query) use ($selectedYearId) {
+                                        $query->where('academic_year_id', $selectedYearId)
+                                              ->whereIn('type', ['sas1', 'sas2'])
+                                              ->with('eskul'); 
+                                    }
+                                ])
+                                ->orderBy('name')
+                                ->get();
+
+                            $allClassesData[$cls] = $clsStudents;
+                        }
+                    } else {
+                        $students = Student::where('class', $selectedClass)
                             ->with([
                                 'eskuls' => function($query) use ($selectedYearId) {
                                     $query->wherePivot('academic_year_id', $selectedYearId);
@@ -294,23 +444,7 @@ class ReportController extends Controller
                             ])
                             ->orderBy('name')
                             ->get();
-
-                        $allClassesData[$cls] = $clsStudents;
                     }
-                } else {
-                    $students = Student::where('class', $selectedClass)
-                        ->with([
-                            'eskuls' => function($query) use ($selectedYearId) {
-                                $query->wherePivot('academic_year_id', $selectedYearId);
-                            }, 
-                            'grades' => function($query) use ($selectedYearId) {
-                                $query->where('academic_year_id', $selectedYearId)
-                                      ->whereIn('type', ['sas1', 'sas2'])
-                                      ->with('eskul'); 
-                            }
-                        ])
-                        ->orderBy('name')
-                        ->get();
                 }
             }
         }
@@ -323,6 +457,7 @@ class ReportController extends Controller
 
         return view('reports.index', compact(
             'activeTab',
+            'allowedTabs',
             'classes', 
             'students', 
             'allClassesData', 
@@ -339,7 +474,11 @@ class ReportController extends Controller
             'selectedMonth',
             'periodTitle',
             'periodLabel',
-            'academicMonths'
+            'academicMonths',
+            'isHomeroom',
+            'isEskulCoach',
+            'hasTilawati',
+            'hasTahfidz'
         ));
     }
     public function exportCalistung()
@@ -362,6 +501,25 @@ class ReportController extends Controller
         $yearId = $request->query('year_id');
         $periodType = $request->query('period_type', 'all');
         $month = $request->query('month');
+
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (!empty($user->homeroom_class)) {
+                $class = $user->homeroom_class;
+            } else {
+                $class = null;
+            }
+            if ($groupId) {
+                $grp = \App\Models\MentoringGroup::find($groupId);
+                if (!$grp || ($grp->mentor_user_id != $user->id && $grp->mentor_name != $user->name)) {
+                    if (empty($user->homeroom_class)) {
+                        abort(403, 'Akses ditolak: Anda hanya dapat mengunduh rekap tahfidz kelompok yang Anda bimbing.');
+                    }
+                }
+            } elseif (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak: Silakan tentukan kelompok yang Anda bimbing.');
+            }
+        }
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $yearId ?? ($activeYear?->id);
@@ -403,7 +561,10 @@ class ReportController extends Controller
     {
         $class = $request->query('class');
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak: Hanya Wali Kelas yang dapat mengunduh laporan eskul kelas.');
+            }
             $class = $user->homeroom_class;
         }
 
@@ -436,7 +597,10 @@ class ReportController extends Controller
     {
         $class = $request->query('class');
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak: Hanya Wali Kelas yang dapat mencetak rekap nilai kelas.');
+            }
             $class = $user->homeroom_class;
         }
 
@@ -482,7 +646,10 @@ class ReportController extends Controller
     {
         $class = $request->query('class');
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak: Hanya Wali Kelas yang dapat mencetak laporan kelas.');
+            }
             $class = $user->homeroom_class;
         }
 
@@ -606,6 +773,11 @@ class ReportController extends Controller
 
     public function printAll(Request $request)
     {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            abort(403, 'Akses ditolak. Cetak seluruh kelas hanya untuk Kepala Sekolah dan Kurikulum.');
+        }
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
         $period = $request->query('period') ?? 'all';
@@ -666,6 +838,11 @@ class ReportController extends Controller
 
     public function printAllRecap(Request $request)
     {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            abort(403, 'Akses ditolak. Rekap seluruh kelas hanya untuk Kepala Sekolah dan Kurikulum.');
+        }
+
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
         $period = $request->query('period') ?? 'all';
@@ -720,8 +897,36 @@ class ReportController extends Controller
         $yearId = $request->query('year_id') ?? ($activeYear ? $activeYear->id : null);
 
         $user = Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
-            $class = $user->homeroom_class;
+        $myTilawatiGroupIds = [];
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class);
+            $myTilawatiGroupIds = MentoringGroup::where('type', 'tilawati')
+                ->where(function($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->pluck('id')->toArray();
+
+            if ($groupId) {
+                $allowed = in_array((int)$groupId, $myTilawatiGroupIds);
+                if (!$allowed && $isHomeroom) {
+                    $allowed = Student::forYear($yearId)
+                        ->where('class', $user->homeroom_class)
+                        ->whereHas('mentoringGroups', fn($q) => $q->where('mentoring_groups.id', $groupId))
+                        ->exists();
+                }
+                if (!$allowed) {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki akses ke kelompok Tilawati ini.');
+                }
+            } else {
+                if ($isHomeroom) {
+                    $class = $user->homeroom_class;
+                } elseif (!empty($myTilawatiGroupIds)) {
+                    // Non-homeroom mentor: restricted to their groups
+                } else {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki penugasan Tilawati.');
+                }
+            }
         }
 
         $query = Student::forYear($yearId)
@@ -736,6 +941,10 @@ class ReportController extends Controller
         if ($groupId) {
             $query->whereHas('mentoringGroups', function($q) use ($groupId) {
                 $q->where('mentoring_groups.id', $groupId);
+            });
+        } elseif ($user->role === 'teacher' && empty($user->homeroom_class) && !empty($myTilawatiGroupIds)) {
+            $query->whereHas('mentoringGroups', function($q) use ($myTilawatiGroupIds) {
+                $q->whereIn('mentoring_groups.id', $myTilawatiGroupIds);
             });
         }
 
@@ -776,8 +985,36 @@ class ReportController extends Controller
         $month = $request->query('month');
 
         $user = Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class)) {
-            $class = $user->homeroom_class;
+        $myTahfidzGroupIds = [];
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class);
+            $myTahfidzGroupIds = MentoringGroup::where('type', 'tahfidz')
+                ->where(function($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->pluck('id')->toArray();
+
+            if ($groupId) {
+                $allowed = in_array((int)$groupId, $myTahfidzGroupIds);
+                if (!$allowed && $isHomeroom) {
+                    $allowed = Student::forYear($yearId)
+                        ->where('class', $user->homeroom_class)
+                        ->whereHas('mentoringGroups', fn($q) => $q->where('mentoring_groups.id', $groupId))
+                        ->exists();
+                }
+                if (!$allowed) {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki akses ke kelompok Tahfidz ini.');
+                }
+            } else {
+                if ($isHomeroom) {
+                    $class = $user->homeroom_class;
+                } elseif (!empty($myTahfidzGroupIds)) {
+                    // Non-homeroom mentor: restricted to their groups
+                } else {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki penugasan Tahfidz.');
+                }
+            }
         }
 
         // Safe table check
@@ -801,6 +1038,10 @@ class ReportController extends Controller
         if ($groupId) {
             $query->whereHas('mentoringGroups', function($q) use ($groupId) {
                 $q->where('mentoring_groups.id', $groupId);
+            });
+        } elseif ($user->role === 'teacher' && empty($user->homeroom_class) && !empty($myTahfidzGroupIds)) {
+            $query->whereHas('mentoringGroups', function($q) use ($myTahfidzGroupIds) {
+                $q->whereIn('mentoring_groups.id', $myTahfidzGroupIds);
             });
         }
 
@@ -926,8 +1167,53 @@ class ReportController extends Controller
         $semesterLabel = $periodInfo['semester_name'] ?? ($activeYear && $activeYear->active_semester == '2' ? 'Semester Genap (II)' : 'Semester Ganjil (I)');
 
         $user = Auth::user();
-        if ($user->role === 'teacher' && !empty($user->homeroom_class) && !$studentId) {
-            $class = $user->homeroom_class;
+        $myTahfidzGroupIds = [];
+        if ($user->role === 'teacher') {
+            $isHomeroom = !empty($user->homeroom_class);
+            $myTahfidzGroupIds = MentoringGroup::where('type', 'tahfidz')
+                ->where(function($q) use ($user) {
+                    $q->where('mentor_user_id', $user->id)
+                      ->orWhere('mentor_name', $user->name);
+                })
+                ->pluck('id')->toArray();
+
+            if ($studentId) {
+                $targetStudent = Student::find($studentId);
+                if (!$targetStudent) {
+                    abort(404, 'Siswa tidak ditemukan.');
+                }
+                $allowed = false;
+                if ($isHomeroom && $targetStudent->class === $user->homeroom_class) {
+                    $allowed = true;
+                }
+                if (!$allowed && !empty($myTahfidzGroupIds)) {
+                    $allowed = $targetStudent->mentoringGroups()
+                        ->whereIn('mentoring_groups.id', $myTahfidzGroupIds)
+                        ->exists();
+                }
+                if (!$allowed) {
+                    abort(403, 'Akses ditolak. Siswa ini bukan dari kelas perwalian atau kelompok Tahfidz Anda.');
+                }
+            } elseif ($groupId) {
+                $allowed = in_array((int)$groupId, $myTahfidzGroupIds);
+                if (!$allowed && $isHomeroom) {
+                    $allowed = Student::forYear($yearId)
+                        ->where('class', $user->homeroom_class)
+                        ->whereHas('mentoringGroups', fn($q) => $q->where('mentoring_groups.id', $groupId))
+                        ->exists();
+                }
+                if (!$allowed) {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki akses ke kelompok Tahfidz ini.');
+                }
+            } else {
+                if ($isHomeroom) {
+                    $class = $user->homeroom_class;
+                } elseif (!empty($myTahfidzGroupIds)) {
+                    // Non-homeroom mentor: restricted to their groups
+                } else {
+                    abort(403, 'Akses ditolak. Anda tidak memiliki penugasan Tahfidz.');
+                }
+            }
         }
 
         $query = Student::forYear($yearId)
@@ -944,6 +1230,10 @@ class ReportController extends Controller
             if ($groupId) {
                 $query->whereHas('mentoringGroups', function($q) use ($groupId) {
                     $q->where('mentoring_groups.id', $groupId);
+                });
+            } elseif ($user->role === 'teacher' && empty($user->homeroom_class) && !empty($myTahfidzGroupIds)) {
+                $query->whereHas('mentoringGroups', function($q) use ($myTahfidzGroupIds) {
+                    $q->whereIn('mentoring_groups.id', $myTahfidzGroupIds);
                 });
             }
         }
