@@ -237,6 +237,37 @@ class MunaqosahController extends Controller
         $teachers = User::whereIn('role', ['teacher', 'admin', 'curriculum'])->orderBy('name')->get();
         $groups = MentoringGroup::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))->orderBy('name')->get();
 
+        // Ambil daftar santri yang diuji hari ini untuk rekapan WhatsApp sekali klik
+        $todayStr = date('Y-m-d');
+        $todayTestedQuery = MunaqosahRegistration::with([
+                'student',
+                'fromGroup',
+                'examinerUser',
+                'examiner.user'
+            ])
+            ->where(function ($q) use ($todayStr) {
+                $q->whereDate('tested_at', $todayStr)
+                  ->orWhere(function ($sub) use ($todayStr) {
+                      $sub->whereDate('exam_date', $todayStr)->whereNotNull('final_score');
+                  });
+            })
+            ->whereNotNull('final_score');
+
+        if (!$isAdminOrCurriculum) {
+            $todayTestedQuery->where(function($q) use ($user, $examinerRecord) {
+                $q->where('examiner_user_id', $user->id);
+                if ($examinerRecord) {
+                    $q->orWhere('examiner_id', $examinerRecord->id);
+                }
+            });
+        }
+
+        $todayTestedList = $todayTestedQuery->orderBy('tested_at', 'asc')->get();
+        $todayTestedCount = $todayTestedList->count();
+        $todayBatchWaMessage = $todayTestedList->isNotEmpty()
+            ? MunaqosahRegistration::buildDailyBatchWaMessage($todayTestedList, $todayStr, null, $user->name)
+            : null;
+
         return view('munaqosah.index', compact(
             'registrations',
             'examiners',
@@ -264,7 +295,10 @@ class MunaqosahController extends Controller
             'todayDate',
             'dateFilter',
             'isExaminerOnly',
-            'isAdminOrCurriculum'
+            'isAdminOrCurriculum',
+            'todayTestedList',
+            'todayTestedCount',
+            'todayBatchWaMessage'
         ));
     }
 
@@ -675,11 +709,54 @@ class MunaqosahController extends Controller
         $studentClass = $registration->student->class ?? '-';
         ActivityLog::log('Munaqosah', 'Penilaian', "Munaqisy menginput nilai ujian {$registration->student->name} (Kelas {$studentClass}): Nilai {$finalScore} ({$predicate}) - Status: {$statusLabel}");
 
-        // Siapkan Payload Rekapan WhatsApp untuk Grup WA dengan Sekali Klik
-        $registration->load(['student', 'examinerUser', 'examiner']);
-        $waMessage = $registration->buildWaGroupMessage();
+        // Siapkan Payload Rekapan WhatsApp untuk Seluruh Siswa yang Dimunaqosah Hari Itu (Sekali Klik)
+        $todayStr = now()->toDateString();
+        $todayTestedQuery = MunaqosahRegistration::with([
+                'student',
+                'fromGroup',
+                'examinerUser',
+                'examiner.user'
+            ])
+            ->where(function ($q) use ($todayStr) {
+                $q->whereDate('tested_at', $todayStr)
+                  ->orWhere(function ($sub) use ($todayStr) {
+                      $sub->whereDate('exam_date', $todayStr)->whereNotNull('final_score');
+                  });
+            })
+            ->whereNotNull('final_score');
+
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            $todayTestedQuery->where(function($q) use ($user, $registration) {
+                $q->where('examiner_user_id', $user->id)
+                  ->orWhereHas('examiner', function($eq) use ($user) {
+                      $eq->where('user_id', $user->id);
+                  })
+                  ->orWhere('id', $registration->id);
+            });
+        }
+
+        $todayTested = $todayTestedQuery->orderBy('tested_at', 'asc')->get();
+        if (!$todayTested->contains('id', $registration->id)) {
+            $registration->load(['student', 'fromGroup', 'examinerUser', 'examiner.user']);
+            $todayTested->push($registration);
+        }
+
+        $batchWaMessage = MunaqosahRegistration::buildDailyBatchWaMessage(
+            $todayTested,
+            $todayStr,
+            $registration->fromGroup->name ?? null,
+            $user->name
+        );
+
+        $todayCount = $todayTested->count();
+        $passedCount = $todayTested->where('status', 'passed')->count();
+        $failedCount = $todayTested->where('status', 'failed')->count();
+
         $waPayload = [
             'id'           => $registration->id,
+            'today_count'  => $todayCount,
+            'passed_count' => $passedCount,
+            'failed_count' => $failedCount,
             'student_name' => $registration->student->name ?? 'Santri',
             'class'        => $studentClass,
             'type'         => $registration->type === 'tilawati' ? 'Tilawati' : 'Tahfidz',
@@ -689,12 +766,12 @@ class MunaqosahController extends Controller
             'predicate'    => $predicate,
             'status'       => $status,
             'status_label' => $statusLabel,
-            'message'      => $waMessage,
-            'wa_url'       => "https://api.whatsapp.com/send?text=" . urlencode($waMessage),
+            'message'      => $batchWaMessage,
+            'wa_url'       => "https://api.whatsapp.com/send?text=" . urlencode($batchWaMessage),
         ];
 
         return redirect()->route('munaqosah.index')
-            ->with('success', "Alhamdulillah! Penilaian munaqosah ananda {$registration->student->name} (Kelas {$studentClass}) berhasil disimpan ({$statusLabel}). Informasi hasil penilaian dan rekomendasi jenjang telah otomatis terhubung ke akun Wali Kelas {$studentClass} dan Pembimbing Halaqah santri.")
+            ->with('success', "Alhamdulillah! Penilaian munaqosah ananda {$registration->student->name} (Kelas {$studentClass}) berhasil disimpan ({$statusLabel}). Rekapan seluruh santri yang dimunaqosah hari ini ({$todayCount} siswa) telah siap dilaporkan ke grup WA.")
             ->with('munaqosah_group_wa', $waPayload);
     }
 

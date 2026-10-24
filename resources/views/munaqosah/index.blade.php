@@ -254,9 +254,25 @@
             <button type="button" onclick="openBulkTilawatiMunaqosahModal()" class="munaqosah-hero-btn" style="background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
                 <i class="fas fa-layer-group"></i> + Daftar 1 Kelompok Tilawati
             </button>
-            <button type="button" onclick="shareWhatsAppRegistrationLink()" class="munaqosah-hero-btn" style="background: #25d366; color: white; box-shadow: 0 4px 15px rgba(37,211,102,0.35);">
+            @if(!empty($todayBatchWaMessage) && $todayTestedCount > 0)
+            <button type="button" onclick="openShareWaModal({{ json_encode($todayBatchWaMessage) }}, 'Rekapan Seluruh Siswa Hari Ini ({{ $todayTestedCount }} Siswa)')" class="munaqosah-hero-btn" style="background: #25d366; color: white; box-shadow: 0 4px 15px rgba(37,211,102,0.4); font-weight: 800;">
+                <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i> Kirim Rekap Hari Ini ke WA ({{ $todayTestedCount }} Siswa)
+            </button>
+            @endif
+            <button type="button" onclick="shareWhatsAppRegistrationLink()" class="munaqosah-hero-btn" style="background: #10b981; color: white; box-shadow: 0 4px 15px rgba(16,185,129,0.35);">
                 <i class="fab fa-whatsapp"></i> Bagikan Link Online (WA)
             </button>
+            <a href="{{ route('munaqosah.print-recap', ['year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" target="_blank" class="munaqosah-hero-btn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);">
+                <i class="fas fa-print"></i> Cetak Rekap
+            </a>
+        </div>
+        @else
+        <div class="munaqosah-hero-actions">
+            @if(!empty($todayBatchWaMessage) && $todayTestedCount > 0)
+            <button type="button" onclick="openShareWaModal({{ json_encode($todayBatchWaMessage) }}, 'Rekapan Seluruh Siswa Hari Ini ({{ $todayTestedCount }} Siswa)')" class="munaqosah-hero-btn" style="background: #25d366; color: white; box-shadow: 0 4px 15px rgba(37,211,102,0.4); font-weight: 800;">
+                <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i> Kirim Rekap Hari Ini ke Grup WA ({{ $todayTestedCount }} Siswa)
+            </button>
+            @endif
             <a href="{{ route('munaqosah.print-recap', ['year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" target="_blank" class="munaqosah-hero-btn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);">
                 <i class="fas fa-print"></i> Cetak Rekap
             </a>
@@ -265,38 +281,48 @@
         <i class="fas fa-quran" style="position: absolute; right: -20px; bottom: -30px; font-size: 11rem; color: rgba(255,255,255,0.06); z-index: 1;"></i>
     </div>
 
-    <!-- Banner Pop-up Otomatis Hasil Pengujian Siap Diteruskan ke Grup WA -->
+    <!-- Kotak Hasil Pengujian: Rekapan Seluruh Siswa Hari Ini Sekali Klik ke Grup WA -->
     @if(session('munaqosah_group_wa'))
         @php
             $waData = session('munaqosah_group_wa');
+            $testedTodayCount = $waData['today_count'] ?? 1;
+            $passedTodayCount = $waData['passed_count'] ?? ($waData['status'] === 'passed' ? 1 : 0);
+            $failedTodayCount = $waData['failed_count'] ?? ($waData['status'] === 'failed' ? 1 : 0);
         @endphp
         <div id="autoWaShareBanner" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2.5px solid #10b981; border-radius: 18px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 52px; height: 52px; border-radius: 16px; background: #25D366; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
+                <div style="width: 56px; height: 56px; border-radius: 16px; background: #25D366; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
                     <i class="fab fa-whatsapp"></i>
                 </div>
                 <div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="background: {{ $waData['status'] === 'passed' ? '#10b981' : '#ef4444' }}; color: white; font-weight: 800; font-size: 0.76rem; padding: 2px 10px; border-radius: 20px;">
-                            {{ $waData['status_label'] }} (Nilai: {{ $waData['final_score'] }})
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="background: #059669; color: white; font-weight: 800; font-size: 0.76rem; padding: 3px 11px; border-radius: 20px;">
+                            <i class="fas fa-users"></i> Rekapan Hasil {{ $testedTodayCount }} Siswa Hari Ini
                         </span>
-                        <span style="font-weight: 700; font-size: 0.8rem; color: #047857;">Munaqosah {{ $waData['type'] }}</span>
+                        <span style="background: #10b981; color: white; font-weight: 700; font-size: 0.76rem; padding: 3px 9px; border-radius: 20px;">
+                            Lanjut: {{ $passedTodayCount }} Siswa
+                        </span>
+                        @if($failedTodayCount > 0)
+                        <span style="background: #ef4444; color: white; font-weight: 700; font-size: 0.76rem; padding: 3px 9px; border-radius: 20px;">
+                            Belum Lanjut: {{ $failedTodayCount }} Siswa
+                        </span>
+                        @endif
                     </div>
-                    <h3 style="margin: 4px 0 2px 0; font-size: 1.25rem; font-weight: 900; color: #064e3b;">
-                        Hasil Pengujian Ananda {{ $waData['student_name'] }} (Kelas {{ $waData['class'] }})
+                    <h3 style="margin: 6px 0 3px 0; font-size: 1.3rem; font-weight: 900; color: #064e3b;">
+                        Kotak Rekapan Hasil Evaluasi Munaqosah Hari Ini
                     </h3>
-                    <p style="margin: 0; font-size: 0.85rem; color: #047857;">
-                        Rekapan resmi telah terbit! Klik tombol di samping untuk <strong>sekali klik langsung membuka WhatsApp</strong> dan meneruskan rekapan ke grup WA.
+                    <p style="margin: 0; font-size: 0.88rem; color: #047857;">
+                        Alhamdulillah telah selesai dilaksanakan evaluasi munaqosah. Sekali klik di bawah, rekapan seluruh siswa hari ini langsung terlaporkan rapi ke grup WhatsApp!
                     </p>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ $waData['wa_url'] }}" target="_blank" 
-                   style="background: #25D366; color: white; padding: 11px 22px; border-radius: 12px; font-size: 0.92rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
-                    <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Kirim ke Grup WA Sekarang
+                   style="background: #25D366; color: white; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
+                    <i class="fab fa-whatsapp" style="font-size: 1.25rem;"></i> Kirim Seluruh Siswa ke Grup WA Sekarang
                 </a>
-                <button type="button" onclick="openShareWaModal({{ json_encode($waData['message']) }}, '{{ addslashes($waData['student_name']) }}')"
-                        style="background: white; border: 1.5px solid #a7f3d0; color: #065f46; padding: 11px 18px; border-radius: 12px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="openShareWaModal({{ json_encode($waData['message']) }}, 'Rekapan Seluruh Siswa Hari Ini ({{ $testedTodayCount }} Siswa)')"
+                        style="background: white; border: 1.5px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 12px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fas fa-eye"></i> Lihat & Salin Pesan
                 </button>
             </div>
@@ -1077,8 +1103,8 @@
 
                                         {{-- Tombol Share WA Hasil Ujian Sekali Klik ke Grup --}}
                                         @if($item->final_score !== null)
-                                            <button type="button" onclick="openShareWaModal({{ json_encode($item->buildWaGroupMessage()) }}, '{{ addslashes($item->student->name ?? 'Santri') }}')" 
-                                                    title="Share Hasil Pengujian ke Grup WA" 
+                                            <button type="button" onclick="openShareWaModal({{ json_encode(!empty($todayBatchWaMessage) ? $todayBatchWaMessage : $item->buildWaGroupMessage()) }}, '{{ addslashes(!empty($todayBatchWaMessage) ? 'Rekapan Seluruh Siswa Hari Ini (' . $todayTestedCount . ' Siswa)' : ($item->student->name ?? 'Santri')) }}')" 
+                                                    title="Share Hasil Pengujian ke Grup WA (Sekali Klik Seluruh Siswa)" 
                                                     style="background: #25D366; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);">
                                                 <i class="fab fa-whatsapp"></i> WA
                                             </button>
@@ -1259,7 +1285,7 @@
 
                             {{-- Tombol Share WA Hasil Ujian di Mobile --}}
                             @if($item->final_score !== null)
-                                <button type="button" onclick="openShareWaModal({{ json_encode($item->buildWaGroupMessage()) }}, '{{ addslashes($item->student->name ?? 'Santri') }}')" 
+                                <button type="button" onclick="openShareWaModal({{ json_encode(!empty($todayBatchWaMessage) ? $todayBatchWaMessage : $item->buildWaGroupMessage()) }}, '{{ addslashes(!empty($todayBatchWaMessage) ? 'Rekapan Seluruh Siswa Hari Ini (' . $todayTestedCount . ' Siswa)' : ($item->student->name ?? 'Santri')) }}')" 
                                         style="flex: 1; background: #25D366; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);">
                                     <i class="fab fa-whatsapp"></i> WA
                                 </button>
@@ -1933,10 +1959,10 @@ function onBulkGroupSelected(selectEl) {
                 </div>
                 <div>
                     <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
-                        Share Hasil Munaqosah ke Grup WA
+                        Rekapan Hasil Munaqosah ke Grup WA
                     </h3>
                     <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b;">
-                        Santri: <strong id="shareWaStudentName" style="color: #065f46;">-</strong>
+                        Rincian: <strong id="shareWaStudentName" style="color: #065f46;">-</strong>
                     </p>
                 </div>
             </div>

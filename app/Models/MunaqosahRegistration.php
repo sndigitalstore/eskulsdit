@@ -139,48 +139,109 @@ class MunaqosahRegistration extends Model
     }
 
     /**
-     * Membangun teks format WhatsApp resmi untuk diteruskan ke grup WA
+     * Membangun teks format WhatsApp resmi untuk seluruh siswa yang dimunaqosah hari itu (Rekapan Kolektif 1 Kali Klik)
+     *
+     * @param \Illuminate\Support\Collection|array $registrations
+     * @param string|null $date
+     * @param string|null $customGroup
+     * @param string|null $customExaminer
+     * @return string
      */
-    public function buildWaGroupMessage(): string
+    public static function buildDailyBatchWaMessage($registrations, $date = null, $customGroup = null, $customExaminer = null): string
     {
-        $studentName = $this->student->name ?? 'Santri';
-        $studentClass = $this->student->class ?? '-';
-        $studentNis = $this->student->nis ?? '-';
-        $typeLabel = $this->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
-        $examinerName = $this->examinerUser->name ?? ($this->examiner->name ?? 'Dewan Munaqisy');
-        $testedDate = $this->tested_at ? $this->tested_at->translatedFormat('l, d F Y - H:i') . ' WIB' : ($this->exam_date ? $this->exam_date->translatedFormat('d F Y') : date('d F Y'));
-        $statusEmoji = ($this->status === 'passed') ? '🎉 *LULUS*' : '🔄 *BELUM LULUS (MENGULANG)*';
+        $regs = collect($registrations);
+        if ($regs->isEmpty()) {
+            return "Belum ada siswa yang dinilai pada hari ini.";
+        }
+
+        $dateObj = $date ? \Carbon\Carbon::parse($date) : now();
+        $formattedDate = $dateObj->translatedFormat('l, d F Y');
+
+        // Deteksi Tingkat Kenaikan (misal: Jilid 1, Juz 30, dsb)
+        $targetLevels = $regs->pluck('target_level')->filter()->unique()->values();
+        $tingkatKenaikan = $targetLevels->isNotEmpty() ? $targetLevels->join(', ') : ($regs->first()?->target_level ?? 'Jilid 1');
+
+        // Deteksi Kelompok
+        $groupNames = $regs->map(fn($r) => $r->fromGroup->name ?? null)->filter()->unique()->values();
+        $kelompok = $customGroup ?: ($groupNames->isNotEmpty() ? $groupNames->join(', ') : ($regs->first()?->fromGroup->name ?? 'Kelompok Al-Qur\'an'));
+
+        // Deteksi Dewan Penguji
+        $examinerNames = $regs->map(fn($r) => $r->examinerUser->name ?? ($r->examiner->name ?? null))->filter()->unique()->values();
+        $dewanPenguji = $customExaminer ?: ($examinerNames->isNotEmpty() ? $examinerNames->join(', ') : (\Illuminate\Support\Facades\Auth::user()?->name ?? 'Dewan Munaqisy'));
+
+        $totalSiswa = $regs->count();
+        $passedCount = $regs->where('status', 'passed')->count();
+        $failedCount = $regs->where('status', 'failed')->count();
 
         $msg = "*REKAPAN RESMI HASIL MUNAQOSAH AL-QUR'AN*\n";
         $msg .= "*SDIT AN NADZIR*\n";
         $msg .= "━━━━━━━━━━━━━━━━━━━━━\n";
-        $msg .= "Alhamdulillah, telah selesai dilaksanakan evaluasi munaqosah ananda:\n\n";
-        $msg .= "👤 *Nama Santri:* {$studentName}\n";
-        $msg .= "🏫 *Kelas:* {$studentClass} | *NIS:* {$studentNis}\n";
-        $msg .= "📖 *Bidang Ujian:* Munaqosah {$typeLabel}\n";
-        $msg .= "🎯 *Tingkat Kenaikan:* {$this->current_level} ➔ {$this->target_level}\n";
-        $msg .= "👨‍🏫 *Dewan Penguji:* {$examinerName}\n";
-        $msg .= "📅 *Waktu Uji:* {$testedDate}\n";
+        $msg .= "Alhamdulillah telah selesai dilaksanakan evaluasi munaqosah :\n\n";
+        $msg .= "Hari Tanggal : {$formattedDate}\n";
+        $msg .= "Tingkat Kenaikan : {$tingkatKenaikan}\n";
+        $msg .= "Kelompok : {$kelompok}\n";
+        $msg .= "Dewan Penguji : {$dewanPenguji}\n";
         $msg .= "─────────────────────\n";
-        $msg .= "📊 *Rincian Nilai Pengujian:*\n";
-        $msg .= "• Kelancaran & Fashahah : *" . ($this->score_fashahah ?? 0) . "* (Bobot 30%)\n";
-        $msg .= "• Kaidah Tajwid         : *" . ($this->score_tajwid ?? 0) . "* (Bobot 30%)\n";
-        $msg .= "• Makharijul Huruf      : *" . ($this->score_makhraj ?? 0) . "* (Bobot 25%)\n";
-        $msg .= "• Adab & Irama Tilawah  : *" . ($this->score_adab_lagu ?? 0) . "* (Bobot 15%)\n";
+
+        foreach ($regs as $idx => $r) {
+            $no = $idx + 1;
+            $studentName = $r->student->name ?? 'Santri';
+            $studentClass = $r->student->class ?? '-';
+            $keterangan = ($r->status === 'passed') ? 'Lanjut' : 'Belum Lanjut';
+            $score = $r->final_score !== null ? $r->final_score : '-';
+
+            if ($totalSiswa > 1) {
+                $msg .= "{$no}. Nama Siswa : {$studentName}\n";
+                $msg .= "   Kelas : {$studentClass}\n";
+                $msg .= "   Keterangan : {$keterangan}";
+                if ($score !== '-' && $score !== null) {
+                    $msg .= " (Nilai: {$score})";
+                }
+                $msg .= "\n";
+                if (!empty($r->recommendation) && $r->status !== 'passed') {
+                    $msg .= "   Catatan : {$r->recommendation}\n";
+                }
+            } else {
+                $msg .= "Nama Siswa : {$studentName}\n";
+                $msg .= "Kelas : {$studentClass}\n";
+                $msg .= "Keterangan : {$keterangan}";
+                if ($score !== '-' && $score !== null) {
+                    $msg .= " (Nilai: {$score})";
+                }
+                $msg .= "\n";
+                if (!empty($r->recommendation) && $r->status !== 'passed') {
+                    $msg .= "Catatan : {$r->recommendation}\n";
+                }
+            }
+            $msg .= "\n";
+        }
+
         $msg .= "─────────────────────\n";
-        $msg .= "🏆 *NILAI AKHIR : " . ($this->final_score ?? 0) . "*\n";
-        $msg .= "🎖 *PREDIKAT    : " . ($this->predicate ?? '-') . "*\n";
-        $msg .= "📋 *KEPUTUSAN   : {$statusEmoji}*\n";
-        if (!empty($this->recommendation)) {
-            $msg .= "📌 *REKOMENDASI : {$this->recommendation}*\n";
+        if ($totalSiswa > 1) {
+            $msg .= "📊 Ringkasan Hasil:\n";
+            $msg .= "• Total Siswa Diuji : {$totalSiswa} Siswa\n";
+            $msg .= "• Lanjut            : {$passedCount} Siswa\n";
+            if ($failedCount > 0) {
+                $msg .= "• Belum Lanjut      : {$failedCount} Siswa\n";
+            }
+            $msg .= "━━━━━━━━━━━━━━━━━━━━━\n";
         }
-        if (!empty($this->examiner_notes)) {
-            $msg .= "\n💬 *Catatan Dewan Munaqisy:*\n_{$this->examiner_notes}_\n";
-        }
-        $msg .= "━━━━━━━━━━━━━━━━━━━━━\n";
-        $msg .= "Barakallahu Fiikum. Semoga ananda senantiasa mencintai Al-Qur'an dan istiqomah dalam mengamalkannya.\n";
+        $msg .= "Barakallahu Fiikum. Semoga ananda senantiasa mencintai Al-Qur'an dan istiqomah dalam mengamalkannya. Aamiin Ya Rabbal 'Alamin. 🤲\n";
 
         return $msg;
+    }
+
+    /**
+     * Membangun teks format WhatsApp resmi untuk satu santri (sesuai format baru)
+     */
+    public function buildWaGroupMessage(): string
+    {
+        return self::buildDailyBatchWaMessage(
+            [$this],
+            $this->tested_at ? $this->tested_at->format('Y-m-d') : ($this->exam_date ? $this->exam_date->format('Y-m-d') : date('Y-m-d')),
+            $this->fromGroup->name ?? null,
+            $this->examinerUser->name ?? ($this->examiner->name ?? null)
+        );
     }
 }
 
