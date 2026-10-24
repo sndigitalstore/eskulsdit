@@ -221,6 +221,23 @@
                         <i class="fas fa-user-plus"></i> + Tambah Siswa
                     </button>
                 @endif
+                @if($type === 'tilawati')
+                    <a href="{{ route('tilawati.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #065f46; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+                        <i class="fas fa-history"></i> Riwayat Sesi & WA
+                    </a>
+                    <a href="{{ route('tilawati.attendance.create', ['group' => $group->id]) }}" class="btn-action-header" style="background: #059669; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 800; box-shadow: 0 4px 10px rgba(5,150,105,0.3);">
+                        <i class="fas fa-plus-circle"></i> + Input Sesi (4 Hal Peraga & 1 Hal Buku)
+                    </a>
+                    <a href="{{ route('tilawati.attendance.monthly', ['group' => $group->id]) }}" class="btn-action-header" style="background: #0d9488; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+                        <i class="fas fa-calendar-alt"></i> Rekap Bulanan
+                    </a>
+                    <a href="{{ route('tilawati.attendance.semester', ['group' => $group->id]) }}" class="btn-action-header" style="background: #0284c7; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+                        <i class="fas fa-file-invoice"></i> Rekap Semester
+                    </a>
+                    <button type="button" onclick="openBulkMunaqosahModal()" class="btn-action-header" style="background: #f59e0b; color: white; border: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 10px rgba(245,158,11,0.3);">
+                        <i class="fas fa-award"></i> Daftarkan 1 Kelompok ke Munaqosah
+                    </button>
+                @endif
                 @if($type === 'tahfidz')
                     <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #7c3aed; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
                         <i class="fas fa-clipboard-check"></i> Riwayat Sesi & WA
@@ -905,5 +922,96 @@
             prompt('Salin pesan pengumuman munaqosah berikut:', msg);
         }
     }
+
+    function openBulkMunaqosahModal() {
+        document.getElementById('bulkMunaqosahModal').style.display = 'flex';
+    }
+    function closeBulkMunaqosahModal() {
+        document.getElementById('bulkMunaqosahModal').style.display = 'none';
+    }
 </script>
+
+<!-- Modal Pendaftaran 1 Kelompok ke Munaqosah -->
+<div id="bulkMunaqosahModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px;">
+    <div style="background: white; border-radius: 20px; max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a;">
+                        Pendaftaran Munaqosah Tilawati (1 Kelompok)
+                    </h3>
+                    <p style="margin: 0; font-size: 0.78rem; color: #64748b;">
+                        Daftarkan seluruh santri {{ $group->name }} sekaligus dalam satu klik.
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="closeBulkMunaqosahModal()" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer;">&times;</button>
+        </div>
+
+        <form action="{{ route('munaqosah.register-group.store') }}" method="POST" style="padding: 24px;">
+            @csrf
+            <input type="hidden" name="group_id" value="{{ $group->id }}">
+
+            <!-- Info Kelompok & Anggota -->
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px; margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 4px;">
+                    <span style="color: #64748b;">Kelompok:</span>
+                    <strong style="color: #0f172a;">{{ $group->name }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 4px;">
+                    <span style="color: #64748b;">Tingkat Saat Ini:</span>
+                    <strong style="color: #047857;">{{ $group->target_level ?: 'Jilid 6' }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.84rem;">
+                    <span style="color: #64748b;">Jumlah Santri Terdaftar:</span>
+                    <strong style="color: #2563eb;">{{ $group->students->count() }} Santri</strong>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Tingkat Kenaikan / Target Munaqosah <span style="color: #ef4444;">*</span>:
+                </label>
+                <input type="text" name="target_level" required value="Al-Qur'an (Khatam Tilawati)"
+                       placeholder="Contoh: Al-Qur'an (Khatam Tilawati) atau Jilid Berikutnya"
+                       style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.88rem; font-weight: 700; box-sizing: border-box;">
+                <small style="color: #64748b; font-size: 0.74rem;">Bila siswa lulus Jilid 6, target otomatis naik ke Al-Qur'an.</small>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Pilih Jadwal Ujian / Sesi Penguji (Opsional):
+                </label>
+                <select name="schedule_id" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.88rem; font-weight: 700; color: #0f172a; background: white; box-sizing: border-box;">
+                    <option value="">-- Tetapkan Nanti (Status Menunggu / Pending) --</option>
+                    @foreach($munaqosahSchedules as $sch)
+                        <option value="{{ $sch->id }}">
+                            {{ $sch->day_name }}, {{ $sch->time_start }}-{{ $sch->time_end }} | Penguji: {{ $sch->examiner->name ?? 'Penguji' }} ({{ $sch->room_location ?? 'Ruang Munaqosah' }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="margin-bottom: 22px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Catatan Pengusul untuk Dewan Penguji:
+                </label>
+                <textarea name="proposer_notes" rows="2" placeholder="Catatan penguasaan fashahah/tajwid santri kelompok..."
+                          style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.84rem; box-sizing: border-box;">Pendaftaran Kolektif Santri {{ $group->name }} (Lulus {{ $group->target_level ?: 'Jilid 6' }})</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeBulkMunaqosahModal()" style="padding: 10px 18px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; cursor: pointer;">
+                    Batal
+                </button>
+                <button type="submit" style="padding: 10px 22px; border-radius: 10px; border: none; background: #f59e0b; color: white; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                    <i class="fas fa-check-circle"></i> Daftarkan Sekarang ({{ $group->students->count() }} Santri)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection

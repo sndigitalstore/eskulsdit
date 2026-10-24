@@ -116,6 +116,11 @@ class Student extends Model
         return $this->hasMany(TahfidzRecord::class);
     }
 
+    public function tilawatiAttendances()
+    {
+        return $this->hasMany(TilawatiAttendance::class);
+    }
+
     public function tasmiExams()
     {
         return $this->hasMany(TasmiExam::class);

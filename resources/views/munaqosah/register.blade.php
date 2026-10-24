@@ -137,6 +137,27 @@
         </div>
     @endif
 
+    <!-- Info Khusus Pendaftaran Kolektif Tilawati -->
+    <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1.5px solid #fde68a; border-radius: 16px; padding: 16px 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #78350f;">
+                    Tips Khusus Tilawati: Pendaftaran Langsung 1 Kelompok
+                </h4>
+                <p style="margin: 2px 0 0 0; font-size: 0.82rem; color: #92400e;">
+                    Khusus santri Tilawati (Jilid 6 atau tingkat lainnya), Anda dapat mendaftarkan <strong>langsung seluruh anggota kelompok</strong> sekaligus dalam satu klik tanpa perlu input satu per satu.
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('munaqosah.index') }}" 
+           style="background: #f59e0b; color: white; text-decoration: none; padding: 9px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
+            <i class="fas fa-award"></i> Buka Menu Rekap & Daftar 1 Kelompok
+        </a>
+    </div>
+
     <!-- Main Card Form -->
     <div style="background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 35px rgba(0,0,0,0.04); overflow: hidden;">
         

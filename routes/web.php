@@ -225,10 +225,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahfidz-groups/{group}/attendance/session/print',         [\App\Http\Controllers\TahfidzAttendanceController::class, 'printSession'])->name('tahfidz.attendance.print-session');
     Route::get('/tahfidz-groups/{group}/attendance/recap/print',           [\App\Http\Controllers\TahfidzAttendanceController::class, 'printRecap'])->name('tahfidz.attendance.print-recap');
 
+    // Tilawati Attendance & Rekap (4 Halaman Alat Peraga + 1 Halaman Buku Tilawati)
+    Route::get('/tilawati-groups/{group}/attendance',                       [\App\Http\Controllers\TilawatiAttendanceController::class, 'index'])->name('tilawati.attendance.index');
+    Route::get('/tilawati-groups/{group}/attendance/create',                [\App\Http\Controllers\TilawatiAttendanceController::class, 'create'])->name('tilawati.attendance.create');
+    Route::post('/tilawati-groups/{group}/attendance/store',                [\App\Http\Controllers\TilawatiAttendanceController::class, 'store'])->name('tilawati.attendance.store');
+    Route::get('/tilawati-groups/{group}/attendance/session',               [\App\Http\Controllers\TilawatiAttendanceController::class, 'showSession'])->name('tilawati.attendance.session');
+    Route::delete('/tilawati-groups/{group}/attendance/session',            [\App\Http\Controllers\TilawatiAttendanceController::class, 'destroySession'])->name('tilawati.attendance.destroy-session');
+    Route::get('/tilawati-groups/{group}/attendance/monthly',               [\App\Http\Controllers\TilawatiAttendanceController::class, 'monthly'])->name('tilawati.attendance.monthly');
+    Route::get('/tilawati-groups/{group}/attendance/semester',              [\App\Http\Controllers\TilawatiAttendanceController::class, 'semester'])->name('tilawati.attendance.semester');
+    Route::get('/tilawati-groups/{group}/attendance/session/print',         [\App\Http\Controllers\TilawatiAttendanceController::class, 'printSession'])->name('tilawati.attendance.print-session');
+    Route::get('/tilawati-groups/{group}/attendance/monthly/print',         [\App\Http\Controllers\TilawatiAttendanceController::class, 'printMonthly'])->name('tilawati.attendance.print-monthly');
+
     // Munaqisy (Munaqosah Qur'an: Tilawati & Tahfidz)
     Route::get('/munaqosah',                                               [\App\Http\Controllers\MunaqosahController::class, 'index'])->name('munaqosah.index');
     Route::get('/munaqosah/register',                                      [\App\Http\Controllers\MunaqosahController::class, 'registerForm'])->name('munaqosah.register');
     Route::post('/munaqosah/register',                                     [\App\Http\Controllers\MunaqosahController::class, 'registerStore'])->name('munaqosah.register.store');
+    Route::post('/munaqosah/register-group',                               [\App\Http\Controllers\MunaqosahController::class, 'registerGroupStore'])->name('munaqosah.register-group.store');
     Route::post('/munaqosah/{registration}/schedule',                      [\App\Http\Controllers\MunaqosahController::class, 'scheduleExam'])->name('munaqosah.schedule');
     Route::get('/munaqosah/{registration}/score',                         [\App\Http\Controllers\MunaqosahController::class, 'scoreForm'])->name('munaqosah.score');
     Route::post('/munaqosah/{registration}/score',                        [\App\Http\Controllers\MunaqosahController::class, 'scoreStore'])->name('munaqosah.score.store');

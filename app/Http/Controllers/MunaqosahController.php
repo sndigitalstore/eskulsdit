@@ -675,7 +675,136 @@ class MunaqosahController extends Controller
         $studentClass = $registration->student->class ?? '-';
         ActivityLog::log('Munaqosah', 'Penilaian', "Munaqisy menginput nilai ujian {$registration->student->name} (Kelas {$studentClass}): Nilai {$finalScore} ({$predicate}) - Status: {$statusLabel}");
 
-        return redirect()->route('munaqosah.index')->with('success', "Alhamdulillah! Penilaian munaqosah ananda {$registration->student->name} (Kelas {$studentClass}) berhasil disimpan ({$statusLabel}). Informasi hasil penilaian dan rekomendasi jenjang telah otomatis terhubung ke akun Wali Kelas {$studentClass} dan Pembimbing Halaqah santri.");
+        // Siapkan Payload Rekapan WhatsApp untuk Grup WA dengan Sekali Klik
+        $registration->load(['student', 'examinerUser', 'examiner']);
+        $waMessage = $registration->buildWaGroupMessage();
+        $waPayload = [
+            'id'           => $registration->id,
+            'student_name' => $registration->student->name ?? 'Santri',
+            'class'        => $studentClass,
+            'type'         => $registration->type === 'tilawati' ? 'Tilawati' : 'Tahfidz',
+            'current_level'=> $registration->current_level,
+            'target_level' => $registration->target_level,
+            'final_score'  => $finalScore,
+            'predicate'    => $predicate,
+            'status'       => $status,
+            'status_label' => $statusLabel,
+            'message'      => $waMessage,
+            'wa_url'       => "https://api.whatsapp.com/send?text=" . urlencode($waMessage),
+        ];
+
+        return redirect()->route('munaqosah.index')
+            ->with('success', "Alhamdulillah! Penilaian munaqosah ananda {$registration->student->name} (Kelas {$studentClass}) berhasil disimpan ({$statusLabel}). Informasi hasil penilaian dan rekomendasi jenjang telah otomatis terhubung ke akun Wali Kelas {$studentClass} dan Pembimbing Halaqah santri.")
+            ->with('munaqosah_group_wa', $waPayload);
+    }
+
+    /**
+     * Pendaftaran Munaqosah Tilawati Kolektif (1 Kelompok Langsung Sekaligus)
+     */
+    public function registerGroupStore(Request $request)
+    {
+        $request->validate([
+            'group_id' => 'required|exists:mentoring_groups,id',
+            'current_level' => 'nullable|string|max:100',
+            'target_level' => 'required|string|max:100',
+            'schedule_id' => 'nullable|exists:munaqisy_schedules,id',
+            'examiner_id' => 'nullable|exists:munaqisy_examiners,id',
+            'exam_date' => 'nullable|date',
+            'exam_time' => 'nullable|string|max:50',
+            'room_location' => 'nullable|string|max:150',
+            'proposer_notes' => 'nullable|string',
+        ]);
+
+        $group = MentoringGroup::with('students')->findOrFail($request->group_id);
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $user = Auth::user();
+
+        if ($group->students->isEmpty()) {
+            return back()->with('error', "Kelompok {$group->name} belum memiliki anggota santri.");
+        }
+
+        $examinerId = $request->examiner_id;
+        $examinerUserId = null;
+        $examDate = $request->exam_date;
+        $examTime = $request->exam_time;
+        $roomLocation = $request->room_location;
+        $scheduleId = $request->schedule_id;
+
+        if ($scheduleId) {
+            $sch = MunaqisySchedule::with('examiner')->find($scheduleId);
+            if ($sch) {
+                $examinerId = $sch->examiner_id;
+                $examinerUserId = $sch->examiner?->user_id;
+                $examTime = $examTime ?: ($sch->time_start . ' - ' . $sch->time_end);
+                $roomLocation = $roomLocation ?: $sch->room_location;
+            }
+        }
+
+        if ($examinerId && !$examinerUserId) {
+            $ex = MunaqisyExaminer::find($examinerId);
+            $examinerUserId = $ex?->user_id;
+        }
+
+        $currentLevel = $request->current_level ?: ($group->target_level ?: 'Jilid 6');
+        $targetLevel = $request->target_level;
+        $status = ($examinerId || $examDate) ? 'scheduled' : 'pending';
+
+        $registeredCount = 0;
+        $skippedCount = 0;
+
+        DB::beginTransaction();
+        try {
+            foreach ($group->students as $student) {
+                // Hindari duplikasi pendaftaran jika masih aktif pending/scheduled
+                $existing = MunaqosahRegistration::where('student_id', $student->id)
+                    ->where('type', 'tilawati')
+                    ->where('academic_year_id', $activeYear?->id)
+                    ->whereIn('status', ['pending', 'scheduled'])
+                    ->first();
+
+                if ($existing) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                MunaqosahRegistration::create([
+                    'student_id' => $student->id,
+                    'academic_year_id' => $activeYear?->id,
+                    'type' => 'tilawati',
+                    'current_level' => $currentLevel,
+                    'target_level' => $targetLevel,
+                    'from_group_id' => $group->id,
+                    'proposed_by' => $user->id,
+                    'proposer_name' => $user->name,
+                    'proposer_phone' => $user->phone ?? null,
+                    'proposer_notes' => $request->proposer_notes ?: "Pendaftaran Kolektif 1 Kelompok {$group->name}",
+                    'schedule_id' => $scheduleId,
+                    'examiner_id' => $examinerId,
+                    'examiner_user_id' => $examinerUserId,
+                    'exam_date' => $examDate,
+                    'exam_time' => $examTime,
+                    'room_location' => $roomLocation,
+                    'status' => $status,
+                    'registration_date' => now(),
+                ]);
+
+                $registeredCount++;
+            }
+
+            DB::commit();
+
+            ActivityLog::log('Munaqosah', 'Pendaftaran Kolektif', "Mendaftarkan {$registeredCount} siswa kelompok Tilawati {$group->name} ke Munaqosah (Target: {$targetLevel})");
+
+            $msg = "Alhamdulillah! Sebanyak {$registeredCount} santri dari kelompok {$group->name} berhasil didaftarkan secara kolektif ke Munaqosah Tilawati ({$targetLevel}).";
+            if ($skippedCount > 0) {
+                $msg .= " ({$skippedCount} santri dilewati karena sudah memiliki jadwal munaqosah aktif).";
+            }
+
+            return redirect()->route('munaqosah.index')->with('success', $msg);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Gagal mendaftarkan kelompok: ' . $e->getMessage());
+        }
     }
 
     /**

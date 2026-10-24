@@ -251,6 +251,9 @@
             <a href="{{ route('munaqosah.register') }}" class="munaqosah-hero-btn" style="background: #ffffff; color: #065f46; box-shadow: 0 4px 15px rgba(0,0,0,0.12);">
                 <i class="fas fa-plus-circle" style="color: #059669;"></i> Ajukan Siswa Munaqosah
             </a>
+            <button type="button" onclick="openBulkTilawatiMunaqosahModal()" class="munaqosah-hero-btn" style="background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
+                <i class="fas fa-layer-group"></i> + Daftar 1 Kelompok Tilawati
+            </button>
             <button type="button" onclick="shareWhatsAppRegistrationLink()" class="munaqosah-hero-btn" style="background: #25d366; color: white; box-shadow: 0 4px 15px rgba(37,211,102,0.35);">
                 <i class="fab fa-whatsapp"></i> Bagikan Link Online (WA)
             </button>
@@ -261,6 +264,44 @@
         @endif
         <i class="fas fa-quran" style="position: absolute; right: -20px; bottom: -30px; font-size: 11rem; color: rgba(255,255,255,0.06); z-index: 1;"></i>
     </div>
+
+    <!-- Banner Pop-up Otomatis Hasil Pengujian Siap Diteruskan ke Grup WA -->
+    @if(session('munaqosah_group_wa'))
+        @php
+            $waData = session('munaqosah_group_wa');
+        @endphp
+        <div id="autoWaShareBanner" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2.5px solid #10b981; border-radius: 18px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 52px; height: 52px; border-radius: 16px; background: #25D366; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: {{ $waData['status'] === 'passed' ? '#10b981' : '#ef4444' }}; color: white; font-weight: 800; font-size: 0.76rem; padding: 2px 10px; border-radius: 20px;">
+                            {{ $waData['status_label'] }} (Nilai: {{ $waData['final_score'] }})
+                        </span>
+                        <span style="font-weight: 700; font-size: 0.8rem; color: #047857;">Munaqosah {{ $waData['type'] }}</span>
+                    </div>
+                    <h3 style="margin: 4px 0 2px 0; font-size: 1.25rem; font-weight: 900; color: #064e3b;">
+                        Hasil Pengujian Ananda {{ $waData['student_name'] }} (Kelas {{ $waData['class'] }})
+                    </h3>
+                    <p style="margin: 0; font-size: 0.85rem; color: #047857;">
+                        Rekapan resmi telah terbit! Klik tombol di samping untuk <strong>sekali klik langsung membuka WhatsApp</strong> dan meneruskan rekapan ke grup WA.
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ $waData['wa_url'] }}" target="_blank" 
+                   style="background: #25D366; color: white; padding: 11px 22px; border-radius: 12px; font-size: 0.92rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
+                    <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Kirim ke Grup WA Sekarang
+                </a>
+                <button type="button" onclick="openShareWaModal({{ json_encode($waData['message']) }}, '{{ addslashes($waData['student_name']) }}')"
+                        style="background: white; border: 1.5px solid #a7f3d0; color: #065f46; padding: 11px 18px; border-radius: 12px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-eye"></i> Lihat & Salin Pesan
+                </button>
+            </div>
+        </div>
+    @endif
 
     <!-- Alert Success / Error -->
     @if(session('success'))
@@ -1034,6 +1075,15 @@
                                             <i class="fas fa-edit"></i> {{ $item->final_score !== null ? 'Nilai' : 'Uji Sekarang' }}
                                         </a>
 
+                                        {{-- Tombol Share WA Hasil Ujian Sekali Klik ke Grup --}}
+                                        @if($item->final_score !== null)
+                                            <button type="button" onclick="openShareWaModal({{ json_encode($item->buildWaGroupMessage()) }}, '{{ addslashes($item->student->name ?? 'Santri') }}')" 
+                                                    title="Share Hasil Pengujian ke Grup WA" 
+                                                    style="background: #25D366; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);">
+                                                <i class="fab fa-whatsapp"></i> WA
+                                            </button>
+                                        @endif
+
                                         @if($isAdminOrCurriculum)
                                             {{-- 2. Jadwalkan / Pilih Penguji (jika pending) --}}
                                             @if(in_array($item->status, ['pending', 'scheduled']))
@@ -1206,6 +1256,14 @@
                                style="flex: {{ $isAdminOrCurriculum ? 2 : 1 }}; background: #10b981; color: white; padding: 9px 12px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);">
                                 <i class="fas fa-edit"></i> {{ $item->final_score !== null ? 'Nilai / Uji' : 'Mulai Uji' }}
                             </a>
+
+                            {{-- Tombol Share WA Hasil Ujian di Mobile --}}
+                            @if($item->final_score !== null)
+                                <button type="button" onclick="openShareWaModal({{ json_encode($item->buildWaGroupMessage()) }}, '{{ addslashes($item->student->name ?? 'Santri') }}')" 
+                                        style="flex: 1; background: #25D366; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);">
+                                    <i class="fab fa-whatsapp"></i> WA
+                                </button>
+                            @endif
 
                             @if($isAdminOrCurriculum)
                                 {{-- 2. Jadwalkan / Pilih Penguji --}}
@@ -1812,5 +1870,209 @@ function filterStudentList() {
         option.style.display = text.includes(query) ? '' : 'none';
     }
 }
+
+// 1. Modal Share WA Hasil Munaqisy Sekali Klik
+let currentShareWaMessage = '';
+function openShareWaModal(waMessage, studentName) {
+    currentShareWaMessage = waMessage;
+    document.getElementById('shareWaStudentName').textContent = studentName || 'Santri';
+    document.getElementById('shareWaTextarea').value = waMessage;
+    
+    const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(waMessage);
+    document.getElementById('btnDirectOpenWa').href = waUrl;
+
+    document.getElementById('shareWaGroupModal').style.display = 'flex';
+}
+function closeShareWaModal() {
+    document.getElementById('shareWaGroupModal').style.display = 'none';
+}
+function copyShareWaModalText() {
+    const copyText = document.getElementById("shareWaTextarea");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+
+    const btn = document.getElementById("btnCopyModalWa");
+    btn.innerHTML = '<i class="fas fa-check"></i> Berhasil Disalin!';
+    btn.style.background = '#059669';
+    btn.style.color = 'white';
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-copy"></i> Salin Teks Rekapan';
+        btn.style.background = '#f8fafc';
+        btn.style.color = '#334155';
+    }, 2000);
+}
+
+// 2. Modal Pendaftaran 1 Kelompok Tilawati ke Munaqosah
+function openBulkTilawatiMunaqosahModal() {
+    document.getElementById('bulkTilawatiMunaqosahModal').style.display = 'flex';
+}
+function closeBulkTilawatiMunaqosahModal() {
+    document.getElementById('bulkTilawatiMunaqosahModal').style.display = 'none';
+}
+function onBulkGroupSelected(selectEl) {
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    const targetLvl = selectedOpt.getAttribute('data-target') || 'Jilid 6';
+    const targetInput = document.getElementById('bulk_target_level');
+    
+    if (targetLvl.toLowerCase().includes('jilid 6')) {
+        targetInput.value = "Al-Qur'an (Khatam Tilawati)";
+    } else {
+        targetInput.value = "Naik ke Tingkat Lanjutan";
+    }
+}
 </script>
+
+<!-- Modal 1: Share Hasil Pengujian ke Grup WA (Sekali Klik) -->
+<div id="shareWaGroupModal" class="modal-backdrop" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 16px;">
+    <div style="background: white; border-radius: 20px; max-width: 620px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #25D366; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.35);">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
+                        Share Hasil Munaqosah ke Grup WA
+                    </h3>
+                    <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b;">
+                        Santri: <strong id="shareWaStudentName" style="color: #065f46;">-</strong>
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="closeShareWaModal()" style="background: none; border: none; font-size: 1.35rem; color: #94a3b8; cursor: pointer;">&times;</button>
+        </div>
+
+        <div style="padding: 24px;">
+            <p style="font-size: 0.84rem; color: #475569; margin: 0 0 10px 0;">
+                Format pesan WhatsApp di bawah ini telah dirancang resmi dan otomatis siap diteruskan ke grup dewan guru, grup Qur'an, maupun wali murid:
+            </p>
+
+            <textarea id="shareWaTextarea" rows="12" readonly
+                      style="width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82rem; line-height: 1.5; color: #0f172a; background: #f8fafc; box-sizing: border-box; resize: vertical;"></textarea>
+
+            <div style="margin-top: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <button type="button" onclick="copyShareWaModalText()" id="btnCopyModalWa"
+                        style="padding: 10px 18px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #f8fafc; color: #334155; font-weight: 800; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-copy"></i> Salin Teks Rekapan
+                </button>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closeShareWaModal()" style="padding: 10px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: white; color: #64748b; font-weight: 700; cursor: pointer;">
+                        Tutup
+                    </button>
+                    <a id="btnDirectOpenWa" href="#" target="_blank"
+                       style="background: #25D366; color: white; padding: 10px 22px; border-radius: 10px; font-weight: 800; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
+                        <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i> Kirim ke WhatsApp Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Pendaftaran Kolektif 1 Kelompok Tilawati ke Munaqosah -->
+<div id="bulkTilawatiMunaqosahModal" class="modal-backdrop" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 16px;">
+    <div style="background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
+                        Daftarkan 1 Kelompok Tilawati ke Munaqosah
+                    </h3>
+                    <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #64748b;">
+                        Pendaftaran kolektif sekaligus untuk santri Jilid 6 atau tingkat lainnya.
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="closeBulkTilawatiMunaqosahModal()" style="background: none; border: none; font-size: 1.35rem; color: #94a3b8; cursor: pointer;">&times;</button>
+        </div>
+
+        <form action="{{ route('munaqosah.register-group.store') }}" method="POST" style="padding: 24px;">
+            @csrf
+
+            <!-- Pilih Kelompok Tilawati -->
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Pilih Kelompok Tilawati <span style="color: #ef4444;">*</span>:
+                </label>
+                <select name="group_id" required onchange="onBulkGroupSelected(this)" 
+                        style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.9rem; font-weight: 700; color: #0f172a; background: white; box-sizing: border-box;">
+                    <option value="">-- Pilih Kelompok Tilawati --</option>
+                    @foreach($groups->where('type', 'tilawati') as $grp)
+                        <option value="{{ $grp->id }}" data-target="{{ $grp->target_level }}">
+                            {{ $grp->name }} ({{ $grp->target_level ?: 'Jilid 1' }}) - Pembimbing: {{ $grp->mentor_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Target Kenaikan -->
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Target Kenaikan Munaqosah <span style="color: #ef4444;">*</span>:
+                </label>
+                <input type="text" name="target_level" id="bulk_target_level" required value="Al-Qur'an (Khatam Tilawati)"
+                       placeholder="Contoh: Al-Qur'an (Khatam Tilawati) atau Jilid Berikutnya"
+                       style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.88rem; font-weight: 700; box-sizing: border-box;">
+                <small style="color: #64748b; font-size: 0.74rem;">Jika santri lulus Jilid 6, target otomatis naik ke Al-Qur'an.</small>
+            </div>
+
+            <!-- Pilih Jadwal Ujian (Opsional) -->
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Pilih Jadwal Munaqisy / Sesi Pengujian (Opsional):
+                </label>
+                <select name="schedule_id" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.86rem; font-weight: 700; color: #0f172a; background: white; box-sizing: border-box;">
+                    <option value="">-- Tetapkan Nanti (Status Menunggu / Pending) --</option>
+                    @foreach($schedules as $sch)
+                        <option value="{{ $sch->id }}">
+                            {{ $sch->day_name }}, {{ $sch->time_start }}-{{ $sch->time_end }} | Penguji: {{ $sch->examiner->name ?? 'Penguji' }} ({{ $sch->room_location ?? 'Ruang Munaqosah' }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 800; font-size: 0.82rem; color: #0f172a; margin-bottom: 4px;">
+                        Tanggal Uji Khusus:
+                    </label>
+                    <input type="date" name="exam_date" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.84rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 800; font-size: 0.82rem; color: #0f172a; margin-bottom: 4px;">
+                        Dewan Penguji (Munaqisy):
+                    </label>
+                    <select name="examiner_id" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.84rem; background: white; box-sizing: border-box;">
+                        <option value="">-- Bebas / Tetapkan Nanti --</option>
+                        @foreach($examiners as $ex)
+                            <option value="{{ $ex->id }}">{{ $ex->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 22px;">
+                <label style="display: block; font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    Catatan Pengusul untuk Dewan Penguji:
+                </label>
+                <textarea name="proposer_notes" rows="2" placeholder="Catatan penguasaan fashahah/tajwid santri kelompok..."
+                          style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.84rem; box-sizing: border-box;">Pendaftaran Kolektif 1 Kelompok Tilawati</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeBulkTilawatiMunaqosahModal()" style="padding: 10px 18px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; cursor: pointer;">
+                    Batal
+                </button>
+                <button type="submit" style="padding: 10px 22px; border-radius: 10px; border: none; background: #f59e0b; color: white; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                    <i class="fas fa-check-circle"></i> Daftarkan Seluruh Santri Kelompok
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection

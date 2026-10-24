@@ -34,6 +34,16 @@ class MentoringGroup extends Model
                     ->withTimestamps();
     }
 
+    public function tilawatiSessions()
+    {
+        return $this->hasMany(TilawatiSession::class);
+    }
+
+    public function tilawatiAttendances()
+    {
+        return $this->hasMany(TilawatiAttendance::class);
+    }
+
     public function scopeTilawati($query)
     {
         return $query->where('type', 'tilawati');
