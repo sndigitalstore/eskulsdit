@@ -367,11 +367,31 @@ class MentoringGroupController extends Controller
             $isSessionSaved = $sessionAttendances->isNotEmpty();
             $isEditMode     = (bool) $request->input('edit', false);
 
+            // Data ketersediaan jadwal penguji munaqosah & status registrasi siswa kelompok
+            $munaqosahSchedules = collect();
+            $munaqosahRegistrations = collect();
+            if (\Illuminate\Support\Facades\Schema::hasTable('munaqisy_schedules')) {
+                $munaqosahSchedules = \App\Models\MunaqisySchedule::with('examiner.user')
+                    ->where('status', '!=', 'inactive')
+                    ->whereIn('exam_type', ['all', 'tahfidz'])
+                    ->orderBy('day_name')
+                    ->orderBy('time_start')
+                    ->get();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('munaqosah_registrations') && $activeGroup->students->isNotEmpty()) {
+                $munaqosahRegistrations = \App\Models\MunaqosahRegistration::with(['examiner.user', 'schedule'])
+                    ->whereIn('student_id', $activeGroup->students->pluck('id'))
+                    ->whereIn('status', ['pending', 'scheduled'])
+                    ->get()
+                    ->keyBy('student_id');
+            }
+
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
                 'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines',
                 'allSurahs', 'targetJuzList', 'targetJuzGroups', 'otherSurahs',
-                'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare'
+                'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare',
+                'munaqosahSchedules', 'munaqosahRegistrations'
             ));
         }
 

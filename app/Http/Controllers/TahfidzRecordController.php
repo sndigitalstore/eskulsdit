@@ -287,14 +287,31 @@ class TahfidzRecordController extends Controller
 
         // Backward compatibility
         $juz30Data = $targetJuzData[30] ?? $checkSurahStatus($allJuzSurahs[30], 30);
-        $juz29Data = $targetJuzData[29] ?? $checkSurahStatus($allJuzSurahs[29], 29);
+        // Cek ketersediaan jadwal munaqosah & status registrasi siswa
+        $munaqosahSchedules = collect();
+        $existingRegistration = null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('munaqisy_schedules')) {
+            $munaqosahSchedules = \App\Models\MunaqisySchedule::with('examiner.user')
+                ->where('status', '!=', 'inactive')
+                ->whereIn('exam_type', ['all', 'tahfidz'])
+                ->orderBy('day_name')
+                ->orderBy('time_start')
+                ->get();
+        }
+        if (\Illuminate\Support\Facades\Schema::hasTable('munaqosah_registrations')) {
+            $existingRegistration = \App\Models\MunaqosahRegistration::with(['examiner.user', 'schedule'])
+                ->where('student_id', $student->id)
+                ->whereIn('status', ['pending', 'scheduled'])
+                ->first();
+        }
 
         return view('tahfidz.student_card', compact(
             'group', 'student', 'records',
             'academicYears', 'selectedYear', 'yearId',
             'totalSetoran', 'totalMurojaah', 'surahUnique',
             'targetJuzList', 'targetJuzData',
-            'juz30Data', 'juz29Data'
+            'juz30Data', 'juz29Data',
+            'munaqosahSchedules', 'existingRegistration'
         ));
     }
 

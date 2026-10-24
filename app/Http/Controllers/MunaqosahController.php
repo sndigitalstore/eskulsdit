@@ -379,6 +379,10 @@ class MunaqosahController extends Controller
         $typeLabel = $request->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran', "Mendaftarkan siswa {$student->name} untuk munaqosah {$typeLabel} ({$request->current_level} -> {$request->target_level})");
 
+        if ($request->filled('redirect_back')) {
+            return back()->with('success', "Alhamdulillah! Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} ({$request->current_level}) berhasil didaftarkan!");
+        }
+
         return redirect()->route('munaqosah.index')->with('success', "Alhamdulillah! Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} ({$request->current_level}) berhasil diajukan!");
     }
 

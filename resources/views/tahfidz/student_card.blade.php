@@ -270,11 +270,17 @@
                         @endforeach
                     </select>
                 </form>
-                <a href="{{ route('munaqosah.register', ['student_id' => $student->id, 'type' => 'tahfidz', 'from_group_id' => $group->id]) }}"
-                   style="background: #0284c7; border: 1px solid rgba(255,255,255,0.4); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s;"
-                   onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
-                    <i class="fas fa-award"></i> Daftarkan Munaqosah
-                </a>
+                @if($existingRegistration)
+                    <span style="background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;" title="Terdaftar Munaqosah: {{ $existingRegistration->exam_time ?? 'Menunggu Jadwal' }}">
+                        <i class="fas fa-check-circle" style="color: #0284c7;"></i> Terdaftar Munaqosah
+                    </span>
+                @else
+                    <button type="button" onclick="openCardMunaqosahModal()"
+                       style="background: #0284c7; border: 1px solid rgba(255,255,255,0.4); color: white; cursor: pointer; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s;"
+                       onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
+                        <i class="fas fa-award"></i> Daftarkan Munaqosah
+                    </button>
+                @endif
                 <a href="{{ route('tahfidz.print-card', ['group' => $group->id, 'student' => $student->id, 'year_id' => $yearId]) }}" target="_blank"
                    style="background: #059669; border: 1px solid rgba(255,255,255,0.4); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s;"
                    onmouseover="this.style.background='#10b981'" onmouseout="this.style.background='#059669'">
@@ -900,7 +906,127 @@ _*SDIT An Nadzir - Mencetak Generasi Qur'ani*_`;
             }
         });
     @endif
+    // Modal Munaqosah Cepat dari Kartu Hafalan
+    function openCardMunaqosahModal() {
+        document.getElementById('cardMunaqosahModal').style.display = 'flex';
+    }
+    function closeCardMunaqosahModal() {
+        document.getElementById('cardMunaqosahModal').style.display = 'none';
+    }
 </script>
+
+<!-- Modal Daftarkan Munaqosah dari Kartu Hafalan Siswa -->
+<div id="cardMunaqosahModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: white; border-radius: 20px; width: 100%; max-width: 520px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #ecfdf5; color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">Daftarkan Munaqosah</h3>
+                    <p style="margin: 2px 0 0 0; color: #64748b; font-size: 0.8rem;">Ajukan ujian hafalan resmi langsung ke dewan penguji</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCardMunaqosahModal()" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer; padding: 4px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="{{ route('munaqosah.register.store') }}">
+            @csrf
+            <input type="hidden" name="redirect_back" value="1">
+            <input type="hidden" name="student_id" value="{{ $student->id }}">
+            <input type="hidden" name="type" value="tahfidz">
+            <input type="hidden" name="from_group_id" value="{{ $group->id }}">
+            <input type="hidden" name="proposer_name" value="{{ Auth::user()->name }}">
+
+            <!-- Info Siswa & Kelompok -->
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">
+                    {{ $student->name }}
+                </div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 3px; display: flex; gap: 10px; align-items: center;">
+                    <span>Kelas {{ $student->class }}</span>
+                    <span>•</span>
+                    <span>Kelompok: <strong>{{ $group->name }}</strong></span>
+                </div>
+            </div>
+
+            @php
+                $curLevel = $group->target_level ?? 'Juz 30';
+                $curLower = strtolower($curLevel);
+                $nextLevel = 'Juz 29';
+                if (str_contains($curLower, '30')) $nextLevel = 'Juz 29';
+                elseif (str_contains($curLower, '29')) $nextLevel = 'Juz 28';
+                elseif (str_contains($curLower, '28')) $nextLevel = 'Juz 27';
+                elseif (str_contains($curLower, '27')) $nextLevel = 'Juz 26';
+            @endphp
+
+            <!-- Jenjang Munaqosah -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 5px;">
+                        Jenjang Diuji <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="current_level" required value="{{ $curLevel }}"
+                           style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 700; background: #fff;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 5px;">
+                        Target Lanjutan <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="target_level" required value="{{ $nextLevel }}"
+                           style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 700; background: #fff;">
+                </div>
+            </div>
+
+            <!-- Dropdown Pilihan Jadwal & Penguji Munaqisy -->
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 700; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
+                    <i class="far fa-calendar-check" style="color: #0284c7;"></i> Pilih Jadwal & Penguji / Munaqisy Tersedia
+                </label>
+                <select name="schedule_id" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #0284c7; font-size: 0.86rem; font-weight: 600; background: #f0f9ff;">
+                    <option value="">-- Tanpa Jadwal (Jadwalkan Nanti oleh Panitia) --</option>
+                    @foreach($munaqosahSchedules as $sch)
+                        @php
+                            $isFull = $sch->is_full;
+                            $exName = $sch->examiner?->user?->name ?? 'Penguji';
+                            $slotTxt = "{$exName} • {$sch->day_name} ({$sch->time_start} - {$sch->time_end} WIB)";
+                            if ($sch->room_location) {
+                                $slotTxt .= " · {$sch->room_location}";
+                            }
+                        @endphp
+                        <option value="{{ $sch->id }}" {{ $isFull ? 'disabled' : '' }}>
+                            {{ $slotTxt }} {{ $isFull ? '[SUDAH TERPENUHI ✓]' : "(Sisa: " . ($sch->quota - $sch->used_slots) . " kuota)" }}
+                        </option>
+                    @endforeach
+                </select>
+                <span style="font-size: 0.74rem; color: #64748b; margin-top: 4px; display: block;">
+                    Jadwal diatur oleh Admin & Kurikulum. Jika dipilih, siswa langsung otomatis terplot ke penguji tersebut.
+                </span>
+            </div>
+
+            <!-- Catatan Pengusul (Opsional) -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 5px;">
+                    Catatan Guru Pembimbing (Opsional)
+                </label>
+                <textarea name="proposer_notes" rows="2" placeholder="Catatan kesiapan siswa..." style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.84rem;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                <button type="button" onclick="closeCardMunaqosahModal()" style="padding: 10px 18px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; cursor: pointer;">
+                    Batal
+                </button>
+                <button type="submit" style="padding: 10px 22px; border-radius: 10px; border: none; background: #047857; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.3); display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-check-circle"></i> Konfirmasi & Daftarkan Langsung
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endpush
 @endsection
 
