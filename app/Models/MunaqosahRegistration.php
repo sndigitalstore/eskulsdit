@@ -11,6 +11,8 @@ class MunaqosahRegistration extends Model
         'academic_year_id',
         'from_group_id',
         'proposer_user_id',
+        'proposer_name',
+        'proposer_phone',
         'proposer_notes',
         'examiner_id',
         'examiner_user_id',

@@ -47,6 +47,8 @@ class MunaqosahController extends Controller
                 $table->foreignId('academic_year_id')->nullable()->constrained('academic_years')->nullOnDelete();
                 $table->foreignId('from_group_id')->nullable()->constrained('mentoring_groups')->nullOnDelete();
                 $table->foreignId('proposer_user_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->string('proposer_name')->nullable();
+                $table->string('proposer_phone')->nullable();
                 $table->text('proposer_notes')->nullable();
                 
                 $table->foreignId('examiner_id')->nullable()->constrained('munaqisy_examiners')->nullOnDelete();
@@ -77,6 +79,14 @@ class MunaqosahController extends Controller
 
                 $table->timestamps();
             });
+        } else {
+            // Self-healing: tambahkan kolom proposer_name & proposer_phone jika tabel sudah ada dari versi sebelumnya
+            if (!Schema::hasColumn('munaqosah_registrations', 'proposer_name')) {
+                Schema::table('munaqosah_registrations', function (Blueprint $table) {
+                    $table->string('proposer_name')->nullable()->after('proposer_user_id');
+                    $table->string('proposer_phone')->nullable()->after('proposer_name');
+                });
+            }
         }
     }
 
@@ -167,20 +177,60 @@ class MunaqosahController extends Controller
     }
 
     /**
-     * Halaman / Form Pendaftaran Munaqosah
-     * Dapat diisi oleh guru tahfidz, guru tilawati, admin, dan kurikulum
+     * Halaman / Form Pendaftaran Munaqosah Internal (Guru / Admin)
      */
     public function registerForm(Request $request)
     {
         $activeYear = AcademicYear::where('is_active', true)->first();
         $students = Student::activeYear()->active()->orderBy('class')->orderBy('name')->get();
         $groups = MentoringGroup::when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))->orderBy('name')->get();
+        $examiners = MunaqisyExaminer::with('user')->where('status', 'active')->get();
 
-        return view('munaqosah.register', compact('students', 'groups', 'activeYear'));
+        $selectedStudentId = $request->input('student_id');
+        $selectedType = $request->input('type', 'tahfidz');
+        $selectedGroupId = $request->input('from_group_id');
+
+        $selectedStudent = null;
+        $suggestedCurrentLevel = null;
+        $suggestedTargetLevel = null;
+
+        if ($selectedStudentId) {
+            $selectedStudent = Student::find($selectedStudentId);
+            if ($selectedStudent) {
+                if (!$selectedGroupId) {
+                    $detectedGrp = $selectedType === 'tahfidz' 
+                        ? $selectedStudent->tahfidzGroup($activeYear?->id) 
+                        : $selectedStudent->tilawatiGroup($activeYear?->id);
+                    if ($detectedGrp) {
+                        $selectedGroupId = $detectedGrp->id;
+                    }
+                }
+
+                // Cek kelompok untuk menyarankan level
+                if ($selectedGroupId) {
+                    $grp = MentoringGroup::find($selectedGroupId);
+                    if ($grp && !empty($grp->target_level)) {
+                        $suggestedCurrentLevel = $grp->target_level;
+                    }
+                }
+            }
+        }
+
+        return view('munaqosah.register', compact(
+            'students', 
+            'groups', 
+            'examiners', 
+            'activeYear',
+            'selectedStudentId',
+            'selectedType',
+            'selectedGroupId',
+            'selectedStudent',
+            'suggestedCurrentLevel'
+        ));
     }
 
     /**
-     * Simpan pendaftaran munaqosah siswa
+     * Simpan pendaftaran munaqosah siswa (Internal Guru/Admin)
      */
     public function registerStore(Request $request)
     {
@@ -191,6 +241,8 @@ class MunaqosahController extends Controller
             'target_level' => 'required|string|max:100',
             'from_group_id' => 'nullable|exists:mentoring_groups,id',
             'proposer_notes' => 'nullable|string',
+            'proposer_name' => 'nullable|string|max:150',
+            'proposer_phone' => 'nullable|string|max:30',
             'exam_date' => 'nullable|date',
             'examiner_id' => 'nullable|exists:munaqisy_examiners,id',
         ]);
@@ -209,11 +261,16 @@ class MunaqosahController extends Controller
 
         $status = ($request->exam_date && $request->examiner_id) ? 'scheduled' : 'pending';
 
+        $proposerName = $request->proposer_name ?: (Auth::user()?->name ?? 'Guru Pembimbing');
+        $proposerPhone = $request->proposer_phone ?: (Auth::user()?->phone ?? null);
+
         $registration = MunaqosahRegistration::create([
             'student_id' => $student->id,
             'academic_year_id' => $activeYear ? $activeYear->id : null,
             'from_group_id' => $request->from_group_id,
             'proposer_user_id' => Auth::id(),
+            'proposer_name' => $proposerName,
+            'proposer_phone' => $proposerPhone,
             'proposer_notes' => $request->proposer_notes,
             'examiner_id' => $request->examiner_id,
             'examiner_user_id' => $examinerUserId,
@@ -231,7 +288,76 @@ class MunaqosahController extends Controller
         $typeLabel = $request->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
         ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran', "Mendaftarkan siswa {$student->name} untuk munaqosah {$typeLabel} ({$request->current_level} -> {$request->target_level})");
 
-        return redirect()->route('munaqosah.index')->with('success', "Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} berhasil diajukan!");
+        return redirect()->route('munaqosah.index')->with('success', "Alhamdulillah! Pendaftaran munaqosah {$typeLabel} untuk ananda {$student->name} ({$request->current_level}) berhasil diajukan!");
+    }
+
+    /**
+     * Halaman Publik Pendaftaran Munaqosah (Bisa diakses via link WA tanpa login)
+     */
+    public function publicRegisterForm(Request $request)
+    {
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $classes = Student::activeYear()->active()->distinct()->orderBy('class')->pluck('class');
+        $groups = MentoringGroup::when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))->orderBy('name')->get();
+        $students = Student::activeYear()->active()->orderBy('class')->orderBy('name')->get(['id', 'name', 'class', 'nis']);
+
+        return view('munaqosah.public_register', compact('activeYear', 'classes', 'groups', 'students'));
+    }
+
+    /**
+     * Simpan Pendaftaran Publik Munaqosah
+     */
+    public function publicRegisterStore(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'type' => 'required|in:tilawati,tahfidz',
+            'current_level' => 'required|string|max:100',
+            'target_level' => 'required|string|max:100',
+            'proposer_name' => 'required|string|max:150',
+            'proposer_phone' => 'required|string|max:30',
+            'proposer_role' => 'nullable|string|max:50',
+            'from_group_id' => 'nullable|exists:mentoring_groups,id',
+            'proposer_notes' => 'nullable|string',
+        ]);
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $student = Student::findOrFail($request->student_id);
+
+        $notes = $request->proposer_notes;
+        if ($request->proposer_role) {
+            $notes = "[Pendaftar: " . strtoupper($request->proposer_role) . "] " . ($notes ?? '');
+        }
+
+        $registration = MunaqosahRegistration::create([
+            'student_id' => $student->id,
+            'academic_year_id' => $activeYear ? $activeYear->id : null,
+            'from_group_id' => $request->from_group_id,
+            'proposer_user_id' => Auth::id(), // null jika guest
+            'proposer_name' => $request->proposer_name,
+            'proposer_phone' => $request->proposer_phone,
+            'proposer_notes' => trim($notes),
+            'type' => $request->type,
+            'current_level' => $request->current_level,
+            'target_level' => $request->target_level,
+            'registration_date' => now()->toDateString(),
+            'status' => 'pending',
+            'transition_status' => 'none',
+        ]);
+
+        $typeLabel = $request->type === 'tilawati' ? 'Tilawati' : 'Tahfidz';
+        ActivityLog::log("Munaqosah {$typeLabel}", 'Pendaftaran Publik', "Pendaftaran mandiri ananda {$student->name} ({$request->current_level} -> {$request->target_level}) oleh {$request->proposer_name} ({$request->proposer_phone})");
+
+        return redirect()->route('munaqosah.public-register.success', $registration->id);
+    }
+
+    /**
+     * Halaman Sukses Pendaftaran Publik
+     */
+    public function publicRegisterSuccess($id)
+    {
+        $registration = MunaqosahRegistration::with(['student', 'academicYear', 'fromGroup'])->findOrFail($id);
+        return view('munaqosah.public_success', compact('registration'));
     }
 
     /**

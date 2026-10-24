@@ -25,13 +25,13 @@
             </p>
         </div>
         <div style="z-index: 2; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button type="button" onclick="openRegisterModal()" class="btn-action-header" style="background: #ffffff; color: #065f46; font-weight: 800; padding: 10px 18px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <a href="{{ route('munaqosah.register') }}" class="btn-action-header" style="background: #ffffff; color: #065f46; font-weight: 800; padding: 10px 18px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-plus-circle"></i> Ajukan Siswa Munaqosah
+            </a>
+            <button type="button" onclick="shareWhatsAppRegistrationLink()" class="btn-action-header" style="background: #25d366; color: white; font-weight: 800; padding: 10px 16px; border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(37,211,102,0.3); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                <i class="fab fa-whatsapp"></i> Bagikan Link Online (WA)
             </button>
-            <button type="button" onclick="copyRegistrationLink()" class="btn-action-header" style="background: rgba(255,255,255,0.22); color: white; font-weight: 700; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4);">
-                <i class="fas fa-link"></i> Salin Link Guru
-            </button>
-            <a href="{{ route('munaqosah.print-recap', ['year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" target="_blank" class="btn-action-header" style="background: rgba(255,255,255,0.22); color: white; font-weight: 700; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4);">
+            <a href="{{ route('munaqosah.print-recap', ['year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" target="_blank" class="btn-action-header" style="background: rgba(255,255,255,0.22); color: white; font-weight: 700; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-print"></i> Cetak Rekap
             </a>
         </div>
@@ -348,8 +348,13 @@
                                     </div>
                                 </td>
                                 <td style="padding: 12px 14px;">
-                                    <div style="font-weight: 700; color: #334155;">{{ $item->proposer->name ?? '-' }}</div>
-                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                    <div style="font-weight: 700; color: #334155;">{{ $item->proposer_name ?? ($item->proposer->name ?? 'Pengusul') }}</div>
+                                    @if($item->proposer_phone)
+                                        <div style="font-size: 0.74rem; color: #059669; font-weight: 600;">
+                                            <i class="fab fa-whatsapp"></i> {{ $item->proposer_phone }}
+                                        </div>
+                                    @endif
+                                    <div style="font-size: 0.74rem; color: #94a3b8;">
                                         {{ $item->registration_date ? $item->registration_date->isoFormat('D MMM Y') : '-' }}
                                     </div>
                                 </td>
@@ -757,19 +762,26 @@ function closePromoteModal() {
     document.getElementById('promoteModal').style.display = 'none';
 }
 
-function copyRegistrationLink() {
-    const url = window.location.origin + "{{ route('munaqosah.register') }}";
-    navigator.clipboard.writeText(url).then(() => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Link Disalin!',
-            text: 'Link pendaftaran munaqosah telah disalin ke clipboard. Silakan bagikan ke grup WhatsApp guru tahfidz dan tilawati.',
-            timer: 2500,
-            showConfirmButton: false
+function shareWhatsAppRegistrationLink() {
+    const publicUrl = window.location.origin + "{{ route('munaqosah.public-register') }}";
+    const waMsg = "Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙\n\nBapak/Ibu Guru Pembimbing & Wali Santri SDIT AN NADZIR yang dirahmati Allah,\n\nBagi santriwan/santriwati yang telah menuntaskan target hafalan Juz Al-Qur'an (Tahfidz) atau Jilid (Tilawati), pendaftaran Ujian Munaqosah resmi kini dapat diajukan secara online melalui tautan berikut:\n\n🔗 " + publicUrl + "\n\nMohon pastikan ananda telah menyelesaikan tasmi' mandiri di hadapan guru pembimbing.\n\nJazakumullah Khairan Katsiran 🤲";
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(waMsg).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Teks & Link WA Disalin!',
+                html: 'Teks pengantar dan link formulir pendaftaran online munaqosah berhasil disalin ke clipboard.<br><br><a href="https://wa.me/?text=' + encodeURIComponent(waMsg) + '" target="_blank" style="display: inline-block; background: #25d366; color: white; padding: 10px 18px; border-radius: 10px; font-weight: bold; text-decoration: none; margin-top: 8px;"><i class="fab fa-whatsapp"></i> Buka WhatsApp Sekarang</a>',
+                showConfirmButton: true,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#059669'
+            });
+        }).catch(err => {
+            prompt("Salin teks pesan pendaftaran berikut:", waMsg);
         });
-    }).catch(err => {
-        prompt("Salin link pendaftaran berikut:", url);
-    });
+    } else {
+        prompt("Salin teks pesan pendaftaran berikut:", waMsg);
+    }
 }
 
 function updateLevelOptions(type) {

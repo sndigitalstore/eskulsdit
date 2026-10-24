@@ -270,6 +270,11 @@
                         @endforeach
                     </select>
                 </form>
+                <a href="{{ route('munaqosah.register', ['student_id' => $student->id, 'type' => 'tahfidz', 'from_group_id' => $group->id]) }}"
+                   style="background: #0284c7; border: 1px solid rgba(255,255,255,0.4); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s;"
+                   onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
+                    <i class="fas fa-award"></i> Daftarkan Munaqosah
+                </a>
                 <a href="{{ route('tahfidz.print-card', ['group' => $group->id, 'student' => $student->id, 'year_id' => $yearId]) }}" target="_blank"
                    style="background: #059669; border: 1px solid rgba(255,255,255,0.4); color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s;"
                    onmouseover="this.style.background='#10b981'" onmouseout="this.style.background='#059669'">

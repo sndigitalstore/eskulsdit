@@ -82,6 +82,11 @@ Route::middleware(['throttle:30,1'])->group(function () {
     // Public Routes for Substitute Teacher Attendance (Option 1)
     Route::get('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'show'])->name('substitute.attendance.show');
     Route::post('/substitute-attendance/{token}', [\App\Http\Controllers\SubstituteAttendanceController::class, 'store'])->name('substitute.attendance.store');
+
+    // Public Routes for Munaqosah Registration
+    Route::get('/daftar-munaqosah', [\App\Http\Controllers\MunaqosahController::class, 'publicRegisterForm'])->name('munaqosah.public-register');
+    Route::post('/daftar-munaqosah', [\App\Http\Controllers\MunaqosahController::class, 'publicRegisterStore'])->name('munaqosah.public-register.store');
+    Route::get('/daftar-munaqosah/sukses/{id}', [\App\Http\Controllers\MunaqosahController::class, 'publicRegisterSuccess'])->name('munaqosah.public-register.success');
 });
 
 Route::middleware(['auth'])->group(function () {
