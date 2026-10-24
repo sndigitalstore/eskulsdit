@@ -3,44 +3,215 @@
 @section('title', 'Munaqisy & Munaqosah Qur\'an')
 @section('page-title', 'Munaqisy & Munaqosah Qur\'an')
 
+@push('styles')
+<style>
+    /* Styling Khusus Munaqosah Modern & Responsif */
+    .munaqosah-hero {
+        background: linear-gradient(135deg, #065f46 0%, #047857 50%, #0d9488 100%);
+        border-radius: 22px;
+        padding: 26px 30px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 18px;
+        position: relative;
+        overflow: hidden;
+    }
+    .munaqosah-hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        z-index: 2;
+    }
+    .munaqosah-hero-btn {
+        font-weight: 800;
+        padding: 10px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: none;
+    }
+    .munaqosah-hero-btn:hover {
+        transform: translateY(-2px);
+    }
+    .munaqosah-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 1rem;
+        margin-bottom: 25px;
+    }
+    .munaqosah-kpi-card {
+        background: white;
+        border-radius: 18px;
+        padding: 18px 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.2s ease;
+    }
+    .munaqosah-kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    .munaqosah-tabs-bar {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    .munaqosah-tabs-bar::-webkit-scrollbar {
+        height: 4px;
+    }
+    .munaqosah-tabs-bar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .munaqosah-tab-btn {
+        padding: 9px 16px;
+        border-radius: 12px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    /* Desktop vs Mobile display */
+    .munaqosah-desktop-table {
+        display: block;
+        overflow-x: auto;
+    }
+    .munaqosah-mobile-cards {
+        display: none;
+    }
+
+    /* Modal Responsive */
+    .munaqosah-modal-card {
+        background: white;
+        border-radius: 22px;
+        max-width: 580px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+
+    @media (max-width: 768px) {
+        .munaqosah-hero {
+            padding: 20px 18px;
+            border-radius: 18px;
+        }
+        .munaqosah-hero h2 {
+            font-size: 1.4rem !important;
+        }
+        .munaqosah-hero-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+        .munaqosah-hero-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 11px 16px;
+        }
+        .munaqosah-kpi-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .munaqosah-kpi-card {
+            padding: 14px 16px;
+        }
+        .munaqosah-kpi-card h3 {
+            font-size: 1.5rem !important;
+        }
+        .munaqosah-kpi-card .kpi-icon {
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 1.1rem !important;
+        }
+        .munaqosah-desktop-table {
+            display: none !important;
+        }
+        .munaqosah-mobile-cards {
+            display: flex !important;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .munaqosah-filter-form {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .munaqosah-filter-form select,
+        .munaqosah-filter-form input {
+            width: 100% !important;
+        }
+        .munaqosah-modal-card {
+            max-width: 95% !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .munaqosah-kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div style="padding-bottom: 40px;">
 
-    <!-- Hero Header -->
-    <div style="background: linear-gradient(135deg, #065f46 0%, #047857 50%, #0d9488 100%); border-radius: 20px; padding: 26px 30px; color: white; margin-bottom: 25px; box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; position: relative; overflow: hidden;">
+    <!-- Hero Header Modern -->
+    <div class="munaqosah-hero">
         <div style="z-index: 2;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                <span style="background: rgba(255,255,255,0.2); font-size: 0.78rem; font-weight: 800; padding: 3px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                <span style="background: rgba(255,255,255,0.2); font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(4px);">
                     <i class="fas fa-award"></i> Standar Penjamin Mutu Qur'an
                 </span>
-                <span style="background: rgba(255,255,255,0.15); font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 20px;">
+                <span style="background: rgba(255,255,255,0.15); font-size: 0.76rem; font-weight: 700; padding: 4px 12px; border-radius: 20px;">
                     Tahun Ajaran {{ $activeYear->name ?? '-' }}
                 </span>
             </div>
-            <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0 0 6px 0; letter-spacing: -0.5px;">
+            <h2 style="font-size: 1.85rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px;">
                 Munaqisy & Evaluasi Munaqosah
             </h2>
-            <p style="margin: 0; font-size: 0.92rem; opacity: 0.92; max-width: 650px; line-height: 1.5;">
+            <p style="margin: 0; font-size: 0.92rem; opacity: 0.92; max-width: 680px; line-height: 1.55;">
                 Kelola pendaftaran siswa tuntas juz tahfidz & jilid tilawati, manajemen mentor penguji (munaqisy), penilaian kelulusan berstandar, serta pemindahan otomatis ke jenjang lanjutan.
             </p>
         </div>
-        <div style="z-index: 2; display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{{ route('munaqosah.register') }}" class="btn-action-header" style="background: #ffffff; color: #065f46; font-weight: 800; padding: 10px 18px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas fa-plus-circle"></i> Ajukan Siswa Munaqosah
+        <div class="munaqosah-hero-actions">
+            <a href="{{ route('munaqosah.register') }}" class="munaqosah-hero-btn" style="background: #ffffff; color: #065f46; box-shadow: 0 4px 15px rgba(0,0,0,0.12);">
+                <i class="fas fa-plus-circle" style="color: #059669;"></i> Ajukan Siswa Munaqosah
             </a>
-            <button type="button" onclick="shareWhatsAppRegistrationLink()" class="btn-action-header" style="background: #25d366; color: white; font-weight: 800; padding: 10px 16px; border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(37,211,102,0.3); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <button type="button" onclick="shareWhatsAppRegistrationLink()" class="munaqosah-hero-btn" style="background: #25d366; color: white; box-shadow: 0 4px 15px rgba(37,211,102,0.35);">
                 <i class="fab fa-whatsapp"></i> Bagikan Link Online (WA)
             </button>
-            <a href="{{ route('munaqosah.print-recap', ['year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" target="_blank" class="btn-action-header" style="background: rgba(255,255,255,0.22); color: white; font-weight: 700; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="{{ route('munaqosah.print-recap', ['year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" target="_blank" class="munaqosah-hero-btn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);">
                 <i class="fas fa-print"></i> Cetak Rekap
             </a>
         </div>
-        <i class="fas fa-quran" style="position: absolute; right: -15px; bottom: -25px; font-size: 10rem; color: rgba(255,255,255,0.06); z-index: 1;"></i>
+        <i class="fas fa-quran" style="position: absolute; right: -20px; bottom: -30px; font-size: 11rem; color: rgba(255,255,255,0.06); z-index: 1;"></i>
     </div>
 
     <!-- Alert Success / Error -->
     @if(session('success'))
-        <div style="background: #ecfdf5; border-left: 5px solid #10b981; padding: 14px 18px; border-radius: 12px; margin-bottom: 22px; color: #065f46; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);">
+        <div style="background: #ecfdf5; border-left: 5px solid #10b981; padding: 14px 18px; border-radius: 14px; margin-bottom: 22px; color: #065f46; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);">
             <div style="display: flex; align-items: center; gap: 10px; font-weight: 600;">
                 <i class="fas fa-check-circle" style="font-size: 1.25rem; color: #10b981;"></i>
                 <span>{{ session('success') }}</span>
@@ -50,7 +221,7 @@
     @endif
 
     @if(session('error'))
-        <div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 14px 18px; border-radius: 12px; margin-bottom: 22px; color: #991b1b; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);">
+        <div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 14px 18px; border-radius: 14px; margin-bottom: 22px; color: #991b1b; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);">
             <div style="display: flex; align-items: center; gap: 10px; font-weight: 600;">
                 <i class="fas fa-exclamation-circle" style="font-size: 1.25rem; color: #ef4444;"></i>
                 <span>{{ session('error') }}</span>
@@ -59,108 +230,114 @@
         </div>
     @endif
 
-    <!-- KPI Metric Cards -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 25px;">
+    <!-- KPI Metric Cards Simetris -->
+    <div class="munaqosah-kpi-grid">
         <!-- Total Registrations -->
-        <div class="card" style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between;">
+        <div class="munaqosah-kpi-card">
             <div>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Pendaftar</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Total Pendaftar</span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin: 4px 0 0 0;">{{ $totalCount }}</h3>
             </div>
-            <div style="width: 46px; height: 46px; border-radius: 12px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
                 <i class="fas fa-clipboard-list"></i>
             </div>
         </div>
 
         <!-- Menunggu Ujian -->
-        <div class="card" style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between;">
+        <div class="munaqosah-kpi-card" style="border-color: #fde68a;">
             <div>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #f59e0b; text-transform: uppercase;">Menunggu Ujian</span>
-                <h3 style="font-size: 1.85rem; font-weight: 800; color: #d97706; margin: 4px 0 0 0;">{{ $pendingCount + $scheduledCount }}</h3>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.03em;">Menunggu Ujian</span>
+                <h3 style="font-size: 1.85rem; font-weight: 800; color: #b45309; margin: 4px 0 0 0;">{{ $pendingCount + $scheduledCount }}</h3>
             </div>
-            <div style="width: 46px; height: 46px; border-radius: 12px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
                 <i class="fas fa-hourglass-half"></i>
             </div>
         </div>
 
         <!-- Lulus Munaqosah -->
-        <div class="card" style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #a7f3d0; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.08); display: flex; align-items: center; justify-content: space-between;">
+        <div class="munaqosah-kpi-card" style="border-color: #a7f3d0; background: linear-gradient(to bottom, #ffffff, #f0fdf4);">
             <div>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #059669; text-transform: uppercase;">Lulus Munaqosah</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.03em;">Lulus Munaqosah</span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #047857; margin: 4px 0 0 0;">{{ $passedCount }}</h3>
             </div>
-            <div style="width: 46px; height: 46px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
                 <i class="fas fa-check-double"></i>
             </div>
         </div>
 
         <!-- Belum Lulus / Mengulang -->
-        <div class="card" style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #fecaca; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05); display: flex; align-items: center; justify-content: space-between;">
+        <div class="munaqosah-kpi-card" style="border-color: #fecaca;">
             <div>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #dc2626; text-transform: uppercase;">Belum Lulus</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.03em;">Belum Lulus</span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #b91c1c; margin: 4px 0 0 0;">{{ $failedCount }}</h3>
             </div>
-            <div style="width: 46px; height: 46px; border-radius: 12px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
                 <i class="fas fa-redo-alt"></i>
             </div>
         </div>
 
         <!-- Dewan Penguji (Munaqisy) -->
-        <div class="card" style="background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between;">
+        <div class="munaqosah-kpi-card" style="border-color: #c7d2fe;">
             <div>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #6366f1; text-transform: uppercase;">Mentor Penguji</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 0.03em;">Mentor Penguji</span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #4f46e5; margin: 4px 0 0 0;">{{ $examinersCount }}</h3>
             </div>
-            <div style="width: 46px; height: 46px; border-radius: 12px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
                 <i class="fas fa-user-tie"></i>
             </div>
         </div>
     </div>
 
-    <!-- Navigation Tabs & Filters -->
-    <div style="background: white; border-radius: 18px; padding: 18px 20px; border: 1px solid #e2e8f0; margin-bottom: 22px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <!-- Navigation Tabs & Filters Modern & Responsif -->
+    <div style="background: white; border-radius: 20px; padding: 18px 20px; border: 1px solid #e2e8f0; margin-bottom: 22px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 14px;">
+        <div class="munaqosah-tabs-bar">
             <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'all', 'year_id' => $selectedYearId]) }}" 
-               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $activeTab === 'recap' ? 'background: #047857; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
+               class="munaqosah-tab-btn"
+               style="{{ $activeTab === 'recap' && $statusFilter === 'all' && $examinerFilter !== 'me' ? 'background: #047857; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-list-alt"></i> Semua Rekapan Data ({{ $totalCount }})
             </a>
             <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'passed', 'year_id' => $selectedYearId]) }}" 
-               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $statusFilter === 'passed' ? 'background: #10b981; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
+               class="munaqosah-tab-btn"
+               style="{{ $statusFilter === 'passed' ? 'background: #10b981; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-check-circle"></i> Sudah Lulus ({{ $passedCount }})
             </a>
             <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'failed', 'year_id' => $selectedYearId]) }}" 
-               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $statusFilter === 'failed' ? 'background: #ef4444; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
+               class="munaqosah-tab-btn"
+               style="{{ $statusFilter === 'failed' ? 'background: #ef4444; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-times-circle"></i> Belum Lulus ({{ $failedCount }})
             </a>
             @if($examinerRecord || $myExamsCount > 0)
             <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'examiner' => $examinerFilter === 'me' ? 'all' : 'me', 'year_id' => $selectedYearId]) }}" 
-               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $examinerFilter === 'me' ? 'background: #4338ca; color: white;' : 'background: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe;' }}">
+               class="munaqosah-tab-btn"
+               style="{{ $examinerFilter === 'me' ? 'background: #4338ca; color: white;' : 'background: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe;' }}">
                 <i class="fas fa-user-check"></i> Peserta Ujian Saya ({{ $myExamsCount }})
             </a>
             @endif
             <a href="{{ route('munaqosah.index', ['tab' => 'schedules', 'year_id' => $selectedYearId]) }}" 
-               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $activeTab === 'schedules' ? 'background: #0284c7; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
+               class="munaqosah-tab-btn"
+               style="{{ $activeTab === 'schedules' ? 'background: #0284c7; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-calendar-check"></i> Jadwal & Ketersediaan Penguji ({{ $schedulesCount }})
             </a>
             <a href="{{ route('munaqosah.index', ['tab' => 'examiners', 'year_id' => $selectedYearId]) }}" 
-               style="padding: 8px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {{ $activeTab === 'examiners' ? 'background: #4f46e5; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
+               class="munaqosah-tab-btn"
+               style="{{ $activeTab === 'examiners' ? 'background: #4f46e5; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-user-graduate"></i> Dewan Penguji ({{ $examinersCount }})
             </a>
         </div>
 
-        <!-- Filter Form -->
-        <form method="GET" action="{{ route('munaqosah.index') }}" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <!-- Filter Form Simetris & Responsif -->
+        <form method="GET" action="{{ route('munaqosah.index') }}" class="munaqosah-filter-form" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px;">
             <input type="hidden" name="tab" value="{{ $activeTab }}">
             <input type="hidden" name="status" value="{{ $statusFilter }}">
             <input type="hidden" name="examiner" value="{{ $examinerFilter }}">
 
-            <select name="type" onchange="this.form.submit()" style="padding: 8px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.84rem; background: #f8fafc; font-weight: 600; color: #334155;">
+            <select name="type" onchange="this.form.submit()" style="padding: 9px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.86rem; background: #f8fafc; font-weight: 700; color: #334155; flex-grow: 1;">
                 <option value="all" {{ $typeFilter === 'all' ? 'selected' : '' }}>Semua Tipe (Tilawati & Tahfidz)</option>
                 <option value="tahfidz" {{ $typeFilter === 'tahfidz' ? 'selected' : '' }}>Hafalan Tahfidz</option>
                 <option value="tilawati" {{ $typeFilter === 'tilawati' ? 'selected' : '' }}>Tilawati Al-Qur'an</option>
             </select>
 
-            <select name="year_id" onchange="this.form.submit()" style="padding: 8px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.84rem; background: #f8fafc; font-weight: 600; color: #334155;">
+            <select name="year_id" onchange="this.form.submit()" style="padding: 9px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.86rem; background: #f8fafc; font-weight: 700; color: #334155; flex-grow: 1;">
                 @foreach($academicYears as $ay)
                     <option value="{{ $ay->id }}" {{ $selectedYearId == $ay->id ? 'selected' : '' }}>
                         {{ $ay->name }} (Semester {{ $ay->active_semester }})
@@ -168,15 +345,15 @@
                 @endforeach
             </select>
 
-            <div style="position: relative;">
+            <div style="position: relative; flex-grow: 2;">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama siswa / kelas..." 
-                       style="padding: 8px 12px 8px 32px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.84rem; width: 200px;">
-                <i class="fas fa-search" style="position: absolute; left: 11px; top: 11px; color: #94a3b8; font-size: 0.8rem;"></i>
+                       style="padding: 9px 14px 9px 36px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.86rem; width: 100%; box-sizing: border-box; background: white;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8; font-size: 0.85rem;"></i>
             </div>
 
             @if($search || $typeFilter !== 'all' || $statusFilter !== 'all')
-                <a href="{{ route('munaqosah.index', ['tab' => $activeTab]) }}" style="color: #ef4444; font-size: 0.82rem; font-weight: 700; text-decoration: none;">
-                    <i class="fas fa-undo"></i> Reset
+                <a href="{{ route('munaqosah.index', ['tab' => $activeTab]) }}" style="color: #ef4444; font-size: 0.84rem; font-weight: 800; text-decoration: none; padding: 6px 12px; border-radius: 8px; background: #fef2f2; display: inline-flex; align-items: center; gap: 4px;">
+                    <i class="fas fa-undo"></i> Reset Filter
                 </a>
             @endif
         </form>
@@ -195,13 +372,14 @@
                     </p>
                 </div>
                 @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
-                    <button type="button" onclick="openExaminerModal()" class="btn-action-header" style="background: #4f46e5; padding: 9px 18px; border-radius: 10px;">
+                    <button type="button" onclick="openExaminerModal()" style="background: #4f46e5; color: white; border: none; font-weight: 800; padding: 10px 18px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
                         <i class="fas fa-user-plus"></i> Tambah Penguji Baru
                     </button>
                 @endif
             </div>
 
-            <div style="overflow-x: auto;">
+            <!-- Desktop Table View -->
+            <div class="munaqosah-desktop-table">
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
                     <thead>
                         <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left;">
@@ -228,15 +406,15 @@
                                 <td style="padding: 12px 14px;">
                                     @if($ex->specialization === 'both')
                                         <span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 700;">
-                                            <i class="fas fa-check-circle"></i> Tahfidz & Tilawati
+                                             Tahfidz & Tilawati
                                         </span>
                                     @elseif($ex->specialization === 'tahfidz')
                                         <span style="background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 700;">
-                                            <i class="fas fa-star-and-crescent"></i> Khusus Tahfidz
+                                             Khusus Tahfidz
                                         </span>
                                     @else
                                         <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 700;">
-                                            <i class="fas fa-book-reader"></i> Khusus Tilawati
+                                             Khusus Tilawati
                                         </span>
                                     @endif
                                 </td>
@@ -299,6 +477,91 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Card View Dewan Penguji -->
+            <div class="munaqosah-mobile-cards">
+                @forelse($examiners as $index => $ex)
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 42px; height: 42px; border-radius: 12px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem;">
+                                    {{ strtoupper(substr($ex->user->name ?? 'P', 0, 2)) }}
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.96rem; font-weight: 800; color: #0f172a;">{{ $ex->user->name ?? '-' }}</h4>
+                                    <span style="font-size: 0.76rem; color: #64748b;">{{ $ex->user->email ?? '-' }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                @if($ex->status === 'active')
+                                    <span style="background: #ecfdf5; color: #059669; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px;">
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px;">
+                                        Nonaktif
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Spesialisasi:</span>
+                                <div>
+                                    @if($ex->specialization === 'both')
+                                        <span style="background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">Tahfidz & Tilawati</span>
+                                    @elseif($ex->specialization === 'tahfidz')
+                                        <span style="background: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">Khusus Tahfidz</span>
+                                    @else
+                                        <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">Khusus Tilawati</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">No Sertifikat / SK:</span>
+                                <span style="font-family: monospace; font-weight: 600; color: #334155;">{{ $ex->certificate_number ?? '-' }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Total Siswa Diuji:</span>
+                                <span style="font-weight: 800; color: #0f172a;">{{ $ex->registrations_count }} Siswa</span>
+                            </div>
+                            @if($ex->phone || ($ex->user && $ex->user->phone))
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 2px;">
+                                    <span style="color: #64748b;">WhatsApp:</span>
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $ex->phone ?? $ex->user->phone) }}" target="_blank" style="color: #059669; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fab fa-whatsapp"></i> {{ $ex->phone ?? $ex->user->phone }}
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+
+                        @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                <form method="POST" action="{{ route('munaqosah.examiners.toggle', $ex->id) }}" style="flex: 1;">
+                                    @csrf
+                                    <button type="submit" style="width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <i class="fas {{ $ex->status === 'active' ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
+                                        <span>{{ $ex->status === 'active' ? 'Nonaktifkan' : 'Aktifkan' }}</span>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('munaqosah.examiners.destroy', $ex->id) }}" onsubmit="return confirm('Hapus penguji ini?')" style="flex: 1;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #fecaca; background: #fef2f2; color: #dc2626; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <i class="fas fa-trash-alt"></i> Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <div style="background: white; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 30px; text-align: center; color: #94a3b8;">
+                        <i class="fas fa-user-slash" style="font-size: 2.2rem; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+                        Belum ada mentor penguji yang didaftarkan.
+                    </div>
+                @endforelse
+            </div>
         </div>
     @elseif($activeTab === 'schedules')
         {{-- TAB JADWAL & KETERSEDIAAN PENGUJI (MUNAQISY) --}}
@@ -313,13 +576,14 @@
                     </p>
                 </div>
                 @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
-                    <button type="button" onclick="openAddScheduleModal()" class="btn-action-header" style="background: #0284c7; padding: 9px 18px; border-radius: 10px; color: white; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                    <button type="button" onclick="openAddScheduleModal()" style="background: #0284c7; padding: 10px 18px; border-radius: 12px; color: white; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);">
                         <i class="fas fa-calendar-plus"></i> + Tambah Jadwal Penguji
                     </button>
                 @endif
             </div>
 
-            <div style="overflow-x: auto;">
+            <!-- Desktop Table View -->
+            <div class="munaqosah-desktop-table">
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
                     <thead>
                         <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left;">
@@ -356,7 +620,7 @@
                                     <div style="font-weight: 800; color: #0369a1;">
                                         <i class="far fa-calendar-alt"></i> Hari {{ $sch->day_name }}
                                         @if($sch->date)
-                                            <span style="font-weight: 500; font-size: 0.78rem; color: #64748b;">({{ $sch->date->format('d/m/Y') }})</span>
+                                             <span style="font-weight: 500; font-size: 0.78rem; color: #64748b;">({{ $sch->date->format('d/m/Y') }})</span>
                                         @endif
                                     </div>
                                     <div style="font-size: 0.82rem; color: #334155; font-weight: 600;">
@@ -431,6 +695,100 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Card View Jadwal Penguji -->
+            <div class="munaqosah-mobile-cards">
+                @forelse($schedules as $index => $sch)
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;">
+                                        {{ $sch->examiner?->user?->name ?? 'Penguji Munaqosah' }}
+                                    </h4>
+                                    @if($sch->examiner?->phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $sch->examiner->phone) }}" target="_blank" style="font-size: 0.76rem; color: #059669; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="fab fa-whatsapp"></i> {{ $sch->examiner->phone }}
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                            <div>
+                                @if($sch->is_full)
+                                    <span style="background: #ecfdf5; color: #047857; font-weight: 800; padding: 3px 8px; border-radius: 20px; font-size: 0.72rem; border: 1px solid #10b981;">
+                                        Penuh ({{ $sch->used_slots }}/{{ $sch->quota }})
+                                    </span>
+                                @else
+                                    <span style="background: #eff6ff; color: #1e40af; font-weight: 800; padding: 3px 8px; border-radius: 20px; font-size: 0.72rem; border: 1px solid #60a5fa;">
+                                        Tersedia ({{ $sch->used_slots }}/{{ $sch->quota }})
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 12px; margin-bottom: 12px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Hari & Waktu:</span>
+                                <span style="font-weight: 800; color: #0369a1;">
+                                    Hari {{ $sch->day_name }} @if($sch->date) ({{ $sch->date->format('d/m') }}) @endif • {{ $sch->time_start }}-{{ $sch->time_end }}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Ruangan / Lokasi:</span>
+                                <span style="font-weight: 700; color: #334155;">{{ $sch->room_location ?? 'Ruang Munaqosah' }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Kategori:</span>
+                                <div>
+                                    @if($sch->exam_type === 'all')
+                                        <span style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">Semua</span>
+                                    @elseif($sch->exam_type === 'tahfidz')
+                                        <span style="background: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">Tahfidz</span>
+                                    @else
+                                        <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">Tilawati</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Siswa Terdaftar di Slot ini -->
+                        <div style="margin-bottom: 10px;">
+                            <span style="font-size: 0.76rem; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px;">Siswa di Sesi Ini:</span>
+                            @if($sch->registrations->isNotEmpty())
+                                @foreach($sch->registrations as $reg)
+                                    <div style="font-size: 0.8rem; color: #0f172a; font-weight: 700; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                        <span><i class="fas fa-user-check" style="color: #10b981; margin-right: 4px;"></i> {{ $reg->student->name ?? 'Siswa' }}</span>
+                                        <span style="font-size: 0.72rem; color: #047857; font-weight: 800;">Kelas {{ $reg->student->class ?? '-' }}</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <span style="color: #94a3b8; font-size: 0.76rem; font-style: italic;">Belum ada siswa yang mendaftar di slot ini</span>
+                            @endif
+                        </div>
+
+                        @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
+                            <div style="display: flex; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 6px;">
+                                <form method="POST" action="{{ route('munaqosah.schedules.destroy', $sch->id) }}" onsubmit="return confirm('Hapus slot jadwal penguji ini?')" style="width: 100%;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #fecaca; background: #fef2f2; color: #dc2626; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <i class="fas fa-trash-alt"></i> Hapus Slot Jadwal
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <div style="background: white; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 30px; text-align: center; color: #94a3b8;">
+                        <i class="fas fa-calendar-times" style="font-size: 2.2rem; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+                        Belum ada jadwal ketersediaan penguji yang ditambahkan.
+                    </div>
+                @endforelse
+            </div>
+        </div>
         </div>
     @else
         {{-- TAB REKAPAN & DAFTAR EVALUASI MUNAQOSAH --}}
@@ -446,7 +804,8 @@
                 </div>
             </div>
 
-            <div style="overflow-x: auto;">
+            <!-- Desktop Table View Rekapan Peserta -->
+            <div class="munaqosah-desktop-table">
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.86rem;">
                     <thead>
                         <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left;">
@@ -633,6 +992,172 @@
                 </table>
             </div>
 
+            <!-- Mobile Card View Rekapan Peserta (Khusus Layar HP) -->
+            <div class="munaqosah-mobile-cards">
+                @forelse($registrations as $index => $item)
+                    @php
+                        $isMyStudent = ($item->examiner_user_id == Auth::id()) || ($item->examiner && $item->examiner->user_id == Auth::id());
+                    @endphp
+                    <div style="background: white; border: 1px solid {{ $isMyStudent ? '#c7d2fe' : '#e2e8f0' }}; border-radius: 18px; padding: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); position: relative;">
+                        @if($isMyStudent)
+                            <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #4f46e5; border-radius: 18px 18px 0 0;"></div>
+                        @endif
+
+                        <!-- Header Card Peserta -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 12px; background: {{ $item->type === 'tilawati' ? '#fef3c7' : '#ecfdf5' }}; color: {{ $item->type === 'tilawati' ? '#92400e' : '#047857' }}; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                                    <i class="fas {{ $item->type === 'tilawati' ? 'fa-book-reader' : 'fa-star-and-crescent' }}"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.98rem; font-weight: 800; color: #0f172a; line-height: 1.3;">
+                                        {{ $item->student->name ?? 'Siswa' }}
+                                    </h4>
+                                    <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">
+                                        Kelas {{ $item->student->class ?? '-' }} @if($item->student->nis) • NIS: {{ $item->student->nis }} @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                @if($item->status === 'passed')
+                                    <span style="background: #ecfdf5; color: #047857; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-check-circle"></i> LULUS
+                                    </span>
+                                @elseif($item->status === 'failed')
+                                    <span style="background: #fef2f2; color: #b91c1c; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-times-circle"></i> BELUM LULUS
+                                    </span>
+                                @elseif($item->status === 'scheduled')
+                                    <span style="background: #eff6ff; color: #1d4ed8; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-calendar-check"></i> Terjadwal
+                                    </span>
+                                @else
+                                    <span style="background: #fffbeb; color: #b45309; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                @endif
+
+                                @if($isMyStudent)
+                                    <div style="margin-top: 3px;">
+                                        <span style="background: #e0e7ff; color: #3730a3; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 6px;">
+                                            Ujian Saya
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Info Jenjang Kenaikan & Penguji -->
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 12px; margin-bottom: 12px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Kenaikan Jenjang:</span>
+                                <div style="font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                                    <span>{{ $item->current_level }}</span>
+                                    <i class="fas fa-arrow-right" style="color: #10b981; font-size: 0.72rem;"></i>
+                                    <span style="color: #047857; background: #ecfdf5; padding: 2px 7px; border-radius: 6px;">{{ $item->target_level }}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #64748b;">Penguji:</span>
+                                <span style="font-weight: 700; color: #334155;">
+                                    {{ $item->examinerUser->name ?? ($item->examiner->user->name ?? 'Belum Ditentukan') }}
+                                </span>
+                            </div>
+                            @if($item->exam_date)
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #64748b;">Waktu Ujian:</span>
+                                    <span style="font-weight: 700; color: #0284c7;">
+                                        {{ $item->exam_date->isoFormat('D MMM Y') }} @if($item->exam_time) • {{ $item->exam_time }} @endif
+                                    </span>
+                                </div>
+                            @endif
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 2px;">
+                                <span style="color: #64748b;">Pengusul (Guru):</span>
+                                <span style="font-weight: 600; color: #475569;">
+                                    {{ $item->proposer_name ?? ($item->proposer->name ?? '-') }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Skor & Status Promoted jika ada -->
+                        @if($item->final_score !== null || ($item->status === 'passed'))
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: {{ $item->status === 'passed' ? '#f0fdf4' : '#fef2f2' }}; border: 1px solid {{ $item->status === 'passed' ? '#bbf7d0' : '#fecaca' }}; border-radius: 12px; padding: 8px 12px; margin-bottom: 12px;">
+                                <div>
+                                    <span style="font-size: 0.72rem; color: #64748b; display: block;">Nilai Akhir:</span>
+                                    <strong style="font-size: 1.15rem; color: {{ $item->status === 'passed' ? '#047857' : '#b91c1c' }};">
+                                        {{ number_format($item->final_score, 1) }}
+                                    </strong>
+                                    <span style="font-size: 0.75rem; color: #475569; font-weight: 700; margin-left: 4px;">({{ $item->predicate ?? '-' }})</span>
+                                </div>
+                                <div>
+                                    @if($item->status === 'passed')
+                                        @if($item->transition_status === 'promoted')
+                                            <span style="background: #e2e8f0; color: #334155; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                                                <i class="fas fa-check"></i> Sudah Dipindah
+                                            </span>
+                                        @else
+                                            <span style="background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                                                <i class="fas fa-exclamation-circle"></i> Belum Dipindah
+                                            </span>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Action Buttons Touch-Friendly Mobile -->
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                            {{-- 1. Penilaian Penguji --}}
+                            <a href="{{ route('munaqosah.score', $item->id) }}" 
+                               style="flex: 2; background: #10b981; color: white; padding: 9px 12px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);">
+                                <i class="fas fa-edit"></i> {{ $item->final_score !== null ? 'Nilai / Uji' : 'Mulai Uji' }}
+                            </a>
+
+                            {{-- 2. Jadwalkan / Pilih Penguji --}}
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && in_array($item->status, ['pending', 'scheduled']))
+                                <button type="button" onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->examiner_id ?? '' }}', '{{ $item->exam_date ? $item->exam_date->format('Y-m-d') : '' }}', '{{ $item->exam_time ?? '' }}', '{{ $item->room_location ?? '' }}')" 
+                                        style="flex: 1; background: #3b82f6; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fas fa-calendar-alt"></i> Jadwal
+                                </button>
+                            @endif
+
+                            {{-- 3. Pindahkan Kelompok --}}
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && $item->status === 'passed' && $item->transition_status !== 'promoted')
+                                <button type="button" onclick="openPromoteModal({{ $item->id }}, '{{ addslashes($item->student->name ?? '') }}', '{{ $item->type }}', '{{ addslashes($item->target_level) }}')" 
+                                        style="flex: 1; background: #f59e0b; color: white; border: none; padding: 9px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fas fa-user-check"></i> Pindah
+                                </button>
+                            @endif
+
+                            {{-- 4. Cetak Sertifikat --}}
+                            @if($item->status === 'passed')
+                                <a href="{{ route('munaqosah.print-certificate', $item->id) }}" target="_blank" 
+                                   style="flex: 1; background: #6366f1; color: white; padding: 9px 10px; border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fas fa-certificate"></i> Surat
+                                </a>
+                            @endif
+
+                            {{-- 5. Hapus Pendaftaran --}}
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || $item->proposer_user_id === Auth::id())
+                                <form method="POST" action="{{ route('munaqosah.destroy', $item->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data munaqosah ini?')" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" title="Hapus" 
+                                            style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 9px 12px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div style="background: white; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 35px; text-align: center; color: #94a3b8;">
+                        <i class="fas fa-inbox" style="font-size: 2.4rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
+                        Tidak ada data pendaftaran munaqosah untuk kriteria ini.
+                    </div>
+                @endforelse
+            </div>
+
             <div style="margin-top: 20px;">
                 {{ $registrations->links() }}
             </div>
@@ -642,8 +1167,8 @@
 </div>
 
 {{-- MODAL PENDAFTARAN SISWA MUNAQOSAH --}}
-<div id="registerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
-    <div style="background: white; border-radius: 20px; max-width: 580px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; animation: fadeIn 0.25s ease-out;">
+<div id="registerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
+    <div class="munaqosah-modal-card" style="overflow: hidden; animation: fadeIn 0.25s ease-out;">
         <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-file-signature"></i> Form Pengajuan Munaqosah
@@ -655,12 +1180,12 @@
             
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Bidang Munaqosah <span style="color: #ef4444;">*</span></label>
-                <div style="display: flex; gap: 14px;">
-                    <label style="flex: 1; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                    <label style="flex: 1; min-width: 180px; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="radio" name="type" value="tahfidz" checked onchange="updateLevelOptions('tahfidz')">
                         <span style="font-weight: 700; color: #065f46;"><i class="fas fa-star-and-crescent"></i> Tahfidz (Hafalan Juz)</span>
                     </label>
-                    <label style="flex: 1; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <label style="flex: 1; min-width: 180px; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="radio" name="type" value="tilawati" onchange="updateLevelOptions('tilawati')">
                         <span style="font-weight: 700; color: #92400e;"><i class="fas fa-book-reader"></i> Tilawati (Jilid)</span>
                     </label>
@@ -670,8 +1195,8 @@
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Siswa <span style="color: #ef4444;">*</span></label>
                 <input type="text" id="student_search_input" placeholder="Ketik nama atau kelas siswa..." onkeyup="filterStudentList()" 
-                       style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; margin-bottom: 6px;">
-                <select name="student_id" id="student_select" required size="4" style="width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; padding: 6px;">
+                       style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; margin-bottom: 6px; box-sizing: border-box;">
+                <select name="student_id" id="student_select" required size="4" style="width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; padding: 6px; box-sizing: border-box;">
                     @php
                         $studentsList = \App\Models\Student::activeYear()->active()->orderBy('class')->orderBy('name')->get();
                     @endphp
@@ -681,23 +1206,23 @@
                 </select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 16px;">
                 <div>
                     <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Jenjang Saat Ini <span style="color: #ef4444;">*</span></label>
                     <input type="text" name="current_level" id="current_level_input" required placeholder="Contoh: Juz 30" 
-                           style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                           style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
                 </div>
                 <div>
                     <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Target Jenjang Lanjutan <span style="color: #ef4444;">*</span></label>
                     <input type="text" name="target_level" id="target_level_input" required placeholder="Contoh: Juz 29" 
-                           style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                           style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
                 </div>
             </div>
 
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Catatan Kesiapan Guru Pengusul</label>
                 <textarea name="proposer_notes" rows="2" placeholder="Contoh: Ananda sudah tuntas tasmi' 1 majelis juz 30 dengan predikat lancar." 
-                          style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;"></textarea>
+                          style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;"></textarea>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
@@ -711,8 +1236,8 @@
 </div>
 
 {{-- MODAL JADWAL & PENETAPAN PENGUJI --}}
-<div id="scheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
-    <div style="background: white; border-radius: 20px; max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden;">
+<div id="scheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
+    <div class="munaqosah-modal-card" style="overflow: hidden;">
         <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">
                 <i class="fas fa-calendar-check"></i> Jadwalkan Ujian Munaqosah
@@ -728,7 +1253,7 @@
 
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Mentor Penguji (Munaqisy) <span style="color: #ef4444;">*</span></label>
-                <select name="examiner_id" id="schedule_examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <select name="examiner_id" id="schedule_examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
                     <option value="">-- Pilih Penguji --</option>
                     @foreach($examiners->where('status', 'active') as $ex)
                         <option value="{{ $ex->id }}">{{ $ex->user->name ?? 'Penguji' }} ({{ ucfirst($ex->specialization) }})</option>
@@ -736,20 +1261,20 @@
                 </select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px;">
                 <div>
                     <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Tanggal Ujian <span style="color: #ef4444;">*</span></label>
-                    <input type="date" name="exam_date" id="schedule_exam_date" required style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                    <input type="date" name="exam_date" id="schedule_exam_date" required style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
                 </div>
                 <div>
                     <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Waktu Sesi</label>
-                    <input type="text" name="exam_time" id="schedule_exam_time" placeholder="08:00 - 09:30" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                    <input type="text" name="exam_time" id="schedule_exam_time" placeholder="08:00 - 09:30" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
                 </div>
             </div>
 
             <div style="margin-bottom: 18px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Ruangan / Tempat</label>
-                <input type="text" name="room_location" id="schedule_room_location" placeholder="Masjid Lt. 2 / Kelas 3A" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                <input type="text" name="room_location" id="schedule_room_location" placeholder="Masjid Lt. 2 / Kelas 3A" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
@@ -763,8 +1288,8 @@
 </div>
 
 {{-- MODAL TAMBAH PENGUJI (MUNAQISY) --}}
-<div id="examinerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
-    <div style="background: white; border-radius: 20px; max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden;">
+<div id="examinerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
+    <div class="munaqosah-modal-card" style="overflow: hidden;">
         <div style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%); color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">
                 <i class="fas fa-user-plus"></i> Tambah Mentor Penguji (Munaqisy)
@@ -776,7 +1301,7 @@
             
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Akun Guru / Asatidz <span style="color: #ef4444;">*</span></label>
-                <select name="user_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <select name="user_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
                     <option value="">-- Pilih Guru --</option>
                     @foreach($teachers as $tc)
                         <option value="{{ $tc->id }}">{{ $tc->name }} ({{ $tc->email }})</option>
@@ -786,7 +1311,7 @@
 
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Spesialisasi Pengujian <span style="color: #ef4444;">*</span></label>
-                <select name="specialization" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <select name="specialization" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
                     <option value="both">Keduanya (Tahfidz & Tilawati)</option>
                     <option value="tahfidz">Khusus Tahfidz</option>
                     <option value="tilawati">Khusus Tilawati</option>
@@ -795,12 +1320,12 @@
 
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Nomor Sertifikat / SK Munaqisy</label>
-                <input type="text" name="certificate_number" placeholder="Contoh: SK-MNQ/2026/012" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                <input type="text" name="certificate_number" placeholder="Contoh: SK-MNQ/2026/012" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 18px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">No WhatsApp</label>
-                <input type="text" name="phone" placeholder="08xxxxxxxxxx" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem;">
+                <input type="text" name="phone" placeholder="08xxxxxxxxxx" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; box-sizing: border-box;">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
@@ -814,8 +1339,8 @@
 </div>
 
 {{-- MODAL PINDAHKAN KELOMPOK / NAIK JENJANG --}}
-<div id="promoteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
-    <div style="background: white; border-radius: 20px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden;">
+<div id="promoteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
+    <div class="munaqosah-modal-card" style="overflow: hidden;">
         <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-user-check"></i> Pindahkan Kelompok Siswa Lulus
@@ -836,7 +1361,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.86rem; color: #334155; margin-bottom: 8px;">
                     Pilih Kelompok Baru Tujuan Siswa <span style="color: #ef4444;">*</span>
                 </label>
-                <select name="target_group_id" id="target_group_select" required style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #10b981; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
+                <select name="target_group_id" id="target_group_select" required style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #10b981; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc; box-sizing: border-box;">
                     <option value="">-- Pilih Kelompok Mentoring --</option>
                     @foreach($groups as $grp)
                         <option value="{{ $grp->id }}" data-type="{{ $grp->type }}" data-target="{{ $grp->target_level }}">
@@ -860,8 +1385,8 @@
 </div>
 
 {{-- MODAL TAMBAH JADWAL KETERSEDIAAN PENGUJI --}}
-<div id="addScheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
-    <div style="background: white; border-radius: 20px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; animation: fadeIn 0.25s ease-out;">
+<div id="addScheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
+    <div class="munaqosah-modal-card" style="overflow: hidden; animation: fadeIn 0.25s ease-out;">
         <div style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-calendar-plus"></i> Atur Jadwal & Ketersediaan Penguji
@@ -875,7 +1400,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
                     Pilih Mentor Penguji (Munaqisy) <span style="color: #ef4444;">*</span>
                 </label>
-                <select name="examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600;">
+                <select name="examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600; box-sizing: border-box;">
                     <option value="">-- Pilih Penguji --</option>
                     @foreach($examiners->where('status', 'active') as $ex)
                         <option value="{{ $ex->id }}">{{ $ex->user->name ?? 'Penguji' }} ({{ ucfirst($ex->specialization) }})</option>

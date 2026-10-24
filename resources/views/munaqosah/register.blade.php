@@ -3,8 +3,71 @@
 @section('title', 'Pendaftaran Munaqosah Qur\'an')
 @section('page-title', 'Pendaftaran Munaqosah Qur\'an')
 
+@push('styles')
+<style>
+    .register-container {
+        max-width: 860px;
+        margin: 0 auto;
+        padding-bottom: 60px;
+    }
+    .register-header-banner {
+        background: linear-gradient(135deg, #065f46 0%, #047857 50%, #0f766e 100%);
+        color: white;
+        padding: 28px 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    .register-form-body {
+        padding: 32px;
+    }
+    .type-selection-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .level-selection-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    .form-action-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 22px;
+    }
+    @media (max-width: 768px) {
+        .register-header-banner {
+            padding: 22px 20px;
+        }
+        .register-header-banner h2 {
+            font-size: 1.35rem !important;
+        }
+        .register-form-body {
+            padding: 20px 16px;
+        }
+        .type-selection-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .level-selection-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .form-action-footer {
+            flex-direction: column-reverse;
+        }
+        .form-action-footer a,
+        .form-action-footer button {
+            width: 100% !important;
+            justify-content: center;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div style="max-width: 860px; margin: 0 auto; padding-bottom: 60px;">
+<div class="register-container">
 
     <!-- Top Navigation & Share Banner -->
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
@@ -44,7 +107,7 @@
     <div style="background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 35px rgba(0,0,0,0.04); overflow: hidden;">
         
         <!-- Form Header -->
-        <div style="background: linear-gradient(135deg, #065f46 0%, #047857 50%, #0f766e 100%); color: white; padding: 28px 32px; position: relative; overflow: hidden;">
+        <div class="register-header-banner">
             <div style="position: relative; z-index: 2;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
                     <div style="width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
@@ -61,7 +124,7 @@
             <i class="fas fa-quran" style="position: absolute; right: -15px; bottom: -25px; font-size: 9rem; color: rgba(255,255,255,0.08); z-index: 1;"></i>
         </div>
 
-        <form method="POST" action="{{ route('munaqosah.register.store') }}" style="padding: 32px;">
+        <form method="POST" action="{{ route('munaqosah.register.store') }}" class="register-form-body">
             @csrf
 
             <!-- 1. Tipe Pembinaan -->
@@ -69,7 +132,7 @@
                 <label style="display: block; font-weight: 800; font-size: 0.92rem; color: #0f172a; margin-bottom: 10px;">
                     1. Bidang Pembinaan Munaqosah <span style="color: #ef4444;">*</span>
                 </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="type-selection-grid">
                     <label id="label_tahfidz" style="border: 2px solid {{ $selectedType === 'tahfidz' ? '#059669' : '#e2e8f0' }}; background: {{ $selectedType === 'tahfidz' ? '#f0fdf4' : '#ffffff' }}; border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s;">
                         <input type="radio" name="type" value="tahfidz" {{ $selectedType === 'tahfidz' ? 'checked' : '' }} onchange="switchMunaqosahType('tahfidz')" style="width: 20px; height: 20px; accent-color: #059669;">
                         <div>
@@ -164,7 +227,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="level-selection-grid">
                     <div>
                         <label style="display: block; font-weight: 700; font-size: 0.84rem; color: #334155; margin-bottom: 6px;">
                             Jenjang yang Dituntaskan <span style="color: #ef4444;">*</span>
@@ -292,7 +355,7 @@
             @endif
 
             <!-- Submit Buttons -->
-            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 22px;">
+            <div class="form-action-footer">
                 <a href="{{ route('munaqosah.index') }}" style="padding: 12px 22px; border-radius: 12px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                     Batal
                 </a>

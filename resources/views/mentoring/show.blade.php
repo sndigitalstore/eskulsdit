@@ -66,6 +66,59 @@
         transition: background 0.15s;
     }
     .student-item:hover { background: #f8fafc; }
+
+    /* Responsive Mobile vs Desktop untuk Show Kelompok */
+    @media (max-width: 768px) {
+        .group-show-hero {
+            padding: 18px 16px !important;
+            border-radius: 16px !important;
+        }
+        .group-show-actions {
+            width: 100% !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        .group-show-actions a,
+        .group-show-actions button {
+            width: 100% !important;
+            justify-content: center !important;
+            text-align: center !important;
+        }
+        .group-show-desktop-table {
+            display: none !important;
+        }
+        .group-show-mobile-cards {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            padding: 12px !important;
+        }
+        .modal-content {
+            width: 96% !important;
+            max-height: 92vh !important;
+        }
+        .modal-header {
+            padding: 14px 16px !important;
+        }
+        .modal-body {
+            padding: 12px 14px !important;
+        }
+        .modal-footer {
+            padding: 12px 16px !important;
+        }
+    }
+    @media (min-width: 769px) {
+        .group-show-mobile-cards {
+            display: none !important;
+        }
+    }
+    .student-mobile-card {
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
 </style>
 @endpush
 
@@ -114,29 +167,29 @@
         </div>
     @endif
 
-    <!-- GROUP HEADER CARD -->
-    <div class="card" style="padding: 24px; margin-bottom: 24px; border-top: 4px solid {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
-            <div style="display: flex; align-items: flex-start; gap: 16px;">
-                <div style="width: 56px; height: 56px; border-radius: 14px; background: {{ $type === 'tilawati' ? '#ecfdf5' : '#f0f9ff' }}; color: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
+    <!-- GROUP HEADER CARD (MODERN & RESPONSIF) -->
+    <div class="card group-show-hero" style="padding: 24px; margin-bottom: 24px; border-top: 4px solid {{ $type === 'tilawati' ? '#059669' : '#0284c7' }}; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: flex-start; gap: 16px; flex: 1 1 300px;">
+                <div style="width: 56px; height: 56px; border-radius: 14px; background: {{ $type === 'tilawati' ? '#ecfdf5' : '#f0f9ff' }}; color: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
                     <i class="fas {{ $type === 'tilawati' ? 'fa-book-reader' : 'fa-quran' }}"></i>
                 </div>
                 <div>
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <h2 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #0f172a;">
+                        <h2 style="margin: 0; font-size: 1.45rem; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">
                             {{ $group->name }}
                         </h2>
-                        <span style="background: {{ $type === 'tilawati' ? '#ecfdf5' : '#f0f9ff' }}; color: {{ $type === 'tilawati' ? '#047857' : '#0369a1' }}; border: 1px solid {{ $type === 'tilawati' ? '#a7f3d0' : '#bae6fd' }}; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase;">
+                        <span style="background: {{ $type === 'tilawati' ? '#ecfdf5' : '#f0f9ff' }}; color: {{ $type === 'tilawati' ? '#047857' : '#0369a1' }}; border: 1px solid {{ $type === 'tilawati' ? '#a7f3d0' : '#bae6fd' }}; font-size: 0.74rem; font-weight: 800; padding: 2px 10px; border-radius: 20px; text-transform: uppercase;">
                             {{ $typeLabel }}
                         </span>
                         @if($group->target_level)
-                            <span style="background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px;">
+                            <span style="background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; font-size: 0.76rem; font-weight: 800; padding: 2px 10px; border-radius: 20px;">
                                 <i class="fas fa-bullseye"></i> {{ $group->target_level }}
                             </span>
                         @endif
                     </div>
 
-                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; font-size: 0.88rem; color: #475569;">
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 0.86rem; color: #475569;">
                         <div>
                             <i class="fas fa-chalkboard-teacher" style="color: #64748b;"></i> Pembimbing: 
                             <strong style="color: #1e293b;">{{ $group->mentor_name }}</strong>
@@ -162,28 +215,28 @@
             </div>
 
             <!-- ACTION BUTTONS -->
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div class="group-show-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
                 @if($isAdmin)
-                    <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }};">
+                    <button type="button" onclick="openAddStudentsModal()" class="btn-action-header btn-green" style="background: {{ $type === 'tilawati' ? '#059669' : '#0284c7' }}; border-radius: 10px; padding: 9px 16px; font-weight: 800; font-size: 0.84rem;">
                         <i class="fas fa-user-plus"></i> + Tambah Siswa
                     </button>
                 @endif
                 @if($type === 'tahfidz')
-                    <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #7c3aed; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                    <a href="{{ route('tahfidz.attendance.index', ['group' => $group->id]) }}" class="btn-action-header" style="background: #7c3aed; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
                         <i class="fas fa-clipboard-check"></i> Riwayat Sesi & WA
                     </a>
-                    <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id]) }}" class="btn-action-header" style="background: #25d366; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
+                    <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id]) }}" class="btn-action-header" style="background: #25d366; color: white; text-decoration: none; padding: 9px 14px; border-radius: 10px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 800; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
                         <i class="fab fa-whatsapp"></i> + Input Sesi & Share WA
                     </a>
-                    <a href="{{ route('tahfidz.print-group-recap', ['group' => $group->id]) }}" target="_blank" class="btn-action-header btn-dark" style="background: #0f766e;">
+                    <a href="{{ route('tahfidz.print-group-recap', ['group' => $group->id]) }}" target="_blank" class="btn-action-header btn-dark" style="background: #0f766e; border-radius: 10px; padding: 9px 14px; font-size: 0.84rem; font-weight: 700;">
                         <i class="fas fa-quran"></i> Rekap Hafalan
                     </a>
                 @endif
-                <a href="{{ route('mentoring-groups.print-group', $group->id) }}" target="_blank" class="btn-action-header btn-dark" style="background: #334155;">
-                    <i class="fas fa-print"></i> Cetak Daftar Kelompok
+                <a href="{{ route('mentoring-groups.print-group', $group->id) }}" target="_blank" class="btn-action-header btn-dark" style="background: #334155; border-radius: 10px; padding: 9px 14px; font-size: 0.84rem; font-weight: 700;">
+                    <i class="fas fa-print"></i> Cetak Daftar
                 </a>
                 @if($isAdmin)
-                    <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange">
+                    <a href="{{ $type === 'tilawati' ? route('tilawati-groups.edit', $group->id) : route('tahfidz-groups.edit', $group->id) }}" class="btn-action-header btn-orange" style="border-radius: 10px; padding: 9px 14px; font-size: 0.84rem; font-weight: 700;">
                         <i class="fas fa-edit"></i> Edit
                     </a>
                 @endif
@@ -209,7 +262,8 @@
             @endif
         </div>
 
-        <div style="overflow-x: auto;">
+        {{-- A. DESKTOP TABLE VIEW --}}
+        <div class="group-show-desktop-table" style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; margin-top: 0;">
                 <thead>
                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
@@ -312,6 +366,82 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- B. MOBILE CARD LIST SISWA (SUPER RAPI & ELEGAN DI SMARTPHONE) --}}
+        <div class="group-show-mobile-cards">
+            @forelse($group->students as $index => $student)
+                <div class="student-mobile-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.82rem;">
+                                {{ substr($student->name, 0, 1) }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">
+                                    {{ $student->name }}
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center; margin-top: 2px;">
+                                    <span style="background: #f1f5f9; color: #0f172a; padding: 1px 7px; border-radius: 5px; font-weight: 700; font-size: 0.74rem;">
+                                        Kelas {{ $student->class }}
+                                    </span>
+                                    @if($student->nis)
+                                        <span style="color: #64748b; font-size: 0.74rem; font-family: monospace;">{{ $student->nis }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <span style="font-size: 0.74rem; font-weight: 700; color: #94a3b8;">#{{ $index + 1 }}</span>
+                    </div>
+
+                    @if($student->parent_phone)
+                        <div style="margin-bottom: 8px; font-size: 0.76rem;">
+                            <a href="https://api.whatsapp.com/send?phone={{ preg_replace('/[^0-9]/', '', $student->parent_phone) }}" target="_blank" style="color: #16a34a; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+                                <i class="fab fa-whatsapp"></i> {{ $student->parent_phone }} (Wali)
+                            </a>
+                        </div>
+                    @endif
+
+                    @if($student->pivot->notes)
+                        <div style="font-size: 0.78rem; color: #475569; background: #f8fafc; padding: 6px 10px; border-radius: 7px; margin-bottom: 10px;">
+                            {{ $student->pivot->notes }}
+                        </div>
+                    @endif
+
+                    <div style="display: flex; gap: 6px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 8px; align-items: center;">
+                        @if(isset($munaqosahRegistrations[$student->id]))
+                            <span style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 5px 10px; border-radius: 7px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-award"></i> Terdaftar Munaqosah
+                            </span>
+                        @else
+                            <button type="button" 
+                                    onclick="openQuickMunaqosahTilawatiModal({{ $student->id }}, '{{ addslashes($student->name) }}', '{{ $student->class }}', '{{ $group->target_level ?? '' }}')"
+                                    style="padding: 6px 12px; font-size: 0.78rem; background: #0284c7; color: white; border: none; border-radius: 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 800;">
+                                <i class="fas fa-award"></i> Daftar Munaqosah
+                            </button>
+                        @endif
+
+                        @if($type === 'tahfidz')
+                            <a href="{{ route('tahfidz.student-card', ['group' => $group->id, 'student' => $student->id]) }}" 
+                               class="btn-action-header" 
+                               style="padding: 6px 12px; font-size: 0.78rem; background: #0f766e; color: white; text-decoration: none; border-radius: 7px; display: inline-flex; align-items: center; gap: 4px; font-weight: 700;">
+                                <i class="fas fa-quran"></i> Hafalan
+                            </a>
+                        @endif
+
+                        @if($isAdmin)
+                            <button type="button" onclick="confirmRemoveStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn-action-header btn-red" style="padding: 6px 10px; font-size: 0.78rem; border-radius: 7px;" title="Keluarkan dari Kelompok">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div style="text-align: center; padding: 30px; color: #94a3b8;">
+                    <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 8px;"></i>
+                    <p style="margin: 0;">Belum ada anggota di kelompok ini.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 </div>
