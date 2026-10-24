@@ -158,7 +158,7 @@
             <i class="fas fa-quran" style="position: absolute; right: -15px; bottom: -25px; font-size: 9rem; color: rgba(255,255,255,0.08); z-index: 1;"></i>
         </div>
 
-        <form method="POST" action="{{ route('munaqosah.register.store') }}" class="register-form-body">
+        <form method="POST" action="{{ route('munaqosah.register.store') }}" class="register-form-body" id="munaqosahRegisterForm" onsubmit="return validateRegisterForm()">
             @csrf
 
             <!-- 1. Tipe Pembinaan -->
@@ -189,7 +189,7 @@
                 </div>
             </div>
 
-            <!-- 2. Pilih Siswa -->
+            <!-- 2. Pilih Siswa (Live Search Modern & Cerdas) -->
             <div style="margin-bottom: 26px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label style="font-weight: 800; font-size: 0.92rem; color: #0f172a;">
@@ -197,29 +197,49 @@
                     </label>
                     <span style="font-size: 0.78rem; color: #64748b;">Total {{ $students->count() }} siswa aktif</span>
                 </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: -4px; margin-bottom: 10px;">
+                    Ketik nama lengkap atau kelas siswa di bawah, pilihan nama & kelas akan muncul otomatis:
+                </p>
 
-                <div style="position: relative; margin-bottom: 8px;">
-                    <input type="text" id="student_search_box" placeholder="Ketik nama siswa atau kelas (cth: Andra, 3A, dll)..." onkeyup="filterStudentList()" 
-                           style="width: 100%; padding: 11px 14px 11px 38px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.9rem; background: #f8fafc; color: #0f172a; box-sizing: border-box; transition: all 0.2s;">
-                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 14px; color: #94a3b8; font-size: 0.9rem;"></i>
+                <!-- Input Pencarian Langsung -->
+                <div style="position: relative;">
+                    <input type="text" id="student_search_live" autocomplete="off"
+                           placeholder="Ketik nama lengkap siswa di sini (cth: Muhammad, Aisyah, 3A, dll)..." 
+                           oninput="onSearchStudentLive(this.value)"
+                           value="{{ $selectedStudent ? $selectedStudent->name : '' }}"
+                           style="width: 100%; padding: 12px 16px 12px 42px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; background: #ffffff; color: #0f172a; box-sizing: border-box; transition: all 0.2s;">
+                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 15px; color: #059669; font-size: 1.05rem;"></i>
                 </div>
 
-                <select name="student_id" id="student_select_box" required size="5" onchange="onStudentSelected(this)" 
-                        style="width: 100%; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.9rem; padding: 8px; background: white; color: #0f172a; outline: none; box-sizing: border-box;">
-                    <option value="" disabled {{ !$selectedStudentId ? 'selected' : '' }}>-- Klik untuk memilih salah satu siswa --</option>
-                    @foreach($students as $st)
-                        <option value="{{ $st->id }}" {{ $selectedStudentId == $st->id ? 'selected' : '' }} data-class="{{ $st->class }}">
-                            {{ $st->name }} — Kelas {{ $st->class }} @if($st->nis) (NIS: {{ $st->nis }}) @endif
-                        </option>
-                    @endforeach
-                </select>
+                <!-- Floating Container Hasil Pencarian -->
+                <div id="student_search_results" style="display: none; max-height: 230px; overflow-y: auto; background: white; border: 1.5px solid #10b981; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 6px; z-index: 50; position: relative;">
+                    <!-- Diisi dinamis oleh JavaScript -->
+                </div>
 
-                <div id="student_selected_badge" style="{{ $selectedStudent ? 'display: flex;' : 'display: none;' }} align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 8px 14px; margin-top: 8px;">
-                    <div style="font-size: 0.85rem; color: #166534;">
-                        <i class="fas fa-user-check" style="color: #10b981; margin-right: 6px;"></i>
-                        Siswa terpilih: <strong id="selected_student_name_text">{{ $selectedStudent->name ?? '' }}</strong> (Kelas {{ $selectedStudent->class ?? '' }})
+                <!-- Hidden Input untuk dikirim ke backend -->
+                <input type="hidden" name="student_id" id="selected_student_id" value="{{ $selectedStudentId ?? '' }}" required>
+
+                <!-- Siswa Terpilih (Card Konfirmasi Hijau Elegan) -->
+                <div id="student_selected_card" style="{{ $selectedStudent ? 'display: flex;' : 'display: none;' }} background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 12px; padding: 12px 16px; margin-top: 10px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 42px; height: 42px; border-radius: 10px; background: #d1fae5; color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.74rem; color: #059669; font-weight: 800; text-transform: uppercase;">Siswa Terpilih:</div>
+                            <h4 id="selected_student_name_label" style="margin: 0; font-size: 1rem; font-weight: 800; color: #065f46;">
+                                {{ $selectedStudent ? $selectedStudent->name : '' }}
+                            </h4>
+                            <p id="selected_student_meta_label" style="margin: 2px 0 0 0; font-size: 0.78rem; color: #047857;">
+                                @if($selectedStudent)
+                                    Kelas {{ $selectedStudent->class }} @if($selectedStudent->nis) • NIS: {{ $selectedStudent->nis }} @endif
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                    <span style="font-size: 0.75rem; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Aktif</span>
+                    <button type="button" onclick="clearStudentSelection()" style="background: white; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-sync-alt"></i> Ganti
+                    </button>
                 </div>
             </div>
 
@@ -404,6 +424,8 @@
 </div>
 
 <script>
+const allStudentsData = @json($students);
+
 function switchMunaqosahType(type) {
     const labelTahfidz = document.getElementById('label_tahfidz');
     const labelTilawati = document.getElementById('label_tilawati');
@@ -475,28 +497,100 @@ function setQuickJilid(jilid) {
     tgt.value = jilidMap[jilid] || 'Jenjang Lanjutan';
 }
 
-function filterStudentList() {
-    const query = document.getElementById('student_search_box').value.toLowerCase();
-    const select = document.getElementById('student_select_box');
-    for (let opt of select.options) {
-        if (!opt.value) continue;
-        const text = opt.text.toLowerCase();
-        opt.style.display = text.includes(query) ? '' : 'none';
+function onSearchStudentLive(query) {
+    const q = query.trim().toLowerCase();
+    const box = document.getElementById('student_search_results');
+
+    if (q.length < 2) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
     }
+
+    const matches = allStudentsData.filter(st => {
+        const nameMatch = st.name && st.name.toLowerCase().includes(q);
+        const classMatch = st.class && String(st.class).toLowerCase().includes(q);
+        const nisMatch = st.nis && String(st.nis).toLowerCase().includes(q);
+        return nameMatch || classMatch || nisMatch;
+    }).slice(0, 15);
+
+    if (matches.length === 0) {
+        box.innerHTML = '<div style="padding: 14px 16px; font-size: 0.85rem; color: #94a3b8; text-align: center;">Tidak ditemukan siswa dengan kata kunci "<strong>' + escapeHtml(query) + '</strong>"</div>';
+        box.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    matches.forEach(st => {
+        const studentName = escapeHtml(st.name);
+        const studentClass = escapeHtml(st.class);
+        const studentNis = escapeHtml(st.nis || '');
+        
+        html += '<div onclick="selectStudentLive(' + st.id + ', \'' + studentName + '\', \'' + studentClass + '\', \'' + studentNis + '\')" ' +
+                'style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s;" ' +
+                'onmouseover="this.style.background=\'#ecfdf5\'" onmouseout="this.style.background=\'white\'">' +
+                '<div>' +
+                    '<strong style="color: #0f172a; font-size: 0.92rem; display: block;">' + studentName + '</strong>' +
+                    '<span style="font-size: 0.76rem; color: #64748b;">Kelas ' + studentClass + (studentNis ? ' • NIS: ' + studentNis : '') + '</span>' +
+                '</div>' +
+                '<span style="font-size: 0.75rem; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Pilih</span>' +
+                '</div>';
+    });
+
+    box.innerHTML = html;
+    box.style.display = 'block';
 }
 
-function onStudentSelected(select) {
-    const selectedOpt = select.options[select.selectedIndex];
-    const badge = document.getElementById('student_selected_badge');
-    const nameText = document.getElementById('selected_student_name_text');
+function selectStudentLive(id, name, cls, nis) {
+    document.getElementById('selected_student_id').value = id;
+    document.getElementById('selected_student_name_label').textContent = name;
+    document.getElementById('selected_student_meta_label').textContent = 'Kelas ' + cls + (nis ? ' • NIS: ' + nis : '');
+    document.getElementById('student_selected_card').style.display = 'flex';
 
-    if (selectedOpt && selectedOpt.value) {
-        badge.style.display = 'flex';
-        nameText.textContent = selectedOpt.text;
-    } else {
-        badge.style.display = 'none';
-    }
+    document.getElementById('student_search_live').value = name;
+    document.getElementById('student_search_results').style.display = 'none';
 }
+
+function clearStudentSelection() {
+    document.getElementById('selected_student_id').value = '';
+    document.getElementById('student_selected_card').style.display = 'none';
+    const input = document.getElementById('student_search_live');
+    input.value = '';
+    input.focus();
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function validateRegisterForm() {
+    const studentId = document.getElementById('selected_student_id').value;
+    if (!studentId) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Siswa Terlebih Dahulu',
+                text: 'Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.',
+                confirmButtonColor: '#059669'
+            });
+        } else {
+            alert('Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.');
+        }
+        document.getElementById('student_search_live').focus();
+        return false;
+    }
+    return true;
+}
+
+// Tutup floating search box jika klik di luar
+document.addEventListener('click', function(e) {
+    const box = document.getElementById('student_search_results');
+    const input = document.getElementById('student_search_live');
+    if (box && input && !box.contains(e.target) && e.target !== input) {
+        box.style.display = 'none';
+    }
+});
 
 function appendNote(text) {
     const textarea = document.getElementById('proposer_notes');

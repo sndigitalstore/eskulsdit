@@ -1270,7 +1270,7 @@
             </h3>
             <button type="button" onclick="closeRegisterModal()" style="background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer;">&times;</button>
         </div>
-        <form method="POST" action="{{ route('munaqosah.register.store') }}" style="padding: 24px;">
+        <form method="POST" action="{{ route('munaqosah.register.store') }}" style="padding: 24px;" onsubmit="return validateModalRegisterForm()">
             @csrf
             
             <div style="margin-bottom: 16px;">
@@ -1289,16 +1289,28 @@
 
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Siswa <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="student_search_input" placeholder="Ketik nama atau kelas siswa..." onkeyup="filterStudentList()" 
-                       style="width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; margin-bottom: 6px; box-sizing: border-box;">
-                <select name="student_id" id="student_select" required size="4" style="width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; padding: 6px; box-sizing: border-box;">
-                    @php
-                        $studentsList = \App\Models\Student::activeYear()->active()->orderBy('class')->orderBy('name')->get();
-                    @endphp
-                    @foreach($studentsList as $st)
-                        <option value="{{ $st->id }}">{{ $st->name }} (Kelas {{ $st->class }})</option>
-                    @endforeach
-                </select>
+                <div style="position: relative;">
+                    <input type="text" id="modal_student_search" autocomplete="off" placeholder="Ketik nama lengkap atau kelas siswa..." oninput="onSearchModalStudent(this.value)" 
+                           style="width: 100%; padding: 10px 14px 10px 38px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
+                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #059669; font-size: 0.95rem;"></i>
+                </div>
+
+                <div id="modal_student_search_results" style="display: none; max-height: 180px; overflow-y: auto; background: white; border: 1.5px solid #10b981; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); margin-top: 6px; z-index: 50; position: relative;"></div>
+
+                <input type="hidden" name="student_id" id="modal_selected_student_id" required>
+
+                <div id="modal_student_selected_card" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 10px; padding: 10px 14px; margin-top: 8px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user-check" style="color: #059669; font-size: 1.1rem;"></i>
+                        <div>
+                            <strong id="modal_selected_student_name" style="font-size: 0.9rem; color: #065f46; display: block;"></strong>
+                            <span id="modal_selected_student_meta" style="font-size: 0.76rem; color: #047857;"></span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="clearModalStudentSelection()" style="background: white; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> Ganti
+                    </button>
+                </div>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 16px;">
@@ -1592,6 +1604,106 @@ function closeRegisterModal() {
     const el = document.getElementById('registerModal');
     if (el) el.style.display = 'none';
 }
+
+@php
+    $modalStudentsList = \App\Models\Student::activeYear()->active()->orderBy('class')->orderBy('name')->get(['id', 'name', 'class', 'nis']);
+@endphp
+const modalStudentsData = @json($modalStudentsList);
+
+function onSearchModalStudent(query) {
+    const q = query.trim().toLowerCase();
+    const box = document.getElementById('modal_student_search_results');
+    if (!box) return;
+
+    if (q.length < 2) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
+    }
+
+    const matches = modalStudentsData.filter(st => {
+        const nameMatch = st.name && st.name.toLowerCase().includes(q);
+        const classMatch = st.class && String(st.class).toLowerCase().includes(q);
+        const nisMatch = st.nis && String(st.nis).toLowerCase().includes(q);
+        return nameMatch || classMatch || nisMatch;
+    }).slice(0, 15);
+
+    if (matches.length === 0) {
+        box.innerHTML = '<div style="padding: 10px 14px; font-size: 0.82rem; color: #94a3b8; text-align: center;">Tidak ditemukan siswa dengan kata kunci "<strong>' + escapeModalHtml(query) + '</strong>"</div>';
+        box.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    matches.forEach(st => {
+        const studentName = escapeModalHtml(st.name);
+        const studentClass = escapeModalHtml(st.class);
+        const studentNis = escapeModalHtml(st.nis || '');
+        
+        html += '<div onclick="selectModalStudent(' + st.id + ', \'' + studentName + '\', \'' + studentClass + '\', \'' + studentNis + '\')" ' +
+                'style="padding: 8px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s;" ' +
+                'onmouseover="this.style.background=\'#ecfdf5\'" onmouseout="this.style.background=\'white\'">' +
+                '<div>' +
+                    '<strong style="color: #0f172a; font-size: 0.86rem; display: block;">' + studentName + '</strong>' +
+                    '<span style="font-size: 0.74rem; color: #64748b;">Kelas ' + studentClass + (studentNis ? ' • NIS: ' + studentNis : '') + '</span>' +
+                '</div>' +
+                '<span style="font-size: 0.72rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Pilih</span>' +
+                '</div>';
+    });
+
+    box.innerHTML = html;
+    box.style.display = 'block';
+}
+
+function selectModalStudent(id, name, cls, nis) {
+    document.getElementById('modal_selected_student_id').value = id;
+    document.getElementById('modal_selected_student_name').textContent = name;
+    document.getElementById('modal_selected_student_meta').textContent = 'Kelas ' + cls + (nis ? ' • NIS: ' + nis : '');
+    document.getElementById('modal_student_selected_card').style.display = 'flex';
+
+    document.getElementById('modal_student_search').value = name;
+    document.getElementById('modal_student_search_results').style.display = 'none';
+}
+
+function clearModalStudentSelection() {
+    document.getElementById('modal_selected_student_id').value = '';
+    document.getElementById('modal_student_selected_card').style.display = 'none';
+    const input = document.getElementById('modal_student_search');
+    input.value = '';
+    input.focus();
+}
+
+function escapeModalHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function validateModalRegisterForm() {
+    const studentId = document.getElementById('modal_selected_student_id').value;
+    if (!studentId) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Siswa Terlebih Dahulu',
+                text: 'Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.',
+                confirmButtonColor: '#059669'
+            });
+        } else {
+            alert('Silakan ketik nama lengkap siswa pada kolom pencarian dan klik nama siswa yang sesuai.');
+        }
+        document.getElementById('modal_student_search').focus();
+        return false;
+    }
+    return true;
+}
+
+document.addEventListener('click', function(e) {
+    const box = document.getElementById('modal_student_search_results');
+    const input = document.getElementById('modal_student_search');
+    if (box && input && !box.contains(e.target) && e.target !== input) {
+        box.style.display = 'none';
+    }
+});
 
 function openAddScheduleModal() {
     const el = document.getElementById('addScheduleModal');
