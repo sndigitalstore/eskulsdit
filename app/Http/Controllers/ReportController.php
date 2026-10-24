@@ -88,7 +88,12 @@ class ReportController extends Controller
                 } elseif ($isHomeroom && $isEskulCoach) {
                     // Tugas Ganda: Wali Kelas + Pembina Eskul
                     $eskulClasses = Student::forYear($selectedYearId)
-                        ->whereHas('eskuls', fn($q) => $q->where('eskuls.id', $user->eskul_id))
+                        ->whereHas('eskuls', function($q) use ($user, $selectedYearId) {
+                            $q->where('eskuls.id', $user->eskul_id);
+                            if ($selectedYearId) {
+                                $q->where('student_eskul.academic_year_id', $selectedYearId);
+                            }
+                        })
                         ->select('class')->distinct()->orderBy('class')->pluck('class');
                     $classes = collect([$user->homeroom_class])->merge($eskulClasses)->unique()->values();
                     $selectedClass = $request->class ?? $user->homeroom_class;
@@ -97,7 +102,12 @@ class ReportController extends Controller
                     }
                 } elseif ($isEskulCoach) {
                     $classes = Student::forYear($selectedYearId)
-                        ->whereHas('eskuls', fn($q) => $q->where('eskuls.id', $user->eskul_id))
+                        ->whereHas('eskuls', function($q) use ($user, $selectedYearId) {
+                            $q->where('eskuls.id', $user->eskul_id);
+                            if ($selectedYearId) {
+                                $q->where('student_eskul.academic_year_id', $selectedYearId);
+                            }
+                        })
                         ->select('class')->distinct()->orderBy('class')->pluck('class');
                     $selectedClass = $request->class ?? ($classes->first() ?? null);
                     if ($selectedClass && !$classes->contains($selectedClass)) {
@@ -477,8 +487,10 @@ class ReportController extends Controller
                     // Pembina Eskul melihat siswa yang mengikuti eskul binaannya
                     $query = Student::forYear($selectedYearId)
                         ->whereHas('eskuls', function($query) use ($user, $selectedYearId) {
-                            $query->where('eskuls.id', $user->eskul_id)
-                                  ->wherePivot('academic_year_id', $selectedYearId);
+                            $query->where('eskuls.id', $user->eskul_id);
+                            if ($selectedYearId) {
+                                $query->where('student_eskul.academic_year_id', $selectedYearId);
+                            }
                         })
                         ->where(function($q) {
                             $q->where('status', '!=', 'graduated')->orWhereNull('status');
@@ -490,8 +502,10 @@ class ReportController extends Controller
 
                     $students = $query->with([
                         'eskuls' => function($query) use ($user, $selectedYearId) {
-                            $query->where('eskuls.id', $user->eskul_id)
-                                  ->wherePivot('academic_year_id', $selectedYearId);
+                            $query->where('eskuls.id', $user->eskul_id);
+                            if ($selectedYearId) {
+                                $query->where('student_eskul.academic_year_id', $selectedYearId);
+                            }
                         }, 
                         'grades' => function($query) use ($user, $selectedYearId) {
                             $query->where('eskul_id', $user->eskul_id)
