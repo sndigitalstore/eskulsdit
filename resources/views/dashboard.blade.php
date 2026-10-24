@@ -80,6 +80,9 @@
                 @if(isset($mySubjectsCount) && $mySubjectsCount > 0)
                     <span style="background: #f5f3ff; color: #6d28d9; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Guru Mapel ({{ $mySubjectsCount }})</span>
                 @endif
+                @if($isMunaqisyExaminer ?? false)
+                    <span style="background: #e0e7ff; color: #3730a3; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-user-check"></i> Dewan Munaqisy</span>
+                @endif
             @endif
         </div>
     </div>
@@ -152,8 +155,28 @@
     </div>
 @endif
 
+{{-- RUANG DEWAN MUNAQISY (JIKA BELUM ADA JADWAL SANTRI) --}}
+@if(($isOnlyExaminer ?? false) && (!isset($myUpcomingExams) || $myUpcomingExams->isEmpty()))
+    <div class="card" style="background: white; border-radius: 20px; border: 1.5px dashed #cbd5e1; padding: 48px 24px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <div style="width: 72px; height: 72px; border-radius: 20px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 18px; box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.25);">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: #1e293b; margin: 0 0 8px 0; letter-spacing: -0.3px;">
+            Ruang Dewan Munaqisy
+        </h3>
+        <p style="color: #64748b; font-size: 0.95rem; max-width: 540px; margin: 0 auto 24px; line-height: 1.6;">
+            Saat ini belum ada antrean santri / siswa yang dijadwalkan untuk diuji oleh antum. Antrean santri dan jadwal ujian akan muncul otomatis di halaman ini setelah dialokasikan oleh tim kurikulum / koordinator.
+        </p>
+        <div>
+            <a href="{{ route('munaqosah.index') }}" class="btn-action-header" style="background: #4f46e5; color: white; padding: 11px 24px; font-weight: 700; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                <i class="fas fa-list-alt"></i> Buka Rekapitulasi Munaqosah
+            </a>
+        </div>
+    </div>
+@endif
+
 {{-- PEMBERITAHUAN SISWA LULUS MUNAQOSAH (MENUNGGU PINDAH KELOMPOK / JENJANG) --}}
-@if(isset($pendingMunaqosahPromotions) && $pendingMunaqosahPromotions->isNotEmpty())
+@if(!($isOnlyExaminer ?? false) && isset($pendingMunaqosahPromotions) && $pendingMunaqosahPromotions->isNotEmpty())
     @php
         $canPromote = in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']);
     @endphp
@@ -267,6 +290,7 @@
 @endif
 
 <!-- Stats Grid (Dinamis Sesuai Peran) -->
+@if(!($isOnlyExaminer ?? false))
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
     @if(Auth::user()->role === 'admin')
         <!-- Admin Stats: Global -->
@@ -563,6 +587,7 @@
         @endif
     @endif
 </div>
+@endif
 
 @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) && isset($programAchievements))
     <!-- INDIKATOR KETERCAPAIAN MUTU & PROGRAM UNGGULAN (KPI SEKOLAH) -->
@@ -1329,6 +1354,7 @@
 
 
 
+@if(!($isOnlyExaminer ?? false))
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
     <!-- Left Column -->
     <div style="display: flex; flex-direction: column; gap: 2rem;">
@@ -1645,6 +1671,7 @@
     
     </div>
 </div>
+@endif
 
 <!-- Share Modal (Formulir) -->
 <div id="shareModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">

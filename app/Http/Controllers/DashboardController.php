@@ -679,6 +679,14 @@ class DashboardController extends Controller
             }
         }
 
+        // Tentukan apakah user ini HANYA bertugas sebagai dewan penguji/munaqisy
+        $isOnlyExaminer = false;
+        if ($isMunaqisyExaminer && !in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            if (!$isHomeroomTeacher && !$teacherEskul && $myTilawatiGroups->isEmpty() && $myTahfidzGroups->isEmpty() && ($mySubjectsCount ?? 0) === 0) {
+                $isOnlyExaminer = true;
+            }
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -699,6 +707,7 @@ class DashboardController extends Controller
             'pendingMunaqosahPromotions',
             'allMentoringGroups',
             'isMunaqisyExaminer',
+            'isOnlyExaminer',
             'myUpcomingExams'
         ));
     }
