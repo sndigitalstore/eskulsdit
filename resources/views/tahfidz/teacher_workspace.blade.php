@@ -322,70 +322,78 @@
         opacity: 0.95;
     }
     .completion-actions {
-        display: flex;
-        gap: 8px;
+        display: inline-flex;
         align-items: center;
-        flex-wrap: wrap;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    .btn-recap-wa, .btn-recap-copy, .btn-recap-edit {
+        height: 38px;
+        min-height: 38px;
+        min-width: 116px;
+        padding: 0 16px;
+        border-radius: 9px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+        text-decoration: none;
+        box-sizing: border-box;
+        line-height: 1;
+        user-select: none;
+        border: none;
+        outline: none;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn-recap-wa {
         background: #16a34a;
-        color: white;
-        border: none;
-        padding: 7px 14px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.82rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
+        color: #ffffff !important;
         box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
-        transition: all 0.15s ease;
     }
     .btn-recap-wa:hover {
         background: #15803d;
-        color: white;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
+    }
+    .btn-recap-wa:active {
+        transform: translateY(0);
     }
     .btn-recap-copy {
         background: #0284c7;
-        color: white;
-        border: none;
-        padding: 7px 14px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.82rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
+        color: #ffffff !important;
         box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
-        transition: all 0.15s ease;
     }
     .btn-recap-copy:hover {
         background: #0369a1;
-        color: white;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+    }
+    .btn-recap-copy:active {
+        transform: translateY(0);
+    }
+    .btn-recap-copy.copied {
+        background: #059669 !important;
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35) !important;
     }
     .btn-recap-edit {
         background: #475569;
-        color: white;
-        border: none;
-        padding: 7px 14px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.82rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
+        color: #ffffff !important;
         box-shadow: 0 2px 6px rgba(71, 85, 105, 0.25);
-        transition: all 0.15s ease;
     }
     .btn-recap-edit:hover {
         background: #334155;
-        color: white;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(71, 85, 105, 0.35);
+    }
+    .btn-recap-edit:active {
+        transform: translateY(0);
     }
 
     /* Recap Table */
@@ -984,13 +992,25 @@
             font-size: 1.15rem;
         }
         .completion-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
             width: 100%;
         }
         .btn-recap-wa, .btn-recap-copy, .btn-recap-edit {
-            flex: 1;
-            justify-content: center;
-            padding: 8px 10px;
-            font-size: 0.8rem;
+            width: 100%;
+            min-width: 0;
+            height: 38px;
+            min-height: 38px;
+            padding: 0 4px;
+            font-size: 0.76rem;
+            border-radius: 8px;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .btn-recap-wa i, .btn-recap-copy i, .btn-recap-edit i {
+            font-size: 0.82rem;
+            flex-shrink: 0;
         }
         .input-clean {
             height: 35px;
@@ -1197,8 +1217,8 @@
         </div>
     </div>
 
-    {{-- 4. BANNER SUKSES SIMPAN & KIRIM LAPORAN WA --}}
-    @if(session('success') || $openShare)
+    {{-- 4. BANNER SUKSES SIMPAN & KIRIM LAPORAN WA (Hanya tampil saat bukan tampilan ringkasan sesi tersimpan) --}}
+    @if((session('success') || $openShare) && (!$isSessionSaved || $isEditMode))
         <div class="wa-success-banner" id="successBanner">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="width: 36px; height: 36px; border-radius: 50%; background: #22c55e; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
@@ -1218,8 +1238,8 @@
                         style="background: #25D366; color: white; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
                     <i class="fab fa-whatsapp"></i> Buka WhatsApp
                 </button>
-                <button type="button" onclick="copyWaText()" 
-                        style="background: white; border: 1.5px solid #86efac; color: #166534; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                <button type="button" onclick="copyWaText(this)" 
+                        style="background: #0284c7; color: white; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
                     <i class="fas fa-copy"></i> Salin
                 </button>
             </div>
@@ -1246,7 +1266,7 @@
                     <button type="button" onclick="openWaModal()" class="btn-recap-wa" title="Bagikan Laporan WhatsApp">
                         <i class="fab fa-whatsapp"></i> <span>Share WA</span>
                     </button>
-                    <button type="button" onclick="copyWaText()" class="btn-recap-copy" title="Salin Teks Laporan">
+                    <button type="button" onclick="copyWaText(this)" class="btn-recap-copy" id="btnRecapCopy" title="Salin Teks Laporan">
                         <i class="fas fa-copy"></i> <span>Salin Laporan</span>
                     </button>
                     <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" class="btn-recap-edit" title="Ubah Data Sesi">
@@ -1926,17 +1946,61 @@
         document.getElementById('waModal').classList.remove('open');
     }
 
-    // Salin teks laporan WA
-    function copyWaText() {
+    // Salin teks laporan WA dengan feedback interaktif dan toast
+    function copyWaText(btn) {
         const textarea = document.getElementById('waMessageTextarea');
-        textarea.select();
-        textarea.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(textarea.value).then(() => {
-            alert('✅ Teks laporan WhatsApp berhasil disalin! Tinggal tempel (paste) di WhatsApp Web atau aplikasi WA.');
-        }).catch(() => {
+        const text = textarea ? textarea.value : '';
+        if (!text) return;
+
+        const notifySuccess = () => {
+            if (btn) {
+                const origHtml = btn.innerHTML;
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i> <span>Tersalin!</span>';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = origHtml;
+                }, 2000);
+            }
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Laporan Berhasil Disalin!',
+                    text: 'Silakan tempel (paste) ke WhatsApp.',
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+            }
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(notifySuccess).catch(() => {
+                fallbackCopyText(text, notifySuccess);
+            });
+        } else {
+            fallbackCopyText(text, notifySuccess);
+        }
+    }
+
+    function fallbackCopyText(text, callback) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        temp.style.top = '0';
+        document.body.appendChild(temp);
+        temp.focus();
+        temp.select();
+        try {
             document.execCommand('copy');
-            alert('✅ Teks berhasil disalin!');
-        });
+            if (callback) callback();
+        } catch (e) {
+            prompt('Salin teks laporan WhatsApp berikut:', text);
+        }
+        document.body.removeChild(temp);
     }
 
     // Modal Daftarkan Munaqosah Cepat dari Ruang Halaqah
