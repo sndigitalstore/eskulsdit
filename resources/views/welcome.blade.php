@@ -69,6 +69,8 @@
 
         html {
             scroll-behavior: smooth;
+            overflow-x: hidden;
+            width: 100%;
         }
 
         body {
@@ -81,6 +83,8 @@
             color: var(--text-dark);
             line-height: 1.6;
             overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             min-height: 100vh;
         }
 
@@ -99,6 +103,7 @@
             pointer-events: none;
             z-index: -1;
             overflow: hidden;
+            max-width: 100vw;
         }
 
         .blob {
@@ -416,56 +421,147 @@
         }
 
         .mockup-metric {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 14px 16px;
+            border-radius: 14px;
+            padding: 13px 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 94px;
+            box-sizing: border-box;
+            text-align: left;
+            transition: all 0.25s ease;
         }
 
-        .mockup-metric.active-theme {
+        .mockup-metric.metric-green {
             background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-            border-color: #bbf7d0;
+            border: 1px solid #bbf7d0;
         }
 
-        .mockup-metric .metric-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
+        .mockup-metric.metric-blue {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
         }
 
-        .mockup-metric .metric-val {
-            font-size: 1.45rem;
-            font-weight: 900;
-            color: #064e3b;
-            margin-top: 2px;
+        .mockup-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
         }
 
-        .mockup-feed {
-            background: #ffffff;
-            border: 1px solid #f1f5f9;
-            border-radius: 12px;
-            padding: 12px 14px;
+        .metric-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 10px;
         }
 
-        .mockup-feed-left {
+        .mockup-metric .metric-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .mockup-metric.metric-green .metric-tag-icon { color: #10b981; font-size: 0.75rem; }
+        .mockup-metric.metric-blue .metric-tag-icon { color: #0284c7; font-size: 0.75rem; }
+
+        .mockup-metric .metric-val {
+            font-size: 1.55rem;
+            font-weight: 900;
+            margin: 4px 0 2px;
+            line-height: 1.1;
+        }
+
+        .mockup-metric.metric-green .metric-val { color: #064e3b; }
+        .mockup-metric.metric-blue .metric-val { color: #0369a1; }
+
+        .metric-sub {
+            font-size: 0.72rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
+            gap: 5px;
+        }
+
+        .mockup-metric.metric-green .metric-sub { color: #047857; }
+        .mockup-metric.metric-blue .metric-sub { color: #0284c7; }
+
+        .mockup-feed {
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 10px;
+            border: 1px solid;
+            text-align: left;
+            transition: all 0.25s ease;
+        }
+
+        .mockup-feed.feed-green { background: #f0fdf4; border-color: #bbf7d0; }
+        .mockup-feed.feed-amber { background: #fefce8; border-color: #fef08a; }
+        .mockup-feed.feed-blue  { background: #f0f9ff; border-color: #bae6fd; }
+
+        .mockup-feed:hover {
+            transform: translateX(3px);
+        }
+
+        .mockup-feed-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .mockup-feed-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
         }
 
         .mockup-feed-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .feed-green .mockup-feed-icon { background: #dcfce7; color: #15803d; }
+        .feed-amber .mockup-feed-icon { background: #fef9c3; color: #a16207; }
+        .feed-blue  .mockup-feed-icon { background: #e0f2fe; color: #0369a1; }
+
+        .mockup-feed-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .feed-green .mockup-feed-title { color: #166534; }
+        .feed-amber .mockup-feed-title { color: #854d0e; }
+        .feed-blue  .mockup-feed-title { color: #075985; }
+
+        .mockup-feed-badge {
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: white;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .feed-green .mockup-feed-badge { color: #15803d; }
+        .feed-amber .mockup-feed-badge { color: #a16207; }
+        .feed-blue  .mockup-feed-badge { color: #0369a1; }
+
+        .mockup-feed-desc {
+            font-size: 0.74rem;
+            color: #64748b;
+            line-height: 1.4;
+            padding-left: 37px;
+            white-space: normal;
         }
 
         /* 4 Pillars Section */
@@ -1038,11 +1134,13 @@
 
         @media (max-width: 768px) {
             nav.main-nav {
-                padding: 0.75rem 5%;
+                padding: 0.75rem 16px;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             nav.scrolled {
-                padding: 0.65rem 5%;
+                padding: 0.65rem 16px;
             }
 
             nav.main-nav .nav-menu {
@@ -1051,132 +1149,211 @@
 
             .mobile-nav-actions {
                 display: flex;
+                align-items: center;
+                gap: 8px;
             }
 
             .brand-logo {
-                width: 38px;
-                height: 38px;
+                width: 36px;
+                height: 36px;
             }
 
             .brand-title {
-                font-size: 1.18rem;
+                font-size: 1.15rem;
+                white-space: nowrap;
             }
 
             .brand-subtitle {
-                font-size: 0.65rem;
+                font-size: 0.64rem;
+                white-space: nowrap;
+            }
+
+            /* Blobs on mobile */
+            .blob-1 {
+                width: 280px;
+                height: 280px;
+                top: -60px;
+                left: -60px;
+            }
+
+            .blob-2 {
+                width: 260px;
+                height: 260px;
+                top: 8%;
+                right: -60px;
+            }
+
+            .blob-3 {
+                width: 220px;
+                height: 220px;
             }
 
             /* Hero Section on Mobile */
             header.hero-section {
-                padding: 95px 5% 45px;
-                gap: 32px;
+                padding: 92px 16px 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 28px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .hero-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                max-width: 500px;
+                margin: 0 auto;
+                text-align: center;
             }
 
             .hero-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
                 font-size: 0.75rem;
-                padding: 6px 12px;
-                margin-bottom: 14px;
+                padding: 6px 14px;
+                margin: 0 auto 15px;
+                max-width: 100%;
+                box-sizing: border-box;
+                text-align: center;
             }
 
             .hero-title {
-                font-size: 1.95rem;
-                line-height: 1.22;
+                font-size: 1.85rem;
+                line-height: 1.25;
                 margin-bottom: 14px;
+                text-align: center;
+                word-break: break-word;
             }
 
             .hero-desc {
-                font-size: 0.92rem;
-                line-height: 1.6;
-                margin-bottom: 22px;
+                font-size: 0.88rem;
+                line-height: 1.62;
+                margin: 0 auto 22px;
+                text-align: center;
+                color: #475569;
+                max-width: 100%;
             }
 
             .hero-cta-group {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
+                max-width: 360px;
                 gap: 10px;
-                max-width: 380px;
                 margin: 0 auto;
             }
 
             .btn-hero-primary,
             .btn-hero-secondary {
                 width: 100%;
+                display: flex;
+                align-items: center;
                 justify-content: center;
-                padding: 12px 18px;
-                font-size: 0.9rem;
+                padding: 13px 18px;
+                font-size: 0.92rem;
                 border-radius: 12px;
+                box-sizing: border-box;
+                text-align: center;
             }
 
-            /* Mockup Card on Mobile */
+            /* Mockup Card on Mobile - 100% Symmetrical, Zero Cutoff */
+            .hero-mockup-wrapper {
+                width: 100%;
+                max-width: 440px;
+                margin: 0 auto;
+            }
+
             .hero-mockup-card {
-                padding: 18px 14px;
+                padding: 16px 14px;
                 border-radius: 18px;
+                width: 100%;
+                box-sizing: border-box;
+                box-shadow: 0 10px 30px rgba(6, 78, 59, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
             }
 
             .mockup-header {
-                padding-bottom: 10px;
+                padding-bottom: 11px;
+                margin-bottom: 12px;
+            }
+
+            .mockup-metrics-grid {
+                gap: 8px;
                 margin-bottom: 12px;
             }
 
             .mockup-metric {
-                padding: 10px 12px;
+                padding: 11px 11px;
+                min-height: 90px;
+                border-radius: 12px;
+            }
+
+            .mockup-metric .metric-label {
+                font-size: 0.68rem;
             }
 
             .mockup-metric .metric-val {
-                font-size: 1.3rem;
+                font-size: 1.35rem;
+                margin: 2px 0 2px;
+            }
+
+            .mockup-metric .metric-sub {
+                font-size: 0.68rem;
+                gap: 4px;
             }
 
             .mockup-feed {
-                padding: 9px 10px;
+                padding: 10px 11px;
+                margin-top: 8px;
+                border-radius: 11px;
+            }
+
+            .mockup-feed-header {
+                margin-bottom: 3px;
                 gap: 8px;
             }
 
-            .mockup-feed-left {
+            .mockup-feed-brand {
                 gap: 8px;
-                flex: 1;
-                min-width: 0;
             }
 
             .mockup-feed-icon {
-                width: 28px;
-                height: 28px;
-                font-size: 0.78rem;
+                width: 26px;
+                height: 26px;
+                font-size: 0.74rem;
+                border-radius: 7px;
             }
 
-            .mockup-feed-left div:last-child {
-                flex: 1;
-                min-width: 0;
-                text-align: left;
+            .mockup-feed-title {
+                font-size: 0.8rem;
             }
 
-            .mockup-feed-left div:last-child div:first-child {
-                font-size: 0.78rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .mockup-feed-left div:last-child div:last-child {
-                font-size: 0.68rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .mockup-feed > span {
-                flex-shrink: 0;
+            .mockup-feed-badge {
                 font-size: 0.65rem;
-                padding: 2px 6px;
+                padding: 2px 7px;
+            }
+
+            .mockup-feed-desc {
+                font-size: 0.73rem;
+                padding-left: 34px;
+                line-height: 1.38;
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
             }
 
             /* 4 Pillars Section on Mobile */
             section.section-pillars {
-                padding: 55px 5%;
+                padding: 50px 16px;
             }
 
             .section-header {
-                margin-bottom: 35px;
+                margin-bottom: 30px;
             }
 
             .section-tag {
@@ -1185,22 +1362,22 @@
             }
 
             .section-title {
-                font-size: 1.7rem;
+                font-size: 1.65rem;
                 line-height: 1.25;
             }
 
             .section-desc {
-                font-size: 0.9rem;
+                font-size: 0.88rem;
                 line-height: 1.55;
             }
 
             .pillars-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 14px;
             }
 
             .pillar-card {
-                padding: 20px 18px;
+                padding: 20px 16px;
                 border-radius: 16px;
             }
 
@@ -1218,7 +1395,7 @@
             }
 
             .pillar-text {
-                font-size: 0.88rem;
+                font-size: 0.86rem;
                 line-height: 1.55;
                 margin-bottom: 14px;
             }
@@ -1232,49 +1409,61 @@
                 margin-bottom: 6px;
             }
 
-            /* Stats Grid 2x2 on Mobile */
+            /* Stats Grid 2x2 on Mobile - Perfectly Symmetrical */
             section.section-stats {
-                padding: 50px 5%;
+                padding: 45px 16px;
             }
 
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
-                gap: 12px;
+                gap: 10px;
             }
 
             .stat-item {
                 background: rgba(255, 255, 255, 0.08);
                 backdrop-filter: blur(8px);
-                border: 1px solid rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.14);
                 border-radius: 14px;
-                padding: 16px 10px;
+                padding: 14px 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                min-height: 105px;
+                box-sizing: border-box;
             }
 
             .stat-number {
-                font-size: 2.1rem;
+                font-size: 1.95rem;
+                line-height: 1.1;
             }
 
             .stat-label {
-                font-size: 0.82rem;
+                font-size: 0.8rem;
+                font-weight: 700;
                 margin-top: 4px;
             }
 
             .stat-desc {
-                font-size: 0.7rem;
+                font-size: 0.68rem;
+                line-height: 1.35;
+                margin-top: 2px;
+                opacity: 0.85;
             }
 
             /* Features Grid on Mobile */
             section.section-features {
-                padding: 55px 5%;
+                padding: 50px 16px;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
-                gap: 14px;
+                gap: 12px;
             }
 
             .feature-box {
-                padding: 16px;
+                padding: 16px 14px;
                 border-radius: 14px;
                 gap: 12px;
             }
@@ -1298,40 +1487,42 @@
 
             /* CTA Banner on Mobile */
             section.section-cta {
-                padding: 30px 5% 60px;
+                padding: 25px 16px 50px;
             }
 
             .cta-banner-card {
-                padding: 28px 18px;
-                border-radius: 18px;
+                padding: 26px 16px;
+                border-radius: 16px;
                 text-align: center;
                 flex-direction: column;
                 gap: 18px;
             }
 
             .cta-banner-content h3 {
-                font-size: 1.4rem;
+                font-size: 1.35rem;
                 line-height: 1.25;
             }
 
             .cta-banner-content p {
-                font-size: 0.86rem;
+                font-size: 0.85rem;
             }
 
             .cta-banner-card .btn-hero-primary {
                 width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
                 justify-content: center;
             }
 
             /* Footer on Mobile */
             footer.main-footer {
-                padding: 45px 5% 20px;
+                padding: 40px 16px 20px;
             }
 
             .footer-grid {
                 grid-template-columns: 1fr;
-                gap: 28px;
-                margin-bottom: 35px;
+                gap: 26px;
+                margin-bottom: 30px;
             }
 
             .footer-brand h4 {
@@ -1366,12 +1557,16 @@
 
         /* Narrow Phones (< 380px) */
         @media (max-width: 380px) {
+            header.hero-section {
+                padding: 85px 12px 35px;
+            }
+
             .brand-title {
                 font-size: 1.05rem;
             }
 
-            .hero-title {
-                font-size: 1.72rem;
+            .brand-subtitle {
+                font-size: 0.6rem;
             }
 
             .mobile-quick-btn span {
@@ -1379,7 +1574,39 @@
             }
 
             .mobile-quick-btn {
-                padding: 7px 9px;
+                padding: 6px 9px;
+            }
+
+            .hero-title {
+                font-size: 1.65rem;
+            }
+
+            .hero-badge {
+                font-size: 0.72rem;
+                padding: 5px 10px;
+            }
+
+            .mockup-metric {
+                padding: 9px 8px;
+                min-height: 84px;
+            }
+
+            .mockup-metric .metric-val {
+                font-size: 1.25rem;
+            }
+
+            .mockup-feed {
+                padding: 8px 9px;
+            }
+
+            .mockup-feed-title {
+                font-size: 0.78rem;
+            }
+
+            .mockup-feed-desc {
+                font-size: 0.71rem;
+                padding-left: 0;
+                margin-top: 4px;
             }
 
             .stats-grid {
@@ -1387,11 +1614,12 @@
             }
 
             .stat-number {
-                font-size: 1.85rem;
+                font-size: 1.7rem;
             }
 
             .stat-item {
                 padding: 12px 6px;
+                min-height: 95px;
             }
         }
     </style>
@@ -1542,60 +1770,66 @@
                 </div>
 
                 <div class="mockup-metrics-grid">
-                    <div class="mockup-metric active-theme">
-                        <div class="metric-label">Siswa Terbina</div>
+                    <div class="mockup-metric metric-green">
+                        <div class="metric-top">
+                            <span class="metric-label">Siswa Terbina</span>
+                            <span class="metric-tag-icon"><i class="fas fa-user-check"></i></span>
+                        </div>
                         <div class="metric-val">{{ $totalSiswa }}</div>
-                        <div style="font-size: 0.72rem; color: #047857; font-weight: 600; margin-top: 2px;">
+                        <div class="metric-sub">
                             <i class="fas fa-check-circle"></i> Terdata & Aktif
                         </div>
                     </div>
-                    <div class="mockup-metric">
-                        <div class="metric-label">Halaqah Qur'an</div>
-                        <div class="metric-val" style="color: #0284c7;">{{ $totalKelompok }}</div>
-                        <div style="font-size: 0.72rem; color: #0284c7; font-weight: 600; margin-top: 2px;">
-                            <i class="fas fa-quran"></i> Tilawati & Tahfidz
+                    <div class="mockup-metric metric-blue">
+                        <div class="metric-top">
+                            <span class="metric-label">Halaqah Qur'an</span>
+                            <span class="metric-tag-icon"><i class="fas fa-quran"></i></span>
+                        </div>
+                        <div class="metric-val">{{ $totalKelompok }}</div>
+                        <div class="metric-sub">
+                            <i class="fas fa-bookmark"></i> Tilawati & Tahfidz
                         </div>
                     </div>
                 </div>
 
                 <!-- Feed items inside mockup -->
-                <div class="mockup-feed" style="background: #f0fdf4; border-color: #bbf7d0;">
-                    <div class="mockup-feed-left">
-                        <div class="mockup-feed-icon" style="background: #dcfce7; color: #15803d;">
-                            <i class="fas fa-quran"></i>
+                <div class="mockup-feed feed-green">
+                    <div class="mockup-feed-header">
+                        <div class="mockup-feed-brand">
+                            <div class="mockup-feed-icon">
+                                <i class="fas fa-quran"></i>
+                            </div>
+                            <span class="mockup-feed-title">Pembinaan Al-Qur'an</span>
                         </div>
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #166534;">Pembinaan Al-Qur'an</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Setoran Tahfidz, Tilawati & Ujian Munaqosah</div>
-                        </div>
+                        <span class="mockup-feed-badge">Terbina</span>
                     </div>
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #15803d; background: white; padding: 2px 8px; border-radius: 6px;">Terbina</span>
+                    <div class="mockup-feed-desc">Setoran Tahfidz, Tilawati & Ujian Munaqosah</div>
                 </div>
 
-                <div class="mockup-feed" style="background: #fefce8; border-color: #fef08a;">
-                    <div class="mockup-feed-left">
-                        <div class="mockup-feed-icon" style="background: #fef9c3; color: #a16207;">
-                            <i class="fas fa-star"></i>
+                <div class="mockup-feed feed-amber">
+                    <div class="mockup-feed-header">
+                        <div class="mockup-feed-brand">
+                            <div class="mockup-feed-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="mockup-feed-title">Mutaba'ah Karakter Siswa</span>
                         </div>
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #854d0e;">Mutaba'ah Karakter Siswa</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Pembiasaan Shalat, Adab Harian & Kepemimpinan</div>
-                        </div>
+                        <span class="mockup-feed-badge">Terpantau</span>
                     </div>
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #a16207; background: white; padding: 2px 8px; border-radius: 6px;">Terpantau</span>
+                    <div class="mockup-feed-desc">Pembiasaan Shalat, Adab Harian & Kepemimpinan</div>
                 </div>
 
-                <div class="mockup-feed" style="background: #f0f9ff; border-color: #bae6fd;">
-                    <div class="mockup-feed-left">
-                        <div class="mockup-feed-icon" style="background: #e0f2fe; color: #0369a1;">
-                            <i class="fas fa-graduation-cap"></i>
+                <div class="mockup-feed feed-blue">
+                    <div class="mockup-feed-header">
+                        <div class="mockup-feed-brand">
+                            <div class="mockup-feed-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <span class="mockup-feed-title">Kurikulum & Prestasi</span>
                         </div>
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #075985;">Kurikulum & Prestasi</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Laporan Capaian Belajar & Ekstrakurikuler</div>
-                        </div>
+                        <span class="mockup-feed-badge">Resmi</span>
                     </div>
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #0369a1; background: white; padding: 2px 8px; border-radius: 6px;">Resmi</span>
+                    <div class="mockup-feed-desc">Laporan Capaian Belajar & Ekstrakurikuler</div>
                 </div>
             </div>
         </div>

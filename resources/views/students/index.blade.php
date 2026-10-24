@@ -1278,8 +1278,8 @@
             border: 1px solid #fecaca;
         }
 
-        /* Smaller mobile screens (< 420px) */
-        @media (max-width: 420px) {
+        /* Mobile screens (< 520px) */
+        @media (max-width: 520px) {
             .m-card-actions.m-actions-4 {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 8px !important;
