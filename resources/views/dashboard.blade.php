@@ -91,6 +91,67 @@
     <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -15px; bottom: -25px; font-size: 9.5rem; color: rgba(99, 102, 241, 0.05);"></i>
 </div>
 
+{{-- PENGINGAT DEWAN MUNAQISY (KHUSUS AKUN PENGUJI) --}}
+@if(($isMunaqisyExaminer ?? false) && isset($myUpcomingExams) && $myUpcomingExams->isNotEmpty())
+    <div class="card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%); color: white; border-radius: 20px; padding: 22px 24px; margin-bottom: 25px; box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.25); border: 1.5px solid #6366f1; position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+                <div style="width: 50px; height: 50px; border-radius: 14px; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.4);">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
+                        <h3 style="font-size: 1.2rem; font-weight: 800; color: #f8fafc; margin: 0;">
+                            Pengingat Dewan Munaqisy: {{ $myUpcomingExams->count() }} Santri / Siswa Terjadwal Ujian
+                        </h3>
+                        <span style="background: #e0e7ff; color: #3730a3; font-size: 0.74rem; font-weight: 800; padding: 3px 10px; border-radius: 20px;">
+                            Tugas Penguji
+                        </span>
+                    </div>
+                    <p style="color: #c7d2fe; font-size: 0.88rem; margin: 0; font-weight: 500;">
+                        Antum memiliki penugasan dewan penguji munaqosah untuk mengevaluasi kelayakan kenaikan jilid / juz siswa berikut.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a href="{{ route('munaqosah.index', ['examiner' => 'me']) }}" class="btn-action-header" style="background: #4f46e5; color: white; padding: 10px 20px; font-weight: 700; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                    <i class="fas fa-edit"></i> Buka Lembar Ujian Munaqisy
+                </a>
+            </div>
+        </div>
+
+        {{-- Grid Siswa Terjadwal Ujian --}}
+        <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+            @foreach($myUpcomingExams->take(6) as $exam)
+                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <div>
+                        <div style="font-weight: 800; color: #ffffff; font-size: 0.92rem;">
+                            {{ $exam->student->name ?? 'Siswa' }}
+                        </div>
+                        <div style="font-size: 0.78rem; color: #c7d2fe; margin-top: 2px;">
+                            Kelas {{ $exam->student->class ?? '-' }} • <strong>{{ $exam->current_level }}</strong> &rarr; <span style="color: #86efac; font-weight: 700;">{{ $exam->target_level }}</span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #a5b4fc; margin-top: 3px;">
+                            <i class="far fa-clock"></i> {{ $exam->exam_time ?? ($exam->exam_date ? \Carbon\Carbon::parse($exam->exam_date)->locale('id')->isoFormat('D MMM Y') : 'Waktu Belum Diisi') }}
+                        </div>
+                    </div>
+                    <a href="{{ route('munaqosah.score', $exam->id) }}" 
+                       style="background: #10b981; color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);">
+                        <i class="fas fa-edit"></i> Uji
+                    </a>
+                </div>
+            @endforeach
+        </div>
+        @if($myUpcomingExams->count() > 6)
+            <div style="margin-top: 12px; text-align: right;">
+                <a href="{{ route('munaqosah.index', ['examiner' => 'me']) }}" style="color: #c7d2fe; font-size: 0.8rem; font-weight: 700; text-decoration: underline;">
+                    Lihat {{ $myUpcomingExams->count() - 6 }} siswa lainnya &rarr;
+                </a>
+            </div>
+        @endif
+    </div>
+@endif
+
 {{-- PEMBERITAHUAN SISWA LULUS MUNAQOSAH (MENUNGGU PINDAH KELOMPOK / JENJANG) --}}
 @if(isset($pendingMunaqosahPromotions) && $pendingMunaqosahPromotions->isNotEmpty())
     @php

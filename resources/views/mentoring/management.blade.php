@@ -385,7 +385,7 @@
 
             <div style="min-width: 170px;">
                 <label style="display: block; font-size: 0.72rem; font-weight: 800; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Tahun Pelajaran</label>
-                <select name="year_id" class="form-control" onchange="this.form.submit()" style="padding: 8px 12px; font-size: 0.86rem; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 600;">
+                <select name="year_id" class="form-control-pro" onchange="this.form.submit()" style="width: 100%;">
                     @foreach($academicYears as $year)
                         <option value="{{ $year->id }}" {{ $selectedYearId == $year->id ? 'selected' : '' }}>
                             TP: {{ $year->name }} {{ $year->is_active ? '(Aktif)' : '' }}
@@ -397,7 +397,7 @@
             @if($tab !== 'unassigned')
                 <div style="min-width: 190px;">
                     <label style="display: block; font-size: 0.72rem; font-weight: 800; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Filter Guru Pembimbing</label>
-                    <select name="mentor_user_id" class="form-control" onchange="this.form.submit()" style="padding: 8px 12px; font-size: 0.86rem; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 600;">
+                    <select name="mentor_user_id" class="form-control-pro" onchange="this.form.submit()" style="width: 100%;">
                         <option value="">-- Semua Pembimbing --</option>
                         @foreach($teachers as $teacher)
                             <option value="{{ $teacher->id }}" {{ $mentorFilter == $teacher->id ? 'selected' : '' }}>
@@ -756,7 +756,7 @@
                 <input type="hidden" name="unassigned_type" value="{{ $unassignedType }}">
 
                 <div style="min-width: 180px;">
-                    <select name="class_filter" class="form-control" onchange="this.form.submit()" style="padding: 8px 12px; font-size: 0.88rem; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 600;">
+                    <select name="class_filter" class="form-control-pro" onchange="this.form.submit()" style="width: 100%;">
                         <option value="">-- Semua Kelas ({{ $unassignedStudents->count() }} siswa) --</option>
                         @foreach($availableClasses as $c)
                             <option value="{{ $c }}" {{ $classFilter == $c ? 'selected' : '' }}>
@@ -796,7 +796,7 @@
                         </div>
 
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
-                            <select name="group_id" class="form-control" required style="padding: 9px 12px; font-size: 0.86rem; min-width: 260px; border-radius: 10px; border: 1px solid #93c5fd; font-weight: 600;">
+                            <select name="group_id" class="form-control-pro" required style="min-width: 260px;">
                                 <option value="">-- Pilih Kelompok {{ ucfirst($unassignedType) }} Tujuan --</option>
                                 @foreach($availableGroups->where('type', $unassignedType) as $g)
                                     <option value="{{ $g->id }}">
@@ -917,7 +917,7 @@
                     <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 0.86rem;">
                         Tahun Pelajaran <span style="color: #ef4444;">*</span>
                     </label>
-                    <select name="academic_year_id" required class="form-control" style="padding: 10px 12px; font-size: 0.88rem; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 600;">
+                    <select name="academic_year_id" required class="form-control-pro" style="width: 100%;">
                         @foreach($academicYears as $year)
                             <option value="{{ $year->id }}" {{ $selectedYearId == $year->id ? 'selected' : '' }}>
                                 {{ $year->name }} {{ $year->is_active ? '(Aktif)' : '' }}
@@ -931,7 +931,7 @@
                     <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 0.86rem;">
                         Guru Pembimbing / Mentor <span style="color: #ef4444;">*</span>
                     </label>
-                    <select name="mentor_user_id" id="modalMentorUserId" required onchange="handleMentorSelect(this)" class="form-control" style="padding: 10px 12px; font-size: 0.88rem; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 600;">
+                    <select name="mentor_user_id" id="modalMentorUserId" required onchange="handleMentorSelect(this)" class="form-control-pro" style="width: 100%;">
                         <option value="">-- Pilih Akun Guru --</option>
                         @foreach($teachers as $teacher)
                             <option value="{{ $teacher->id }}" data-name="{{ $teacher->name }}">{{ $teacher->name }} ({{ $teacher->role }})</option>

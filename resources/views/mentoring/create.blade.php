@@ -75,7 +75,7 @@
                 <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
                     Tahun Pelajaran <span style="color: #ef4444;">*</span>
                 </label>
-                <select name="academic_year_id" class="form-control" required style="border-radius: 10px; height: 42px;">
+                <select name="academic_year_id" class="form-control-pro" required style="width: 100%;">
                     @foreach($academicYears as $year)
                         <option value="{{ $year->id }}" {{ ($activeYear && $activeYear->id == $year->id) ? 'selected' : '' }}>
                             {{ $year->name }} {{ $year->is_active ? '(Aktif)' : '' }}
@@ -105,7 +105,7 @@
                     <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">
                         Pautkan dengan Akun Guru (Opsional)
                     </label>
-                    <select name="mentor_user_id" id="mentorUserSelect" class="form-control" onchange="syncMentorName(this)" style="border-radius: 10px; height: 42px;">
+                    <select name="mentor_user_id" id="mentorUserSelect" class="form-control-pro" onchange="syncMentorName(this)" style="width: 100%;">
                         <option value="">-- Pilih Akun Guru Terdaftar (Jika Ada) --</option>
                         @foreach($teachers as $teacher)
                             <option value="{{ $teacher->id }}" data-name="{{ $teacher->name }}">

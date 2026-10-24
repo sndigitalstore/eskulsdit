@@ -112,6 +112,43 @@
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
     }
 
+    /* Form Dropdown Profesional Ala Surah Picker */
+    .form-control-pro, select.form-control-pro {
+        height: 42px;
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23059669' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 14px 14px;
+        padding: 8px 36px 8px 14px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 12px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #0f172a;
+        outline: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+    input[type="date"].form-control-pro {
+        background-image: none;
+        padding-right: 14px;
+        cursor: pointer;
+    }
+    .form-control-pro:hover {
+        border-color: #94a3b8;
+        background-color: #f8fafc;
+    }
+    .form-control-pro:focus {
+        border-color: #059669;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.15);
+    }
+
     @media (max-width: 768px) {
         .munaqosah-hero {
             padding: 20px 18px;
@@ -235,7 +272,9 @@
         <!-- Total Registrations -->
         <div class="munaqosah-kpi-card">
             <div>
-                <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Total Pendaftar</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">
+                    Total Pendaftar {{ ($dateFilter === $todayDate) ? 'Hari Ini' : '' }}
+                </span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin: 4px 0 0 0;">{{ $totalCount }}</h3>
             </div>
             <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
@@ -246,7 +285,9 @@
         <!-- Menunggu Ujian -->
         <div class="munaqosah-kpi-card" style="border-color: #fde68a;">
             <div>
-                <span style="font-size: 0.78rem; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.03em;">Menunggu Ujian</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.03em;">
+                    Menunggu Ujian {{ ($dateFilter === $todayDate) ? 'Hari Ini' : '' }}
+                </span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #b45309; margin: 4px 0 0 0;">{{ $pendingCount + $scheduledCount }}</h3>
             </div>
             <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
@@ -257,7 +298,9 @@
         <!-- Lulus Munaqosah -->
         <div class="munaqosah-kpi-card" style="border-color: #a7f3d0; background: linear-gradient(to bottom, #ffffff, #f0fdf4);">
             <div>
-                <span style="font-size: 0.78rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.03em;">Lulus Munaqosah</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.03em;">
+                    Lulus {{ ($dateFilter === $todayDate) ? 'Hari Ini' : '' }}
+                </span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #047857; margin: 4px 0 0 0;">{{ $passedCount }}</h3>
             </div>
             <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
@@ -268,7 +311,9 @@
         <!-- Belum Lulus / Mengulang -->
         <div class="munaqosah-kpi-card" style="border-color: #fecaca;">
             <div>
-                <span style="font-size: 0.78rem; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.03em;">Belum Lulus</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.03em;">
+                    Belum Lulus {{ ($dateFilter === $todayDate) ? 'Hari Ini' : '' }}
+                </span>
                 <h3 style="font-size: 1.85rem; font-weight: 800; color: #b91c1c; margin: 4px 0 0 0;">{{ $failedCount }}</h3>
             </div>
             <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
@@ -276,7 +321,8 @@
             </div>
         </div>
 
-        <!-- Dewan Penguji (Munaqisy) -->
+        @if($isAdminOrCurriculum)
+        <!-- Dewan Penguji (Munaqisy) - Admin/Kurikulum -->
         <div class="munaqosah-kpi-card" style="border-color: #c7d2fe;">
             <div>
                 <span style="font-size: 0.78rem; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 0.03em;">Mentor Penguji</span>
@@ -286,43 +332,58 @@
                 <i class="fas fa-user-tie"></i>
             </div>
         </div>
+        @else
+        <!-- Peserta Ujian Saya - Penguji -->
+        <div class="munaqosah-kpi-card" style="border-color: #c7d2fe; background: linear-gradient(to bottom, #ffffff, #eef2ff);">
+            <div>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #4338ca; text-transform: uppercase; letter-spacing: 0.03em;">Peserta Saya</span>
+                <h3 style="font-size: 1.85rem; font-weight: 800; color: #3730a3; margin: 4px 0 0 0;">{{ $myExamsCount }}</h3>
+            </div>
+            <div class="kpi-icon" style="width: 48px; height: 48px; border-radius: 14px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
+                <i class="fas fa-user-check"></i>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Navigation Tabs & Filters Modern & Responsif -->
     <div style="background: white; border-radius: 20px; padding: 18px 20px; border: 1px solid #e2e8f0; margin-bottom: 22px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 14px;">
         <div class="munaqosah-tabs-bar">
-            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'all', 'year_id' => $selectedYearId]) }}" 
+            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'all', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $activeTab === 'recap' && $statusFilter === 'all' && $examinerFilter !== 'me' ? 'background: #047857; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
-                <i class="fas fa-list-alt"></i> Semua Rekapan Data ({{ $totalCount }})
+                <i class="fas fa-list-alt"></i> {{ ($dateFilter === $todayDate) ? 'Peserta Terdaftar Hari Ini' : 'Semua Rekapan Data' }} ({{ $totalCount }})
             </a>
-            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'passed', 'year_id' => $selectedYearId]) }}" 
+            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'passed', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $statusFilter === 'passed' ? 'background: #10b981; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-check-circle"></i> Sudah Lulus ({{ $passedCount }})
             </a>
-            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'failed', 'year_id' => $selectedYearId]) }}" 
+            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'status' => 'failed', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $statusFilter === 'failed' ? 'background: #ef4444; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-times-circle"></i> Belum Lulus ({{ $failedCount }})
             </a>
             @if($examinerRecord || $myExamsCount > 0)
-            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'examiner' => $examinerFilter === 'me' ? 'all' : 'me', 'year_id' => $selectedYearId]) }}" 
+            <a href="{{ route('munaqosah.index', ['tab' => 'recap', 'examiner' => $examinerFilter === 'me' ? 'all' : 'me', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $examinerFilter === 'me' ? 'background: #4338ca; color: white;' : 'background: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe;' }}">
                 <i class="fas fa-user-check"></i> Peserta Ujian Saya ({{ $myExamsCount }})
             </a>
             @endif
-            <a href="{{ route('munaqosah.index', ['tab' => 'schedules', 'year_id' => $selectedYearId]) }}" 
+
+            @if($isAdminOrCurriculum)
+            <a href="{{ route('munaqosah.index', ['tab' => 'schedules', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $activeTab === 'schedules' ? 'background: #0284c7; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-calendar-check"></i> Jadwal & Ketersediaan Penguji ({{ $schedulesCount }})
             </a>
-            <a href="{{ route('munaqosah.index', ['tab' => 'examiners', 'year_id' => $selectedYearId]) }}" 
+            <a href="{{ route('munaqosah.index', ['tab' => 'examiners', 'year_id' => $selectedYearId, 'date' => $dateFilter]) }}" 
                class="munaqosah-tab-btn"
                style="{{ $activeTab === 'examiners' ? 'background: #4f46e5; color: white;' : 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;' }}">
                 <i class="fas fa-user-graduate"></i> Dewan Penguji ({{ $examinersCount }})
             </a>
+            @endif
         </div>
 
         <!-- Filter Form Simetris & Responsif -->
@@ -331,13 +392,37 @@
             <input type="hidden" name="status" value="{{ $statusFilter }}">
             <input type="hidden" name="examiner" value="{{ $examinerFilter }}">
 
-            <select name="type" onchange="this.form.submit()" style="padding: 9px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.86rem; background: #f8fafc; font-weight: 700; color: #334155; flex-grow: 1;">
+            <!-- Filter Tanggal Masuk / Ujian (Hari Ini vs Kalender) -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <input type="date" name="date" value="{{ $dateFilter !== 'all' ? $dateFilter : '' }}" onchange="this.form.submit()" 
+                       class="form-control-pro" title="Pilih Tanggal Masuk / Ujian" style="min-width: 145px;">
+                @if($dateFilter === $todayDate)
+                    <span style="background: #ecfdf5; color: #047857; border: 1.5px solid #a7f3d0; padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-calendar-day"></i> Hari Ini
+                    </span>
+                @else
+                    <a href="{{ route('munaqosah.index', ['tab' => $activeTab, 'date' => $todayDate, 'year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" 
+                       style="background: #f1f5f9; color: #334155; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; text-decoration: none; white-space: nowrap; border: 1px solid #cbd5e1;">
+                        <i class="far fa-calendar-check"></i> Hari Ini
+                    </a>
+                @endif
+                @if($dateFilter !== 'all')
+                    <a href="{{ route('munaqosah.index', ['tab' => $activeTab, 'date' => 'all', 'year_id' => $selectedYearId, 'status' => $statusFilter, 'type' => $typeFilter]) }}" 
+                       style="background: #f8fafc; color: #64748b; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; text-decoration: none; white-space: nowrap;">
+                        Semua Tanggal
+                    </a>
+                @endif
+            </div>
+
+            <!-- Tipe Dropdown -->
+            <select name="type" onchange="this.form.submit()" class="form-control-pro" style="flex-grow: 1;">
                 <option value="all" {{ $typeFilter === 'all' ? 'selected' : '' }}>Semua Tipe (Tilawati & Tahfidz)</option>
                 <option value="tahfidz" {{ $typeFilter === 'tahfidz' ? 'selected' : '' }}>Hafalan Tahfidz</option>
                 <option value="tilawati" {{ $typeFilter === 'tilawati' ? 'selected' : '' }}>Tilawati Al-Qur'an</option>
             </select>
 
-            <select name="year_id" onchange="this.form.submit()" style="padding: 9px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.86rem; background: #f8fafc; font-weight: 700; color: #334155; flex-grow: 1;">
+            <!-- Tahun Pelajaran Dropdown -->
+            <select name="year_id" onchange="this.form.submit()" class="form-control-pro" style="flex-grow: 1;">
                 @foreach($academicYears as $ay)
                     <option value="{{ $ay->id }}" {{ $selectedYearId == $ay->id ? 'selected' : '' }}>
                         {{ $ay->name }} (Semester {{ $ay->active_semester }})
@@ -345,14 +430,14 @@
                 @endforeach
             </select>
 
-            <div style="position: relative; flex-grow: 2;">
+            <div style="position: relative; flex-grow: 2; min-width: 180px;">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama siswa / kelas..." 
-                       style="padding: 9px 14px 9px 36px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.86rem; width: 100%; box-sizing: border-box; background: white;">
+                       class="form-control-pro" style="padding-left: 36px; width: 100%; box-sizing: border-box;">
                 <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8; font-size: 0.85rem;"></i>
             </div>
 
-            @if($search || $typeFilter !== 'all' || $statusFilter !== 'all')
-                <a href="{{ route('munaqosah.index', ['tab' => $activeTab]) }}" style="color: #ef4444; font-size: 0.84rem; font-weight: 800; text-decoration: none; padding: 6px 12px; border-radius: 8px; background: #fef2f2; display: inline-flex; align-items: center; gap: 4px;">
+            @if($search || $typeFilter !== 'all' || $statusFilter !== 'all' || ($dateFilter && $dateFilter !== 'all' && $dateFilter !== $todayDate))
+                <a href="{{ route('munaqosah.index', ['tab' => $activeTab, 'date' => $isExaminerOnly ? $todayDate : 'all']) }}" style="color: #ef4444; font-size: 0.84rem; font-weight: 800; text-decoration: none; padding: 8px 14px; border-radius: 10px; background: #fef2f2; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #fecaca;">
                     <i class="fas fa-undo"></i> Reset Filter
                 </a>
             @endif
@@ -1253,7 +1338,7 @@
 
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Mentor Penguji (Munaqisy) <span style="color: #ef4444;">*</span></label>
-                <select name="examiner_id" id="schedule_examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
+                <select name="examiner_id" id="schedule_examiner_id" required class="form-control-pro" style="width: 100%;">
                     <option value="">-- Pilih Penguji --</option>
                     @foreach($examiners->where('status', 'active') as $ex)
                         <option value="{{ $ex->id }}">{{ $ex->user->name ?? 'Penguji' }} ({{ ucfirst($ex->specialization) }})</option>
@@ -1301,7 +1386,7 @@
             
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Pilih Akun Guru / Asatidz <span style="color: #ef4444;">*</span></label>
-                <select name="user_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
+                <select name="user_id" required class="form-control-pro" style="width: 100%;">
                     <option value="">-- Pilih Guru --</option>
                     @foreach($teachers as $tc)
                         <option value="{{ $tc->id }}">{{ $tc->name }} ({{ $tc->email }})</option>
@@ -1311,7 +1396,7 @@
 
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">Spesialisasi Pengujian <span style="color: #ef4444;">*</span></label>
-                <select name="specialization" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; box-sizing: border-box;">
+                <select name="specialization" required class="form-control-pro" style="width: 100%;">
                     <option value="both">Keduanya (Tahfidz & Tilawati)</option>
                     <option value="tahfidz">Khusus Tahfidz</option>
                     <option value="tilawati">Khusus Tilawati</option>
@@ -1361,7 +1446,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.86rem; color: #334155; margin-bottom: 8px;">
                     Pilih Kelompok Baru Tujuan Siswa <span style="color: #ef4444;">*</span>
                 </label>
-                <select name="target_group_id" id="target_group_select" required style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #10b981; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc; box-sizing: border-box;">
+                <select name="target_group_id" id="target_group_select" required class="form-control-pro" style="width: 100%;">
                     <option value="">-- Pilih Kelompok Mentoring --</option>
                     @foreach($groups as $grp)
                         <option value="{{ $grp->id }}" data-type="{{ $grp->type }}" data-target="{{ $grp->target_level }}">
@@ -1400,7 +1485,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
                     Pilih Mentor Penguji (Munaqisy) <span style="color: #ef4444;">*</span>
                 </label>
-                <select name="examiner_id" required style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600; box-sizing: border-box;">
+                <select name="examiner_id" required class="form-control-pro" style="width: 100%;">
                     <option value="">-- Pilih Penguji --</option>
                     @foreach($examiners->where('status', 'active') as $ex)
                         <option value="{{ $ex->id }}">{{ $ex->user->name ?? 'Penguji' }} ({{ ucfirst($ex->specialization) }})</option>
@@ -1413,7 +1498,7 @@
                     <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
                         Hari Ketersediaan <span style="color: #ef4444;">*</span>
                     </label>
-                    <select name="day_name" required style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600;">
+                    <select name="day_name" required class="form-control-pro" style="width: 100%;">
                         <option value="Senin">Senin</option>
                         <option value="Selasa">Selasa</option>
                         <option value="Rabu" selected>Rabu</option>
@@ -1465,7 +1550,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
                     Kategori Ujian
                 </label>
-                <select name="exam_type" style="width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.86rem; font-weight: 600;">
+                <select name="exam_type" class="form-control-pro" style="width: 100%;">
                     <option value="all">Semua (Tahfidz & Tilawati)</option>
                     <option value="tahfidz">Khusus Tahfidz</option>
                     <option value="tilawati">Khusus Tilawati</option>

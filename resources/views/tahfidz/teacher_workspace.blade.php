@@ -324,53 +324,67 @@
     .completion-actions {
         display: flex;
         gap: 8px;
+        align-items: center;
         flex-wrap: wrap;
     }
     .btn-recap-wa {
-        background: #25D366;
+        background: #16a34a;
         color: white;
         border: none;
-        padding: 8px 16px;
-        border-radius: 9px;
-        font-weight: 800;
-        font-size: 0.84rem;
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.82rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
-        transition: transform 0.15s;
+        box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+        transition: all 0.15s ease;
+    }
+    .btn-recap-wa:hover {
+        background: #15803d;
+        color: white;
     }
     .btn-recap-copy {
-        background: white;
-        color: #065f46;
-        border: 1px solid rgba(255,255,255,0.8);
-        padding: 8px 14px;
-        border-radius: 9px;
-        font-weight: 800;
-        font-size: 0.84rem;
+        background: #0284c7;
+        color: white;
+        border: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.82rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        transition: transform 0.15s;
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        transition: all 0.15s ease;
+    }
+    .btn-recap-copy:hover {
+        background: #0369a1;
+        color: white;
     }
     .btn-recap-edit {
-        background: rgba(255,255,255,0.2);
+        background: #475569;
         color: white;
-        border: 1px solid rgba(255,255,255,0.4);
-        padding: 8px 14px;
-        border-radius: 9px;
+        border: none;
+        padding: 7px 14px;
+        border-radius: 8px;
         font-weight: 700;
-        font-size: 0.84rem;
+        font-size: 0.82rem;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        transition: background 0.15s;
+        box-shadow: 0 2px 6px rgba(71, 85, 105, 0.25);
+        transition: all 0.15s ease;
     }
     .btn-recap-edit:hover {
-        background: rgba(255,255,255,0.3);
+        background: #334155;
         color: white;
     }
 
@@ -1051,38 +1065,6 @@
         </div>
     @endif
 
-    {{-- PENGINGAT JADWAL MENGUJI MUNAQISY --}}
-    @if(isset($myUpcomingExams) && $myUpcomingExams->isNotEmpty())
-        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(49, 46, 129, 0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 42px; height: 42px; border-radius: 12px; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div>
-                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
-                        <span>Pengingat Dewan Munaqisy:</span>
-                        <span style="background: #e0e7ff; color: #3730a3; padding: 1px 8px; border-radius: 20px; font-size: 0.75rem;">
-                            {{ $myUpcomingExams->count() }} Siswa Terjadwal Ujian
-                        </span>
-                    </h4>
-                    <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #c7d2fe;">
-                        Antum memiliki tugas menguji munaqosah: 
-                        <strong>{{ $myUpcomingExams->first()->student->name ?? 'Siswa' }}</strong> 
-                        ({{ $myUpcomingExams->first()->current_level }}) • 
-                        {{ $myUpcomingExams->first()->exam_time ?? 'Waktu Belum Diisi' }}
-                        @if($myUpcomingExams->count() > 1)
-                            dan {{ $myUpcomingExams->count() - 1 }} siswa lainnya.
-                        @endif
-                    </p>
-                </div>
-            </div>
-            <a href="{{ route('munaqosah.index', ['examiner' => 'me']) }}" 
-               style="background: #4f46e5; color: white; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.2);">
-                <i class="fas fa-edit"></i> Buka Lembar Ujian
-            </a>
-        </div>
-    @endif
-
     {{-- BANNER SUKSES PENDAFTARAN MUNAQOSAH + TOMBOL KIRIM WA KE WALI SISWA --}}
     @if(session('munaqosah_wa_data'))
         @php
@@ -1261,202 +1243,26 @@
                     </p>
                 </div>
                 <div class="completion-actions">
-                    <button type="button" onclick="openWaModal()" class="btn-recap-wa">
+                    <button type="button" onclick="openWaModal()" class="btn-recap-wa" title="Bagikan Laporan WhatsApp">
                         <i class="fab fa-whatsapp"></i> <span>Share WA</span>
                     </button>
-                    <button type="button" onclick="copyWaText()" class="btn-recap-copy">
+                    <button type="button" onclick="copyWaText()" class="btn-recap-copy" title="Salin Teks Laporan">
                         <i class="fas fa-copy"></i> <span>Salin Laporan</span>
                     </button>
-                    <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" class="btn-recap-edit">
-                        <i class="fas fa-edit"></i> <span>Koreksi / Ubah Data Sesi</span>
+                    <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" class="btn-recap-edit" title="Ubah Data Sesi">
+                        <i class="fas fa-edit"></i> <span>Ubah</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Tabel Rekapan Sesi (Desktop) -->
-            <div class="recap-table-wrap">
-                <table class="recap-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 45px; text-align: center;">No</th>
-                            <th>Siswa & Kelas</th>
-                            <th style="text-align: center;">Kehadiran</th>
-                            <th>Capaian Setoran</th>
-                            <th style="text-align: center;">Nilai</th>
-                            <th style="text-align: center;">Baris</th>
-                            <th style="text-align: center;">Status</th>
-                            <th>Tugas Besok / Catatan</th>
-                            <th style="text-align: center; width: 60px;">Kartu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($activeGroup->students as $idx => $std)
-                            @php
-                                $att = $sessionAttendances->get($std->id);
-                                $status = $att ? $att->status : 'hadir';
-                                $capaian = $att ? $att->capaian : '-';
-                                $nilai = $att ? $att->nilai : null;
-                                $baris = $att ? $att->jumlah_baris : 0;
-                                $hafalanStatus = $att ? strtoupper($att->hafalan_status ?? 'LULUS') : 'LULUS';
-                                $tugasNotes = $att ? ($att->tugas_besok ?? $att->notes ?? '-') : '-';
-                            @endphp
-                            <tr>
-                                <td style="text-align: center; font-weight: 700; color: #64748b;">{{ $idx + 1 }}</td>
-                                <td>
-                                    <strong style="color: #0f172a; font-size: 0.9rem;">{{ $std->name }}</strong>
-                                    <div style="font-size: 0.74rem; color: #64748b;">Kelas {{ $std->class }}</div>
-                                </td>
-                                <td style="text-align: center;">
-                                    @if($status === 'hadir')
-                                        <span class="badge-hadir">✓ Hadir</span>
-                                    @elseif($status === 'sakit')
-                                        <span class="badge-sakit">🤒 Sakit</span>
-                                    @elseif($status === 'izin')
-                                        <span class="badge-izin">📄 Izin</span>
-                                    @else
-                                        <span class="badge-alpha">❌ Alpha</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($status === 'hadir' && $capaian && $capaian !== '-')
-                                        <strong style="color: #047857; font-size: 0.88rem;">{{ $capaian }}</strong>
-                                    @else
-                                        <span style="color: #94a3b8; font-style: italic;">{{ $status !== 'hadir' ? ucfirst($status) : '-' }}</span>
-                                    @endif
-                                </td>
-                                <td style="text-align: center;">
-                                    @if($status === 'hadir' && $nilai)
-                                        <span class="badge-nilai">⭐ {{ $nilai }}</span>
-                                    @else
-                                        <span style="color: #94a3b8;">-</span>
-                                    @endif
-                                </td>
-                                <td style="text-align: center; font-weight: 700; color: #047857;">
-                                    {{ $status === 'hadir' && $baris > 0 ? $baris . ' Baris' : '-' }}
-                                </td>
-                                <td style="text-align: center;">
-                                    @if($status === 'hadir')
-                                        @if($hafalanStatus === 'LULUS')
-                                            <span class="badge-lulus">✓ Lulus</span>
-                                        @else
-                                            <span class="badge-ulang">✗ Ulang</span>
-                                        @endif
-                                    @else
-                                        <span style="color: #94a3b8;">-</span>
-                                    @endif
-                                </td>
-                                <td style="font-size: 0.8rem; color: #475569; max-width: 200px;">
-                                    {{ $tugasNotes }}
-                                </td>
-                                <td style="text-align: center;">
-                                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <a href="{{ route('tahfidz.student-card', ['group' => $activeGroup->id, 'student' => $std->id]) }}" 
-                                           target="_blank" title="Buka Kartu Hafalan"
-                                           style="color: #047857; font-size: 1rem;">
-                                            <i class="fas fa-book-reader"></i>
-                                        </a>
-                                        @php
-                                            $prog = $studentTargetProgress[$std->id] ?? null;
-                                            $isTuntas = $prog && ($prog['is_completed'] || $prog['percent'] >= 100);
-                                        @endphp
-                                        @if(isset($munaqosahRegistrations[$std->id]))
-                                            <span style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 2px 6px; border-radius: 6px; font-size: 0.68rem; font-weight: 800; display: inline-flex; align-items: center; gap: 3px;" title="Terdaftar Munaqosah: {{ $munaqosahRegistrations[$std->id]->exam_time ?? 'Menunggu Jadwal' }}">
-                                                <i class="fas fa-award"></i> Terdaftar
-                                            </span>
-                                        @elseif($isTuntas)
-                                            <button type="button" 
-                                                    onclick="openQuickMunaqosahModal({{ $std->id }}, '{{ addslashes($std->name) }}', '{{ $std->class }}')"
-                                                    style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35);"
-                                                    title="Target 100% Tuntas! Klik untuk Daftarkan Munaqosah">
-                                                <i class="fas fa-star" style="color: #fef08a;"></i> ⭐ Tuntas (Daftar)
-                                            </button>
-                                        @else
-                                            <button type="button" 
-                                                    onclick="openQuickMunaqosahModal({{ $std->id }}, '{{ addslashes($std->name) }}', '{{ $std->class }}')"
-                                                    style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; padding: 2px 6px; border-radius: 6px; font-size: 0.68rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
-                                                    title="Daftarkan Munaqosah Langsung">
-                                                <i class="fas fa-award"></i> Munaqosah
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Kartu Rekapan Sesi (Mobile) -->
-            <div class="recap-mobile-list">
-                @foreach($activeGroup->students as $idx => $std)
-                    @php
-                        $att = $sessionAttendances->get($std->id);
-                        $status = $att ? $att->status : 'hadir';
-                        $capaian = $att ? $att->capaian : '-';
-                        $nilai = $att ? $att->nilai : null;
-                        $baris = $att ? $att->jumlah_baris : 0;
-                        $hafalanStatus = $att ? strtoupper($att->hafalan_status ?? 'LULUS') : 'LULUS';
-                        $tugasNotes = $att ? ($att->tugas_besok ?? $att->notes ?? '-') : '-';
-                    @endphp
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 0.8rem; font-weight: 800; color: #64748b;">{{ $idx + 1 }}.</span>
-                                <div>
-                                    <strong style="color: #0f172a; font-size: 0.88rem;">{{ $std->name }}</strong>
-                                    <span style="font-size: 0.72rem; color: #64748b; margin-left: 4px;">({{ $std->class }})</span>
-                                </div>
-                            </div>
-                            <div>
-                                @if($status === 'hadir')
-                                    <span class="badge-hadir" style="font-size: 0.72rem;">✓ Hadir</span>
-                                @elseif($status === 'sakit')
-                                    <span class="badge-sakit" style="font-size: 0.72rem;">🤒 Sakit</span>
-                                @elseif($status === 'izin')
-                                    <span class="badge-izin" style="font-size: 0.72rem;">📄 Izin</span>
-                                @else
-                                    <span class="badge-alpha" style="font-size: 0.72rem;">❌ Alpha</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        @if($status === 'hadir' && $capaian && $capaian !== '-')
-                            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; margin-top: 6px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                    <span style="font-weight: 700; color: #047857; font-size: 0.84rem;">📖 {{ $capaian }}</span>
-                                    <div style="display: flex; gap: 4px; align-items: center;">
-                                        @if($nilai)
-                                            <span class="badge-nilai" style="font-size: 0.72rem;">⭐ {{ $nilai }}</span>
-                                        @endif
-                                        @if($baris > 0)
-                                            <span style="font-size: 0.72rem; font-weight: 700; color: #047857;">{{ $baris }} Baris</span>
-                                        @endif
-                                        @if($hafalanStatus === 'LULUS')
-                                            <span class="badge-lulus" style="font-size: 0.7rem;">✓ Lulus</span>
-                                        @else
-                                            <span class="badge-ulang" style="font-size: 0.7rem;">✗ Ulang</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                @if($tugasNotes !== '-')
-                                    <div style="font-size: 0.75rem; color: #475569; margin-top: 4px; border-top: 1px dashed #f1f5f9; padding-top: 4px;">
-                                        📝 {{ $tugasNotes }}
-                                    </div>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-
             <!-- Petunjuk Ganti Tanggal -->
-            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <span style="font-size: 0.8rem; color: #64748b;">
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span style="font-size: 0.82rem; color: #64748b;">
                     💡 <strong>Ingin menginput sesi berikutnya?</strong> Cukup ganti tanggal pada pemilih tanggal di atas. Form siswa otomatis siap diinput untuk tanggal baru.
                 </span>
                 <a href="{{ route('tahfidz-groups.index', ['group_id' => $activeGroup->id, 'date' => $sessionDate, 'edit' => 1]) }}" 
-                   style="font-size: 0.8rem; font-weight: 700; color: #047857; text-decoration: none;">
-                    ✏️ Koreksi / Ubah Data Sesi Ini &rarr;
+                   style="font-size: 0.82rem; font-weight: 700; color: #047857; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-edit"></i> <span>Ubah Data Sesi</span> &rarr;
                 </a>
             </div>
         </div>
@@ -2248,7 +2054,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
                     <i class="far fa-calendar-check" style="color: #0284c7;"></i> Pilih Jadwal & Penguji / Munaqisy Tersedia
                 </label>
-                <select name="schedule_id" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #0284c7; font-size: 0.86rem; font-weight: 600; background: #f0f9ff;">
+                <select name="schedule_id" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Tanpa Jadwal (Jadwalkan Nanti oleh Panitia) --</option>
                     @foreach($munaqosahSchedules as $sch)
                         @php

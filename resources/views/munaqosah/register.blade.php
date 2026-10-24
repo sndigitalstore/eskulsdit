@@ -38,6 +38,40 @@
         border-top: 1px solid #f1f5f9;
         padding-top: 22px;
     }
+
+    /* Form Dropdown Profesional Ala Surah Picker */
+    .form-control-pro, select.form-control-pro {
+        height: 42px;
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23059669' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 14px 14px;
+        padding: 8px 36px 8px 14px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0f172a;
+        outline: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .form-control-pro:hover {
+        border-color: #94a3b8;
+        background-color: #f8fafc;
+    }
+    .form-control-pro:focus {
+        border-color: #059669;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.15);
+    }
     @media (max-width: 768px) {
         .register-header-banner {
             padding: 22px 20px;
@@ -261,7 +295,7 @@
                 <label style="display: block; font-weight: 800; font-size: 0.92rem; color: #0f172a; margin-bottom: 8px;">
                     4. Kelompok Mentoring Asal Siswa
                 </label>
-                <select name="from_group_id" id="from_group_select" style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.9rem; color: #334155; background: #f8fafc;">
+                <select name="from_group_id" id="from_group_select" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Pilih Kelompok Asal (Opsional) --</option>
                     @foreach($groups as $grp)
                         <option value="{{ $grp->id }}" {{ $selectedGroupId == $grp->id ? 'selected' : '' }}>
@@ -310,7 +344,7 @@
                     Pilih sesi penguji yang sudah disiapkan oleh Admin & Kurikulum. Jika kuota sesi sudah penuh, akan muncul tanda centang/penuh.
                 </p>
 
-                <select name="schedule_id" id="schedule_id" style="width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #10b981; font-size: 0.88rem; font-weight: 600; color: #065f46; background: white;">
+                <select name="schedule_id" id="schedule_id" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Tetapkan / Jadwalkan Nanti oleh Panitia Munaqosah --</option>
                     @foreach($schedules as $sch)
                         @if(!$sch->is_full)
@@ -335,7 +369,7 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                         <div>
                             <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Pilih Dewan Penguji (Munaqisy)</label>
-                            <select name="examiner_id" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.85rem; background: white;">
+                            <select name="examiner_id" class="form-control-pro" style="width: 100%;">
                                 <option value="">-- Tetapkan Nanti --</option>
                                 @foreach($examiners as $ex)
                                     <option value="{{ $ex->id }}">{{ $ex->user->name ?? 'Penguji' }} ({{ ucfirst($ex->specialization) }})</option>
@@ -344,11 +378,11 @@
                         </div>
                         <div>
                             <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Tanggal Ujian</label>
-                            <input type="date" name="exam_date" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.85rem; background: white; box-sizing: border-box;">
+                            <input type="date" name="exam_date" class="form-control-pro" style="width: 100%;">
                         </div>
                         <div>
                             <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Ruangan / Tempat</label>
-                            <input type="text" name="room_location" placeholder="Masjid / Kelas" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.85rem; background: white; box-sizing: border-box;">
+                            <input type="text" name="room_location" placeholder="Masjid / Kelas" style="width: 100%; height: 42px; padding: 8px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-size: 0.88rem; font-weight: 700; background: white; box-sizing: border-box;">
                         </div>
                     </div>
                 </div>

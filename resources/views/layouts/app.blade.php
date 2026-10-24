@@ -775,6 +775,52 @@
                 border-radius: 18px !important;
             }
         }
+
+        /* ==========================================================================
+           Form Dropdown & Select Profesional (Ala Surah Picker Pembinaan Qur'an)
+           ========================================================================== */
+        .form-control-pro, select.form-control-pro {
+            min-height: 42px;
+            background-color: #ffffff !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23059669' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 14px center !important;
+            background-size: 14px 14px !important;
+            padding: 8px 38px 8px 14px !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            font-size: 0.88rem !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            outline: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            box-sizing: border-box !important;
+        }
+        input[type="date"].form-control-pro {
+            background-image: none !important;
+            padding-right: 14px !important;
+            cursor: pointer;
+        }
+        .form-control-pro:hover {
+            border-color: #059669 !important;
+            background-color: #f8fafc !important;
+        }
+        .form-control-pro:focus {
+            border-color: #059669 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.15) !important;
+        }
+        .form-control-pro:disabled {
+            background-color: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            border-color: #e2e8f0 !important;
+        }
     </style>
     @stack('styles')
 </head>

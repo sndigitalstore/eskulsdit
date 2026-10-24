@@ -656,6 +656,29 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        // 13. Pengingat Dewan Munaqisy (Khusus Akun Penguji Terdaftar Aktif)
+        $isMunaqisyExaminer = false;
+        $myUpcomingExams = collect();
+        if ($user && Schema::hasTable('munaqisy_examiners')) {
+            $examinerRecord = \App\Models\MunaqisyExaminer::where('user_id', $user->id)
+                ->where('status', 'active')
+                ->first();
+            if ($examinerRecord) {
+                $isMunaqisyExaminer = true;
+                if (Schema::hasTable('munaqosah_registrations')) {
+                    $myUpcomingExams = \App\Models\MunaqosahRegistration::with(['student', 'examiner.user', 'schedule'])
+                        ->where(function($q) use ($user, $examinerRecord) {
+                            $q->where('examiner_user_id', $user->id)
+                              ->orWhere('examiner_id', $examinerRecord->id);
+                        })
+                        ->whereIn('status', ['registered', 'pending', 'scheduled'])
+                        ->orderBy('exam_date', 'asc')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                }
+            }
+        }
+
         return view('dashboard', compact(
             'studentCount', 'eskulCount', 'teacherCount', 'gradeStatistics', 
             'chartEskulLabels', 'chartEskulData', 'chartAttendanceData', 
@@ -674,7 +697,9 @@ class DashboardController extends Controller
             'mySubjects', 'mySubjectsCount', 'teacherRoleCount',
             'programAchievements',
             'pendingMunaqosahPromotions',
-            'allMentoringGroups'
+            'allMentoringGroups',
+            'isMunaqisyExaminer',
+            'myUpcomingExams'
         ));
     }
 }

@@ -269,7 +269,7 @@
     <div style="background: white; border-radius: 16px; padding: 14px 18px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
         <form action="{{ $type === 'tilawati' ? route('tilawati-groups.index') : route('tahfidz-groups.index') }}" method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 180px;">
-                <select name="year_id" class="form-control" onchange="this.form.submit()" style="padding: 9px 12px; font-size: 0.88rem; font-weight: 600; border-radius: 10px; border: 1px solid #cbd5e1;">
+                <select name="year_id" class="form-control-pro" onchange="this.form.submit()" style="width: 100%;">
                     @foreach($academicYears as $year)
                         <option value="{{ $year->id }}" {{ $selectedYearId == $year->id ? 'selected' : '' }}>
                             TP: {{ $year->name }} {{ $year->is_active ? '(Aktif Saat Ini)' : '' }}

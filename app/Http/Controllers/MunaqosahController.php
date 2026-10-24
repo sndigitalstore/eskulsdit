@@ -120,18 +120,30 @@ class MunaqosahController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $isAdminOrCurriculum = in_array($user->role, ['admin', 'curriculum', 'headmaster']);
+        $examinerRecord = MunaqisyExaminer::where('user_id', $user->id)->first();
+        $isExaminerActive = $examinerRecord && $examinerRecord->status === 'active';
+
+        // Guard: Guru yang bukan penguji tidak boleh melihat modul Munaqisy
+        if (!$isAdminOrCurriculum && !$isExaminerActive) {
+            return redirect()->route('dashboard')->with('error', 'Akses dibatasi. Halaman Munaqisy hanya dapat diakses oleh dewan penguji yang ditugaskan, Administrator, dan Tim Kurikulum.');
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $request->input('year_id', $activeYear ? $activeYear->id : null);
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
 
-        $activeTab = $request->input('tab', 'recap'); // 'recap', 'examiners', 'pending_promotions'
+        $todayDate = date('Y-m-d');
+        $isExaminerOnly = !$isAdminOrCurriculum && $isExaminerActive;
+
+        // Jika akun penguji murni, fokus ke tab rekapan peserta
+        $activeTab = $isExaminerOnly ? 'recap' : $request->input('tab', 'recap');
         $statusFilter = $request->input('status', 'all'); // 'all', 'pending', 'scheduled', 'passed', 'failed'
         $typeFilter = $request->input('type', 'all'); // 'all', 'tilawati', 'tahfidz'
         $examinerFilter = $request->input('examiner', 'all'); // 'all', 'me'
+        $dateFilter = $request->input('date', $isExaminerOnly ? $todayDate : 'all');
         $search = $request->input('search');
-
-        $user = Auth::user();
-        $examinerRecord = MunaqisyExaminer::where('user_id', $user->id)->first();
 
         // Query Registrations
         $query = MunaqosahRegistration::with([
@@ -141,11 +153,20 @@ class MunaqosahController extends Controller
             'proposer', 
             'examiner.user', 
             'examinerUser',
-            'promotedToGroup'
+            'promotedToGroup',
+            'schedule'
         ]);
 
         if ($selectedYearId) {
             $query->where('academic_year_id', $selectedYearId);
+        }
+
+        if ($dateFilter && $dateFilter !== 'all') {
+            $query->where(function($q) use ($dateFilter) {
+                $q->whereDate('exam_date', $dateFilter)
+                  ->orWhereDate('created_at', $dateFilter)
+                  ->orWhereDate('registration_date', $dateFilter);
+            });
         }
 
         if ($statusFilter !== 'all') {
@@ -175,8 +196,16 @@ class MunaqosahController extends Controller
 
         $registrations = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        // Rekap Statistik KPI
+        // Rekap Statistik KPI (Sesuai Filter Tahun & Tanggal)
         $baseKpiQuery = MunaqosahRegistration::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId));
+        if ($dateFilter && $dateFilter !== 'all') {
+            $baseKpiQuery->where(function($q) use ($dateFilter) {
+                $q->whereDate('exam_date', $dateFilter)
+                  ->orWhereDate('created_at', $dateFilter)
+                  ->orWhereDate('registration_date', $dateFilter);
+            });
+        }
+
         $totalCount = (clone $baseKpiQuery)->count();
         $pendingCount = (clone $baseKpiQuery)->where('status', 'pending')->count();
         $scheduledCount = (clone $baseKpiQuery)->where('status', 'scheduled')->count();
@@ -231,7 +260,11 @@ class MunaqosahController extends Controller
             'pendingPromotionCount',
             'examinersCount',
             'teachers',
-            'groups'
+            'groups',
+            'todayDate',
+            'dateFilter',
+            'isExaminerOnly',
+            'isAdminOrCurriculum'
         ));
     }
 

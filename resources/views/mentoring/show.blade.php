@@ -464,7 +464,7 @@
 
         <div style="padding: 12px 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 140px;">
-                <select id="modalClassFilter" class="form-control" onchange="loadStudentsForModal()" style="padding: 8px 12px; font-size: 0.88rem;">
+                <select id="modalClassFilter" class="form-control-pro" onchange="loadStudentsForModal()" style="width: 100%;">
                     <option value="ALL">-- Semua Kelas --</option>
                     @foreach($classes as $cls)
                         <option value="{{ $cls }}">Kelas {{ $cls }}</option>
@@ -818,7 +818,7 @@
                 <label style="display: block; font-weight: 700; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
                     <i class="far fa-calendar-check" style="color: #0284c7;"></i> Pilih Jadwal & Penguji / Munaqisy Tersedia
                 </label>
-                <select name="schedule_id" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #0284c7; font-size: 0.86rem; font-weight: 600; background: #f0f9ff;">
+                <select name="schedule_id" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Tanpa Jadwal (Jadwalkan Nanti oleh Panitia) --</option>
                     @foreach($munaqosahSchedules as $sch)
                         @php

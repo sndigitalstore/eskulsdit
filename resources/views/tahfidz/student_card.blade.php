@@ -555,14 +555,14 @@
                         </div>
                         <div class="form-group">
                             <label>Jenis <span style="color: red;">*</span></label>
-                            <select name="type" required>
+                            <select name="type" required class="form-control-pro" style="width: 100%;">
                                 <option value="setoran_baru" {{ old('type') == 'setoran_baru' ? 'selected' : '' }}>Setoran Baru</option>
                                 <option value="murojaah" {{ old('type') == 'murojaah' ? 'selected' : '' }}>Muroja'ah</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Kualitas <span style="color: red;">*</span></label>
-                            <select name="quality" required>
+                            <select name="quality" required class="form-control-pro" style="width: 100%;">
                                 <option value="lancar" {{ old('quality') == 'lancar' ? 'selected' : '' }}>⭐ Lancar</option>
                                 <option value="cukup" {{ old('quality') == 'cukup' ? 'selected' : '' }}>👍 Cukup</option>
                                 <option value="perlu_perbaikan" {{ old('quality') == 'perlu_perbaikan' ? 'selected' : '' }}>⚠️ Perlu Perbaikan</option>
@@ -987,7 +987,7 @@ _*SDIT An Nadzir - Mencetak Generasi Qur'ani*_`;
                 <label style="display: block; font-weight: 700; font-size: 0.84rem; color: #0f172a; margin-bottom: 6px;">
                     <i class="far fa-calendar-check" style="color: #0284c7;"></i> Pilih Jadwal & Penguji / Munaqisy Tersedia
                 </label>
-                <select name="schedule_id" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #0284c7; font-size: 0.86rem; font-weight: 600; background: #f0f9ff;">
+                <select name="schedule_id" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Tanpa Jadwal (Jadwalkan Nanti oleh Panitia) --</option>
                     @foreach($munaqosahSchedules as $sch)
                         @php
