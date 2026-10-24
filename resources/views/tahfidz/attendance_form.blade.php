@@ -116,6 +116,230 @@
     outline: none;
     box-shadow: 0 0 0 2px rgba(15,118,110,0.15);
 }
+
+/* ================================================================ */
+/* MODERN SURAH PICKER (MOBILE-FIRST, ZERO FULLSCREEN TAKEOVER)     */
+/* ================================================================ */
+.student-card-item.has-open-picker {
+    z-index: 100;
+    position: relative;
+}
+.surah-picker-wrap {
+    position: relative;
+    width: 100%;
+}
+.surah-native-hidden {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    z-index: -1 !important;
+}
+.surah-picker-trigger {
+    width: 100%;
+    min-height: 35px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    gap: 4px;
+}
+.surah-picker-trigger:hover {
+    border-color: #0f766e;
+    background: #f8fafc;
+}
+.surah-picker-wrap.is-open .surah-picker-trigger {
+    border-color: #0f766e;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15);
+}
+.surah-trigger-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    min-width: 0;
+    flex: 1;
+}
+.surah-trigger-icon {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.surah-trigger-text {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.surah-trigger-text.is-placeholder {
+    color: #94a3b8;
+    font-weight: 500;
+}
+.surah-trigger-arrow {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    flex-shrink: 0;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+.surah-picker-wrap.is-open .surah-trigger-arrow {
+    transform: rotate(180deg);
+    color: #0f766e;
+}
+.surah-chevron {
+    font-size: 0.68rem;
+}
+
+.surah-picker-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 14px 32px -4px rgba(15, 23, 42, 0.2), 0 4px 12px rgba(0, 0, 0, 0.06);
+    z-index: 1050;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: surahPopoverIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    min-width: 220px;
+}
+@keyframes surahPopoverIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.surah-picker-wrap.is-open .surah-picker-popover {
+    display: flex;
+}
+
+.surah-search-box {
+    padding: 7px 9px;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.surah-search-icon {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+}
+.surah-search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #0f172a;
+    padding: 2px 0;
+}
+.surah-search-input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.surah-options-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 4px;
+    -webkit-overflow-scrolling: touch;
+}
+.surah-options-list::-webkit-scrollbar {
+    width: 5px;
+}
+.surah-options-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+.surah-optgroup-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #0f766e;
+    background: #f0fdf4;
+    padding: 4px 7px;
+    border-radius: 5px;
+    margin: 3px 2px 2px 2px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.surah-option-item {
+    padding: 7px 9px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    margin-bottom: 2px;
+    user-select: none;
+}
+.surah-option-item:hover {
+    background: #f1f5f9;
+}
+.surah-option-item.is-selected {
+    background: #f0fdf4;
+    color: #0f766e;
+    font-weight: 700;
+}
+.surah-item-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.surah-item-check {
+    color: #0f766e;
+    font-size: 0.75rem;
+    opacity: 0;
+    flex-shrink: 0;
+}
+.surah-option-item.is-selected .surah-item-check {
+    opacity: 1;
+}
+.surah-empty-state {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+@media (max-width: 640px) {
+    .surah-picker-popover {
+        max-height: 230px;
+    }
+    .surah-options-list {
+        max-height: 180px;
+    }
+    .surah-search-input {
+        font-size: 16px !important;
+    }
+}
 </style>
 
 <div style="max-width: 1100px; margin: 0 auto; margin-bottom: 40px;">
@@ -538,8 +762,214 @@ function populateSurahDropdowns(juz) {
         if (curVal) {
             sel.value = curVal;
         }
+        enhanceSurahSelectBox(sel);
+        refreshSurahPicker(sel);
     });
 }
+
+// ================================================================
+// MODERN SURAH PICKER FOR ATTENDANCE FORM
+// ================================================================
+function enhanceSurahSelectBox(sel) {
+    if (sel.dataset.enhanced === 'true') return;
+    sel.dataset.enhanced = 'true';
+
+    sel.classList.add('surah-native-hidden');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'surah-picker-wrap';
+    wrapper.style.flex = '2';
+    wrapper.style.minWidth = '0';
+    wrapper.style.position = 'relative';
+
+    sel.parentNode.insertBefore(wrapper, sel);
+    wrapper.appendChild(sel);
+
+    const trigger = document.createElement('div');
+    trigger.className = 'surah-picker-trigger';
+    trigger.innerHTML = `
+        <div class="surah-trigger-left">
+            <span class="surah-trigger-icon">📖</span>
+            <span class="surah-trigger-text is-placeholder">${sel.options[sel.selectedIndex]?.text || '-- Pilih Surat --'}</span>
+        </div>
+        <div class="surah-trigger-arrow">
+            <i class="fas fa-chevron-down surah-chevron"></i>
+        </div>
+    `;
+
+    const popover = document.createElement('div');
+    popover.className = 'surah-picker-popover';
+    popover.innerHTML = `
+        <div class="surah-search-box">
+            <i class="fas fa-search surah-search-icon"></i>
+            <input type="text" class="surah-search-input" placeholder="Cari surat..." autocomplete="off">
+        </div>
+        <div class="surah-options-list"></div>
+    `;
+
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(popover);
+
+    const searchInput = popover.querySelector('.surah-search-input');
+    const optionsList = popover.querySelector('.surah-options-list');
+
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const willOpen = !wrapper.classList.contains('is-open');
+        closeAllAttendanceSurahPickers();
+        if (willOpen) {
+            wrapper.classList.add('is-open');
+            const card = wrapper.closest('.student-card-item');
+            if (card) card.classList.add('has-open-picker');
+            searchInput.value = '';
+            filterPickerOptions(wrapper, '');
+            setTimeout(() => searchInput.focus(), 60);
+            const selectedItem = optionsList.querySelector('.surah-option-item.is-selected');
+            if (selectedItem) {
+                setTimeout(() => selectedItem.scrollIntoView({ block: 'nearest' }), 40);
+            }
+        }
+    });
+
+    searchInput.addEventListener('input', function() {
+        filterPickerOptions(wrapper, this.value);
+    });
+
+    popover.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    wrapper._refreshOptions = function() {
+        optionsList.innerHTML = '';
+        Array.from(sel.children).forEach(child => {
+            if (child.tagName === 'OPTGROUP') {
+                const title = document.createElement('div');
+                title.className = 'surah-optgroup-title';
+                title.textContent = child.label;
+                optionsList.appendChild(title);
+                Array.from(child.children).forEach(opt => addOptionItem(wrapper, optionsList, sel, opt));
+            } else if (child.tagName === 'OPTION' && child.value !== '') {
+                addOptionItem(wrapper, optionsList, sel, child);
+            }
+        });
+        const empty = document.createElement('div');
+        empty.className = 'surah-empty-state';
+        empty.style.display = 'none';
+        empty.textContent = 'Surat tidak ditemukan';
+        optionsList.appendChild(empty);
+        updateTriggerUI(wrapper, sel);
+    };
+
+    wrapper._refreshOptions();
+}
+
+function addOptionItem(wrapper, list, sel, opt) {
+    const item = document.createElement('div');
+    item.className = 'surah-option-item';
+    item.dataset.value = opt.value;
+    item.dataset.text = opt.text;
+    if (sel.value === opt.value) item.classList.add('is-selected');
+
+    item.innerHTML = `
+        <span class="surah-item-name">${opt.text}</span>
+        <i class="fas fa-check surah-item-check"></i>
+    `;
+
+    item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        sel.value = opt.value;
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        updateTriggerUI(wrapper, sel);
+        closeAllAttendanceSurahPickers();
+    });
+
+    list.appendChild(item);
+}
+
+function updateTriggerUI(wrapper, sel) {
+    const textEl = wrapper.querySelector('.surah-trigger-text');
+    const optionsList = wrapper.querySelector('.surah-options-list');
+    const val = sel.value;
+    const selectedOpt = sel.options[sel.selectedIndex];
+
+    if (textEl) {
+        textEl.textContent = (selectedOpt && selectedOpt.value) ? selectedOpt.text : '-- Pilih Surat --';
+        if (selectedOpt && selectedOpt.value) {
+            textEl.classList.remove('is-placeholder');
+        } else {
+            textEl.classList.add('is-placeholder');
+        }
+    }
+
+    if (optionsList) {
+        optionsList.querySelectorAll('.surah-option-item').forEach(it => {
+            if (it.dataset.value === val) {
+                it.classList.add('is-selected');
+            } else {
+                it.classList.remove('is-selected');
+            }
+        });
+    }
+}
+
+function filterPickerOptions(wrapper, query) {
+    const cleanQ = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const optionsList = wrapper.querySelector('.surah-options-list');
+    if (!optionsList) return;
+
+    const items = optionsList.querySelectorAll('.surah-option-item');
+    const titles = optionsList.querySelectorAll('.surah-optgroup-title');
+    const empty = optionsList.querySelector('.surah-empty-state');
+    let visibleCount = 0;
+
+    items.forEach(it => {
+        const t = (it.dataset.text || it.dataset.value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!cleanQ || t.includes(cleanQ)) {
+            it.style.display = 'flex';
+            visibleCount++;
+        } else {
+            it.style.display = 'none';
+        }
+    });
+
+    titles.forEach(title => {
+        let next = title.nextElementSibling;
+        let hasVisible = false;
+        while (next && !next.classList.contains('surah-optgroup-title') && !next.classList.contains('surah-empty-state')) {
+            if (next.style.display !== 'none') {
+                hasVisible = true;
+                break;
+            }
+            next = next.nextElementSibling;
+        }
+        title.style.display = hasVisible ? 'block' : 'none';
+    });
+
+    if (empty) empty.style.display = (visibleCount === 0) ? 'block' : 'none';
+}
+
+function refreshSurahPicker(sel) {
+    if (!sel) return;
+    const wrap = sel.closest('.surah-picker-wrap');
+    if (wrap && typeof wrap._refreshOptions === 'function') {
+        wrap._refreshOptions();
+    }
+}
+
+function closeAllAttendanceSurahPickers() {
+    document.querySelectorAll('.surah-picker-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+    document.querySelectorAll('.student-card-item.has-open-picker').forEach(c => c.classList.remove('has-open-picker'));
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.surah-picker-wrap')) {
+        closeAllAttendanceSurahPickers();
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAllAttendanceSurahPickers();
+});
 
 function applyJuzChange(juz) {
     populateSurahDropdowns(juz);
@@ -578,6 +1008,7 @@ function onCapaianSurahChange(studentId) {
     const tugasSelect = document.querySelector(`.tugas-surah-select[data-student-id="${studentId}"]`);
     if (surahSelect && tugasSelect && !tugasSelect.value && surahSelect.value) {
         tugasSelect.value = surahSelect.value;
+        refreshSurahPicker(tugasSelect);
         updateTugasField(studentId);
     }
 }
@@ -653,7 +1084,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const parsed = parseSurahAndAyat(hidden.value);
             const surahSelect = document.querySelector(`.capaian-surah-select[data-student-id="${studentId}"]`);
             const ayatInput = document.querySelector(`.capaian-ayat-input[data-student-id="${studentId}"]`);
-            if (surahSelect && parsed.surah) surahSelect.value = parsed.surah;
+            if (surahSelect && parsed.surah) {
+                surahSelect.value = parsed.surah;
+                refreshSurahPicker(surahSelect);
+            }
             if (ayatInput && parsed.ayat) ayatInput.value = parsed.ayat;
             updateCapaianField(studentId);
         }
@@ -665,7 +1099,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const parsed = parseSurahAndAyat(hidden.value);
             const surahSelect = document.querySelector(`.tugas-surah-select[data-student-id="${studentId}"]`);
             const ayatInput = document.querySelector(`.tugas-ayat-input[data-student-id="${studentId}"]`);
-            if (surahSelect && parsed.surah) surahSelect.value = parsed.surah;
+            if (surahSelect && parsed.surah) {
+                surahSelect.value = parsed.surah;
+                refreshSurahPicker(surahSelect);
+            }
             if (ayatInput && parsed.ayat) ayatInput.value = parsed.ayat;
             updateTugasField(studentId);
         }

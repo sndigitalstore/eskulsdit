@@ -459,6 +459,248 @@
         box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
     }
 
+    /* ================================================================ */
+    /* MODERN SURAH PICKER (MOBILE-FIRST, ZERO FULLSCREEN TAKEOVER)     */
+    /* ================================================================ */
+    .hafalan-col-surah {
+        position: relative;
+    }
+    .student-entry-card.has-open-picker {
+        z-index: 100;
+        position: relative;
+    }
+    .surah-picker-wrap {
+        position: relative;
+        width: 100%;
+    }
+    .surah-native-hidden {
+        position: absolute !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        z-index: -1 !important;
+    }
+    .surah-picker-trigger {
+        width: 100%;
+        height: 38px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+        cursor: pointer;
+        user-select: none;
+        box-sizing: border-box;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        gap: 6px;
+    }
+    .surah-picker-trigger:hover {
+        border-color: #059669;
+        background: #f8fafc;
+    }
+    .surah-picker-wrap.is-open .surah-picker-trigger {
+        border-color: #059669;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+    }
+    .surah-trigger-left {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        overflow: hidden;
+        min-width: 0;
+        flex: 1;
+    }
+    .surah-trigger-icon {
+        font-size: 0.95rem;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+    .surah-trigger-text {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .surah-trigger-text.is-placeholder {
+        color: #94a3b8;
+        font-weight: 500;
+    }
+    .surah-trigger-arrow {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        flex-shrink: 0;
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    }
+    .surah-picker-wrap.is-open .surah-trigger-arrow {
+        transform: rotate(180deg);
+        color: #059669;
+    }
+    .surah-chevron {
+        font-size: 0.72rem;
+    }
+
+    /* Popover Menu: Menempel rapi tepat di bawah trigger, tidak menutupi layar HP */
+    .surah-picker-popover {
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 14px 32px -4px rgba(15, 23, 42, 0.2), 0 4px 12px rgba(0, 0, 0, 0.06);
+        z-index: 1050;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        animation: surahPopoverIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        min-width: 250px;
+    }
+    @keyframes surahPopoverIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .surah-picker-wrap.is-open .surah-picker-popover {
+        display: flex;
+    }
+
+    /* Kotak Pencarian Surat Cepat */
+    .surah-search-box {
+        padding: 8px 10px;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .surah-search-icon {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+    .surah-search-input {
+        width: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: #0f172a;
+        padding: 2px 0;
+    }
+    .surah-search-input::placeholder {
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* List Opsi Surat */
+    .surah-options-list {
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .surah-options-list::-webkit-scrollbar {
+        width: 5px;
+    }
+    .surah-options-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 6px;
+    }
+
+    .surah-optgroup-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #047857;
+        background: #ecfdf5;
+        padding: 5px 8px;
+        border-radius: 6px;
+        margin: 4px 2px 2px 2px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .surah-option-item {
+        padding: 8px 10px;
+        border-radius: 7px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        cursor: pointer;
+        transition: background 0.12s ease;
+        margin-bottom: 2px;
+        user-select: none;
+    }
+    .surah-option-item:hover {
+        background: #f1f5f9;
+    }
+    .surah-option-item.is-selected {
+        background: #ecfdf5;
+        color: #047857;
+        font-weight: 700;
+    }
+    .surah-item-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .surah-item-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #059669;
+        background: #d1fae5;
+        padding: 1px 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+    .surah-item-check {
+        color: #059669;
+        font-size: 0.78rem;
+        opacity: 0;
+        flex-shrink: 0;
+    }
+    .surah-option-item.is-selected .surah-item-check {
+        opacity: 1;
+    }
+    .surah-empty-state {
+        padding: 14px 10px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+    @media (max-width: 640px) {
+        .surah-picker-popover {
+            max-height: 250px;
+        }
+        .surah-options-list {
+            max-height: 195px;
+        }
+        .surah-search-input {
+            font-size: 16px !important;
+        }
+    }
+
     /* Status Kelulusan Pill */
     .lulus-pills {
         display: flex;
@@ -1262,43 +1504,78 @@
                         {{-- 1. SURAH (DROPDOWN TARGET SESUAI JUZ ADMIN) --}}
                         <div class="hafalan-col-surah">
                             <label class="hafalan-field-label">📖 Surat (Target Juz)</label>
-                            <select name="attendance[{{ $std->id }}][surah_name]" 
-                                    id="surah-select-{{ $std->id }}"
-                                    class="input-clean" style="cursor: pointer;">
-                                <option value="">-- Pilih Surat --</option>
-                                
-                                {{-- TARGET JUZ KELOMPOK DARI ADMIN (MUNCUL PALING ATAS) --}}
-                                @foreach(($targetJuzGroups ?? []) as $juzNum => $sList)
-                                    <optgroup label="⭐ Target: Juz {{ $juzNum }}">
-                                        @foreach($sList as $sName)
-                                            @php
-                                                $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
-                                                $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));
-                                                $isSel = ($cleanS === $cleanSel || str_contains($cleanSel, $cleanS) || str_contains($cleanS, $cleanSel));
-                                            @endphp
-                                            <option value="{{ $sName }}" {{ $isSel ? 'selected' : '' }}>
-                                                {{ $sName }} (Juz {{ $juzNum }})
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endforeach
+                            <div class="surah-picker-wrap" id="surah-picker-wrap-{{ $std->id }}">
+                                <select name="attendance[{{ $std->id }}][surah_name]" 
+                                        id="surah-select-{{ $std->id }}"
+                                        class="surah-native-hidden" tabindex="-1" aria-hidden="true">
+                                    <option value="">-- Pilih Surat --</option>
+                                    
+                                    {{-- TARGET JUZ KELOMPOK DARI ADMIN (MUNCUL PALING ATAS) --}}
+                                    @foreach(($targetJuzGroups ?? []) as $juzNum => $sList)
+                                        <optgroup label="⭐ Target: Juz {{ $juzNum }}">
+                                            @foreach($sList as $sName)
+                                                @php
+                                                    $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
+                                                    $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));
+                                                    $isSel = ($cleanS === $cleanSel || str_contains($cleanSel, $cleanS) || str_contains($cleanS, $cleanSel));
+                                                @endphp
+                                                <option value="{{ $sName }}" {{ $isSel ? 'selected' : '' }}>
+                                                    {{ $sName }} (Juz {{ $juzNum }})
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
 
-                                {{-- JUZ LAINNYA --}}
-                                @if(!empty($otherSurahs))
-                                    <optgroup label="📖 Surat / Juz Lainnya">
-                                        @foreach(($otherSurahs ?? []) as $sName)
-                                            @php
-                                                $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
-                                                $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));
-                                                $isSel = ($cleanS === $cleanSel || str_contains($cleanSel, $cleanS) || str_contains($cleanS, $cleanSel));
-                                            @endphp
-                                            <option value="{{ $sName }}" {{ $isSel ? 'selected' : '' }}>
-                                                {{ $sName }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endif
-                            </select>
+                                    {{-- JUZ LAINNYA --}}
+                                    @if(!empty($otherSurahs))
+                                        <optgroup label="📖 Surat / Juz Lainnya">
+                                            @foreach(($otherSurahs ?? []) as $sName)
+                                                @php
+                                                    $cleanS = strtolower(preg_replace('/[^a-z0-9]/', '', $sName));
+                                                    $cleanSel = strtolower(preg_replace('/[^a-z0-9]/', '', $selectedSurah));
+                                                    $isSel = ($cleanS === $cleanSel || str_contains($cleanSel, $cleanS) || str_contains($cleanS, $cleanSel));
+                                                @endphp
+                                                <option value="{{ $sName }}" {{ $isSel ? 'selected' : '' }}>
+                                                    {{ $sName }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                </select>
+
+                                <!-- Modern Trigger Box (Tidak menutupi layar HP) -->
+                                <div class="surah-picker-trigger" 
+                                     id="surah-trigger-{{ $std->id }}"
+                                     onclick="toggleSurahPicker('{{ $std->id }}', event)"
+                                     role="combobox" aria-expanded="false" tabindex="0">
+                                    <div class="surah-trigger-left">
+                                        <span class="surah-trigger-icon">📖</span>
+                                        <span class="surah-trigger-text {{ empty($selectedSurah) ? 'is-placeholder' : '' }}" 
+                                              id="surah-trigger-text-{{ $std->id }}">
+                                            {{ $selectedSurah ?: '-- Pilih Surat --' }}
+                                        </span>
+                                    </div>
+                                    <div class="surah-trigger-arrow">
+                                        <i class="fas fa-chevron-down surah-chevron"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Modern Popover Dropdown with Fast Search -->
+                                <div class="surah-picker-popover" id="surah-popover-{{ $std->id }}" onclick="event.stopPropagation()">
+                                    <div class="surah-search-box">
+                                        <i class="fas fa-search surah-search-icon"></i>
+                                        <input type="text" 
+                                               class="surah-search-input" 
+                                               id="surah-search-{{ $std->id }}"
+                                               placeholder="Ketik cari surat..."
+                                               oninput="filterSurahOptions('{{ $std->id }}', this.value)"
+                                               autocomplete="off">
+                                    </div>
+                                    <div class="surah-options-list" id="surah-options-{{ $std->id }}">
+                                        <!-- Diisi secara otomatis oleh initSurahPickers() -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- 2. AYAT --}}
@@ -1470,6 +1747,211 @@
         }
     }
 
+    // ================================================================
+    // MODERN SURAH PICKER (FAST, INLINE, ZERO SCREEN TAKEOVER)
+    // ================================================================
+    function initSurahPickers() {
+        document.querySelectorAll('.surah-picker-wrap').forEach(wrap => {
+            const studentId = wrap.id.replace('surah-picker-wrap-', '');
+            if (wrap.dataset.initialized === 'true') return;
+            wrap.dataset.initialized = 'true';
+            renderSurahOptionsList(studentId);
+        });
+    }
+
+    function renderSurahOptionsList(studentId) {
+        const selectEl = document.getElementById('surah-select-' + studentId);
+        const optionsContainer = document.getElementById('surah-options-' + studentId);
+        if (!selectEl || !optionsContainer) return;
+
+        optionsContainer.innerHTML = '';
+
+        const children = Array.from(selectEl.children);
+
+        children.forEach(child => {
+            if (child.tagName === 'OPTGROUP') {
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'surah-optgroup-title';
+                groupTitle.innerHTML = child.label;
+                optionsContainer.appendChild(groupTitle);
+
+                Array.from(child.children).forEach(opt => {
+                    appendOptionItem(optionsContainer, studentId, opt);
+                });
+            } else if (child.tagName === 'OPTION') {
+                if (child.value !== '') {
+                    appendOptionItem(optionsContainer, studentId, child);
+                }
+            }
+        });
+
+        const emptyNotice = document.createElement('div');
+        emptyNotice.className = 'surah-empty-state';
+        emptyNotice.style.display = 'none';
+        emptyNotice.textContent = 'Surat tidak ditemukan';
+        optionsContainer.appendChild(emptyNotice);
+    }
+
+    function appendOptionItem(container, studentId, opt) {
+        const selectEl = document.getElementById('surah-select-' + studentId);
+        const item = document.createElement('div');
+        item.className = 'surah-option-item';
+        item.dataset.value = opt.value;
+        item.dataset.text = opt.text;
+
+        const isSelected = (selectEl.value === opt.value);
+        if (isSelected) item.classList.add('is-selected');
+
+        let mainName = opt.text;
+        let badgeHtml = '';
+        const match = opt.text.match(/^(.*?)\s*\((Juz\s*\d+)\)$/i);
+        if (match) {
+            mainName = match[1];
+            badgeHtml = `<span class="surah-item-badge">${match[2]}</span>`;
+        }
+
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden;">
+                <span class="surah-item-name">${mainName}</span>
+                ${badgeHtml}
+            </div>
+            <i class="fas fa-check surah-item-check"></i>
+        `;
+
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            chooseSurah(studentId, opt.value, opt.text);
+        });
+
+        container.appendChild(item);
+    }
+
+    function toggleSurahPicker(studentId, e) {
+        if (e) e.stopPropagation();
+        const wrap = document.getElementById('surah-picker-wrap-' + studentId);
+        const card = document.getElementById('card-student-' + studentId);
+        const searchInput = document.getElementById('surah-search-' + studentId);
+
+        if (!wrap) return;
+
+        const willOpen = !wrap.classList.contains('is-open');
+
+        closeAllSurahPickers();
+
+        if (willOpen) {
+            wrap.classList.add('is-open');
+            if (card) card.classList.add('has-open-picker');
+            if (searchInput) {
+                searchInput.value = '';
+                filterSurahOptions(studentId, '');
+                setTimeout(() => searchInput.focus(), 60);
+            }
+            const optionsContainer = document.getElementById('surah-options-' + studentId);
+            const selectedItem = optionsContainer?.querySelector('.surah-option-item.is-selected');
+            if (selectedItem) {
+                setTimeout(() => {
+                    selectedItem.scrollIntoView({ block: 'nearest' });
+                }, 50);
+            }
+        }
+    }
+
+    function chooseSurah(studentId, value, fullText) {
+        const selectEl = document.getElementById('surah-select-' + studentId);
+        const triggerText = document.getElementById('surah-trigger-text-' + studentId);
+        const optionsContainer = document.getElementById('surah-options-' + studentId);
+
+        if (selectEl) {
+            selectEl.value = value;
+            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (triggerText) {
+            triggerText.textContent = value || '-- Pilih Surat --';
+            if (value) {
+                triggerText.classList.remove('is-placeholder');
+            } else {
+                triggerText.classList.add('is-placeholder');
+            }
+        }
+
+        if (optionsContainer) {
+            optionsContainer.querySelectorAll('.surah-option-item').forEach(it => {
+                if (it.dataset.value === value) {
+                    it.classList.add('is-selected');
+                } else {
+                    it.classList.remove('is-selected');
+                }
+            });
+        }
+
+        closeAllSurahPickers();
+    }
+
+    function filterSurahOptions(studentId, query) {
+        const optionsContainer = document.getElementById('surah-options-' + studentId);
+        if (!optionsContainer) return;
+
+        const cleanQ = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const items = optionsContainer.querySelectorAll('.surah-option-item');
+        const titles = optionsContainer.querySelectorAll('.surah-optgroup-title');
+        const emptyState = optionsContainer.querySelector('.surah-empty-state');
+
+        let visibleCount = 0;
+
+        items.forEach(item => {
+            const itemText = (item.dataset.text || item.dataset.value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (!cleanQ || itemText.includes(cleanQ)) {
+                item.style.display = 'flex';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        titles.forEach(title => {
+            let next = title.nextElementSibling;
+            let groupHasVisible = false;
+            while (next && !next.classList.contains('surah-optgroup-title') && !next.classList.contains('surah-empty-state')) {
+                if (next.style.display !== 'none') {
+                    groupHasVisible = true;
+                    break;
+                }
+                next = next.nextElementSibling;
+            }
+            title.style.display = groupHasVisible ? 'flex' : 'none';
+        });
+
+        if (emptyState) {
+            emptyState.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+    }
+
+    function closeAllSurahPickers() {
+        document.querySelectorAll('.surah-picker-wrap.is-open').forEach(w => {
+            w.classList.remove('is-open');
+        });
+        document.querySelectorAll('.student-entry-card.has-open-picker').forEach(c => {
+            c.classList.remove('has-open-picker');
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.surah-picker-wrap')) {
+            closeAllSurahPickers();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllSurahPickers();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initSurahPickers();
+    });
+
     // Pilih nama surah pada dropdown dan set ayat dari riwayat sebelumnya
     function selectStudentSurah(studentId, surahName, ayat) {
         const select = document.getElementById('surah-select-' + studentId);
@@ -1482,6 +1964,7 @@
                 const optVal = select.options[i].value.toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (optVal && (optVal === cleanTarget || optVal.includes(cleanTarget) || cleanTarget.includes(optVal))) {
                     select.selectedIndex = i;
+                    chooseSurah(studentId, select.options[i].value, select.options[i].text);
                     found = true;
                     break;
                 }
@@ -1492,6 +1975,8 @@
                 opt.text = surahName;
                 opt.selected = true;
                 select.appendChild(opt);
+                renderSurahOptionsList(studentId);
+                chooseSurah(studentId, surahName, surahName);
             }
         }
 
