@@ -286,7 +286,8 @@ class TahfidzRecordController extends Controller
         }
 
         // Backward compatibility
-        $juz30Data = $targetJuzData[30] ?? $checkSurahStatus($allJuzSurahs[30], 30);
+        $juz30Data = $targetJuzData[30] ?? (isset($allJuzSurahs[30]) ? $checkSurahStatus($allJuzSurahs[30], 30) : []);
+        $juz29Data = $targetJuzData[29] ?? (isset($allJuzSurahs[29]) ? $checkSurahStatus($allJuzSurahs[29], 29) : []);
         // Cek ketersediaan jadwal munaqosah & status registrasi siswa
         $munaqosahSchedules = collect();
         $existingRegistration = null;

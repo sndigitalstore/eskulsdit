@@ -318,8 +318,8 @@
                 <select name="from_group_id" id="from_group_select" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Pilih Kelompok Asal (Opsional) --</option>
                     @foreach($groups as $grp)
-                        <option value="{{ $grp->id }}" {{ $selectedGroupId == $grp->id ? 'selected' : '' }}>
-                            [{{ strtoupper($grp->type) }}] {{ $grp->name }} • Target: {{ $grp->target_level ?? '-' }} (Mentor: {{ $grp->mentor_name ?? '-' }})
+                        <option value="{{ $grp->id }}" data-type="{{ $grp->type }}" {{ $selectedGroupId == $grp->id ? 'selected' : '' }} style="{{ $selectedType && $grp->type !== $selectedType ? 'display: none;' : '' }}">
+                            {{ $grp->name }} (Mentor: {{ $grp->mentor_name ?? '-' }})
                         </option>
                     @endforeach
                 </select>
@@ -367,13 +367,17 @@
                 <select name="schedule_id" id="schedule_id" class="form-control-pro" style="width: 100%;">
                     <option value="">-- Tetapkan / Jadwalkan Nanti oleh Panitia Munaqosah --</option>
                     @foreach($schedules as $sch)
-                        @if(!$sch->is_full)
-                            <option value="{{ $sch->id }}">
-                                ✓ {{ $sch->examiner?->user?->name ?? 'Penguji' }} — Hari {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }} WIB) [{{ $sch->room_location ?? 'Ruang Munaqosah' }}] • Tersedia (Sisa {{ $sch->quota - $sch->used_slots }} Slot)
+                        @php
+                            $isFull = $sch->is_full;
+                            $schType = $sch->exam_type ?? 'all';
+                        @endphp
+                        @if(!$isFull)
+                            <option value="{{ $sch->id }}" data-exam-type="{{ $schType }}" data-full="0" style="{{ ($selectedType && $schType !== 'all' && $schType !== $selectedType) ? 'display: none;' : '' }}">
+                                ✓ {{ $sch->examiner?->user?->name ?? 'Penguji' }} — {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }}) [{{ $sch->room_location ?? 'Ruang Munaqosah' }}] • Sisa {{ $sch->quota - $sch->used_slots }} Slot
                             </option>
                         @else
-                            <option value="{{ $sch->id }}" disabled style="color: #94a3b8; background: #f8fafc;">
-                                🔒 {{ $sch->examiner?->user?->name ?? 'Penguji' }} — Hari {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }} WIB) • (Sudah Terpenuhi ✓)
+                            <option value="{{ $sch->id }}" data-exam-type="{{ $schType }}" data-full="1" disabled style="color: #94a3b8; background: #f8fafc; {{ ($selectedType && $schType !== 'all' && $schType !== $selectedType) ? 'display: none;' : '' }}">
+                                🔒 {{ $sch->examiner?->user?->name ?? 'Penguji' }} — {{ $sch->day_name }} ({{ $sch->time_start }} - {{ $sch->time_end }}) • (Penuh ✓)
                             </option>
                         @endif
                     @endforeach
@@ -465,6 +469,51 @@ function switchMunaqosahType(type) {
             tgt.value = 'Jilid 2';
         }
     }
+
+    // Filter dropdown kelompok asal siswa sesuai tipe
+    const grpSelect = document.getElementById('from_group_select');
+    if (grpSelect) {
+        let hasValidSelected = false;
+        for (let opt of grpSelect.options) {
+            if (!opt.value) continue;
+            const optType = opt.getAttribute('data-type');
+            if (optType === type) {
+                opt.style.display = '';
+                opt.disabled = false;
+                if (opt.selected) hasValidSelected = true;
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+                if (opt.selected) opt.selected = false;
+            }
+        }
+        if (!hasValidSelected && !grpSelect.value) {
+            grpSelect.selectedIndex = 0;
+        }
+    }
+
+    // Filter dropdown jadwal & penguji sesuai tipe
+    const schSelect = document.getElementById('schedule_id');
+    if (schSelect) {
+        let hasValidSch = false;
+        for (let opt of schSelect.options) {
+            if (!opt.value) continue;
+            const exType = opt.getAttribute('data-exam-type');
+            const isFull = opt.getAttribute('data-full') === '1';
+            if (!exType || exType === 'all' || exType === type) {
+                opt.style.display = '';
+                opt.disabled = isFull;
+                if (opt.selected) hasValidSch = true;
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+                if (opt.selected) opt.selected = false;
+            }
+        }
+        if (!hasValidSch && !schSelect.value) {
+            schSelect.selectedIndex = 0;
+        }
+    }
 }
 
 function setQuickJuz(juz) {
@@ -549,6 +598,19 @@ function selectStudentLive(id, name, cls, nis) {
 
     document.getElementById('student_search_live').value = name;
     document.getElementById('student_search_results').style.display = 'none';
+
+    // Auto-select kelompok asal siswa jika ditemukan
+    const studentObj = allStudentsData.find(s => s.id === id);
+    if (studentObj && studentObj.mentoring_groups && studentObj.mentoring_groups.length > 0) {
+        const curType = document.querySelector('input[name="type"]:checked')?.value || 'tahfidz';
+        const matchedGrp = studentObj.mentoring_groups.find(g => g.type === curType);
+        if (matchedGrp) {
+            const grpSelect = document.getElementById('from_group_select');
+            if (grpSelect) {
+                grpSelect.value = matchedGrp.id;
+            }
+        }
+    }
 }
 
 function clearStudentSelection() {
@@ -615,5 +677,9 @@ function copyPublicLink() {
         prompt("Salin teks pesan pendaftaran berikut:", waText);
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    switchMunaqosahType('{{ $selectedType }}');
+});
 </script>
 @endsection

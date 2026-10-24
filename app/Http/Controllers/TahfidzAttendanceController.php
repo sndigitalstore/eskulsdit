@@ -89,8 +89,17 @@ class TahfidzAttendanceController extends Controller
     /**
      * Parse teks capaian menjadi surah_name, start_ayah, end_ayah, juz
      */
-    public static function parseCapaian(string $capaian, ?int $defaultJuz = 30): array
+    public static function parseCapaian(?string $capaian = null, ?int $defaultJuz = 30): array
     {
+        if ($capaian === null || trim($capaian) === '') {
+            return [
+                'surah_name' => '',
+                'start_ayah' => null,
+                'end_ayah'   => null,
+                'juz'        => $defaultJuz ?? 30,
+            ];
+        }
+
         $raw = trim($capaian);
         $text = preg_replace('/^(?:QS\.?|Surat|Surah)\s+/i', '', $raw);
         $text = trim($text);
