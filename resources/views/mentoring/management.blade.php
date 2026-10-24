@@ -53,25 +53,83 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 23, 42, 0.65);
         backdrop-filter: blur(4px);
         display: none;
         align-items: center;
         justify-content: center;
         z-index: 9999;
+        padding: 16px;
+        box-sizing: border-box;
     }
     .modal-container {
         background: white;
-        border-radius: 16px;
-        width: 95%;
+        border-radius: 20px;
+        width: 100%;
         max-width: 580px;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        overflow: hidden;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
         animation: modalFadeIn 0.2s ease-out;
     }
     @keyframes modalFadeIn {
         from { opacity: 0; transform: scale(0.96); }
         to { opacity: 1; transform: scale(1); }
+    }
+    .modal-header-section {
+        flex-shrink: 0;
+        padding: 18px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+    }
+    .modal-body-scrollable {
+        padding: 20px 24px;
+        overflow-y: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+    .modal-footer-section {
+        flex-shrink: 0;
+        padding: 14px 24px;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    }
+    @media (max-width: 640px) {
+        .modal-overlay {
+            padding: 8px;
+        }
+        .modal-container {
+            max-height: 94vh !important;
+            max-height: 94dvh !important;
+            border-radius: 16px;
+        }
+        .modal-header-section {
+            padding: 14px 16px !important;
+        }
+        .modal-body-scrollable {
+            padding: 16px 16px !important;
+        }
+        .modal-footer-section {
+            padding: 12px 16px !important;
+        }
+        .modal-footer-section button {
+            flex: 1 1 50%;
+            padding: 10px 14px !important;
+            font-size: 0.88rem !important;
+            justify-content: center;
+        }
     }
 </style>
 @endpush
@@ -608,23 +666,25 @@
 <!-- MODAL BUAT KELOMPOK BARU -->
 <div id="createGroupModal" class="modal-overlay" onclick="closeCreateGroupModal(event)">
     <div class="modal-container" onclick="event.stopPropagation()">
-        <div style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+        <!-- MODAL HEADER -->
+        <div class="modal-header-section">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 10px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
                     <i class="fas fa-layer-group"></i>
                 </div>
                 <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
                     Buat Kelompok Mentoring Baru
                 </h3>
             </div>
-            <button type="button" onclick="closeCreateGroupModal()" style="background: none; border: none; font-size: 1.2rem; color: #94a3b8; cursor: pointer;">
+            <button type="button" onclick="closeCreateGroupModal()" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 6px;" title="Tutup">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
-        <form action="{{ route('tilawati-groups.store') }}" method="POST" id="createGroupForm">
+        <form action="{{ route('tilawati-groups.store') }}" method="POST" id="createGroupForm" style="display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; margin: 0; overflow: hidden;">
             @csrf
-            <div style="padding: 24px; max-height: 75vh; overflow-y: auto;">
+            <!-- MODAL BODY (SCROLLABLE) -->
+            <div class="modal-body-scrollable">
                 <!-- PILIH TIPE MENTORING -->
                 <div style="margin-bottom: 18px;">
                     <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 8px; font-size: 0.88rem;">
@@ -718,7 +778,7 @@
                     <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 0.88rem;">
                         Jadwal & Tempat
                     </label>
-                    <input type="text" name="schedule" placeholder="Contoh: Setiap Senin-Kamis 07:30 - Ruang 2A" class="form-control" style="padding: 10px 12px; font-size: 0.9rem;">
+                    <input type="text" name="schedule" placeholder="Contoh: Setiap Selasa - Jum'at 07:30 - Ruang 1B" class="form-control" style="padding: 10px 12px; font-size: 0.9rem;">
                 </div>
 
                 <!-- CATATAN -->
@@ -730,11 +790,12 @@
                 </div>
             </div>
 
-            <div style="padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" onclick="closeCreateGroupModal()" class="btn-action-header btn-dark" style="background: #e2e8f0; color: #334155; padding: 9px 18px;">
+            <!-- MODAL FOOTER (PINNED, ALWAYS VISIBLE) -->
+            <div class="modal-footer-section">
+                <button type="button" onclick="closeCreateGroupModal()" class="btn-action-header btn-dark" style="background: #e2e8f0; color: #334155; padding: 10px 20px; font-weight: 600; border-radius: 10px;">
                     Batal
                 </button>
-                <button type="submit" class="btn-action-header btn-green" id="btnSubmitGroup" style="padding: 9px 20px; background: #059669;">
+                <button type="submit" class="btn-action-header btn-green" id="btnSubmitGroup" style="padding: 10px 22px; background: #059669; color: white; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
                     <i class="fas fa-check"></i> Simpan Kelompok
                 </button>
             </div>
@@ -745,11 +806,13 @@
 <script>
     function openCreateGroupModal() {
         document.getElementById('createGroupModal').style.display = 'flex';
+        document.body.classList.add('modal-open');
     }
 
     function closeCreateGroupModal(e) {
         if (!e || e.target.id === 'createGroupModal' || e.target.closest('button')) {
             document.getElementById('createGroupModal').style.display = 'none';
+            document.body.classList.remove('modal-open');
         }
     }
 
