@@ -1049,6 +1049,8 @@
                 </a>
             @endforeach
         </div>
+    @endif
+
     {{-- PENGINGAT JADWAL MENGUJI MUNAQISY --}}
     @if(isset($myUpcomingExams) && $myUpcomingExams->isNotEmpty())
         <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(49, 46, 129, 0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
