@@ -18,6 +18,26 @@ Route::get('/offline', function () {
 
 
 Route::get('/login', function () {
+    // Auto-create default TU (Tata Usaha) account if it doesn't exist yet
+    if (!\App\Models\User::whereRaw('LOWER(username) = ?', ['tu'])->exists()) {
+        try {
+            \App\Models\User::create([
+                'name' => 'Staf Tata Usaha (TU)',
+                'username' => 'TU',
+                'role' => 'tu',
+                'email' => 'tu@school.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('123456'),
+            ]);
+        } catch (\Exception $e) {}
+    }
+
+    // Ensure database migration for student extended fields has run
+    if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'nisn')) {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        } catch (\Exception $e) {}
+    }
+
     return view('login');
 })->name('login');
 
@@ -38,12 +58,33 @@ Route::post('/login', function (Request $request) {
         ]);
     }
 
+    // Auto-create default TU (Tata Usaha) account if it doesn't exist yet
+    if (in_array(strtolower($request->username), ['tu']) && !\App\Models\User::whereRaw('LOWER(username) = ?', ['tu'])->exists()) {
+        \App\Models\User::create([
+            'name' => 'Staf Tata Usaha (TU)',
+            'username' => 'TU',
+            'role' => 'tu',
+            'email' => 'tu@school.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('123456'),
+        ]);
+    }
+
+    // Ensure database migration for student extended fields has run
+    if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'nisn')) {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        } catch (\Exception $e) {}
+    }
+
     $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
     $activeYearId = $activeYear ? $activeYear->id : null;
 
-    $user = \App\Models\User::where('username', $request->username)
+    $user = \App\Models\User::where(function($q) use ($request) {
+            $q->where('username', $request->username)
+              ->orWhereRaw('LOWER(username) = ?', [strtolower($request->username)]);
+        })
         ->where(function($query) use ($activeYearId) {
-            $query->whereIn('role', ['admin', 'headmaster', 'curriculum'])
+            $query->whereIn('role', ['admin', 'headmaster', 'curriculum', 'tu'])
                   ->orWhere('academic_year_id', $activeYearId);
         })
         ->first();
@@ -103,6 +144,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/promotions', [\App\Http\Controllers\PromotionController::class, 'index'])->name('promotions.index');
     Route::post('/promotions', [\App\Http\Controllers\PromotionController::class, 'promote'])->name('promotions.promote');
     Route::get('students/{student}/card', [\App\Http\Controllers\StudentController::class, 'card'])->name('students.card');
+    Route::get('students/{student}/portfolio', [\App\Http\Controllers\StudentController::class, 'portfolio'])->name('students.portfolio');
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
         Route::get('/eskuls', [\App\Http\Controllers\EskulController::class, 'index'])->name('eskuls.index');
         Route::post('/eskuls', [\App\Http\Controllers\EskulController::class, 'store'])->name('eskuls.store');

@@ -27,9 +27,158 @@
                 @endif
             </div>
         </div>
-        <a href="{{ route('students.index', ['status' => $student->status == 'graduated' ? 'graduated' : 'active']) }}" class="btn-filter" style="background: #95a5a6;">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="{{ route('students.portfolio', $student->id) }}" target="_blank" class="btn" style="background: #8b5cf6; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(139,92,246,0.3);">
+                <i class="fas fa-id-card-alt"></i> Cetak Portofolio
+            </a>
+            <a href="{{ route('students.card', $student->id) }}" target="_blank" class="btn" style="background: #0284c7; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(2,132,199,0.3);">
+                <i class="fas fa-id-card"></i> Cetak Kartu
+            </a>
+            @if(in_array(Auth::user()->role, ['admin', 'tu']))
+            <a href="{{ route('students.edit', $student->id) }}" class="btn" style="background: #f59e0b; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-pen"></i> Edit
+            </a>
+            @endif
+            <a href="{{ route('students.index', ['status' => $student->status == 'graduated' ? 'graduated' : 'active']) }}" class="btn-filter" style="background: #95a5a6; padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+    {{-- KARTU BIODATA LENGKAP SISWA --}}
+    <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 22px; margin-bottom: 25px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-address-card" style="color: #3b82f6;"></i> Biodata Lengkap Siswa
+            </h3>
+            <span style="font-size: 0.8rem; color: #64748b; font-weight: 500;">
+                Tahun Ajaran Terdaftar: <strong>{{ $student->academicYear ? $student->academicYear->name : '-' }}</strong>
+            </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: auto 1fr 1fr; gap: 24px; align-items: start;">
+            {{-- Foto Siswa --}}
+            <div style="text-align: center;">
+                <div style="width: 110px; height: 110px; border-radius: 14px; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border: 3px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.06); margin: 0 auto 8px;">
+                    @if($student->photo)
+                        <img src="{{ asset('storage/' . $student->photo) }}" alt="{{ $student->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    @else
+                        <i class="fas fa-user-graduate" style="font-size: 3.2rem; color: #94a3b8;"></i>
+                    @endif
+                </div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">
+                    {{ $student->school_program ?: 'Reguler' }}
+                </div>
+            </div>
+
+            {{-- Kolom Data Diri --}}
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">
+                    <i class="fas fa-user"></i> Data Pribadi
+                </div>
+                <table style="width: 100%; font-size: 0.88rem; border-collapse: collapse;">
+                    <tr>
+                        <td style="color: #64748b; width: 130px; padding: 4px 0;">NIS / NISN</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->nis ?: '-' }} / {{ $student->nisn ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Jenis Kelamin</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            @if($student->gender == 'L')
+                                <span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Laki-laki (L)</span>
+                            @elseif($student->gender == 'P')
+                                <span style="background: #fce7f3; color: #be185d; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Perempuan (P)</span>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Tempat, Tgl Lahir</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->birth_place_date ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Asal Sekolah (TK)</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->previous_school ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Tgl Diterima</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->admission_date ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0; vertical-align: top;">Alamat</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->address ?: '-' }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            {{-- Kolom Data Orang Tua --}}
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">
+                    <i class="fas fa-users"></i> Orang Tua / Wali
+                </div>
+                <table style="width: 100%; font-size: 0.88rem; border-collapse: collapse;">
+                    <tr>
+                        <td style="color: #64748b; width: 130px; padding: 4px 0;">Nama Ayah</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->father_name ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Pekerjaan Ayah</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->father_job ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">No HP Ayah</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            @if($student->father_phone)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->father_phone) }}" target="_blank" style="color: #16a34a; text-decoration: none;">
+                                    <i class="fab fa-whatsapp"></i> {{ $student->father_phone }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Nama Ibu</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->mother_name ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">Pekerjaan Ibu</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            {{ $student->mother_job ?: '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 4px 0;">No HP Ibu</td>
+                        <td style="font-weight: 600; color: #1e293b; padding: 4px 0;">
+                            @if($student->mother_phone)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->mother_phone) }}" target="_blank" style="color: #16a34a; text-decoration: none;">
+                                    <i class="fab fa-whatsapp"></i> {{ $student->mother_phone }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 
     @if(empty($history))

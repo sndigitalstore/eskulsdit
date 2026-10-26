@@ -854,6 +854,7 @@
                 $isCurriculum = $role === 'curriculum';
                 $isAdmin = $role === 'admin';
                 $isHeadmaster = $role === 'headmaster';
+                $isTU = $role === 'tu';
                 $isAdminOrHeadmaster = in_array($role, ['admin', 'headmaster']);
                 $isAdminOrCurriculumOrHeadmaster = in_array($role, ['admin', 'headmaster', 'curriculum']);
 
@@ -895,8 +896,8 @@
                 // 4. SMILE Kurikulum: Admin, Headmaster, Tim Kurikulum, Wali Kelas, atau Guru Mapel
                 $showKurikulumMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isSubjectTeacher;
 
-                // 5. Kesiswaan & Guru: Admin dan Headmaster
-                $showKesiswaanMenu = $isAdminOrHeadmaster;
+                // 5. Kesiswaan & Guru: Admin, Headmaster, dan TU (Tata Usaha)
+                $showKesiswaanMenu = $isAdminOrHeadmaster || $isTU;
 
                 // 6. Laporan & Rapor: Admin, Headmaster, Kurikulum, Wali Kelas, Pembina Eskul, atau Guru Mentoring
                 $showReportMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isEskulCoach || $hasTilawati || $hasTahfidz;
@@ -1335,7 +1336,7 @@
             </div>
 
             <!-- Global Search Bar -->
-            @if(Auth::user()->role == 'admin')
+            @if(in_array(Auth::user()->role, ['admin', 'tu']))
             <div class="search-container desktop-only">
                 <form action="{{ route('global-search') }}" method="GET" class="search-bar">
                     <i class="fas fa-search search-icon"></i>
@@ -1365,6 +1366,8 @@
                                 Kepala Sekolah
                             @elseif(Auth::user()->role == 'curriculum')
                                 Tim Kurikulum
+                            @elseif(Auth::user()->role == 'tu')
+                                Tata Usaha (TU)
                             @else
                                 {{ implode(' • ', Auth::user()->getActiveRolesSummary()) }}
                             @endif

@@ -1377,6 +1377,18 @@
                     </div>
                 </div>
             @endif
+            @if(Auth::user()->role == 'tu')
+                <div class="topbar-admin-actions">
+                    <div class="action-grid-buttons">
+                        <a href="{{ route('students.create') }}" class="act-btn act-btn-primary">
+                            <i class="fas fa-plus"></i> <span>Tambah Siswa</span>
+                        </a>
+                        <a href="{{ route('students.backup') }}" class="act-btn act-btn-dark">
+                            <i class="fas fa-download"></i> <span>Backup</span>
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -1490,7 +1502,7 @@
                             <th>Kelas</th>
                             <th>Ekstrakurikuler</th>
                             <th>Pembina</th>
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
                             <th style="text-align:center;">Aksi</th>
                             @endif
                         </tr>
@@ -1575,23 +1587,30 @@
                             </td>
 
                             {{-- Aksi --}}
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
                             <td>
                                 <div class="row-actions">
                                     <a href="{{ route('students.show', $student->id) }}"
                                        class="row-btn row-btn-view" title="Lihat Riwayat">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <a href="{{ route('students.portfolio', $student->id) }}"
+                                       target="_blank"
+                                       class="row-btn" style="background: #8b5cf6; color: white;" title="Portofolio Siswa (Cetak)">
+                                        <i class="fas fa-id-card-alt"></i>
+                                    </a>
                                     <a href="{{ route('students.certificate', $student->id) }}"
                                        target="_blank"
                                        class="row-btn" style="background: #f59e0b; color: white;" title="Cetak Piagam Digital">
                                         <i class="fas fa-certificate"></i>
                                     </a>
-                                    @if(Auth::user()->role == 'admin')
+                                    @if(in_array(Auth::user()->role, ['admin', 'tu']))
                                     <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}"
                                        class="row-btn row-btn-edit" title="Edit">
                                         <i class="fas fa-pen"></i>
                                     </a>
+                                    @endif
+                                    @if(Auth::user()->role == 'admin')
                                     <button type="button"
                                             onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')"
                                             class="row-btn row-btn-delete" title="Hapus">
@@ -1604,7 +1623,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="{{ in_array(Auth::user()->role, ['admin', 'headmaster']) ? 8 : 7 }}">
+                            <td colspan="{{ in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']) ? 8 : 7 }}">
                                 <div class="empty-state">
                                     <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
                                     <h4>Tidak ada data siswa</h4>

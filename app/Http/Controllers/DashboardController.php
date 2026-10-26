@@ -18,6 +18,12 @@ class DashboardController extends Controller
         
         // User Context
         $user = auth()->user();
+
+        // TU (Tata Usaha) → Dedicated Student-Focused Dashboard
+        if ($user->role === 'tu') {
+            return $this->tuDashboard($activeYear);
+        }
+
         $isTeacher = $user->role == 'teacher';
         $teacherEskulId = $isTeacher ? $user->eskul_id : null;
 
@@ -776,6 +782,111 @@ class DashboardController extends Controller
             'isMunaqisyExaminer',
             'isOnlyExaminer',
             'myUpcomingExams'
+        ));
+    }
+
+    /**
+     * Dashboard khusus akun TU (Tata Usaha) dengan fokus penuh pada seluruh data siswa.
+     */
+    protected function tuDashboard($activeYear)
+    {
+        $yearId = $activeYear ? $activeYear->id : null;
+
+        // Total Siswa
+        $totalStudents = Student::activeYear()->active()->count();
+        $totalAlumni = Student::activeYear()->whereIn('status', ['graduated', 'lulus'])->count();
+
+        // Gender breakdown
+        $maleStudents = Student::activeYear()->active()->where('gender', 'L')->count();
+        $femaleStudents = Student::activeYear()->active()->where('gender', 'P')->count();
+        $otherGender = max(0, $totalStudents - ($maleStudents + $femaleStudents));
+
+        // School Program
+        $fullDayStudents = Student::activeYear()->active()->where('school_program', 'Full Day')->count();
+        $boardingStudents = Student::activeYear()->active()->where('school_program', 'Boarding')->count();
+
+        // NISN Completeness
+        $completeNisn = Student::activeYear()->active()->whereNotNull('nisn')->where('nisn', '!=', '')->count();
+        $missingNisn = max(0, $totalStudents - $completeNisn);
+
+        // Data Ortu Completeness
+        $withParentData = Student::activeYear()->active()
+            ->where(function($q) {
+                $q->where(function($sq) {
+                    $sq->whereNotNull('father_name')->where('father_name', '!=', '');
+                })->orWhere(function($sq) {
+                    $sq->whereNotNull('mother_name')->where('mother_name', '!=', '');
+                });
+            })->count();
+
+        // Rekap Per Tingkat Kelas (1 s/d 6)
+        $classes = Student::activeYear()->active()
+            ->select(
+                'class',
+                DB::raw('count(*) as count'),
+                DB::raw('sum(case when gender = "L" then 1 else 0 end) as male_count'),
+                DB::raw('sum(case when gender = "P" then 1 else 0 end) as female_count')
+            )
+            ->groupBy('class')
+            ->orderBy('class')
+            ->get();
+
+        $gradeStatistics = [];
+        foreach ($classes as $c) {
+            preg_match('/^\d+/', $c->class, $matches);
+            $grade = $matches[0] ?? 'Lainnya';
+            if (!isset($gradeStatistics[$grade])) {
+                $gradeStatistics[$grade] = [
+                    'grade' => $grade,
+                    'total' => 0,
+                    'male' => 0,
+                    'female' => 0,
+                    'classes' => []
+                ];
+            }
+            $gradeStatistics[$grade]['total'] += (int)$c->count;
+            $gradeStatistics[$grade]['male'] += (int)$c->male_count;
+            $gradeStatistics[$grade]['female'] += (int)$c->female_count;
+            $gradeStatistics[$grade]['classes'][] = [
+                'name' => $c->class,
+                'count' => (int)$c->count,
+                'male' => (int)$c->male_count,
+                'female' => (int)$c->female_count
+            ];
+        }
+        ksort($gradeStatistics);
+
+        // Siswa Terbaru (15 siswa)
+        $recentStudents = Student::activeYear()->active()
+            ->with('eskuls')
+            ->orderBy('created_at', 'desc')
+            ->take(15)
+            ->get();
+
+        // Aktivitas log siswa terbaru (jika ada)
+        $studentLogs = [];
+        if (Schema::hasTable('activity_logs')) {
+            $studentLogs = \App\Models\ActivityLog::where('module', 'Students')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
+        }
+
+        return view('dashboard_tu', compact(
+            'activeYear',
+            'totalStudents',
+            'totalAlumni',
+            'maleStudents',
+            'femaleStudents',
+            'otherGender',
+            'fullDayStudents',
+            'boardingStudents',
+            'completeNisn',
+            'missingNisn',
+            'withParentData',
+            'gradeStatistics',
+            'recentStudents',
+            'studentLogs'
         ));
     }
 }

@@ -50,7 +50,7 @@ class User extends Authenticatable
         if ($activeYear) {
             return $query->where(function($q) use ($activeYear) {
                 $q->where('users.academic_year_id', $activeYear->id)
-                  ->orWhereIn('users.role', ['admin', 'headmaster', 'curriculum']);
+                  ->orWhereIn('users.role', ['admin', 'headmaster', 'curriculum', 'tu']);
             });
         }
         return $query;
@@ -60,7 +60,7 @@ class User extends Authenticatable
     {
         return $query->where(function($q) use ($yearId) {
             $q->where('users.academic_year_id', $yearId)
-              ->orWhereIn('users.role', ['admin', 'headmaster', 'curriculum']);
+              ->orWhereIn('users.role', ['admin', 'headmaster', 'curriculum', 'tu']);
         });
     }
 
@@ -159,6 +159,7 @@ class User extends Authenticatable
         if ($this->role === 'admin') $roles[] = 'Kesiswaan / Administrator';
         if ($this->role === 'headmaster') $roles[] = 'Kepala Sekolah';
         if ($this->role === 'curriculum') $roles[] = 'Tim Kurikulum';
+        if ($this->role === 'tu') $roles[] = 'Tata Usaha (TU)';
         
         if ($this->role === 'teacher') {
             if ($this->isHomeroom()) {

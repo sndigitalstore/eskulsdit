@@ -11,21 +11,21 @@ use Illuminate\Support\Facades\Auth;
 class StudentController extends Controller
 {
     /**
-     * Memastikan hanya Admin, Kepala Sekolah, dan Kurikulum yang dapat mengelola data siswa.
+     * Memastikan hanya Admin, Kepala Sekolah, Kurikulum, dan Tata Usaha (TU) yang dapat mengelola data siswa.
      */
     private function checkManagerRole()
     {
         $user = Auth::user();
-        if (!$user || !in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
-            abort(403, 'Akses dibatasi. Manajemen data siswa hanya dapat dikelola oleh Administrator dan Tim Kurikulum.');
+        if (!$user || !in_array($user->role, ['admin', 'headmaster', 'curriculum', 'tu'])) {
+            abort(403, 'Akses dibatasi. Manajemen data siswa hanya dapat dikelola oleh Administrator, Tata Usaha, dan Tim Kurikulum.');
         }
     }
 
     public function index(Request $request)
     {
         $user = Auth::user();
-        if ($user && !in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
-            return redirect()->route('dashboard')->with('error', 'Akses dibatasi. Pengelolaan data siswa dilakukan oleh Administrator atau Tim Kurikulum.');
+        if ($user && !in_array($user->role, ['admin', 'headmaster', 'curriculum', 'tu'])) {
+            return redirect()->route('dashboard')->with('error', 'Akses dibatasi. Pengelolaan data siswa dilakukan oleh Administrator, Tata Usaha, atau Tim Kurikulum.');
         }
 
         $status = $request->input('status', 'active');
@@ -95,12 +95,26 @@ class StudentController extends Controller
 
         $validated = $request->validate([
             'nis' => [
-                'required', 'string', 'max:20',
+                'required', 'string', 'max:30',
                 // NIS must be unique within the active academic year only
                 Rule::unique('students', 'nis')->where('academic_year_id', $activeYear->id),
             ],
+            'nisn' => 'nullable|string|max:30',
             'name' => 'required|string|max:255',
             'class' => 'required|string|max:50',
+            'gender' => 'nullable|string|max:10',
+            'birth_place_date' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:1000',
+            'previous_school' => 'nullable|string|max:255',
+            'father_name' => 'nullable|string|max:255',
+            'mother_name' => 'nullable|string|max:255',
+            'father_job' => 'nullable|string|max:255',
+            'mother_job' => 'nullable|string|max:255',
+            'father_phone' => 'nullable|string|max:50',
+            'mother_phone' => 'nullable|string|max:50',
+            'parent_phone' => 'nullable|string|max:50',
+            'admission_date' => 'nullable|string|max:100',
+            'school_program' => 'nullable|string|max:50',
             'eskul_1_id' => 'nullable|exists:eskuls,id',
             'eskul_name' => 'nullable|string|max:255',
             'instructor_name' => 'nullable|string|max:255',
@@ -141,8 +155,22 @@ class StudentController extends Controller
              $student = \App\Models\Student::create([
                 'academic_year_id' => $activeYear->id,
                 'nis' => $validated['nis'],
+                'nisn' => $validated['nisn'] ?? null,
                 'name' => $validated['name'],
                 'class' => $className,
+                'gender' => $validated['gender'] ?? null,
+                'birth_place_date' => $validated['birth_place_date'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'previous_school' => $validated['previous_school'] ?? null,
+                'father_name' => $validated['father_name'] ?? null,
+                'mother_name' => $validated['mother_name'] ?? null,
+                'father_job' => $validated['father_job'] ?? null,
+                'mother_job' => $validated['mother_job'] ?? null,
+                'father_phone' => $validated['father_phone'] ?? null,
+                'mother_phone' => $validated['mother_phone'] ?? null,
+                'parent_phone' => $validated['parent_phone'] ?? ($validated['father_phone'] ?? ($validated['mother_phone'] ?? null)),
+                'admission_date' => $validated['admission_date'] ?? null,
+                'school_program' => $validated['school_program'] ?? null,
                 'photo' => $photoPath,
             ]);
         }
@@ -340,15 +368,30 @@ class StudentController extends Controller
         $validated = $request->validate([
             // NIS unique within same academic year, excluding self
             'nis' => [
-                'required', 'string', 'max:20',
+                'required', 'string', 'max:30',
                 Rule::unique('students', 'nis')
                     ->where('academic_year_id', $student->academic_year_id)
                     ->ignore($student->id),
             ],
+            'nisn' => 'nullable|string|max:30',
             'name' => 'required|string|max:255',
             'class' => 'required|string|max:50',
+            'gender' => 'nullable|string|max:10',
+            'birth_place_date' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:1000',
+            'previous_school' => 'nullable|string|max:255',
+            'father_name' => 'nullable|string|max:255',
+            'mother_name' => 'nullable|string|max:255',
+            'father_job' => 'nullable|string|max:255',
+            'mother_job' => 'nullable|string|max:255',
+            'father_phone' => 'nullable|string|max:50',
+            'mother_phone' => 'nullable|string|max:50',
+            'parent_phone' => 'nullable|string|max:50',
+            'admission_date' => 'nullable|string|max:100',
+            'school_program' => 'nullable|string|max:50',
             'eskul_1_id' => 'nullable|exists:eskuls,id',
             'eskul_2_id' => 'nullable|exists:eskuls,id',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'last_sync' => 'nullable|string'
         ]);
 
@@ -363,11 +406,25 @@ class StudentController extends Controller
 
         $updateData = [
             'nis' => $validated['nis'],
+            'nisn' => $validated['nisn'] ?? $student->nisn,
             'name' => $validated['name'],
             'class' => $className,
+            'gender' => $validated['gender'] ?? $student->gender,
+            'birth_place_date' => $validated['birth_place_date'] ?? $student->birth_place_date,
+            'address' => $validated['address'] ?? $student->address,
+            'previous_school' => $validated['previous_school'] ?? $student->previous_school,
+            'father_name' => $validated['father_name'] ?? $student->father_name,
+            'mother_name' => $validated['mother_name'] ?? $student->mother_name,
+            'father_job' => $validated['father_job'] ?? $student->father_job,
+            'mother_job' => $validated['mother_job'] ?? $student->mother_job,
+            'father_phone' => $validated['father_phone'] ?? $student->father_phone,
+            'mother_phone' => $validated['mother_phone'] ?? $student->mother_phone,
+            'parent_phone' => $validated['parent_phone'] ?? ($validated['father_phone'] ?? ($validated['mother_phone'] ?? $student->parent_phone)),
+            'admission_date' => $validated['admission_date'] ?? $student->admission_date,
+            'school_program' => $validated['school_program'] ?? $student->school_program,
         ];
 
-        // Process photo if present (though removed from form, keep logic for robustness)
+        // Process photo if present
         if ($request->hasFile('photo')) {
             if ($student->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($student->photo);
@@ -521,6 +578,79 @@ class StudentController extends Controller
             }]);
         }
         return view('students.card', compact('student', 'activeYear'));
+    }
+
+    public function portfolio(\App\Models\Student $student)
+    {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+
+        // Load eskuls for active year
+        if ($activeYear) {
+            $student->load(['eskuls' => function($q) use ($activeYear) {
+                $q->wherePivot('academic_year_id', $activeYear->id);
+            }]);
+        } else {
+            $student->setRelation('eskuls', collect());
+        }
+
+        // Grades for active year
+        $grades = \App\Models\Grade::where('student_id', $student->id)
+            ->with('eskul')
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->get();
+
+        // Achievements (all time)
+        $achievements = \App\Models\Achievement::where('student_id', $student->id)
+            ->orderBy('date', 'desc')
+            ->get();
+
+        // Attendance summary
+        $attendances = \App\Models\Attendance::where('student_id', $student->id)
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->get();
+        $attendanceSummary = [
+            'hadir' => $attendances->where('status', 'hadir')->count(),
+            'sakit' => $attendances->where('status', 'sakit')->count(),
+            'izin'  => $attendances->where('status', 'izin')->count(),
+            'alpha' => $attendances->where('status', 'alpha')->count(),
+            'total' => $attendances->count(),
+        ];
+
+        // Tahfidz records
+        $tahfidzGroup = $student->tahfidzGroup($activeYear?->id);
+        $tahfidzRecords = [];
+        if ($tahfidzGroup) {
+            $tahfidzRecords = \App\Models\TahfidzRecord::where('student_id', $student->id)
+                ->where('mentoring_group_id', $tahfidzGroup->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Tilawati attendance
+        $tilawatiGroup = $student->tilawatiGroup($activeYear?->id);
+
+        // Munaqosah registrations
+        $munaqosahRegs = \App\Models\MunaqosahRegistration::where('student_id', $student->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Character
+        $characterCases = \App\Models\CharacterCase::where('student_id', $student->id)
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->orderBy('date', 'desc')->get();
+        $characterAppreciations = \App\Models\CharacterAppreciation::where('student_id', $student->id)
+            ->when($activeYear, fn($q) => $q->where('academic_year_id', $activeYear->id))
+            ->orderBy('date', 'desc')->get();
+
+        // School settings
+        $settings = \App\Models\Setting::pluck('value', 'key');
+
+        return view('students.portfolio', compact(
+            'student', 'activeYear', 'grades', 'achievements',
+            'attendanceSummary', 'tahfidzRecords', 'tahfidzGroup',
+            'tilawatiGroup', 'munaqosahRegs',
+            'characterCases', 'characterAppreciations', 'settings'
+        ));
     }
 
     public function assignGrade6Tahfidz(Request $request)
