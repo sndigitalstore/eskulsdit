@@ -1362,7 +1362,10 @@
                         <i class="fas fa-trash"></i> <span>Hapus Terpilih</span>
                     </button>
 
-                    <div class="action-grid-buttons">
+                        <a href="{{ route('class-management.index') }}" class="act-btn" style="background: #2563eb; color: white;" title="Manajemen & Ploting Kelas">
+                            <i class="fas fa-layer-group"></i> <span>Ploting Kelas</span>
+                        </a>
+
                         <a href="{{ route('students.create') }}" class="act-btn act-btn-primary">
                             <i class="fas fa-plus"></i> <span>Tambah</span>
                         </a>
@@ -1380,6 +1383,9 @@
             @if(Auth::user()->role == 'tu')
                 <div class="topbar-admin-actions">
                     <div class="action-grid-buttons">
+                        <a href="{{ route('class-management.index') }}" class="act-btn" style="background: #2563eb; color: white;" title="Manajemen & Ploting Kelas">
+                            <i class="fas fa-layer-group"></i> <span>Ploting Kelas</span>
+                        </a>
                         <a href="{{ route('students.create') }}" class="act-btn act-btn-primary">
                             <i class="fas fa-plus"></i> <span>Tambah Siswa</span>
                         </a>

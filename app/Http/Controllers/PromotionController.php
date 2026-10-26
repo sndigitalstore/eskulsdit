@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role === 'tu') {
+                return redirect()->route('class-management.index')->with('info', 'Kenaikan kelas dikelola oleh Administrator. Untuk ploting dan pengelompokan kelas siswa, silakan gunakan menu Manajemen & Ploting Kelas.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
         $class = $request->input('class');

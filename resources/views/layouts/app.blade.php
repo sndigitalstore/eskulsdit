@@ -1151,16 +1151,16 @@
             </li>
             @endif
 
-            {{-- 6. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah) --}}
+            {{-- 6. Kesiswaan & Pembina (Dropdown - Khusus Admin & Kepala Sekolah, dan TU) --}}
             @if($showKesiswaanMenu)
             @php
-                $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*');
+                $isKesiswaanActive = request()->is('students*', 'promotions*', 'achievements*', 'teachers*', 'import-portal*', 'class-management*');
             @endphp
             <li class="nav-dropdown {{ $isKesiswaanActive ? 'open active-parent' : '' }}" id="dropdown-kesiswaan">
                 <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
                     <div class="toggle-content">
                         <i class="fas fa-user-graduate main-icon"></i>
-                        <span>Kesiswaan & Guru</span>
+                        <span>{{ $isTU ? 'Manajemen Siswa & Kelas' : 'Kesiswaan & Guru' }}</span>
                     </div>
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </div>
@@ -1171,6 +1171,13 @@
                             <span>Data Siswa</span>
                         </a>
                     </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('class-management.index') }}" class="nav-sublink {{ request()->is('class-management*') ? 'active' : '' }}">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Manajemen & Ploting Kelas</span>
+                        </a>
+                    </li>
+                    @if(!$isTU)
                     <li class="nav-subitem">
                         <a href="/promotions" class="nav-sublink {{ request()->is('promotions*') ? 'active' : '' }}">
                             <i class="fas fa-level-up-alt"></i>
@@ -1189,6 +1196,7 @@
                             <span>Kelola Guru/Pembina</span>
                         </a>
                     </li>
+                    @endif
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-subitem">
                         <a href="{{ route('import-portal.index') }}" class="nav-sublink {{ request()->is('import-portal*') ? 'active' : '' }}">

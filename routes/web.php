@@ -141,8 +141,20 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('students/bulk-destroy', [\App\Http\Controllers\StudentController::class, 'destroy_bulk'])->name('students.destroy_bulk');
     Route::get('students/backup', [\App\Http\Controllers\StudentController::class, 'backup'])->name('students.backup');
     Route::resource('students', \App\Http\Controllers\StudentController::class);
-    Route::get('/promotions', [\App\Http\Controllers\PromotionController::class, 'index'])->name('promotions.index');
-    Route::post('/promotions', [\App\Http\Controllers\PromotionController::class, 'promote'])->name('promotions.promote');
+    // Class Management & Student Plotting (TU, Admin, Headmaster)
+    Route::get('/class-management', [\App\Http\Controllers\ClassManagementController::class, 'index'])->name('class-management.index');
+    Route::post('/class-management/classes', [\App\Http\Controllers\ClassManagementController::class, 'storeClass'])->name('class-management.classes.store');
+    Route::put('/class-management/classes/{schoolClass}', [\App\Http\Controllers\ClassManagementController::class, 'updateClass'])->name('class-management.classes.update');
+    Route::delete('/class-management/classes/{schoolClass}', [\App\Http\Controllers\ClassManagementController::class, 'destroyClass'])->name('class-management.classes.destroy');
+    Route::post('/class-management/plot', [\App\Http\Controllers\ClassManagementController::class, 'plotStudents'])->name('class-management.plot');
+    Route::post('/class-management/students/{student}/quick-move', [\App\Http\Controllers\ClassManagementController::class, 'quickMove'])->name('class-management.quick-move');
+
+    // Kenaikan Kelas (Khusus Admin & Kepala Sekolah)
+    Route::middleware(['role:admin,headmaster'])->group(function () {
+        Route::get('/promotions', [\App\Http\Controllers\PromotionController::class, 'index'])->name('promotions.index');
+        Route::post('/promotions', [\App\Http\Controllers\PromotionController::class, 'promote'])->name('promotions.promote');
+    });
+
     Route::get('students/{student}/card', [\App\Http\Controllers\StudentController::class, 'card'])->name('students.card');
     Route::get('students/{student}/portfolio', [\App\Http\Controllers\StudentController::class, 'portfolio'])->name('students.portfolio');
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
@@ -223,15 +235,17 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/global-search', [\App\Http\Controllers\GlobalSearchController::class, 'index'])->name('global-search');
-    Route::get('/achievements/print', [\App\Http\Controllers\AchievementController::class, 'print'])->name('achievements.print');
     
     // Announcements & Guide
     Route::resource('announcements', \App\Http\Controllers\AnnouncementController::class)->only(['index', 'store', 'destroy']);
     Route::get('/guide', [\App\Http\Controllers\GuideController::class, 'index'])->name('guide.index');
-    
-    Route::get('/achievements/bulk', [\App\Http\Controllers\AchievementController::class, 'bulk'])->name('achievements.bulk');
-    Route::post('/achievements/bulk', [\App\Http\Controllers\AchievementController::class, 'storeBulk'])->name('achievements.store_bulk');
-    Route::resource('achievements', \App\Http\Controllers\AchievementController::class);
+
+    Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
+        Route::get('/achievements/print', [\App\Http\Controllers\AchievementController::class, 'print'])->name('achievements.print');
+        Route::get('/achievements/bulk', [\App\Http\Controllers\AchievementController::class, 'bulk'])->name('achievements.bulk');
+        Route::post('/achievements/bulk', [\App\Http\Controllers\AchievementController::class, 'storeBulk'])->name('achievements.store_bulk');
+        Route::resource('achievements', \App\Http\Controllers\AchievementController::class);
+    });
 
     // Digital Certificate Routes
     Route::get('/students/{student}/certificate', [\App\Http\Controllers\CertificateController::class, 'studentCertificate'])->name('students.certificate');

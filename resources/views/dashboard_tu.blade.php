@@ -229,11 +229,8 @@
     <a href="{{ route('students.index') }}" class="tu-action-btn btn-tu-info">
         <i class="fas fa-users"></i> Kelola Semua Siswa
     </a>
-    <a href="{{ route('promotions.index') }}" class="tu-action-btn btn-tu-amber">
-        <i class="fas fa-level-up-alt"></i> Kenaikan Kelas
-    </a>
-    <a href="{{ route('achievements.index') }}" class="tu-action-btn btn-tu-purple">
-        <i class="fas fa-trophy"></i> Prestasi Siswa
+    <a href="{{ route('class-management.index') }}" class="tu-action-btn btn-tu-amber">
+        <i class="fas fa-layer-group"></i> Manajemen & Ploting Kelas
     </a>
     <a href="{{ route('students.backup') }}" class="tu-action-btn btn-tu-dark">
         <i class="fas fa-file-excel"></i> Backup / Export Data Excel

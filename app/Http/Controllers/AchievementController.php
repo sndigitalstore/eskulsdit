@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 
 class AchievementController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role === 'tu') {
+                abort(403, 'Akses dibatasi. Kelola Prestasi hanya dapat diakses oleh Administrator, Kepala Sekolah, dan Guru.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         // Maybe list all achievements or generally accessed via student
