@@ -354,20 +354,27 @@
     }
 
     .table-header-meta {
-        padding: 18px 24px;
+        padding: 16px 24px;
         border-bottom: 1px solid #f1f5f9;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 14px;
         background: #fafafa;
+    }
+
+    .meta-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .meta-heading {
         font-size: 1.05rem;
         font-weight: 800;
         color: #0f172a;
+        white-space: nowrap;
     }
 
     .meta-badge-count {
@@ -377,12 +384,133 @@
         font-weight: 700;
         padding: 3px 10px;
         border-radius: 999px;
-        margin-left: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .meta-badge-count.badge-filtered {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    /* Kolom Pencarian Cepat Table Header */
+    .meta-search-box {
+        position: relative;
+        flex: 1;
+        max-width: 440px;
+        min-width: 250px;
+    }
+
+    .search-meta-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.92rem;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .search-meta-input {
+        width: 100%;
+        padding: 9px 38px 9px 38px;
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        background: #ffffff;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #0f172a;
+        box-sizing: border-box;
+        outline: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .search-meta-input::placeholder {
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .search-meta-input:focus {
+        border-color: #0284c7;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        background: #ffffff;
+    }
+
+    .search-meta-input:focus ~ .search-meta-icon {
+        color: #0284c7;
+    }
+
+    .search-meta-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 1.05rem;
+        cursor: pointer;
+        padding: 4px;
+        line-height: 1;
+        border-radius: 50%;
+        transition: color 0.2s ease;
+    }
+
+    .search-meta-clear:hover {
+        color: #ef4444;
+    }
+
+    .meta-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .meta-period-text {
         font-size: 0.88rem;
         color: #64748b;
+        white-space: nowrap;
+    }
+
+    .meta-period-badge.all-period-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: #e0f2fe;
+        color: #0369a1;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #bae6fd;
+        white-space: nowrap;
+    }
+
+    .meta-period-badge.all-period-badge:hover {
+        background: #fee2e2;
+        color: #b91c1c;
+        border-color: #fca5a5;
+    }
+
+    .empty-search-box {
+        text-align: center;
+        padding: 45px 20px;
+    }
+
+    .empty-search-box .empty-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
     }
 
     .table-responsive-box {
@@ -1142,8 +1270,15 @@
         .table-header-meta {
             padding: 12px 14px;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .meta-left {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
 
         .meta-heading {
@@ -1156,9 +1291,44 @@
             margin-left: 6px;
         }
 
+        .meta-search-box {
+            max-width: 100%;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .search-meta-input {
+            padding: 8px 34px 8px 34px;
+            font-size: 0.82rem;
+            border-radius: 10px;
+        }
+
+        .search-meta-icon {
+            left: 11px;
+            font-size: 0.82rem;
+        }
+
+        .meta-right {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
         .meta-period-text {
             font-size: 0.76rem;
             color: #64748b;
+        }
+
+        #emptySearchRow {
+            display: block !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        #emptySearchRow td {
+            display: block !important;
+            padding: 20px 10px !important;
+            border: none !important;
         }
 
         .table-responsive-box {
@@ -1454,8 +1624,8 @@
     $substituteCount = $attendances->filter(function($item) {
         return !empty($item->substitute_name) || !empty($item->substitute_user_id);
     })->count();
-    $monthCarbon = \Carbon\Carbon::parse($month . '-01')->locale('id');
-    $monthIndo = $monthCarbon->isoFormat('MMMM Y');
+    $monthCarbon = \Carbon\Carbon::parse(($month ?? date('Y-m')) . '-01')->locale('id');
+    $monthIndo = !empty($allMonths) ? 'Semua Periode (' . ($activeYear ? $activeYear->name : 'Aktif') . ')' : $monthCarbon->isoFormat('MMMM Y');
 @endphp
 
 <div class="presence-container">
@@ -1583,6 +1753,12 @@
                         <i class="fas fa-search"></i>
                         <span>Tampilkan</span>
                     </button>
+                    @if(!empty($allMonths))
+                        <a href="{{ route('teacher-attendance.index', ['month' => $month]) }}" class="btn-solid btn-solid-dark" style="background: #334155;" title="Kembali ke tampilan bulan {{ $monthCarbon->isoFormat('MMMM Y') }}">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Bulan {{ $monthCarbon->isoFormat('MMMM Y') }}</span>
+                        </a>
+                    @endif
                 </div>
             </div>
 
@@ -1614,12 +1790,33 @@
         <div class="table-header-meta">
             <div class="meta-left">
                 <span class="meta-heading">Daftar Kehadiran</span>
-                <span class="meta-badge-count">{{ $attendances->count() }} Data Tercatat</span>
+                <span class="meta-badge-count" id="attendanceCountBadge">{{ $attendances->count() }} Data Tercatat</span>
             </div>
+
+            <!-- Kolom Pencarian Cepat Data Guru Presensi -->
+            <div class="meta-search-box">
+                <i class="fas fa-search search-meta-icon"></i>
+                <input type="text" 
+                       id="teacherAttendanceSearch" 
+                       class="search-meta-input" 
+                       placeholder="Cari nama guru (misal: Heru), eskul, tanggal..." 
+                       value="{{ $search ?? '' }}"
+                       autocomplete="off">
+                <button type="button" id="clearSearchBtn" onclick="clearTeacherSearch()" class="search-meta-clear" style="display: none;" title="Hapus pencarian">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+
             <div class="meta-right">
-                <span class="meta-period-text">
-                    <i class="far fa-clock"></i> Periode: <strong>{{ $monthIndo }}</strong>
-                </span>
+                @if(!empty($allMonths))
+                    <a href="{{ route('teacher-attendance.index', ['month' => $month]) }}" class="meta-period-badge all-period-badge" title="Klik untuk kembali ke filter bulanan">
+                        <i class="fas fa-calendar-alt"></i> Semua Periode <i class="fas fa-times" style="font-size: 0.72rem; margin-left: 4px;"></i>
+                    </a>
+                @else
+                    <span class="meta-period-text">
+                        <i class="far fa-clock"></i> Periode: <strong>{{ $monthIndo }}</strong>
+                    </span>
+                @endif
             </div>
         </div>
 
@@ -1642,8 +1839,16 @@
                             $eskulName = ($user && $user->eskul) ? $user->eskul->name : null;
                             $dateParsed = \Carbon\Carbon::parse($attendance->date)->locale('id');
                             $dateStr = $dateParsed->isoFormat('dddd, D MMMM Y');
+                            $subName = $attendance->substituteUser ? $attendance->substituteUser->name : $attendance->substitute_name;
                         @endphp
-                        <tr>
+                        <tr class="attendance-row"
+                            data-teacher="{{ strtolower($userName) }}"
+                            data-eskul="{{ strtolower($eskulName ?? '') }}"
+                            data-date="{{ strtolower($dateStr) }} {{ $attendance->date }}"
+                            data-time="{{ $attendance->clock_in_time ?? '' }}"
+                            data-status="{{ strtolower($attendance->status) }}"
+                            data-substitute="{{ strtolower($subName ?? '') }}"
+                            data-note="{{ strtolower($attendance->note ?? '') }}">
                             <!-- 1. Nama Guru & Eskul -->
                             <td>
                                 <div class="teacher-profile-flex">
@@ -1752,6 +1957,31 @@
                             </td>
                         </tr>
                     @endforelse
+
+                    <!-- Pesan Ketika Pencarian Cepat Tidak Menemukan Hasil -->
+                    <tr id="emptySearchRow" style="display: none;">
+                        <td colspan="5">
+                            <div class="empty-search-box">
+                                <div class="empty-icon-wrapper" style="background: #fef2f2; color: #ef4444;">
+                                    <i class="fas fa-search-minus"></i>
+                                </div>
+                                <h4 class="empty-title" style="margin-bottom: 6px; font-weight: 800; color: #0f172a;">Data Presensi Tidak Ditemukan</h4>
+                                <p class="empty-desc" style="color: #64748b; font-size: 0.9rem; max-width: 520px; margin: 0 auto; line-height: 1.5;">
+                                    Tidak ada catatan presensi pembina yang cocok dengan kata kunci "<strong id="searchKeywordLabel" style="color: #0f172a;"></strong>" pada {{ !empty($allMonths) ? 'seluruh periode' : 'periode ' . $monthIndo }}.
+                                </p>
+                                <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 16px;">
+                                    <button type="button" onclick="clearTeacherSearch()" class="btn-solid btn-solid-blue" style="font-size: 0.84rem; padding: 8px 16px;">
+                                        <i class="fas fa-undo"></i> Reset Pencarian
+                                    </button>
+                                    @if(empty($allMonths))
+                                        <a href="#" id="searchAllPeriodsLink" class="btn-solid btn-solid-dark" style="font-size: 0.84rem; padding: 8px 16px;" title="Cari data guru di seluruh bulan dalam tahun ajaran ini">
+                                            <i class="fas fa-globe"></i> Cari di Semua Periode
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -1950,7 +2180,97 @@
         }
     }
 
-    // Auto open modal if URL params specify open_modal=1
+    // ==========================================
+    // INSTANT LIVE SEARCH GURU PEMBINA
+    // ==========================================
+    function filterTeacherAttendance() {
+        const input = document.getElementById('teacherAttendanceSearch');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const badge = document.getElementById('attendanceCountBadge');
+        const emptyRow = document.getElementById('emptySearchRow');
+        const keywordLabel = document.getElementById('searchKeywordLabel');
+        const searchAllLink = document.getElementById('searchAllPeriodsLink');
+
+        if (!input) return;
+
+        const rawVal = input.value;
+        const query = rawVal.trim().toLowerCase();
+        const rows = document.querySelectorAll('.attendance-row');
+        const totalRows = rows.length;
+
+        if (clearBtn) {
+            clearBtn.style.display = query.length > 0 ? 'inline-block' : 'none';
+        }
+
+        let matchCount = 0;
+
+        rows.forEach(row => {
+            if (!query) {
+                row.style.display = '';
+                matchCount++;
+                return;
+            }
+
+            const teacher = row.getAttribute('data-teacher') || '';
+            const eskul = row.getAttribute('data-eskul') || '';
+            const date = row.getAttribute('data-date') || '';
+            const time = row.getAttribute('data-time') || '';
+            const status = row.getAttribute('data-status') || '';
+            const note = row.getAttribute('data-note') || '';
+            const substitute = row.getAttribute('data-substitute') || '';
+
+            const isMatch = teacher.includes(query) ||
+                            eskul.includes(query) ||
+                            date.includes(query) ||
+                            time.includes(query) ||
+                            status.includes(query) ||
+                            note.includes(query) ||
+                            substitute.includes(query) ||
+                            row.innerText.toLowerCase().includes(query);
+
+            if (isMatch) {
+                row.style.display = '';
+                matchCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update Badge Count
+        if (badge) {
+            if (query.length > 0) {
+                badge.textContent = `Menampilkan ${matchCount} dari ${totalRows} Data`;
+                badge.classList.add('badge-filtered');
+            } else {
+                badge.textContent = `${totalRows} Data Tercatat`;
+                badge.classList.remove('badge-filtered');
+            }
+        }
+
+        // Tampilkan/sembunyikan Empty Search State
+        if (emptyRow) {
+            if (totalRows > 0 && matchCount === 0) {
+                emptyRow.style.display = '';
+                if (keywordLabel) keywordLabel.textContent = rawVal;
+                if (searchAllLink) {
+                    searchAllLink.href = `{{ route('teacher-attendance.index') }}?all_months=1&search=${encodeURIComponent(query)}`;
+                }
+            } else {
+                emptyRow.style.display = 'none';
+            }
+        }
+    }
+
+    function clearTeacherSearch() {
+        const input = document.getElementById('teacherAttendanceSearch');
+        if (input) {
+            input.value = '';
+            input.focus();
+            filterTeacherAttendance();
+        }
+    }
+
+    // Auto open modal if URL params specify open_modal=1 & Inisialisasi Search
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const openModal = urlParams.get('open_modal');
@@ -1967,6 +2287,41 @@
                 const dateInput = document.querySelector('input[name="date"]');
                 if (dateInput) dateInput.value = date;
             }
+        }
+
+        // Setup Live Search Listener
+        const searchInput = document.getElementById('teacherAttendanceSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', filterTeacherAttendance);
+            searchInput.addEventListener('keyup', filterTeacherAttendance);
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        const rows = document.querySelectorAll('.attendance-row');
+                        let visibleRows = 0;
+                        rows.forEach(r => { if (r.style.display !== 'none') visibleRows++; });
+                        if (visibleRows === 0) {
+                            window.location.href = `{{ route('teacher-attendance.index') }}?all_months=1&search=${encodeURIComponent(query)}`;
+                        }
+                    }
+                }
+            });
+
+            if (searchInput.value.trim().length > 0) {
+                filterTeacherAttendance();
+            }
+
+            // Shortcut keyboard '/' untuk fokus ke kolom pencarian
+            window.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.activeElement !== searchInput && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
         }
     });
 </script>

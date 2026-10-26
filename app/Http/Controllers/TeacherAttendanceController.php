@@ -24,21 +24,48 @@ class TeacherAttendanceController extends Controller
         }
 
         if (in_array($user->role, ['admin', 'headmaster'])) {
-            // Admin/Headmaster View: Filter by month
+            // Admin/Headmaster View: Filter by month and/or search keyword
             $month = request('month', now()->format('Y-m'));
-            $yearStr = substr($month, 0, 4);
-            $monthStr = substr($month, 5, 2);
-            
-            $attendances = TeacherAttendance::where('academic_year_id', $activeYear->id)
-                ->whereYear('date', $yearStr)
-                ->whereMonth('date', $monthStr)
-                ->with(['user.eskul', 'substituteUser'])
-                ->orderBy('date', 'desc')
-                ->get();
+            $search = request('search');
+            $allMonths = request('all_months') == '1';
 
+            $query = TeacherAttendance::query()
+                ->with(['user.eskul', 'substituteUser'])
+                ->orderBy('date', 'desc');
+
+            if ($activeYear) {
+                $query->where('academic_year_id', $activeYear->id);
+            }
+
+            if (!$allMonths && $month) {
+                $yearStr = substr($month, 0, 4);
+                $monthStr = substr($month, 5, 2);
+                $query->whereYear('date', $yearStr)
+                      ->whereMonth('date', $monthStr);
+            }
+
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('user', function($uq) use ($search) {
+                        $uq->where('name', 'like', "%{$search}%")
+                           ->orWhereHas('eskul', function($eq) use ($search) {
+                               $eq->where('name', 'like', "%{$search}%");
+                           });
+                    })
+                    ->orWhereHas('substituteUser', function($sq) use ($search) {
+                        $sq->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhere('substitute_name', 'like', "%{$search}%")
+                    ->orWhere('note', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('date', 'like', "%{$search}%");
+                });
+            }
+
+            $attendances = $query->get();
             $teachers = User::where('role', 'teacher')->orderBy('name')->get();
                 
-            return view('teacher_attendance.admin_index', compact('attendances', 'activeYear', 'month', 'teachers'));
+            return view('teacher_attendance.admin_index', compact('attendances', 'activeYear', 'month', 'teachers', 'search', 'allMonths'));
         } else {
             // Teacher View: My Attendance
             $myAttendances = TeacherAttendance::where('user_id', $user->id)
