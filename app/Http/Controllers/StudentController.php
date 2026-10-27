@@ -29,14 +29,22 @@ class StudentController extends Controller
         }
 
         $status = $request->input('status', 'active');
-        // Scope to active academic year only
-        $query = \App\Models\Student::activeYear()->with('eskuls');
+        // Scope to active academic year only, eager load eskuls
+        $baseQuery = \App\Models\Student::activeYear()->with('eskuls');
 
         if ($status !== 'all') {
-             $query->where('status', $status);
+             $baseQuery->where('status', $status);
         }
 
-        if ($request->has('search')) {
+        $totalActive = (clone $baseQuery)->count();
+        $totalMale = (clone $baseQuery)->where('gender', 'L')->count();
+        $totalFemale = (clone $baseQuery)->where('gender', 'P')->count();
+        $totalFullDay = (clone $baseQuery)->where('school_program', 'Full Day')->count();
+        $totalBoarding = (clone $baseQuery)->where('school_program', 'Boarding')->count();
+
+        $query = clone $baseQuery;
+
+        if ($request->has('search') && !empty($request->search)) {
             $searchRaw = $request->search;
             $search = str_replace(' ', '%', $searchRaw);
 
@@ -44,14 +52,19 @@ class StudentController extends Controller
                 $q->where('students.name', 'like', "%{$search}%")
                   ->orWhere('students.class', 'like', "%{$search}%")
                   ->orWhere('students.nis', 'like', "%{$searchRaw}%")
-                  ->orWhereHas('eskuls', function($subQ) use ($search) {
-                      $subQ->where('name', 'like', "%{$search}%");
-                  });
+                  ->orWhere('students.nisn', 'like', "%{$searchRaw}%")
+                  ->orWhere('students.father_name', 'like', "%{$search}%")
+                  ->orWhere('students.mother_name', 'like', "%{$search}%")
+                  ->orWhere('students.address', 'like', "%{$search}%");
             });
         }
 
-        $students = $query->paginate(10);
-        return view('students.index', compact('students', 'status'));
+        $perPage = (int)$request->input('per_page', 25);
+        $students = $query->paginate($perPage)->withQueryString();
+
+        return view('students.index', compact(
+            'students', 'status', 'totalActive', 'totalMale', 'totalFemale', 'totalFullDay', 'totalBoarding'
+        ));
     }
 
     public function backup()

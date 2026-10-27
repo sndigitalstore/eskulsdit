@@ -265,9 +265,10 @@ class EskulController extends Controller
             echo "<thead>";
             echo "<tr>";
             echo "<th style='width: 50px;'>No</th>";
+            echo "<th style='width: 120px;'>NIS</th>";
             echo "<th style='width: 250px;'>Nama Siswa</th>";
             echo "<th style='width: 100px;'>Kelas</th>";
-            echo "<th style='width: 200px;'>Ekstrakurikuler</th>";
+            echo "<th style='width: 200px;'>Pilihan Eskul</th>";
             echo "<th style='width: 200px;'>Pembina</th>";
             echo "<th style='width: 150px;'>Jadwal</th>";
             echo "</tr>";
@@ -282,6 +283,7 @@ class EskulController extends Controller
                 foreach ($eskul->students as $student) {
                     echo "<tr>";
                     echo "<td class='text-center'>" . $no++ . "</td>";
+                    echo "<td class='text-center'>" . ($student->nis ?? '-') . "</td>";
                     echo "<td>" . $student->name . "</td>";
                     echo "<td class='text-center'>" . $student->class . "</td>";
                     echo "<td>" . $eskul->name . "</td>";

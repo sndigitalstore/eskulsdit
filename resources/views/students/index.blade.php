@@ -1433,38 +1433,39 @@
 
     {{-- ===== STATS ROW ===== --}}
     @php
-        $total     = $students->total();
-        $withEskul = $students->getCollection()->filter(fn($s) => $s->eskuls->count() > 0)->count();
-        $noEskul   = $students->getCollection()->filter(fn($s) => $s->eskuls->count() === 0)->count();
-        $pageCount = $students->count();
+        $total     = $totalActive ?? $students->total();
+        $male      = $totalMale ?? $students->getCollection()->filter(fn($s) => $s->gender === 'L')->count();
+        $female    = $totalFemale ?? $students->getCollection()->filter(fn($s) => $s->gender === 'P')->count();
+        $fullDay   = $totalFullDay ?? $students->getCollection()->filter(fn($s) => $s->school_program === 'Full Day')->count();
+        $boarding  = $totalBoarding ?? $students->getCollection()->filter(fn($s) => $s->school_program === 'Boarding')->count();
     @endphp
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-icon purple"><i class="fas fa-users"></i></div>
             <div class="stat-info">
                 <h3>{{ $total }}</h3>
-                <p>Total Siswa</p>
+                <p>Total Siswa {{ $status == 'graduated' ? 'Lulus' : 'Aktif' }}</p>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-running"></i></div>
+            <div class="stat-icon green"><i class="fas fa-male"></i></div>
             <div class="stat-info">
-                <h3>{{ $withEskul }}</h3>
-                <p>Ikut Eskul</p>
+                <h3>{{ $male }}</h3>
+                <p>Laki-laki (L)</p>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon orange"><i class="fas fa-user-times"></i></div>
+            <div class="stat-icon orange"><i class="fas fa-female"></i></div>
             <div class="stat-info">
-                <h3>{{ $noEskul }}</h3>
-                <p>Belum Eskul</p>
+                <h3>{{ $female }}</h3>
+                <p>Perempuan (P)</p>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon red"><i class="fas fa-list-ol"></i></div>
+            <div class="stat-icon red"><i class="fas fa-building"></i></div>
             <div class="stat-info">
-                <h3>{{ $pageCount }}</h3>
-                <p>Halaman Ini</p>
+                <h3 style="font-size:1.15rem;">{{ $fullDay }} / {{ $boarding }}</h3>
+                <p>Full Day / Boarding</p>
             </div>
         </div>
     </div>
@@ -1473,7 +1474,7 @@
     <div class="table-card">
         <div class="table-card-header">
             <div class="table-header-left">
-                <h3><i class="fas fa-table" style="color:#7367f0; margin-right:6px;"></i>Data Siswa {{ $status == 'graduated' ? '(Lulus)' : '(Aktif)' }}</h3>
+                <h3><i class="fas fa-table" style="color:#7367f0; margin-right:6px;"></i>Data Siswa Lengkap {{ $status == 'graduated' ? '(Lulus)' : '(Aktif)' }}</h3>
                 <span class="bulk-info" id="bulkInfo">0 siswa dipilih</span>
             </div>
             @if(Auth::user()->role == 'admin')
@@ -1492,10 +1493,10 @@
 
             {{-- 1. DESKTOP TABLE VIEW (>= 769px) --}}
             <div class="desktop-table-view" style="overflow-x: auto;">
-                <table class="students-table">
+                <table class="students-table" style="min-width: 1400px;">
                     <thead>
                         <tr>
-                            <th style="width:44px; text-align:center;">
+                            <th style="width:40px; text-align:center;">
                                 @if(Auth::user()->role == 'admin')
                                     <input type="checkbox" id="checkAll" class="custom-check" onchange="toggleAll(this)">
                                 @else
@@ -1503,13 +1504,21 @@
                                 @endif
                             </th>
                             <th style="width:40px; text-align:center;">No</th>
-                            <th>NIS</th>
-                            <th>Nama Siswa</th>
-                            <th>Kelas</th>
-                            <th>Ekstrakurikuler</th>
-                            <th>Pembina</th>
+                            <th style="min-width:90px;">NIS</th>
+                            <th style="min-width:100px;">NISN</th>
+                            <th style="min-width:180px;">Nama Lengkap</th>
+                            <th style="text-align:center; width:55px;">L/P</th>
+                            <th style="min-width:80px;">Kelas</th>
+                            <th style="min-width:150px;">Tempat, Tgl Lahir</th>
+                            <th style="min-width:170px;">Alamat</th>
+                            <th style="min-width:130px;">Asal Sekolah</th>
+                            <th style="min-width:150px;">Nama Orang Tua</th>
+                            <th style="min-width:140px;">Pekerjaan Ortu</th>
+                            <th style="min-width:140px;">No. HP Ortu</th>
+                            <th style="min-width:110px;">Tgl Diterima</th>
+                            <th style="text-align:center; min-width:110px;">Status Masuk</th>
                             @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
-                            <th style="text-align:center;">Aksi</th>
+                            <th style="text-align:center; min-width:170px;">Aksi</th>
                             @endif
                         </tr>
                     </thead>
@@ -1527,7 +1536,7 @@
                             </td>
 
                             {{-- No --}}
-                            <td class="col-no">{{ $students->firstItem() + $i }}</td>
+                            <td class="col-no" style="text-align:center;">{{ $students->firstItem() + $i }}</td>
 
                             {{-- NIS --}}
                             <td>
@@ -1538,7 +1547,16 @@
                                 @endif
                             </td>
 
-                            {{-- Nama --}}
+                            {{-- NISN --}}
+                            <td>
+                                @if($student->nisn)
+                                    <span style="font-weight:600; color:#334155; font-size:0.85rem;">{{ $student->nisn }}</span>
+                                @else
+                                    <span style="color:#cbd5e1;">—</span>
+                                @endif
+                            </td>
+
+                            {{-- Nama Lengkap --}}
                             <td>
                                 <div class="student-name-cell">
                                     <div class="student-avatar">
@@ -1550,9 +1568,20 @@
                                     </div>
                                     <div class="student-name-text">
                                         <strong>{{ $student->name }}</strong>
-                                        <span>Siswa {{ $student->class ?? '-' }}</span>
+                                        <span style="color:#64748b; font-size:0.75rem;">NIS: {{ $student->nis ?: '-' }}</span>
                                     </div>
                                 </div>
+                            </td>
+
+                            {{-- L/P (Gender) --}}
+                            <td style="text-align:center;">
+                                @if($student->gender == 'L')
+                                    <span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">L</span>
+                                @elseif($student->gender == 'P')
+                                    <span style="background:#fce7f3; color:#db2777; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">P</span>
+                                @else
+                                    <span style="color:#cbd5e1;">—</span>
+                                @endif
                             </td>
 
                             {{-- Kelas --}}
@@ -1560,50 +1589,91 @@
                                 <span class="class-badge">{{ $student->class ?? '-' }}</span>
                             </td>
 
-                            {{-- Eskul --}}
+                            {{-- Tempat, Tgl Lahir --}}
                             <td>
-                                @if($student->eskuls->count())
-                                    <div class="eskul-chips">
-                                        @foreach($student->eskuls as $eskul)
-                                            <span class="eskul-chip">
-                                                <span class="eskul-chip-dot"></span>
-                                                {{ $eskul->name }}
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <span class="no-eskul">Belum terdaftar</span>
-                                @endif
+                                <span style="font-size:0.83rem; color:#334155;">{{ $student->birth_place_date ?: '—' }}</span>
                             </td>
 
-                            {{-- Pembina --}}
+                            {{-- Alamat --}}
                             <td>
-                                @if($student->eskuls->count())
-                                    <div class="instructor-list">
-                                        @foreach($student->eskuls as $eskul)
-                                            <span class="instructor-name">
-                                                <i class="fas fa-user-tie"></i>
-                                                {{ $eskul->instructor_name ?? 'Belum ada' }}
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <span class="no-eskul">—</span>
-                                @endif
+                                <div style="max-width:180px; font-size:0.8rem; line-height:1.35; color:#475569;" title="{{ $student->address }}">
+                                    {{ $student->address ? \Illuminate\Support\Str::limit($student->address, 45) : '—' }}
+                                </div>
+                            </td>
+
+                            {{-- Asal Sekolah --}}
+                            <td>
+                                <span style="font-size:0.83rem; color:#334155;">{{ $student->previous_school ?: '—' }}</span>
+                            </td>
+
+                            {{-- Nama Orang Tua (Ayah dan Ibu) --}}
+                            <td>
+                                <div style="font-size:0.82rem; line-height:1.35;">
+                                    <div><span style="color:#64748b; font-size:0.75rem;">Ayah:</span> <strong>{{ $student->father_name ?: '—' }}</strong></div>
+                                    <div><span style="color:#64748b; font-size:0.75rem;">Ibu:</span> <strong>{{ $student->mother_name ?: '—' }}</strong></div>
+                                </div>
+                            </td>
+
+                            {{-- Pekerjaan Orang Tua --}}
+                            <td>
+                                <div style="font-size:0.78rem; line-height:1.35; color:#475569;">
+                                    <div><span style="color:#94a3b8;">Ayah:</span> {{ $student->father_job ?: '—' }}</div>
+                                    <div><span style="color:#94a3b8;">Ibu:</span> {{ $student->mother_job ?: '—' }}</div>
+                                </div>
+                            </td>
+
+                            {{-- Nomor HP Orang Tua --}}
+                            <td>
+                                <div style="font-size:0.8rem; line-height:1.35;">
+                                    @if($student->father_phone)
+                                        <div>
+                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->father_phone) }}" target="_blank" style="color:#16a34a; text-decoration:none; font-weight:600;">
+                                                <i class="fab fa-whatsapp"></i> {{ $student->father_phone }} <small style="color:#64748b;">(A)</small>
+                                            </a>
+                                        </div>
+                                    @endif
+                                    @if($student->mother_phone)
+                                        <div>
+                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->mother_phone) }}" target="_blank" style="color:#16a34a; text-decoration:none; font-weight:600;">
+                                                <i class="fab fa-whatsapp"></i> {{ $student->mother_phone }} <small style="color:#64748b;">(I)</small>
+                                            </a>
+                                        </div>
+                                    @endif
+                                    @if(!$student->father_phone && !$student->mother_phone)
+                                        <span style="color:#94a3b8;">{{ $student->parent_phone ?: '—' }}</span>
+                                    @endif
+                                </div>
+                            </td>
+
+                            {{-- Tanggal Diterima --}}
+                            <td>
+                                <span style="font-size:0.82rem; color:#475569;">{{ $student->admission_date ?: '—' }}</span>
+                            </td>
+
+                            {{-- Status Masuk (Fullday / Boarding) --}}
+                            <td style="text-align:center;">
+                                <span style="font-size:0.78rem; font-weight:700; padding:3px 8px; border-radius:6px; background:{{ $student->school_program == 'Boarding' ? '#ede9fe; color:#7c3aed' : '#ecfdf5; color:#059669' }};">
+                                    {{ $student->school_program ?: 'Reguler' }}
+                                </span>
                             </td>
 
                             {{-- Aksi --}}
                             @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
                             <td>
-                                <div class="row-actions">
+                                <div class="row-actions" style="justify-content:center;">
                                     <a href="{{ route('students.show', $student->id) }}"
-                                       class="row-btn row-btn-view" title="Lihat Riwayat">
+                                       class="row-btn row-btn-view" title="Lihat Biodata Lengkap">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('students.portfolio', $student->id) }}"
                                        target="_blank"
-                                       class="row-btn" style="background: #8b5cf6; color: white;" title="Portofolio Siswa (Cetak)">
+                                       class="row-btn" style="background: #8b5cf6; color: white;" title="Portofolio Siswa (Siap Cetak)">
                                         <i class="fas fa-id-card-alt"></i>
+                                    </a>
+                                    <a href="{{ route('students.card', $student->id) }}"
+                                       target="_blank"
+                                       class="row-btn" style="background: #0284c7; color: white;" title="Cetak Kartu Siswa">
+                                        <i class="fas fa-id-card"></i>
                                     </a>
                                     <a href="{{ route('students.certificate', $student->id) }}"
                                        target="_blank"
@@ -1612,14 +1682,14 @@
                                     </a>
                                     @if(in_array(Auth::user()->role, ['admin', 'tu']))
                                     <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}"
-                                       class="row-btn row-btn-edit" title="Edit">
+                                       class="row-btn row-btn-edit" title="Edit Data Siswa">
                                         <i class="fas fa-pen"></i>
                                     </a>
                                     @endif
                                     @if(Auth::user()->role == 'admin')
                                     <button type="button"
-                                            onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')"
-                                            class="row-btn row-btn-delete" title="Hapus">
+                                             onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')"
+                                             class="row-btn row-btn-delete" title="Hapus">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                     @endif
@@ -1629,7 +1699,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="{{ in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']) ? 8 : 7 }}">
+                            <td colspan="{{ in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']) ? 16 : 15 }}">
                                 <div class="empty-state">
                                     <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
                                     <h4>Tidak ada data siswa</h4>
@@ -1674,8 +1744,11 @@
                                     <span class="m-student-number">#{{ $students->firstItem() + $i }}</span>
                                     @if($student->nis)
                                         <span class="m-nis-pill"><i class="fas fa-id-badge"></i> {{ $student->nis }}</span>
-                                    @else
-                                        <span class="m-nis-empty">NIS: —</span>
+                                    @endif
+                                    @if($student->gender)
+                                        <span style="font-size:0.75rem; font-weight:700; color:{{ $student->gender == 'L' ? '#0284c7' : '#db2777' }};">
+                                            ({{ $student->gender }})
+                                        </span>
                                     @endif
                                 </div>
                             </div>
@@ -1685,50 +1758,65 @@
                         </div>
                     </div>
 
-                    {{-- Body: Ekstrakurikuler & Pembina --}}
-                    <div class="m-card-body">
-                        @if($student->eskuls->count() > 0)
-                            <div class="m-eskul-list">
-                                @foreach($student->eskuls as $eskul)
-                                    <div class="m-eskul-item">
-                                        <span class="eskul-chip">
-                                            <span class="eskul-chip-dot"></span>
-                                            {{ $eskul->name }}
-                                        </span>
-                                        <span class="m-pembina-name">
-                                            <i class="fas fa-user-tie"></i>
-                                            {{ $eskul->instructor_name ?? 'Belum ada pembina' }}
-                                        </span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="m-no-eskul">
-                                <i class="fas fa-info-circle"></i>
-                                <span>Belum terdaftar di ekstrakurikuler</span>
-                            </div>
+                    {{-- Body: Biodata Lengkap Siswa --}}
+                    <div class="m-card-body" style="padding: 12px 14px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
+                        @if($student->nisn)
+                            <div><span style="color:#64748b;">NISN:</span> <strong>{{ $student->nisn }}</strong></div>
                         @endif
+                        @if($student->birth_place_date)
+                            <div><span style="color:#64748b;">TTL:</span> {{ $student->birth_place_date }}</div>
+                        @endif
+                        @if($student->address)
+                            <div><span style="color:#64748b;">Alamat:</span> {{ $student->address }}</div>
+                        @endif
+                        @if($student->previous_school)
+                            <div><span style="color:#64748b;">Asal TK:</span> {{ $student->previous_school }}</div>
+                        @endif
+                        <div style="border-top:1px dashed #e2e8f0; padding-top:6px; margin-top:2px;">
+                            <div><span style="color:#64748b;">Orang Tua:</span> Ayah: <strong>{{ $student->father_name ?: '-' }}</strong> • Ibu: <strong>{{ $student->mother_name ?: '-' }}</strong></div>
+                            @if($student->father_phone || $student->mother_phone)
+                                <div style="margin-top:2px;">
+                                    @if($student->father_phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->father_phone) }}" target="_blank" style="color:#16a34a; text-decoration:none; margin-right:8px; font-weight:600;">
+                                            <i class="fab fa-whatsapp"></i> WA Ayah: {{ $student->father_phone }}
+                                        </a>
+                                    @endif
+                                    @if($student->mother_phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->mother_phone) }}" target="_blank" style="color:#16a34a; text-decoration:none; font-weight:600;">
+                                            <i class="fab fa-whatsapp"></i> WA Ibu: {{ $student->mother_phone }}
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:6px; margin-top:2px;">
+                            <span style="color:#64748b; font-size:0.75rem;">Masuk: {{ $student->admission_date ?: '-' }}</span>
+                            <span style="font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px; background:{{ $student->school_program == 'Boarding' ? '#ede9fe; color:#7c3aed' : '#ecfdf5; color:#059669' }};">
+                                {{ $student->school_program ?: 'Reguler' }}
+                            </span>
+                        </div>
                     </div>
 
-                    {{-- Footer: Actions (Lihat, Piagam, Edit, Hapus) --}}
-                    @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
-                        <div class="m-card-actions {{ Auth::user()->role == 'admin' ? 'm-actions-4' : 'm-actions-2' }}">
-                            <a href="{{ route('students.show', $student->id) }}" class="m-btn m-btn-view" title="Lihat Riwayat & Detail">
-                                <i class="fas fa-eye"></i>
-                                <span>Riwayat</span>
+                    {{-- Footer: Actions --}}
+                    @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
+                        <div class="m-card-actions" style="display:flex; gap:6px; padding:10px 14px; background:#f8fafc; border-top:1px solid #e2e8f0; flex-wrap:wrap;">
+                            <a href="{{ route('students.show', $student->id) }}" class="m-btn m-btn-view" style="flex:1; text-align:center; padding:6px 8px; border-radius:6px; font-size:0.78rem; text-decoration:none;" title="Lihat Biodata Lengkap">
+                                <i class="fas fa-eye"></i> Detail
                             </a>
-                            <a href="{{ route('students.certificate', $student->id) }}" target="_blank" class="m-btn m-btn-cert" title="Cetak Piagam Digital">
-                                <i class="fas fa-certificate"></i>
-                                <span>Piagam</span>
+                            <a href="{{ route('students.portfolio', $student->id) }}" target="_blank" class="m-btn" style="flex:1; text-align:center; padding:6px 8px; border-radius:6px; font-size:0.78rem; background:#8b5cf6; color:white; text-decoration:none;" title="Cetak Portofolio">
+                                <i class="fas fa-id-card-alt"></i> Portofolio
                             </a>
-                            @if(Auth::user()->role == 'admin')
-                                <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}" class="m-btn m-btn-edit" title="Edit Data Siswa">
-                                    <i class="fas fa-pen"></i>
-                                    <span>Edit</span>
+                            <a href="{{ route('students.card', $student->id) }}" target="_blank" class="m-btn" style="flex:1; text-align:center; padding:6px 8px; border-radius:6px; font-size:0.78rem; background:#0284c7; color:white; text-decoration:none;" title="Cetak Kartu">
+                                <i class="fas fa-id-card"></i> Kartu
+                            </a>
+                            @if(in_array(Auth::user()->role, ['admin', 'tu']))
+                                <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}" class="m-btn m-btn-edit" style="flex:1; text-align:center; padding:6px 8px; border-radius:6px; font-size:0.78rem; text-decoration:none;" title="Edit Data Siswa">
+                                    <i class="fas fa-pen"></i> Edit
                                 </a>
-                                <button type="button" onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')" class="m-btn m-btn-delete" title="Hapus Siswa">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span>Hapus</span>
+                            @endif
+                            @if(Auth::user()->role == 'admin')
+                                <button type="button" onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')" class="m-btn m-btn-delete" style="flex:1; text-align:center; padding:6px 8px; border-radius:6px; font-size:0.78rem; cursor:pointer;" title="Hapus Siswa">
+                                    <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             @endif
                         </div>

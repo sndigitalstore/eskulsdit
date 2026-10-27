@@ -1470,23 +1470,29 @@
                         <span>Belum ada siswa yang mendaftar pada eskul ini.</span>
                     </div>
                 @else
-                    <div class="members-table-wrapper">
-                        <table class="members-table">
+                    <div class="members-table-wrapper" style="overflow-x: auto;">
+                        <table class="members-table" style="min-width: 580px; width: 100%;">
                             <thead>
                                 <tr>
-                                    <th style="width: 12%; text-align: center;">No</th>
+                                    <th style="width: 8%; text-align: center;">No</th>
+                                    <th style="width: 18%; text-align: center;">NIS</th>
                                     <th>Nama Siswa</th>
-                                    <th style="width: 25%; text-align: center;">Kelas</th>
+                                    <th style="width: 14%; text-align: center;">Kelas</th>
+                                    <th style="width: 22%;">Pilihan Eskul</th>
+                                    <th style="width: 20%;">Pembina</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($eskul->students as $idx => $student)
                                 <tr>
                                     <td style="text-align: center; font-weight: 700; color: #64748b;">{{ $idx + 1 }}</td>
+                                    <td style="text-align: center; font-weight: 600; color: #475569; font-size: 0.82rem;">{{ $student->nis ?? '-' }}</td>
                                     <td style="font-weight: 700; color: #0f172a;">{{ $student->name }}</td>
                                     <td style="text-align: center;">
                                         <span class="class-pill">{{ $student->class }}</span>
                                     </td>
+                                    <td style="color: #0369a1; font-weight: 600; font-size: 0.85rem;">{{ $eskul->name }}</td>
+                                    <td style="color: #475569; font-size: 0.85rem;">{{ $displayInstructor ?? $eskul->instructor_name ?? '-' }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
