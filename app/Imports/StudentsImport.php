@@ -325,6 +325,8 @@ class StudentsImport
             $colNisn = -1;
             $colGender = -1;
             $colBirthPlaceDate = -1;
+            $colBirthPlace = -1;
+            $colBirthDate = -1;
             $colAddress = -1;
             $colPreviousSchool = -1;
             $colFatherName = -1;
@@ -355,8 +357,12 @@ class StudentsImport
                     $colNisn = $k;
                 } elseif ($h === 'jk' || $h === 'l/p' || str_contains($h, 'jenis kelamin') || str_contains($h, 'kelamin') || str_contains($h, 'gender')) {
                     $colGender = $k;
-                } elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat & tgl lahir') || str_contains($h, 'tempat lahir') || str_contains($h, 'kelahiran')) {
+                } elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat & tgl lahir')) {
                     $colBirthPlaceDate = $k;
+                } elseif (str_contains($h, 'tempat lahir') || str_contains($h, 'tempat kelahiran') || $h === 'tempat_lahir' || $h === 'tmplahir') {
+                    $colBirthPlace = $k;
+                } elseif (str_contains($h, 'tanggal lahir') || str_contains($h, 'tgl lahir') || $h === 'tanggal_lahir' || $h === 'tgllahir') {
+                    $colBirthDate = $k;
                 } elseif ($h === 'alamat' || str_contains($h, 'alamat') || str_contains($h, 'domisili') || str_contains($h, 'tempat tinggal')) {
                     $colAddress = $k;
                 } elseif (str_contains($h, 'asal sekolah') || str_contains($h, 'asal tk') || str_contains($h, 'sekolah asal') || str_contains($h, 'tk asal') || str_contains($h, 'paud')) {
@@ -501,8 +507,11 @@ class StudentsImport
 
                 // Prepare Extended Biodata Payload
                 $studentData = [];
-                if ($nis && (!$student || empty($student->nis))) {
+                if ($nis) {
                     $studentData['nis'] = $nis;
+                }
+                if ($rowClass) {
+                    $studentData['class'] = $rowClass;
                 }
                 if ($colNisn !== -1 && isset($row[$colNisn])) {
                     $v = $cleanNis($row[$colNisn]);
@@ -515,6 +524,16 @@ class StudentsImport
                 if ($colBirthPlaceDate !== -1 && isset($row[$colBirthPlaceDate])) {
                     $v = $cleanText($row[$colBirthPlaceDate]);
                     if ($v !== null) $studentData['birth_place_date'] = $v;
+                } elseif ($colBirthPlace !== -1 || $colBirthDate !== -1) {
+                    $bp = ($colBirthPlace !== -1 && isset($row[$colBirthPlace])) ? $cleanText($row[$colBirthPlace]) : null;
+                    $bd = ($colBirthDate !== -1 && isset($row[$colBirthDate])) ? $cleanText($row[$colBirthDate]) : null;
+                    if ($bp && $bd) {
+                        $studentData['birth_place_date'] = "{$bp}, {$bd}";
+                    } elseif ($bp) {
+                        $studentData['birth_place_date'] = $bp;
+                    } elseif ($bd) {
+                        $studentData['birth_place_date'] = $bd;
+                    }
                 }
                 if ($colAddress !== -1 && isset($row[$colAddress])) {
                     $v = $cleanText($row[$colAddress]);
