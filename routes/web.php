@@ -166,6 +166,19 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/eskuls/{eskul}/quick-update', [\App\Http\Controllers\EskulController::class, 'quickUpdate'])->name('eskuls.quick-update');
         Route::get('/eskuls/{eskul}/export', [\App\Http\Controllers\EskulController::class, 'export'])->name('eskuls.export');
 
+        // Program Kerja Eskul (Akreditasi)
+        Route::get('/eskuls/{eskul}/program', [\App\Http\Controllers\EskulAdminController::class, 'programIndex'])->name('eskuls.program.index');
+        Route::post('/eskuls/{eskul}/program', [\App\Http\Controllers\EskulAdminController::class, 'programStore'])->name('eskuls.program.store');
+        Route::post('/eskuls/{eskul}/program/items', [\App\Http\Controllers\EskulAdminController::class, 'programItemStore'])->name('eskuls.program.item.store');
+        Route::delete('/eskuls/{eskul}/program/items/{item}', [\App\Http\Controllers\EskulAdminController::class, 'programItemDestroy'])->name('eskuls.program.item.destroy');
+        Route::get('/eskuls/{eskul}/program/print', [\App\Http\Controllers\EskulAdminController::class, 'programPrint'])->name('eskuls.program.print');
+
+        // Jurnal Kegiatan Eskul (Akreditasi)
+        Route::get('/eskuls/{eskul}/jurnal', [\App\Http\Controllers\EskulAdminController::class, 'jurnalIndex'])->name('eskuls.jurnal.index');
+        Route::post('/eskuls/{eskul}/jurnal', [\App\Http\Controllers\EskulAdminController::class, 'jurnalStore'])->name('eskuls.jurnal.store');
+        Route::delete('/eskuls/{eskul}/jurnal/{journal}', [\App\Http\Controllers\EskulAdminController::class, 'jurnalDestroy'])->name('eskuls.jurnal.destroy');
+        Route::get('/eskuls/{eskul}/jurnal/print', [\App\Http\Controllers\EskulAdminController::class, 'jurnalPrint'])->name('eskuls.jurnal.print');
+
         Route::get('/attendance/report', [\App\Http\Controllers\AttendanceController::class, 'report'])->name('attendance.report');
         Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
         Route::get('/attendance/create', [\App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');

@@ -1390,6 +1390,16 @@
                         <span>Excel</span>
                     </a>
 
+                    <a href="{{ route('eskuls.program.index', $eskul->id) }}" class="btn-card-action" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:10px; padding:6px 12px; font-size:0.8rem; font-weight:700; display:inline-flex; align-items:center; gap:5px; text-decoration:none; transition:all 0.2s;" title="Program Kerja Eskul (Akreditasi)">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Progker</span>
+                    </a>
+
+                    <a href="{{ route('eskuls.jurnal.index', $eskul->id) }}" class="btn-card-action" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:10px; padding:6px 12px; font-size:0.8rem; font-weight:700; display:inline-flex; align-items:center; gap:5px; text-decoration:none; transition:all 0.2s;" title="Jurnal Kegiatan Eskul (Akreditasi)">
+                        <i class="fas fa-book-open"></i>
+                        <span>Jurnal</span>
+                    </a>
+
                     @if(Auth::user()->role == 'admin')
                         <button type="button" onclick="openModal('edit-{{ $eskul->id }}')" class="btn-card-icon btn-action-edit" title="Edit Data Kegiatan">
                             <i class="fas fa-pen"></i>
