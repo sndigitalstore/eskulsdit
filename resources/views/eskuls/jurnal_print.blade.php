@@ -123,19 +123,21 @@
 
 <div class="page">
 
-    {{-- KOP --}}
+    {{-- KOP SURAT RESMI SDIT AN NADZIR --}}
     <div class="kop">
-        @php $logoPath = public_path('images/logo.png'); @endphp
-        @if(file_exists($logoPath))
-        <img src="{{ asset('images/logo.png') }}" alt="Logo Sekolah">
+        @php
+            $hasLogo = file_exists(public_path('logo.png'));
+        @endphp
+        @if($hasLogo)
+            <img src="{{ asset('logo.png') }}" alt="Logo {{ $schoolName ?? 'Sekolah' }}" style="width:82px;height:82px;object-fit:contain;">
         @else
-        <div style="width:75px;height:75px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;">🏫</div>
+            <div style="width:75px;height:75px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;">🏫</div>
         @endif
         <div class="kop-text">
-            <div class="yayasan">{{ $setting->yayasan_name ?? 'YAYASAN PENDIDIKAN ISLAM' }}</div>
-            <div class="sekolah">{{ $setting->school_name ?? 'SD ISLAM TERPADU' }}</div>
-            <div class="alamat">{{ $setting->address ?? 'Jl. Pendidikan No. 1, Kota' }}</div>
-            <div class="akreditasi">Terakreditasi — NPSN: {{ $setting->npsn ?? '-' }}</div>
+            <div class="yayasan" style="font-size:11pt; font-weight:700; text-transform:uppercase;">{{ $yayasanName ?? 'YAYASAN AN NADZIR ISLAMIC SCHOOL' }}</div>
+            <div class="sekolah" style="font-size:19pt; font-weight:900; margin:2px 0;">{{ $schoolName ?? 'SDIT AN NADZIR' }}</div>
+            <div class="akreditasi" style="font-size:8.5pt; font-weight:700;">NNS: {{ $nns ?? '101280432037' }} · NPSN: {{ $npsn ?? '20616174' }} · Akreditasi: A (Amat Baik)</div>
+            <div class="alamat" style="font-size:8.5pt;">{{ $schoolAddress ?? 'Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167' }}</div>
         </div>
     </div>
 
@@ -220,17 +222,22 @@
     @endif
 
     {{-- PENGESAHAN --}}
+    <div style="text-align: right; font-size: 10pt; margin-top: 24px; margin-bottom: 12px;">
+        {{ $schoolCity ?? 'Serang' }}, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
+    </div>
     <div class="pengesahan">
         <div class="sign-box">
+            <p>Mengetahui,</p>
             <p class="title">Pembina Ekstrakurikuler</p>
             <div class="space"></div>
             <p class="name">{{ $eskul->instructor_name ?? '...........................' }}</p>
         </div>
         <div class="sign-box">
-            <p>Mengetahui,</p>
+            <p>Mengesahkan,</p>
             <p class="title">Kepala Sekolah</p>
             <div class="space"></div>
-            <p class="name">............................................</p>
+            <p class="name">{{ $headmasterName ?? "Nur'asiah, S.Pd.I" }}</p>
+            <p style="font-size: 9.5pt; margin-top: 2px;">NIP: {{ $headmasterNip ?? '-' }}</p>
         </div>
     </div>
 

@@ -169,6 +169,7 @@ Route::middleware(['auth'])->group(function () {
         // Program Kerja Eskul (Akreditasi)
         Route::get('/eskuls/{eskul}/program', [\App\Http\Controllers\EskulAdminController::class, 'programIndex'])->name('eskuls.program.index');
         Route::post('/eskuls/{eskul}/program', [\App\Http\Controllers\EskulAdminController::class, 'programStore'])->name('eskuls.program.store');
+        Route::post('/eskuls/{eskul}/program/generate-template', [\App\Http\Controllers\EskulAdminController::class, 'programGenerateTemplate'])->name('eskuls.program.generate-template');
         Route::post('/eskuls/{eskul}/program/items', [\App\Http\Controllers\EskulAdminController::class, 'programItemStore'])->name('eskuls.program.item.store');
         Route::delete('/eskuls/{eskul}/program/items/{item}', [\App\Http\Controllers\EskulAdminController::class, 'programItemDestroy'])->name('eskuls.program.item.destroy');
         Route::get('/eskuls/{eskul}/program/print', [\App\Http\Controllers\EskulAdminController::class, 'programPrint'])->name('eskuls.program.print');

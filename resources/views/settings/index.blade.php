@@ -825,6 +825,92 @@
                     </div>
 
                     <div class="form-group-modern">
+                        <label class="form-label-modern" for="school_name">
+                            <span>Nama Satuan Pendidikan (Sekolah) <span class="req-star">*</span></span>
+                        </label>
+                        <input type="text" 
+                               id="school_name" 
+                               name="school_name" 
+                               class="form-control-modern" 
+                               value="{{ $settings['school_name'] ?? 'SDIT AN NADZIR' }}"
+                               required>
+                        <span class="input-hint-text">Nama sekolah resmi yang muncul pada kop surat dan lembar pengesahan.</span>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label class="form-label-modern" for="yayasan_name">
+                            <span>Nama Yayasan / Lembaga Penaung</span>
+                        </label>
+                        <input type="text" 
+                               id="yayasan_name" 
+                               name="yayasan_name" 
+                               class="form-control-modern" 
+                               value="{{ $settings['yayasan_name'] ?? 'YAYASAN AN NADZIR ISLAMIC SCHOOL' }}">
+                        <span class="input-hint-text">Nama yayasan yang tercetak di baris paling atas kop surat.</span>
+                    </div>
+
+                    <div class="grid-col-2">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="npsn">
+                                <span>NPSN</span>
+                            </label>
+                            <input type="text" 
+                                   id="npsn" 
+                                   name="npsn" 
+                                   class="form-control-modern" 
+                                   value="{{ $settings['npsn'] ?? '20616174' }}"
+                                   placeholder="20616174">
+                        </div>
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="nns">
+                                <span>NNS</span>
+                            </label>
+                            <input type="text" 
+                                   id="nns" 
+                                   name="nns" 
+                                   class="form-control-modern" 
+                                   value="{{ $settings['nns'] ?? '101280432037' }}"
+                                   placeholder="101280432037">
+                        </div>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label class="form-label-modern" for="school_address">
+                            <span>Alamat Lengkap Sekolah</span>
+                        </label>
+                        <textarea id="school_address" 
+                                  name="school_address" 
+                                  class="form-control-modern" 
+                                  rows="2">{{ $settings['school_address'] ?? 'Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167' }}</textarea>
+                        <span class="input-hint-text">Alamat domisili sekolah untuk kop surat dan dokumen resmi.</span>
+                    </div>
+
+                    <div class="grid-col-2">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="school_city">
+                                <span>Kota / Kabupaten Titimangsa</span>
+                            </label>
+                            <input type="text" 
+                                   id="school_city" 
+                                   name="school_city" 
+                                   class="form-control-modern" 
+                                   value="{{ $settings['school_city'] ?? 'Serang' }}"
+                                   placeholder="Serang">
+                        </div>
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="headmaster_nip">
+                                <span>NIP Kepala Sekolah</span>
+                            </label>
+                            <input type="text" 
+                                   id="headmaster_nip" 
+                                   name="headmaster_nip" 
+                                   class="form-control-modern" 
+                                   value="{{ $settings['headmaster_nip'] ?? '-' }}"
+                                   placeholder="-">
+                        </div>
+                    </div>
+
+                    <div class="form-group-modern">
                         <label class="form-label-modern" for="headmaster_name">
                             <span>Nama Kepala Sekolah</span>
                         </label>

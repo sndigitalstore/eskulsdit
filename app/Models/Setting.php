@@ -31,6 +31,34 @@ class Setting extends Model
             return $headmasterUser ? $headmasterUser->name : ($default ?? "Nur'asiah, S.Pd.I");
         }
 
+        if ($key === 'headmaster_nip') {
+            return $default ?? '-';
+        }
+
+        if ($key === 'school_name') {
+            return $default ?? 'SDIT AN NADZIR';
+        }
+
+        if ($key === 'yayasan_name') {
+            return $default ?? 'YAYASAN AN NADZIR ISLAMIC SCHOOL';
+        }
+
+        if ($key === 'school_address') {
+            return $default ?? 'Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167';
+        }
+
+        if ($key === 'school_city') {
+            return $default ?? 'Serang';
+        }
+
+        if ($key === 'npsn') {
+            return $default ?? '20616174';
+        }
+
+        if ($key === 'nns') {
+            return $default ?? '101280432037';
+        }
+
         return $default;
     }
 
