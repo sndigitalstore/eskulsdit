@@ -320,25 +320,6 @@ class TeacherController extends Controller
     }
 
     /**
-     * Cetak Rekap Akun Guru / Pembina
-     */
-    public function print()
-    {
-        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
-        $activeYearId = $activeYear ? $activeYear->id : null;
-
-        $teachers = User::where('role', 'teacher')
-            ->activeYear()
-            ->with(['eskul', 'mentoringGroups' => function($q) use ($activeYearId) {
-                if ($activeYearId) $q->where('academic_year_id', $activeYearId);
-            }])
-            ->orderBy('name')
-            ->get();
-
-        return view('teachers.print', compact('teachers', 'activeYear'));
-    }
-
-    /**
      * Cetak Surat Keputusan (SK) Resmi Pembina Ekstrakurikuler
      */
     public function sk(Request $request)
