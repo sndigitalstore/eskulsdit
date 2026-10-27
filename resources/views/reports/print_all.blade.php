@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Ekstrakurikuler Keseluruhan Seluruh Kelas - SDIT AN NADZIR</title>
+    <title>Laporan Evaluasi Ekstrakurikuler Keseluruhan Seluruh Kelas - SDIT AN NADZIR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @page {
@@ -249,7 +249,7 @@
 
             <!-- JUDUL LAPORAN -->
             <div class="report-title-box">
-                <h3>LAPORAN EKSTRAKURIKULER SISWA</h3>
+                <h3>LAPORAN EVALUASI EKSTRAKURIKULER SISWA</h3>
                 <p>Tahun Pelajaran {{ $yearName }} — {{ $period == '1' ? 'Semester 1' : ($period == '2' ? 'Semester 2' : 'Semester 1 & 2') }}</p>
             </div>
 
