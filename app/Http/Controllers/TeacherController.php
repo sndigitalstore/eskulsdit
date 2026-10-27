@@ -318,4 +318,91 @@ class TeacherController extends Controller
 
         return back()->with('success', "Berhasil! Password untuk akun {$teacher->name} telah direset.");
     }
+
+    /**
+     * Cetak Rekap Akun Guru / Pembina
+     */
+    public function print()
+    {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+
+        $teachers = User::where('role', 'teacher')
+            ->activeYear()
+            ->with(['eskul', 'mentoringGroups' => function($q) use ($activeYearId) {
+                if ($activeYearId) $q->where('academic_year_id', $activeYearId);
+            }])
+            ->orderBy('name')
+            ->get();
+
+        return view('teachers.print', compact('teachers', 'activeYear'));
+    }
+
+    /**
+     * Cetak Surat Keputusan (SK) Resmi Pembina Ekstrakurikuler
+     */
+    public function sk(Request $request)
+    {
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        $activeYearId = $activeYear ? $activeYear->id : null;
+        $headmasterName = \App\Models\Setting::get('headmaster_name', "Nur'asiah, S.Pd.I");
+
+        // Ambil eskul pada tahun aktif
+        $eskuls = Eskul::activeYear()->orderBy('name')->get();
+
+        // Ambil guru yang membina eskul
+        $teachers = User::where('role', 'teacher')
+            ->activeYear()
+            ->with('eskul')
+            ->whereNotNull('eskul_id')
+            ->orderBy('name')
+            ->get();
+
+        // Gabungkan list eskul dan pembinanya
+        $assignments = [];
+        foreach ($eskuls as $eskul) {
+            $pembina = $teachers->firstWhere('eskul_id', $eskul->id);
+            $pembinaName = $pembina ? $pembina->name : ($eskul->instructor_name ?: '-');
+            
+            // Format sasaran kelas
+            $target = 'Semua Kelas';
+            if (!empty($eskul->target_groups)) {
+                $tg = $eskul->target_groups;
+                if (in_array('lower', $tg) && in_array('upper', $tg)) $target = 'Kelas 1 - 6';
+                elseif (in_array('lower', $tg)) $target = 'Kelas 1 - 3 (Bawah)';
+                elseif (in_array('upper', $tg)) $target = 'Kelas 4 - 6 (Atas)';
+                elseif (is_array($tg)) $target = implode(', ', $tg);
+            }
+
+            $assignments[] = [
+                'name' => $pembinaName,
+                'eskul' => $eskul->name,
+                'target' => $target,
+                'schedule' => $eskul->schedule ?: 'Sesuai Jadwal Mingguan',
+                'role' => 'Pembina Ekstrakurikuler',
+            ];
+        }
+
+        // Jika ada guru pembina yang eskulnya belum terdaftar di assignments
+        foreach ($teachers as $t) {
+            $found = false;
+            foreach ($assignments as $a) {
+                if ($a['name'] === $t->name && $t->eskul && $a['eskul'] === $t->eskul->name) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found && $t->eskul) {
+                $assignments[] = [
+                    'name' => $t->name,
+                    'eskul' => $t->eskul->name,
+                    'target' => 'Semua Kelas',
+                    'schedule' => $t->eskul->schedule ?: 'Sesuai Jadwal Mingguan',
+                    'role' => 'Pembina Ekstrakurikuler',
+                ];
+            }
+        }
+
+        return view('teachers.sk', compact('activeYear', 'headmasterName', 'assignments'));
+    }
 }

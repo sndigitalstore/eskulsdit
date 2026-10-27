@@ -220,6 +220,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/settings/profile', [\App\Http\Controllers\SettingController::class, 'updateProfile'])->name('settings.update-profile');
 
         Route::get('teachers/print', [\App\Http\Controllers\TeacherController::class, 'print'])->name('teachers.print');
+        Route::get('teachers/sk', [\App\Http\Controllers\TeacherController::class, 'sk'])->name('teachers.sk');
         Route::get('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'bulk'])->name('teachers.bulk');
         Route::post('teachers/bulk', [\App\Http\Controllers\TeacherController::class, 'storeBulk'])->name('teachers.store_bulk');
         Route::post('teachers/reset-password', [\App\Http\Controllers\TeacherController::class, 'resetAllPasswords'])->name('teachers.reset-all');

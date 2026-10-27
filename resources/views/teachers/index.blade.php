@@ -479,6 +479,9 @@
         </div>
 
         <div class="teachers-header-actions">
+            <a href="{{ route('teachers.sk') }}" target="_blank" class="btn-act btn-act-green" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color:#ffffff;" title="Cetak Surat Keputusan (SK) Resmi Pembina Ekstrakurikuler">
+                <i class="fas fa-stamp"></i> <span>Cetak SK Pembina</span>
+            </a>
             <a href="{{ route('teachers.print') }}" target="_blank" class="btn-act btn-act-dark" title="Cetak Rekap Akun Guru">
                 <i class="fas fa-print"></i> <span>Cetak Akun</span>
             </a>
