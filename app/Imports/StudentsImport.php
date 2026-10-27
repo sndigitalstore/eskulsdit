@@ -310,11 +310,42 @@ class StudentsImport
             $colNote = -1;
             $colEskul = -1; // Also needed for attendance
 
+            // Detect Extended Student Biodata Columns
+            $colNisn = -1;
+            $colGender = -1;
+            $colBirthPlaceDate = -1;
+            $colAddress = -1;
+            $colPreviousSchool = -1;
+            $colFatherName = -1;
+            $colMotherName = -1;
+            $colFatherJob = -1;
+            $colMotherJob = -1;
+            $colFatherPhone = -1;
+            $colMotherPhone = -1;
+            $colAdmissionDate = -1;
+            $colSchoolProgram = -1;
+
             foreach ($headers as $k => $h) {
                 if ($h === 'tanggal') $colDate = $k;
                 if ($h === 'status' || $h === 'kehadiran') $colStatus = $k;
                 if ($h === 'catatan' || $h === 'keterangan') $colNote = $k;
-                if ($h === 'ekstrakurikuler' || $h === 'eskul' || str_contains($h, 'ekstrakurikuler')) $colEskul = $k; 
+                if ($h === 'ekstrakurikuler' || $h === 'eskul' || str_contains($h, 'ekstrakurikuler')) $colEskul = $k;
+
+                // Biodata Detection
+                if ($h === 'nisn') $colNisn = $k;
+                elseif ($h === 'jk' || $h === 'l/p' || str_contains($h, 'jenis kelamin') || str_contains($h, 'gender')) $colGender = $k;
+                elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat lahir')) $colBirthPlaceDate = $k;
+                elseif ($h === 'alamat' || str_contains($h, 'alamat domisili') || str_contains($h, 'tempat tinggal')) $colAddress = $k;
+                elseif (str_contains($h, 'asal sekolah') || str_contains($h, 'asal tk') || str_contains($h, 'sekolah asal')) $colPreviousSchool = $k;
+                elseif (str_contains($h, 'pekerjaan ayah') || str_contains($h, 'pekerjaan bapak')) $colFatherJob = $k;
+                elseif (str_contains($h, 'pekerjaan ibu')) $colMotherJob = $k;
+                elseif (str_contains($h, 'hp ayah') || str_contains($h, 'wa ayah') || str_contains($h, 'telepon ayah') || str_contains($h, 'kontak ayah')) $colFatherPhone = $k;
+                elseif (str_contains($h, 'hp ibu') || str_contains($h, 'wa ibu') || str_contains($h, 'telepon ibu') || str_contains($h, 'kontak ibu')) $colMotherPhone = $k;
+                elseif (str_contains($h, 'ayah') || str_contains($h, 'bapak')) $colFatherName = $k;
+                elseif (str_contains($h, 'ibu')) $colMotherName = $k;
+                elseif (str_contains($h, 'diterima') || str_contains($h, 'tanggal masuk') || str_contains($h, 'tgl masuk')) $colAdmissionDate = $k;
+                elseif (str_contains($h, 'program') || str_contains($h, 'boarding') || str_contains($h, 'full day') || str_contains($h, 'fullday') || str_contains($h, 'status masuk')) $colSchoolProgram = $k;
+                elseif ($colFatherPhone === -1 && (str_contains($h, 'hp ortu') || str_contains($h, 'wa ortu') || str_contains($h, 'no hp') || str_contains($h, 'telepon'))) $colFatherPhone = $k;
             }
             
             // Is this an Attendance Sheet?
@@ -370,21 +401,73 @@ class StudentsImport
                         ->where('name', 'LIKE', "%{$name}%")
                         ->first();
                 }
+
+                // Prepare Extended Biodata Payload
+                $studentData = [];
+                if ($nis && (!$student || empty($student->nis))) {
+                    $studentData['nis'] = $nis;
+                }
+                if ($colNisn !== -1 && isset($row[$colNisn]) && trim((string)$row[$colNisn]) !== '') {
+                    $studentData['nisn'] = trim((string)$row[$colNisn]);
+                }
+                if ($colGender !== -1 && isset($row[$colGender]) && trim((string)$row[$colGender]) !== '') {
+                    $g = strtoupper(trim((string)$row[$colGender]));
+                    $studentData['gender'] = str_starts_with($g, 'L') ? 'L' : (str_starts_with($g, 'P') ? 'P' : $g);
+                }
+                if ($colBirthPlaceDate !== -1 && isset($row[$colBirthPlaceDate]) && trim((string)$row[$colBirthPlaceDate]) !== '') {
+                    $studentData['birth_place_date'] = trim((string)$row[$colBirthPlaceDate]);
+                }
+                if ($colAddress !== -1 && isset($row[$colAddress]) && trim((string)$row[$colAddress]) !== '') {
+                    $studentData['address'] = trim((string)$row[$colAddress]);
+                }
+                if ($colPreviousSchool !== -1 && isset($row[$colPreviousSchool]) && trim((string)$row[$colPreviousSchool]) !== '') {
+                    $studentData['previous_school'] = trim((string)$row[$colPreviousSchool]);
+                }
+                if ($colFatherName !== -1 && isset($row[$colFatherName]) && trim((string)$row[$colFatherName]) !== '') {
+                    $studentData['father_name'] = trim((string)$row[$colFatherName]);
+                }
+                if ($colMotherName !== -1 && isset($row[$colMotherName]) && trim((string)$row[$colMotherName]) !== '') {
+                    $studentData['mother_name'] = trim((string)$row[$colMotherName]);
+                }
+                if ($colFatherJob !== -1 && isset($row[$colFatherJob]) && trim((string)$row[$colFatherJob]) !== '') {
+                    $studentData['father_job'] = trim((string)$row[$colFatherJob]);
+                }
+                if ($colMotherJob !== -1 && isset($row[$colMotherJob]) && trim((string)$row[$colMotherJob]) !== '') {
+                    $studentData['mother_job'] = trim((string)$row[$colMotherJob]);
+                }
+                if ($colFatherPhone !== -1 && isset($row[$colFatherPhone]) && trim((string)$row[$colFatherPhone]) !== '') {
+                    $studentData['father_phone'] = trim((string)$row[$colFatherPhone]);
+                }
+                if ($colMotherPhone !== -1 && isset($row[$colMotherPhone]) && trim((string)$row[$colMotherPhone]) !== '') {
+                    $studentData['mother_phone'] = trim((string)$row[$colMotherPhone]);
+                }
+                if ($colAdmissionDate !== -1 && isset($row[$colAdmissionDate]) && trim((string)$row[$colAdmissionDate]) !== '') {
+                    $admRaw = trim((string)$row[$colAdmissionDate]);
+                    if (is_numeric($admRaw)) {
+                        try {
+                            $admRaw = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($admRaw)->format('Y-m-d');
+                        } catch (\Exception $e) {}
+                    }
+                    $studentData['admission_date'] = $admRaw;
+                }
+                if ($colSchoolProgram !== -1 && isset($row[$colSchoolProgram]) && trim((string)$row[$colSchoolProgram]) !== '') {
+                    $p = trim((string)$row[$colSchoolProgram]);
+                    $studentData['school_program'] = stripos($p, 'Boarding') !== false ? 'Boarding' : 'Full Day';
+                }
                 
-                // Create or Update Student (Only if purely student list or if missing)
-                // For attendance sheet, preferably we don't create new students unless we are sure.
-                // But let's keep consistency: if data is there, we use it. Since name+class is there.
-                
+                // Create or Update Student
                 if ($student) {
-                    // Student already exists in active year, reuse
+                    // Update existing student with any newly supplied biodata fields
+                    if (!empty($studentData)) {
+                        $student->update($studentData);
+                    }
                 } else {
-                    $student = Student::create([
+                    $student = Student::create(array_merge([
                         'academic_year_id' => $activeYear->id,
                         'name' => $name,
                         'class' => $rowClass,
-                        'nis' => $nis,
                         'status' => 'active'
-                    ]);
+                    ], $studentData));
                     $counts['students']++;
                     if ($student->nis) $mapNis[$student->nis] = $student;
                     $key = strtoupper(trim($student->name)) . '|' . strtoupper(trim($student->class));

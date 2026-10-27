@@ -62,9 +62,10 @@
     <table class="official-print-table" style="width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 6px;">
         <thead>
             <tr style="background: #f1f5f9; color: #000000;">
-                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 2px; width: 5%; text-align: center; font-weight: bold;">No</th>
-                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 6px; width: 37%; text-align: left; font-weight: bold;">Nama Siswa</th>
-                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 2px; width: 10%; text-align: center; font-weight: bold;">Kelas</th>
+                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 2px; width: 4%; text-align: center; font-weight: bold;">No</th>
+                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 3px; width: 10%; text-align: center; font-weight: bold;">NIS</th>
+                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 6px; width: 30%; text-align: left; font-weight: bold;">Nama Siswa</th>
+                <th rowspan="2" style="border: 1px solid #333333; padding: 3px 2px; width: 8%; text-align: center; font-weight: bold;">Kelas</th>
                 <th rowspan="2" style="border: 1px solid #333333; padding: 3px 4px; width: 14%; text-align: center; font-weight: bold;">Materi / Aspek</th>
                 <th colspan="3" style="border: 1px solid #333333; padding: 3px 4px; width: 34%; text-align: center; font-weight: bold;">Capaian Nilai</th>
             </tr>
@@ -104,6 +105,7 @@
                 <!-- Calistung 3 Rows: Membaca, Menulis, Menghitung -->
                 <tr style="{{ $index % 2 == 1 ? 'background: #fafafa;' : 'background: #ffffff;' }}">
                     <td rowspan="3" style="border: 1px solid #333333; padding: 2px 2px; text-align: center;">{{ $index + 1 }}</td>
+                    <td rowspan="3" style="border: 1px solid #333333; padding: 2px 3px; text-align: center; font-weight: 600; color: #334155;">{{ $student->nis ?? '-' }}</td>
                     <td rowspan="3" style="border: 1px solid #333333; padding: 2px 6px; text-align: left; font-weight: bold;">{{ strtoupper($student->name) }}</td>
                     <td rowspan="3" style="border: 1px solid #333333; padding: 2px 2px; text-align: center;">{{ $student->class }}</td>
                     <td style="border: 1px solid #333333; padding: 2px 4px; text-align: center; font-weight: bold;">Membaca</td>
@@ -127,6 +129,7 @@
                 <!-- Regular Row -->
                 <tr style="{{ $index % 2 == 1 ? 'background: #fafafa;' : 'background: #ffffff;' }}">
                     <td style="border: 1px solid #333333; padding: 3px 2px; text-align: center;">{{ $index + 1 }}</td>
+                    <td style="border: 1px solid #333333; padding: 3px 3px; text-align: center; font-weight: 600; color: #334155;">{{ $student->nis ?? '-' }}</td>
                     <td style="border: 1px solid #333333; padding: 3px 6px; text-align: left; font-weight: bold;">{{ strtoupper($student->name) }}</td>
                     <td style="border: 1px solid #333333; padding: 3px 2px; text-align: center;">{{ $student->class }}</td>
                     <td style="border: 1px solid #333333; padding: 3px 4px; text-align: center; color: #555;">Umum</td>
@@ -137,7 +140,7 @@
             @endif
             @empty
             <tr>
-                <td colspan="7" style="border: 1px solid #333333; padding: 12px; text-align: center; color: #666666;">
+                <td colspan="8" style="border: 1px solid #333333; padding: 12px; text-align: center; color: #666666;">
                     Tidak ada data nilai siswa terdaftar.
                 </td>
             </tr>

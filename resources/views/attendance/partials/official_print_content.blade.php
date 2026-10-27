@@ -78,9 +78,10 @@
     <table class="official-print-table" style="width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 6px;">
         <thead>
             <tr style="background: #f1f5f9; color: #000000;">
-                <th style="border: 1px solid #333333; padding: 4px 3px; width: 5%; text-align: center; font-weight: bold;">No</th>
-                <th style="border: 1px solid #333333; padding: 4px 6px; width: 42%; text-align: left; font-weight: bold;">Nama Siswa</th>
-                <th style="border: 1px solid #333333; padding: 4px 3px; width: 11%; text-align: center; font-weight: bold;">Kelas</th>
+                <th style="border: 1px solid #333333; padding: 4px 3px; width: 4%; text-align: center; font-weight: bold;">No</th>
+                <th style="border: 1px solid #333333; padding: 4px 3px; width: 11%; text-align: center; font-weight: bold;">NIS</th>
+                <th style="border: 1px solid #333333; padding: 4px 6px; width: 34%; text-align: left; font-weight: bold;">Nama Siswa</th>
+                <th style="border: 1px solid #333333; padding: 4px 3px; width: 9%; text-align: center; font-weight: bold;">Kelas</th>
                 <th style="border: 1px solid #333333; padding: 4px 3px; width: 8.5%; text-align: center; font-weight: bold;">Hadir (H)</th>
                 <th style="border: 1px solid #333333; padding: 4px 3px; width: 8%; text-align: center; font-weight: bold;">Sakit (S)</th>
                 <th style="border: 1px solid #333333; padding: 4px 3px; width: 8%; text-align: center; font-weight: bold;">Izin (I)</th>
@@ -96,6 +97,9 @@
             @endphp
             <tr style="{{ $index % 2 == 1 ? 'background: #fafafa;' : 'background: #ffffff;' }}">
                 <td style="border: 1px solid #333333; padding: 3px 3px; text-align: center;">{{ $index + 1 }}</td>
+                <td style="border: 1px solid #333333; padding: 3px 3px; text-align: center; font-weight: 600; color: #334155;">
+                    {{ $student->nis ?? '-' }}
+                </td>
                 <td style="border: 1px solid #333333; padding: 3px 6px; text-align: left; font-weight: bold;">
                     {{ strtoupper($student->name) }}
                 </td>
@@ -120,7 +124,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8" style="border: 1px solid #333333; padding: 12px; text-align: center; color: #666666;">
+                <td colspan="9" style="border: 1px solid #333333; padding: 12px; text-align: center; color: #666666;">
                     Tidak ada data siswa terdaftar pada ekstrakurikuler ini.
                 </td>
             </tr>
@@ -129,7 +133,7 @@
         @if($totalStudents > 0)
         <tfoot>
             <tr style="background: #f1f5f9; font-weight: bold;">
-                <td colspan="3" style="border: 1px solid #333333; padding: 3.5px 6px; text-align: right;">
+                <td colspan="4" style="border: 1px solid #333333; padding: 3.5px 6px; text-align: right;">
                     TOTAL AKUMULASI :
                 </td>
                 <td style="border: 1px solid #333333; padding: 3.5px 3px; text-align: center;">
