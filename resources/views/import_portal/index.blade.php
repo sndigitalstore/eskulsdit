@@ -256,11 +256,12 @@
             <h3><i class="fas fa-table"></i> Struktur Sheet yang Dikenali</h3>
             <div class="sheet-info-grid">
                 <div class="sheet-badge">
-                    <div class="sb-title"><i class="fas fa-users" style="color:#2e86c1"></i> Data Siswa</div>
+                    <div class="sb-title"><i class="fas fa-users" style="color:#2e86c1"></i> Data Siswa (Biodata Lengkap)</div>
                     <ul>
-                        <li>NIS, Nama Lengkap Siswa</li>
-                        <li>Kelas, Ekstrakurikuler</li>
-                        <li>Pembina (opsional)</li>
+                        <li><strong>Identitas:</strong> NIS, NISN, Nama Siswa, Kelas, JK (L/P), TTL, Alamat, Asal Sekolah</li>
+                        <li><strong>Orang Tua:</strong> Nama Ayah, Ibu, Pekerjaan, No HP Ayah &amp; Ibu</li>
+                        <li><strong>Akademik:</strong> Tanggal Diterima, Program (Full Day / Boarding)</li>
+                        <li><strong>Kegiatan:</strong> Ekstrakurikuler, Pembina</li>
                     </ul>
                 </div>
                 <div class="sheet-badge">
@@ -316,6 +317,17 @@
                 <i class="fas fa-file-excel" style="color:#1e8449;font-size:1.1rem;"></i>
                 Unduh Template Excel (6 Sheet)
             </a>
+            <div style="margin-top:1.1rem;background:#f0fbf7;border:1px solid #c2ecd9;border-radius:10px;padding:.85rem;font-size:.82rem;color:#1e6a4b;line-height:1.5;">
+                <div style="font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-magic" style="color:#10b981;"></i> Fitur Otomatisasi &amp; Kerapihan Data
+                </div>
+                <ul style="margin:0;padding-left:1.15rem;list-style-type:disc;">
+                    <li><strong>1x Input Lengkap:</strong> Seluruh biodata siswa (NIS, NISN, Ortu, No HP, Alamat, TTL, Program) langsung terisi.</li>
+                    <li><strong>Normalisasi Kelas:</strong> Penulisan <em>Kelas 1A</em>, <em>1 A</em>, atau <em>1-A</em> otomatis diseragamkan menjadi <strong>1A</strong> dan terdaftar di Manajemen Kelas.</li>
+                    <li><strong>Anti Data Hilang:</strong> Siswa lama otomatis diperbarui biodatanya tanpa menghapus data sebelumnya jika kolom kosong.</li>
+                    <li><strong>Pembersihan Format:</strong> Notasi ilmiah Excel (misal <code>1.01E+3</code>) dan No HP (<code>628...</code>) otomatis dinormalkan.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="portal-card">

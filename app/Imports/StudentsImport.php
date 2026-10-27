@@ -42,6 +42,8 @@ class StudentsImport
 
         $counts = [
             'students'           => 0,
+            'students_created'   => 0,
+            'students_updated'   => 0,
             'attendance'         => 0,
             'grades'             => 0,
             'achievements'       => 0,
@@ -55,7 +57,7 @@ class StudentsImport
             
             // 1. Scan first few rows for "Kelas" and Header signature
             foreach ($rows as $index => $row) {
-                if ($index > 20) break;
+                if ($index > 25) break;
                 
                 $rowString = implode(' ', array_map(function($item) { return $item ?? ''; }, $row));
                 
@@ -75,15 +77,21 @@ class StudentsImport
 
                     foreach ($row as $cell) {
                         if (!$cell) continue;
-                        $cellUpper = strtoupper(trim($cell));
+                        $cellUpper = strtoupper(trim((string)$cell));
                         
                         // Checks
-                        if ($cellUpper === 'NIS' || $cellUpper === 'NO INDUK') $foundNis = true;
-                        if (Str::contains($cellUpper, 'NAMA LENGKAP') || $cellUpper === 'NAMA SISWA' || $cellUpper === 'NAMA') $foundName = true;
-                        if ($cellUpper === 'NAMA GURU') $foundTeacherName = true;
+                        if ($cellUpper === 'NIS' || $cellUpper === 'NO INDUK' || $cellUpper === 'NO. INDUK' || $cellUpper === 'NOMOR INDUK' || $cellUpper === 'NISN' || str_contains($cellUpper, 'NIS')) {
+                            $foundNis = true;
+                        }
+                        if (Str::contains($cellUpper, 'NAMA LENGKAP') || Str::contains($cellUpper, 'NAMA SISWA') || Str::contains($cellUpper, 'NAMA PESERTA') || Str::contains($cellUpper, 'NAMA MURID') || $cellUpper === 'NAMA') {
+                            $foundName = true;
+                        }
+                        if ($cellUpper === 'NAMA GURU') {
+                            $foundTeacherName = true;
+                        }
 
                         // Secondary Markers to confirm header row if NIS is missing
-                        if ($cellUpper === 'KELAS' || str_contains($cellUpper, 'EKSTRAKURIKULER') || $cellUpper === 'TANGGAL' || $cellUpper === 'STATUS') {
+                        if ($cellUpper === 'KELAS' || $cellUpper === 'KLS' || $cellUpper === 'ROMBEL' || str_contains($cellUpper, 'KELAS') || str_contains($cellUpper, 'ROMBEL') || str_contains($cellUpper, 'EKSTRAKURIKULER') || str_contains($cellUpper, 'ESKUL') || $cellUpper === 'TANGGAL' || $cellUpper === 'STATUS' || str_contains($cellUpper, 'ALAMAT') || str_contains($cellUpper, 'LAHIR')) {
                             $foundSecondary = true;
                         }
                     }
@@ -308,7 +316,10 @@ class StudentsImport
             $colDate = -1;
             $colStatus = -1;
             $colNote = -1;
-            $colEskul = -1; // Also needed for attendance
+
+            // Detect Eskul & Pembina Columns
+            $colEskul = -1;
+            $colPembina = -1;
 
             // Detect Extended Student Biodata Columns
             $colNisn = -1;
@@ -322,6 +333,7 @@ class StudentsImport
             $colMotherJob = -1;
             $colFatherPhone = -1;
             $colMotherPhone = -1;
+            $colParentPhone = -1;
             $colAdmissionDate = -1;
             $colSchoolProgram = -1;
 
@@ -329,46 +341,128 @@ class StudentsImport
                 if ($h === 'tanggal') $colDate = $k;
                 if ($h === 'status' || $h === 'kehadiran') $colStatus = $k;
                 if ($h === 'catatan' || $h === 'keterangan') $colNote = $k;
-                if ($h === 'ekstrakurikuler' || $h === 'eskul' || str_contains($h, 'ekstrakurikuler')) $colEskul = $k;
+                
+                // Eskul & Pembina
+                if ($h === 'ekstrakurikuler' || $h === 'eskul' || $h === 'pilihan eskul' || str_contains($h, 'ekstrakurikuler') || str_contains($h, 'eskul')) {
+                    $colEskul = $k;
+                }
+                if ($h === 'pembina' || $h === 'instruktur' || $h === 'guru pembina' || $h === 'pelatih' || str_contains($h, 'pembina') || str_contains($h, 'pembimbing')) {
+                    $colPembina = $k;
+                }
 
                 // Biodata Detection
-                if ($h === 'nisn') $colNisn = $k;
-                elseif ($h === 'jk' || $h === 'l/p' || str_contains($h, 'jenis kelamin') || str_contains($h, 'gender')) $colGender = $k;
-                elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat lahir')) $colBirthPlaceDate = $k;
-                elseif ($h === 'alamat' || str_contains($h, 'alamat domisili') || str_contains($h, 'tempat tinggal')) $colAddress = $k;
-                elseif (str_contains($h, 'asal sekolah') || str_contains($h, 'asal tk') || str_contains($h, 'sekolah asal')) $colPreviousSchool = $k;
-                elseif (str_contains($h, 'pekerjaan ayah') || str_contains($h, 'pekerjaan bapak')) $colFatherJob = $k;
-                elseif (str_contains($h, 'pekerjaan ibu')) $colMotherJob = $k;
-                elseif (str_contains($h, 'hp ayah') || str_contains($h, 'wa ayah') || str_contains($h, 'telepon ayah') || str_contains($h, 'kontak ayah')) $colFatherPhone = $k;
-                elseif (str_contains($h, 'hp ibu') || str_contains($h, 'wa ibu') || str_contains($h, 'telepon ibu') || str_contains($h, 'kontak ibu')) $colMotherPhone = $k;
-                elseif (str_contains($h, 'ayah') || str_contains($h, 'bapak')) $colFatherName = $k;
-                elseif (str_contains($h, 'ibu')) $colMotherName = $k;
-                elseif (str_contains($h, 'diterima') || str_contains($h, 'tanggal masuk') || str_contains($h, 'tgl masuk')) $colAdmissionDate = $k;
-                elseif (str_contains($h, 'program') || str_contains($h, 'boarding') || str_contains($h, 'full day') || str_contains($h, 'fullday') || str_contains($h, 'status masuk')) $colSchoolProgram = $k;
-                elseif ($colFatherPhone === -1 && (str_contains($h, 'hp ortu') || str_contains($h, 'wa ortu') || str_contains($h, 'no hp') || str_contains($h, 'telepon'))) $colFatherPhone = $k;
+                if ($h === 'nisn' || str_contains($h, 'nisn')) {
+                    $colNisn = $k;
+                } elseif ($h === 'jk' || $h === 'l/p' || str_contains($h, 'jenis kelamin') || str_contains($h, 'kelamin') || str_contains($h, 'gender')) {
+                    $colGender = $k;
+                } elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat & tgl lahir') || str_contains($h, 'tempat lahir') || str_contains($h, 'kelahiran')) {
+                    $colBirthPlaceDate = $k;
+                } elseif ($h === 'alamat' || str_contains($h, 'alamat') || str_contains($h, 'domisili') || str_contains($h, 'tempat tinggal')) {
+                    $colAddress = $k;
+                } elseif (str_contains($h, 'asal sekolah') || str_contains($h, 'asal tk') || str_contains($h, 'sekolah asal') || str_contains($h, 'tk asal') || str_contains($h, 'paud')) {
+                    $colPreviousSchool = $k;
+                } elseif (str_contains($h, 'pekerjaan ayah') || str_contains($h, 'pekerjaan bapak') || str_contains($h, 'kerja ayah')) {
+                    $colFatherJob = $k;
+                } elseif (str_contains($h, 'pekerjaan ibu') || str_contains($h, 'kerja ibu')) {
+                    $colMotherJob = $k;
+                } elseif (str_contains($h, 'hp ayah') || str_contains($h, 'wa ayah') || str_contains($h, 'telepon ayah') || str_contains($h, 'kontak ayah') || str_contains($h, 'nomor ayah')) {
+                    $colFatherPhone = $k;
+                } elseif (str_contains($h, 'hp ibu') || str_contains($h, 'wa ibu') || str_contains($h, 'telepon ibu') || str_contains($h, 'kontak ibu') || str_contains($h, 'nomor ibu')) {
+                    $colMotherPhone = $k;
+                } elseif (str_contains($h, 'ayah') || str_contains($h, 'bapak')) {
+                    $colFatherName = $k;
+                } elseif (str_contains($h, 'ibu')) {
+                    $colMotherName = $k;
+                } elseif (str_contains($h, 'diterima') || str_contains($h, 'tanggal masuk') || str_contains($h, 'tgl masuk') || str_contains($h, 'registrasi')) {
+                    $colAdmissionDate = $k;
+                } elseif (str_contains($h, 'program') || str_contains($h, 'boarding') || str_contains($h, 'full day') || str_contains($h, 'fullday') || str_contains($h, 'status masuk') || str_contains($h, 'jalur')) {
+                    $colSchoolProgram = $k;
+                } elseif (str_contains($h, 'hp ortu') || str_contains($h, 'wa ortu') || str_contains($h, 'telepon ortu') || str_contains($h, 'kontak ortu') || str_contains($h, 'no hp') || str_contains($h, 'telepon') || str_contains($h, 'wa') || str_contains($h, 'whatsapp')) {
+                    $colParentPhone = $k;
+                }
             }
             
             // Is this an Attendance Sheet?
             $isAttendanceSheet = ($colDate !== -1 && $colStatus !== -1);
+
+            // Sanitasi & Normalisasi Helpers
+            $cleanText = function($v) {
+                if ($v === null || $v === '') return null;
+                $trimmed = preg_replace('/\s+/', ' ', trim((string)$v));
+                return ($trimmed !== '' && $trimmed !== '-') ? $trimmed : null;
+            };
+
+            $cleanNis = function($v) {
+                if ($v === null || $v === '') return null;
+                $v = trim((string)$v);
+                if (stripos($v, 'E+') !== false && is_numeric($v)) {
+                    $v = number_format((float)$v, 0, '', '');
+                }
+                return ($v !== '' && $v !== '-') ? $v : null;
+            };
+
+            $cleanGender = function($v) {
+                if (!$v) return null;
+                $g = strtoupper(trim((string)$v));
+                if (str_starts_with($g, 'L') || $g === '1' || str_contains($g, 'PRIA') || str_contains($g, 'LAKI')) return 'L';
+                if (str_starts_with($g, 'P') || $g === '2' || str_contains($g, 'WANITA') || str_contains($g, 'PEREMPUAN')) return 'P';
+                return in_array($g, ['L', 'P']) ? $g : null;
+            };
+
+            $cleanPhone = function($v) {
+                if (!$v) return null;
+                $v = trim((string)$v);
+                if (stripos($v, 'E+') !== false && is_numeric($v)) {
+                    $v = number_format((float)$v, 0, '', '');
+                }
+                $digits = preg_replace('/[^0-9]/', '', $v);
+                if (str_starts_with($digits, '628')) {
+                    $digits = '08' . substr($digits, 3);
+                }
+                return !empty($digits) ? $digits : $v;
+            };
+
+            $cleanDate = function($v) {
+                if (!$v || $v === '-') return null;
+                if (is_numeric($v) && (float)$v > 1000) {
+                    try {
+                        return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($v)->format('Y-m-d');
+                    } catch (\Exception $e) {}
+                }
+                $v = trim((string)$v);
+                if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/', $v, $m)) {
+                    return sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
+                }
+                return $v;
+            };
+
+            $cleanProgram = function($v) {
+                if (!$v) return 'Full Day';
+                $val = strtolower(trim((string)$v));
+                if (str_contains($val, 'board') || str_contains($val, 'pesantren') || str_contains($val, 'pondok') || str_contains($val, 'asrama')) {
+                    return 'Boarding';
+                }
+                return 'Full Day';
+            };
 
             // Scan rows
             for ($i = $headerRowIndex + 1; $i < count($rows); $i++) {
                 $row = $rows[$i];
                 if (!isset($row[$colName])) continue;
                 
-                $name = trim($row[$colName]);
-                if ($name === '' || $name === '-') {
+                $name = $cleanText($row[$colName]);
+                if ($name === null || $name === '' || $name === '-') {
                     if (count(array_filter($row)) > 0) {
                         $skippedRowsCount++;
                     }
                     continue;
                 }
-                if (strtolower($name) === 'nama lengkap' || strtolower($name) === 'nama siswa') continue;
+                if (strtolower($name) === 'nama lengkap' || strtolower($name) === 'nama siswa' || strtolower($name) === 'nama') continue;
 
                 // Determine Class for this row
                 $rowClass = $class;
                 if ($colClass !== -1 && isset($row[$colClass]) && $row[$colClass]) {
-                    $rowClass = self::normalizeClass(trim($row[$colClass]));
+                    $rowClass = self::normalizeClass(trim((string)$row[$colClass]));
                 }
                 
                 if (!$rowClass) {
@@ -376,7 +470,10 @@ class StudentsImport
                     continue; // Skip if no class context
                 }
 
-                $nis = ($colNis !== -1 && isset($row[$colNis])) ? trim($row[$colNis]) : null;
+                // Auto-register class ke master SchoolClass agar tidak pernah tercecer
+                \App\Models\SchoolClass::firstOrCreate(['name' => $rowClass]);
+
+                $nis = ($colNis !== -1 && isset($row[$colNis])) ? $cleanNis($row[$colNis]) : null;
                 
                 // Lookup Student (Priority Strategy)
                 $student = null;
@@ -388,7 +485,7 @@ class StudentsImport
                 
                 // 2. Try Name + Class Match (Exact)
                 if (!$student) {
-                    $key = strtoupper(trim($name)) . '|' . strtoupper(trim($rowClass));
+                    $key = strtoupper($name) . '|' . strtoupper($rowClass);
                     if (isset($mapNameClass[$key])) {
                         $student = $mapNameClass[$key];
                     }
@@ -407,52 +504,65 @@ class StudentsImport
                 if ($nis && (!$student || empty($student->nis))) {
                     $studentData['nis'] = $nis;
                 }
-                if ($colNisn !== -1 && isset($row[$colNisn]) && trim((string)$row[$colNisn]) !== '') {
-                    $studentData['nisn'] = trim((string)$row[$colNisn]);
+                if ($colNisn !== -1 && isset($row[$colNisn])) {
+                    $v = $cleanNis($row[$colNisn]);
+                    if ($v !== null) $studentData['nisn'] = $v;
                 }
-                if ($colGender !== -1 && isset($row[$colGender]) && trim((string)$row[$colGender]) !== '') {
-                    $g = strtoupper(trim((string)$row[$colGender]));
-                    $studentData['gender'] = str_starts_with($g, 'L') ? 'L' : (str_starts_with($g, 'P') ? 'P' : $g);
+                if ($colGender !== -1 && isset($row[$colGender])) {
+                    $v = $cleanGender($row[$colGender]);
+                    if ($v !== null) $studentData['gender'] = $v;
                 }
-                if ($colBirthPlaceDate !== -1 && isset($row[$colBirthPlaceDate]) && trim((string)$row[$colBirthPlaceDate]) !== '') {
-                    $studentData['birth_place_date'] = trim((string)$row[$colBirthPlaceDate]);
+                if ($colBirthPlaceDate !== -1 && isset($row[$colBirthPlaceDate])) {
+                    $v = $cleanText($row[$colBirthPlaceDate]);
+                    if ($v !== null) $studentData['birth_place_date'] = $v;
                 }
-                if ($colAddress !== -1 && isset($row[$colAddress]) && trim((string)$row[$colAddress]) !== '') {
-                    $studentData['address'] = trim((string)$row[$colAddress]);
+                if ($colAddress !== -1 && isset($row[$colAddress])) {
+                    $v = $cleanText($row[$colAddress]);
+                    if ($v !== null) $studentData['address'] = $v;
                 }
-                if ($colPreviousSchool !== -1 && isset($row[$colPreviousSchool]) && trim((string)$row[$colPreviousSchool]) !== '') {
-                    $studentData['previous_school'] = trim((string)$row[$colPreviousSchool]);
+                if ($colPreviousSchool !== -1 && isset($row[$colPreviousSchool])) {
+                    $v = $cleanText($row[$colPreviousSchool]);
+                    if ($v !== null) $studentData['previous_school'] = $v;
                 }
-                if ($colFatherName !== -1 && isset($row[$colFatherName]) && trim((string)$row[$colFatherName]) !== '') {
-                    $studentData['father_name'] = trim((string)$row[$colFatherName]);
+                if ($colFatherName !== -1 && isset($row[$colFatherName])) {
+                    $v = $cleanText($row[$colFatherName]);
+                    if ($v !== null) $studentData['father_name'] = $v;
                 }
-                if ($colMotherName !== -1 && isset($row[$colMotherName]) && trim((string)$row[$colMotherName]) !== '') {
-                    $studentData['mother_name'] = trim((string)$row[$colMotherName]);
+                if ($colMotherName !== -1 && isset($row[$colMotherName])) {
+                    $v = $cleanText($row[$colMotherName]);
+                    if ($v !== null) $studentData['mother_name'] = $v;
                 }
-                if ($colFatherJob !== -1 && isset($row[$colFatherJob]) && trim((string)$row[$colFatherJob]) !== '') {
-                    $studentData['father_job'] = trim((string)$row[$colFatherJob]);
+                if ($colFatherJob !== -1 && isset($row[$colFatherJob])) {
+                    $v = $cleanText($row[$colFatherJob]);
+                    if ($v !== null) $studentData['father_job'] = $v;
                 }
-                if ($colMotherJob !== -1 && isset($row[$colMotherJob]) && trim((string)$row[$colMotherJob]) !== '') {
-                    $studentData['mother_job'] = trim((string)$row[$colMotherJob]);
+                if ($colMotherJob !== -1 && isset($row[$colMotherJob])) {
+                    $v = $cleanText($row[$colMotherJob]);
+                    if ($v !== null) $studentData['mother_job'] = $v;
                 }
-                if ($colFatherPhone !== -1 && isset($row[$colFatherPhone]) && trim((string)$row[$colFatherPhone]) !== '') {
-                    $studentData['father_phone'] = trim((string)$row[$colFatherPhone]);
-                }
-                if ($colMotherPhone !== -1 && isset($row[$colMotherPhone]) && trim((string)$row[$colMotherPhone]) !== '') {
-                    $studentData['mother_phone'] = trim((string)$row[$colMotherPhone]);
-                }
-                if ($colAdmissionDate !== -1 && isset($row[$colAdmissionDate]) && trim((string)$row[$colAdmissionDate]) !== '') {
-                    $admRaw = trim((string)$row[$colAdmissionDate]);
-                    if (is_numeric($admRaw)) {
-                        try {
-                            $admRaw = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($admRaw)->format('Y-m-d');
-                        } catch (\Exception $e) {}
+                if ($colFatherPhone !== -1 && isset($row[$colFatherPhone])) {
+                    $v = $cleanPhone($row[$colFatherPhone]);
+                    if ($v !== null) {
+                        $studentData['father_phone'] = $v;
+                        if (!isset($studentData['parent_phone'])) $studentData['parent_phone'] = $v;
                     }
-                    $studentData['admission_date'] = $admRaw;
                 }
-                if ($colSchoolProgram !== -1 && isset($row[$colSchoolProgram]) && trim((string)$row[$colSchoolProgram]) !== '') {
-                    $p = trim((string)$row[$colSchoolProgram]);
-                    $studentData['school_program'] = stripos($p, 'Boarding') !== false ? 'Boarding' : 'Full Day';
+                if ($colMotherPhone !== -1 && isset($row[$colMotherPhone])) {
+                    $v = $cleanPhone($row[$colMotherPhone]);
+                    if ($v !== null) $studentData['mother_phone'] = $v;
+                }
+                if ($colParentPhone !== -1 && isset($row[$colParentPhone])) {
+                    $v = $cleanPhone($row[$colParentPhone]);
+                    if ($v !== null && empty($studentData['father_phone'])) {
+                        $studentData['parent_phone'] = $v;
+                    }
+                }
+                if ($colAdmissionDate !== -1 && isset($row[$colAdmissionDate])) {
+                    $v = $cleanDate($row[$colAdmissionDate]);
+                    if ($v !== null) $studentData['admission_date'] = $v;
+                }
+                if ($colSchoolProgram !== -1 && isset($row[$colSchoolProgram])) {
+                    $studentData['school_program'] = $cleanProgram($row[$colSchoolProgram]);
                 }
                 
                 // Create or Update Student
@@ -461,6 +571,11 @@ class StudentsImport
                     if (!empty($studentData)) {
                         $student->update($studentData);
                     }
+                    $counts['students_updated']++;
+                    $counts['students']++;
+                    if ($student->nis) $mapNis[$student->nis] = $student;
+                    $key = strtoupper(trim($student->name)) . '|' . strtoupper(trim($student->class));
+                    $mapNameClass[$key] = $student;
                 } else {
                     $student = Student::create(array_merge([
                         'academic_year_id' => $activeYear->id,
@@ -468,6 +583,7 @@ class StudentsImport
                         'class' => $rowClass,
                         'status' => 'active'
                     ], $studentData));
+                    $counts['students_created']++;
                     $counts['students']++;
                     if ($student->nis) $mapNis[$student->nis] = $student;
                     $key = strtoupper(trim($student->name)) . '|' . strtoupper(trim($student->class));
@@ -477,14 +593,14 @@ class StudentsImport
                 // --- PROCESS ATTENDANCE ---
                 if ($isAttendanceSheet && $student) {
                      if ($colEskul !== -1 && isset($row[$colEskul]) && $row[$colEskul]) {
-                        $eskulName = trim($row[$colEskul]);
+                        $eskulName = trim((string)$row[$colEskul]);
                         $eskul = \App\Models\Eskul::activeYear()->where('name', $eskulName)->first();
                         if (!$eskul) $eskul = \App\Models\Eskul::activeYear()->where('name', 'LIKE', "%{$eskulName}%")->first(); // Loose match
                         
                         if ($eskul) {
-                            $dateRaw = trim($row[$colDate]);
-                            $statusRaw = strtolower(trim($row[$colStatus]));
-                            $note = ($colNote !== -1 && isset($row[$colNote])) ? trim($row[$colNote]) : null;
+                            $dateRaw = trim((string)$row[$colDate]);
+                            $statusRaw = strtolower(trim((string)$row[$colStatus]));
+                            $note = ($colNote !== -1 && isset($row[$colNote])) ? $cleanText($row[$colNote]) : null;
                             
                             // Map Status
                             $status = 'present';
@@ -492,23 +608,14 @@ class StudentsImport
                             elseif (str_contains($statusRaw, 'izin')) $status = 'permission';
                             elseif (str_contains($statusRaw, 'alpa') || str_contains($statusRaw, 'alpha')) $status = 'absent';
                             
-                            // Parse Date (Assuming d-m-Y from backup or Excel numeric)
-                            $date = null;
-                            try {
-                                if (is_numeric($dateRaw)) {
-                                    $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateRaw)->format('Y-m-d');
-                                } else {
-                                    $date = date('Y-m-d', strtotime($dateRaw));
-                                }
-                            } catch (\Exception $e) {}
-                            
+                            $date = $cleanDate($dateRaw);
                             if ($date) {
                                 \App\Models\Attendance::updateOrCreate(
                                     [
                                         'student_id' => $student->id,
                                         'eskul_id' => $eskul->id,
                                         'date' => $date,
-                                        'academic_year_id' => $activeYear->id // Assuming backup is also consistent with active year or we just force it
+                                        'academic_year_id' => $activeYear->id
                                     ],
                                     [
                                         'status' => $status,
@@ -521,128 +628,114 @@ class StudentsImport
                             $missingEskuls[$eskulName] = true;
                         }
                      }
-                     // Continue to process Eskul/Enrollment/Grades if applicable in the same row
                 }
                 
-                // Detect Eskul & Pembina Column
-                $colEskul = -1;
-                $colPembina = -1;
-                foreach ($headers as $k => $h) {
-                    if ($h === 'ekstrakurikuler' || $h === 'eskul' || str_contains($h, 'ekstrakurikuler')) {
-                        $colEskul = $k; 
-                    }
-                    if ($h === 'pembina' || $h === 'instruktur' || $h === 'guru' || $h === 'pelatih' || str_contains($h, 'pembina') || str_contains($h, 'pembimbing')) {
-                         $colPembina = $k;
-                    }
-                }
-
+                // --- PROCESS ESKUL ENROLLMENT & PEMBINA ---
                 if ($colEskul !== -1 && isset($row[$colEskul]) && $row[$colEskul]) {
-                    $eskulName = trim($row[$colEskul]);
+                    $eskulName = trim((string)$row[$colEskul]);
                     
-                    // 1. Try Exact Match
-                    $eskul = \App\Models\Eskul::activeYear()->where('name', $eskulName)->first();
-                    
-                    // 2. Try Loose Match
-                    if (!$eskul) {
-                         $eskul = \App\Models\Eskul::activeYear()->where('name', 'LIKE', "%{$eskulName}%")->first();
-                    }
-
-                    // 3. Create if Not Found (Auto-Discovery)
-                    if (!$eskul && $eskulName !== '' && $eskulName !== '-') {
-                        $instructor = ($colPembina !== -1 && isset($row[$colPembina])) ? trim($row[$colPembina]) : null;
+                    if ($eskulName !== '' && $eskulName !== '-') {
+                        // 1. Try Exact Match
+                        $eskul = \App\Models\Eskul::activeYear()->where('name', $eskulName)->first();
                         
-                        $eskul = \App\Models\Eskul::create([
-                            'name' => $eskulName,
-                            'instructor_name' => $instructor
-                        ]);
-                    }
-                    
-                    // 4. Update Pembina if present in Excel (even if not empty, to allow changes in Sm 2)
-                    if ($eskul && $colPembina !== -1 && isset($row[$colPembina])) {
-                        $instructor = trim($row[$colPembina]);
-                        if ($instructor && $instructor !== '-' && $instructor !== $eskul->instructor_name) {
-                            $eskul->update(['instructor_name' => $instructor]);
+                        // 2. Try Loose Match
+                        if (!$eskul) {
+                             $eskul = \App\Models\Eskul::activeYear()->where('name', 'LIKE', "%{$eskulName}%")->first();
                         }
-                    }
-                    
-                    if ($eskul) {
-                        // Enroll student if not already IN THIS SEMESTER
-                        $currentSemester = $activeYear->active_semester ?? '1';
-                        $isEnrolled = DB::table('student_eskul')
-                            ->where('student_id', $student->id)
-                            ->where('eskul_id', $eskul->id)
-                            ->where('academic_year_id', $activeYear->id)
-                            ->where('semester', $currentSemester)
-                            ->exists();
-                        
-                        if (!$isEnrolled) {
-                             $student->eskuls()->attach($eskul->id, [
+
+                        // 3. Create if Not Found (Auto-Discovery)
+                        if (!$eskul) {
+                            $instructor = ($colPembina !== -1 && isset($row[$colPembina])) ? $cleanText($row[$colPembina]) : null;
+                            
+                            $eskul = \App\Models\Eskul::create([
+                                'name' => $eskulName,
                                 'academic_year_id' => $activeYear->id,
-                                'semester' => $currentSemester
+                                'instructor_name' => $instructor
                             ]);
-                        }
-
-                        // Look for Grade Columns
-                        $colDaily = -1;
-                        $colSas1 = -1; 
-                        $colSas2 = -1;
-
-                        foreach ($headers as $k => $h) {
-                            if (str_contains($h, 'nilai harian') || str_contains($h, 'harian')) $colDaily = $k;
-                            if (str_contains($h, 'sas 1') || str_contains($h, 'sas1')) $colSas1 = $k;
-                            if (str_contains($h, 'sas 2') || str_contains($h, 'sas2')) $colSas2 = $k;
-                        }
-
-                        // Helper for Calistung Parsing
-                        $parseScore = function($sc) {
-                             if (!$sc || $sc === '-') return null;
-                             if (is_string($sc) && (str_contains(strtolower($sc), 'membaca:') || str_contains(strtolower($sc), 'menulis:'))) {
-                                $parsed = [];
-                                if (preg_match('/Membaca\s*:\s*([^\r\n]*)($|\s+Menulis)/i', $sc, $matches)) $parsed['reading'] = trim($matches[1]);
-                                if (preg_match('/Menulis\s*:\s*([^\r\n]*)($|\s+Berhitung)/i', $sc, $matches)) $parsed['writing'] = trim($matches[1]);
-                                if (preg_match('/Berhitung\s*:\s*([^\r\n]*)/i', $sc, $matches)) $parsed['counting'] = trim($matches[1]);
-                                if (!empty($parsed)) return json_encode($parsed);
+                        } else if ($colPembina !== -1 && isset($row[$colPembina])) {
+                            $instructor = $cleanText($row[$colPembina]);
+                            if ($instructor && $instructor !== $eskul->instructor_name) {
+                                $eskul->update(['instructor_name' => $instructor]);
                             }
-                            if (is_string($sc) && str_contains($sc, "\n")) {
-                                 $lines = explode("\n", $sc);
-                                 $parsed = [];
-                                 foreach ($lines as $line) {
-                                     if (str_contains(strtolower($line), 'membaca:')) $parsed['reading'] = trim(explode(':', $line)[1] ?? '');
-                                     if (str_contains(strtolower($line), 'menulis:')) $parsed['writing'] = trim(explode(':', $line)[1] ?? '');
-                                     if (str_contains(strtolower($line), 'berhitung:')) $parsed['counting'] = trim(explode(':', $line)[1] ?? '');
-                                 }
-                                 if (!empty($parsed)) return json_encode($parsed);
-                            }
-                            return $sc;
-                        };
+                        }
                         
-                        $saveGrade = function($type, $rawScore) use ($student, $eskul, $activeYear, $currentSemester, $parseScore, &$counts) {
-                             if (!$rawScore) return;
-                             $score = $parseScore($rawScore);
-                             if (!$score) return;
-                             
-                             \App\Models\Grade::updateOrCreate(
-                                [
-                                    'student_id' => $student->id,
-                                    'eskul_id' => $eskul->id,
+                        if ($eskul) {
+                            // Enroll student if not already IN THIS SEMESTER
+                            $currentSemester = $activeYear->active_semester ?? '1';
+                            $isEnrolled = DB::table('student_eskul')
+                                ->where('student_id', $student->id)
+                                ->where('eskul_id', $eskul->id)
+                                ->where('academic_year_id', $activeYear->id)
+                                ->where('semester', $currentSemester)
+                                ->exists();
+                            
+                            if (!$isEnrolled) {
+                                 $student->eskuls()->attach($eskul->id, [
                                     'academic_year_id' => $activeYear->id,
-                                    'semester' => $currentSemester,
-                                    'type' => $type
-                                ],
-                                [
-                                    'score' => $score,
-                                    'date' => now()
-                                ]
-                            );
-                            $counts['grades']++;
-                        };
+                                    'semester' => $currentSemester
+                                ]);
+                            }
 
-                        if ($colDaily !== -1 && isset($row[$colDaily])) $saveGrade('daily', $row[$colDaily]);
-                        if ($colSas1 !== -1 && isset($row[$colSas1])) $saveGrade('sas1', $row[$colSas1]);
-                        if ($colSas2 !== -1 && isset($row[$colSas2])) $saveGrade('sas2', $row[$colSas2]);
+                            // Look for Grade Columns
+                            $colDaily = -1;
+                            $colSas1 = -1; 
+                            $colSas2 = -1;
+
+                            foreach ($headers as $k => $h) {
+                                if (str_contains($h, 'nilai harian') || str_contains($h, 'harian')) $colDaily = $k;
+                                if (str_contains($h, 'sas 1') || str_contains($h, 'sas1')) $colSas1 = $k;
+                                if (str_contains($h, 'sas 2') || str_contains($h, 'sas2')) $colSas2 = $k;
+                            }
+
+                            // Helper for Calistung Parsing
+                            $parseScore = function($sc) {
+                                 if (!$sc || $sc === '-') return null;
+                                 if (is_string($sc) && (str_contains(strtolower($sc), 'membaca:') || str_contains(strtolower($sc), 'menulis:'))) {
+                                    $parsed = [];
+                                    if (preg_match('/Membaca\s*:\s*([^\r\n]*)($|\s+Menulis)/i', $sc, $matches)) $parsed['reading'] = trim($matches[1]);
+                                    if (preg_match('/Menulis\s*:\s*([^\r\n]*)($|\s+Berhitung)/i', $sc, $matches)) $parsed['writing'] = trim($matches[1]);
+                                    if (preg_match('/Berhitung\s*:\s*([^\r\n]*)/i', $sc, $matches)) $parsed['counting'] = trim($matches[1]);
+                                    if (!empty($parsed)) return json_encode($parsed);
+                                }
+                                if (is_string($sc) && str_contains($sc, "\n")) {
+                                     $lines = explode("\n", $sc);
+                                     $parsed = [];
+                                     foreach ($lines as $line) {
+                                         if (str_contains(strtolower($line), 'membaca:')) $parsed['reading'] = trim(explode(':', $line)[1] ?? '');
+                                         if (str_contains(strtolower($line), 'menulis:')) $parsed['writing'] = trim(explode(':', $line)[1] ?? '');
+                                         if (str_contains(strtolower($line), 'berhitung:')) $parsed['counting'] = trim(explode(':', $line)[1] ?? '');
+                                     }
+                                     if (!empty($parsed)) return json_encode($parsed);
+                                }
+                                return $sc;
+                            };
+                            
+                            $saveGrade = function($type, $rawScore) use ($student, $eskul, $activeYear, $currentSemester, $parseScore, &$counts) {
+                                 if (!$rawScore) return;
+                                 $score = $parseScore($rawScore);
+                                 if (!$score) return;
+                                 
+                                 \App\Models\Grade::updateOrCreate(
+                                    [
+                                        'student_id' => $student->id,
+                                        'eskul_id' => $eskul->id,
+                                        'academic_year_id' => $activeYear->id,
+                                        'semester' => $currentSemester,
+                                        'type' => $type
+                                    ],
+                                    [
+                                        'score' => $score,
+                                        'date' => now()
+                                    ]
+                                );
+                                $counts['grades']++;
+                            };
+
+                            if ($colDaily !== -1 && isset($row[$colDaily])) $saveGrade('daily', $row[$colDaily]);
+                            if ($colSas1 !== -1 && isset($row[$colSas1])) $saveGrade('sas1', $row[$colSas1]);
+                            if ($colSas2 !== -1 && isset($row[$colSas2])) $saveGrade('sas2', $row[$colSas2]);
+                        }
                     }
-                }
-
             }
 
             // 4. Process Achievements (Data Prestasi)
@@ -746,23 +839,27 @@ class StudentsImport
         return $counts;
     }
 
-    private static function normalizeClass($raw)
+    public static function normalizeClass($raw)
     {
-        // Handle "Kls IA", "Kls 6B" etc already handled by regex capturing group
-        // Just normalize Roman Numerals
+        if (!$raw) return '';
+        $raw = trim((string)$raw);
+        // Hapus awalan umum seperti "Kelas", "Kls", "Class", "Rombel"
+        $raw = preg_replace('/^(Kelas|Kls|Class|Rombel)\s*:?\s*/i', '', $raw);
+        $raw = trim($raw);
+
+        // Petakan angka Romawi di awal string ke angka Arab (1-6)
         $romans = [
             'VI' => '6', 'V' => '5', 'IV' => '4', 'III' => '3', 'II' => '2', 'I' => '1'
         ];
         
-        foreach ($romans as $roman => $number) {
-            // Use word boundary or simple start match
-            // "I A" -> "1A"
-            // "III" -> "3"
-            if (Str::startsWith($raw, $roman)) {
-                 return Str::replaceFirst($roman, $number, $raw);
+        foreach ($romans as $roman => $num) {
+            if (preg_match('/^' . $roman . '([A-Z\s\-].*|$)/i', $raw, $m)) {
+                $raw = $num . ($m[1] ?? '');
+                break;
             }
         }
-        // Remove spaces "1 A" -> "1A"
-        return str_replace(' ', '', $raw);
+
+        // Hapus spasi dan tanda hubung: "1 A" -> "1A", "1 - A" -> "1A"
+        return strtoupper(preg_replace('/[\s\-]+/', '', $raw));
     }
 }

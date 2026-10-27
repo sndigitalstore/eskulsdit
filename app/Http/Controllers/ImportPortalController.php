@@ -54,8 +54,21 @@ class ImportPortalController extends Controller
             $sheets = Excel::toArray(new \stdClass(), $request->file('excel_file'));
             $counts = StudentsImport::processArrays($sheets);
 
+            $studentSummary = null;
+            if (!empty($counts['students'])) {
+                $details = [];
+                if (!empty($counts['students_created'])) {
+                    $details[] = "{$counts['students_created']} baru";
+                }
+                if (!empty($counts['students_updated'])) {
+                    $details[] = "{$counts['students_updated']} diperbarui";
+                }
+                $detailStr = !empty($details) ? ' (' . implode(', ', $details) . ')' : '';
+                $studentSummary = "{$counts['students']} data siswa{$detailStr}";
+            }
+
             $summary = implode(', ', array_filter([
-                $counts['students']          ? "{$counts['students']} siswa"           : null,
+                $studentSummary,
                 $counts['attendance']        ? "{$counts['attendance']} absensi siswa" : null,
                 $counts['grades']            ? "{$counts['grades']} nilai"             : null,
                 $counts['achievements']      ? "{$counts['achievements']} prestasi"    : null,
@@ -64,7 +77,7 @@ class ImportPortalController extends Controller
             ]));
 
             if (!$summary) {
-                $summary = 'Tidak ada data baru yang diproses (mungkin sudah ada atau format tidak dikenali).';
+                $summary = 'Tidak ada data baru yang diproses (periksa apakah data sudah terisi pada format template yang sesuai).';
             }
 
             // Catat log aktivitas menggunakan method log() bawaan model
