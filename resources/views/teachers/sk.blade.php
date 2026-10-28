@@ -454,6 +454,10 @@
         </div>
 
         <div class="bar-actions">
+            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #fff; cursor: pointer; user-select: none; background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.25);">
+                <input type="checkbox" id="toggleDigitalSign" onchange="toggleSignAndStamp(this.checked)">
+                <span>Sertakan TTD &amp; Cap Digital</span>
+            </label>
             <button type="button" onclick="window.print()" class="btn-print-now">
                 <i class="fas fa-print"></i> Cetak SK (PDF/Printer)
             </button>
@@ -581,7 +585,18 @@
                 <div>Ditetapkan di : Cinangka, Serang</div>
                 <div>Pada tanggal : <span class="render-sk-date">14 Juli {{ date('Y') }}</span></div>
                 <div style="font-weight: bold; margin-top: 4px;">Kepala SDIT An Nadzir,</div>
-                <div class="signature-space"></div>
+                <div class="signature-space" style="position: relative; height: 65px;">
+                    @php
+                        $sigPath = public_path('headmaster_signature.png');
+                        $stampPath = public_path('school_stamp.png');
+                        $sigSrc = file_exists($sigPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($sigPath)) : asset('headmaster_signature.png');
+                        $stampSrc = file_exists($stampPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($stampPath)) : asset('school_stamp.png');
+                    @endphp
+                    <div class="digital-sign-overlay" style="display: none; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 180px; height: 75px; pointer-events: none;">
+                        <img src="{{ $stampSrc }}" alt="Stempel Sekolah" style="position: absolute; left: 5px; top: -5px; width: 75px; height: 75px; opacity: 0.88; mix-blend-mode: multiply;">
+                        <img src="{{ $sigSrc }}" alt="Tanda Tangan Kepala Sekolah" style="position: absolute; left: 42px; top: 8px; width: 100px; height: auto;">
+                    </div>
+                </div>
                 <div class="signature-name">{{ $headmasterName }}</div>
                 <div style="font-size: 9pt; color: #333;">NIP/NUPTK: -</div>
             </div>
@@ -668,7 +683,12 @@
             <div class="signature-box">
                 <div>Cinangka, <span class="render-sk-date">14 Juli {{ date('Y') }}</span></div>
                 <div style="font-weight: bold; margin-top: 4px;">Kepala SDIT An Nadzir,</div>
-                <div class="signature-space"></div>
+                <div class="signature-space" style="position: relative; height: 65px;">
+                    <div class="digital-sign-overlay" style="display: none; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 180px; height: 75px; pointer-events: none;">
+                        <img src="{{ $stampSrc }}" alt="Stempel Sekolah" style="position: absolute; left: 5px; top: -5px; width: 75px; height: 75px; opacity: 0.88; mix-blend-mode: multiply;">
+                        <img src="{{ $sigSrc }}" alt="Tanda Tangan Kepala Sekolah" style="position: absolute; left: 42px; top: 8px; width: 100px; height: auto;">
+                    </div>
+                </div>
                 <div class="signature-name">{{ $headmasterName }}</div>
                 <div style="font-size: 9pt; color: #333;">NIP/NUPTK: -</div>
             </div>
@@ -686,6 +706,12 @@
 
             document.querySelectorAll('.render-sk-number').forEach(el => el.textContent = num);
             document.querySelectorAll('.render-sk-date').forEach(el => el.textContent = dt);
+        }
+
+        function toggleSignAndStamp(show) {
+            document.querySelectorAll('.digital-sign-overlay').forEach(el => {
+                el.style.display = show ? 'block' : 'none';
+            });
         }
 
         numberInput.addEventListener('input', syncSkValues);
