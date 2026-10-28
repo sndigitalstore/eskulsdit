@@ -271,7 +271,7 @@
                 </div>
                 <div class="form-group">
                     <label>NIP / NIY Kepala Sekolah</label>
-                    <input type="text" name="nip_kepsek" value="{{ old('nip_kepsek', $program->nip_kepsek ?: $headmasterNip) }}" placeholder="141502002">
+                    <input type="text" name="nip_kepsek" value="{{ old('nip_kepsek', (!empty($program->nip_kepsek) && $program->nip_kepsek !== '-') ? $program->nip_kepsek : ((!empty($headmasterNip) && $headmasterNip !== '-') ? $headmasterNip : '141502002')) }}" placeholder="141502002">
                 </div>
             </div>
 

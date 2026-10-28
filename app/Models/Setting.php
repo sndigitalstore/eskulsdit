@@ -22,6 +22,13 @@ class Setting extends Model
         }
 
         $val = static::where('key', $key)->value('value');
+        if ($key === 'headmaster_nip' || $key === 'headmaster_niy') {
+            if ($val !== null && $val !== '' && trim($val) !== '-') {
+                return $val;
+            }
+            return '141502002';
+        }
+
         if ($val !== null && $val !== '') {
             return $val;
         }
@@ -29,10 +36,6 @@ class Setting extends Model
         if ($key === 'headmaster_name') {
             $headmasterUser = User::where('role', 'headmaster')->first();
             return $headmasterUser ? $headmasterUser->name : ($default ?? "Nur'asiah, S.Pd.I");
-        }
-
-        if ($key === 'headmaster_nip' || $key === 'headmaster_niy') {
-            return $default ?? '141502002';
         }
 
         if ($key === 'school_name') {

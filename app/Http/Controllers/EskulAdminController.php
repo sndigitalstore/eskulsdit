@@ -240,6 +240,10 @@ class EskulAdminController extends Controller
                 ->first();
         }
 
+        if ($program && (empty($program->nip_kepsek) || $program->nip_kepsek === '-')) {
+            $program->nip_kepsek = '141502002';
+        }
+
         $itemsQuery = EskulProgramItem::where('eskul_id', $eskul->id)
             ->where('academic_year_id', $activeYear->id);
 
@@ -396,6 +400,10 @@ class EskulAdminController extends Controller
     private function getSchoolData(): array
     {
         $settings = Setting::all()->pluck('value', 'key');
+        $headmasterNip = Setting::get('headmaster_nip', '141502002');
+        if (empty($headmasterNip) || $headmasterNip === '-') {
+            $headmasterNip = '141502002';
+        }
 
         return [
             'settings'       => $settings,
@@ -406,7 +414,7 @@ class EskulAdminController extends Controller
             'npsn'           => Setting::get('npsn', '20616174'),
             'nns'            => Setting::get('nns', '101280432037'),
             'headmasterName' => Setting::get('headmaster_name', "Nur'asiah, S.Pd.I"),
-            'headmasterNip'  => Setting::get('headmaster_nip', "141502002"),
+            'headmasterNip'  => $headmasterNip,
         ];
     }
 
