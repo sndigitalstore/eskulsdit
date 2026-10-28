@@ -123,23 +123,8 @@
 
 <div class="page">
 
-    {{-- KOP SURAT RESMI SDIT AN NADZIR --}}
-    <div class="kop">
-        @php
-            $hasLogo = file_exists(public_path('logo.png'));
-        @endphp
-        @if($hasLogo)
-            <img src="{{ asset('logo.png') }}" alt="Logo {{ $schoolName ?? 'Sekolah' }}" style="width:82px;height:82px;object-fit:contain;">
-        @else
-            <div style="width:75px;height:75px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;">🏫</div>
-        @endif
-        <div class="kop-text">
-            <div class="yayasan" style="font-size:11pt; font-weight:700; text-transform:uppercase;">{{ $yayasanName ?? 'YAYASAN AN NADZIR ISLAMIC SCHOOL' }}</div>
-            <div class="sekolah" style="font-size:19pt; font-weight:900; margin:2px 0;">{{ $schoolName ?? 'SDIT AN NADZIR' }}</div>
-            <div class="akreditasi" style="font-size:8.5pt; font-weight:700;">NNS: {{ $nns ?? '101280432037' }} · NPSN: {{ $npsn ?? '20616174' }} · Akreditasi: A (Amat Baik)</div>
-            <div class="alamat" style="font-size:8.5pt;">{{ $schoolAddress ?? 'Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167' }}</div>
-        </div>
-    </div>
+    {{-- KOP SURAT RESMI SDIT AN NADZIR (Sesuai Dokumen Resmi Sekolah) --}}
+    @include('partials.official_kop')
 
     {{-- JUDUL --}}
     <div class="doc-title">

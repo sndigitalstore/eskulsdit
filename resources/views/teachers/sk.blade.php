@@ -465,18 +465,8 @@
 
     {{-- LEMBAR 1: SURAT KEPUTUSAN KEPALA SEKOLAH --}}
     <div class="sk-sheet">
-        <!-- KOP SURAT RESMI -->
-        <div class="kop-surat">
-            <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo SDIT AN NADZIR" onerror="this.style.display='none'">
-            <div class="kop-text">
-                <div class="instansi-yayasan">YAYASAN AN NADZIR</div>
-                <div class="instansi-sekolah">SDIT AN NADZIR</div>
-                <div class="instansi-alamat">
-                    Bendungan Karet Cisirih, Kp. Cukang RT.09/RW.02, Desa Kamasan, Kec. Cinangka, Kab. Serang, Prov. Banten 42167<br>
-                    Website: sditannadzir.sch.id &bull; Email: sditannadzir@gmail.com
-                </div>
-            </div>
-        </div>
+        <!-- KOP SURAT RESMI (Sesuai Dokumen Resmi Sekolah) -->
+        @include('partials.official_kop')
 
         <!-- JUDUL SURAT KEPUTUSAN -->
         <div class="sk-title-box">

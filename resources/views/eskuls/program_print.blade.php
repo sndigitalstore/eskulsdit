@@ -278,24 +278,8 @@
 
 <div class="page">
 
-    {{-- KOP SURAT RESMI SDIT AN NADZIR --}}
-    <div class="kop">
-        @php
-            $hasLogo = file_exists(public_path('logo.png'));
-        @endphp
-        @if($hasLogo)
-            <img src="{{ asset('logo.png') }}" alt="Logo {{ $schoolName }}">
-        @else
-            <div style="width:80px;height:80px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;">🏫</div>
-        @endif
-
-        <div class="kop-text">
-            <div class="yayasan">{{ $yayasanName }}</div>
-            <div class="sekolah">{{ $schoolName }}</div>
-            <div class="npsn">NNS: {{ $nns }} · NPSN: {{ $npsn }} · Akreditasi: A (Amat Baik)</div>
-            <div class="alamat">{{ $schoolAddress }}</div>
-        </div>
-    </div>
+    {{-- KOP SURAT RESMI SDIT AN NADZIR (Sesuai Dokumen Resmi Sekolah) --}}
+    @include('partials.official_kop')
 
     {{-- JUDUL DOKUMEN --}}
     <div class="doc-title">
