@@ -449,7 +449,7 @@
                 <p class="role">Kepala Sekolah</p>
                 <div class="space"></div>
                 <p class="name">{{ $program->kepsek_name ?: $headmasterName }}</p>
-                <p class="nip">NIP: {{ $program->nip_kepsek ?: $headmasterNip }}</p>
+                <p class="nip">NIY: {{ $program->nip_kepsek ?: ($headmasterNip ?: '141502002') }}</p>
             </div>
         </div>
     </div>

@@ -598,7 +598,7 @@
                     </div>
                 </div>
                 <div class="signature-name">{{ $headmasterName }}</div>
-                <div style="font-size: 9pt; color: #333;">NIP/NUPTK: -</div>
+                <div style="font-size: 9.5pt; color: #111; margin-top: 1px;">NIY: 141502002</div>
             </div>
         </div>
 
@@ -690,7 +690,7 @@
                     </div>
                 </div>
                 <div class="signature-name">{{ $headmasterName }}</div>
-                <div style="font-size: 9pt; color: #333;">NIP/NUPTK: -</div>
+                <div style="font-size: 9.5pt; color: #111; margin-top: 1px;">NIY: 141502002</div>
             </div>
         </div>
     </div>

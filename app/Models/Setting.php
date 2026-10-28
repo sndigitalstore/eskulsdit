@@ -31,8 +31,8 @@ class Setting extends Model
             return $headmasterUser ? $headmasterUser->name : ($default ?? "Nur'asiah, S.Pd.I");
         }
 
-        if ($key === 'headmaster_nip') {
-            return $default ?? '-';
+        if ($key === 'headmaster_nip' || $key === 'headmaster_niy') {
+            return $default ?? '141502002';
         }
 
         if ($key === 'school_name') {

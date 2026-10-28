@@ -899,14 +899,14 @@
                         </div>
                         <div class="form-group-modern">
                             <label class="form-label-modern" for="headmaster_nip">
-                                <span>NIP Kepala Sekolah</span>
+                                <span>NIP / NIY Kepala Sekolah</span>
                             </label>
                             <input type="text" 
                                    id="headmaster_nip" 
                                    name="headmaster_nip" 
                                    class="form-control-modern" 
-                                   value="{{ $settings['headmaster_nip'] ?? '-' }}"
-                                   placeholder="-">
+                                   value="{{ $settings['headmaster_nip'] ?? '141502002' }}"
+                                   placeholder="141502002">
                         </div>
                     </div>
 

@@ -270,8 +270,8 @@
                     <input type="text" name="kepsek_name" value="{{ old('kepsek_name', $program->kepsek_name ?: $headmasterName) }}" placeholder="Nama Lengkap & Gelar Kepala Sekolah" required>
                 </div>
                 <div class="form-group">
-                    <label>NIP Kepala Sekolah</label>
-                    <input type="text" name="nip_kepsek" value="{{ old('nip_kepsek', $program->nip_kepsek ?: $headmasterNip) }}" placeholder="NIP / -">
+                    <label>NIP / NIY Kepala Sekolah</label>
+                    <input type="text" name="nip_kepsek" value="{{ old('nip_kepsek', $program->nip_kepsek ?: $headmasterNip) }}" placeholder="141502002">
                 </div>
             </div>
 

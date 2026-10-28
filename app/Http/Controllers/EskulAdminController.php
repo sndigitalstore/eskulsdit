@@ -38,21 +38,21 @@ class EskulAdminController extends Controller
                 'sarana'      => '',
                 'sumber_dana' => '',
                 'kepsek_name' => Setting::get('headmaster_name', "Nur'asiah, S.Pd.I"),
-                'nip_kepsek'  => Setting::get('headmaster_nip', "-"),
+                'nip_kepsek'  => Setting::get('headmaster_nip', "141502002"),
             ]
         );
 
-        // Pre-populate data visi & misi default jika masih kosong
-        if (empty($program->visi)) {
+        // Pre-populate data visi & misi default jika masih kosong atau jika nip_kepsek belum terisi
+        if (empty($program->visi) || empty($program->nip_kepsek) || $program->nip_kepsek === '-') {
             $program->update([
-                'visi'        => "Menjadikan ekstrakurikuler {$eskul->name} sebagai sarana pembentukan karakter islami, sportivitas, kreativitas, dan pencapaian prestasi unggul peserta didik.",
-                'misi'        => "1. Menumbuhkan minat, bakat, dan potensi peserta didik dalam bidang {$eskul->name} secara bertahap dan terukur.\n2. Menanamkan nilai-nilai kedisiplinan, akhlakul karimah, kemandirian, dan kerja sama tim.\n3. Melaksanakan pelatihan rutin secara berkesinambungan dengan metode yang menyenangkan.\n4. Mempersiapkan peserta didik untuk berpartisipasi dan berprestasi dalam berbagai ajang lomba / unjuk bakat.",
-                'tujuan'      => "1. Menyalurkan dan mengembangkan potensi minat bakat siswa secara optimal.\n2. Meningkatkan keterampilan teknik dasar dan lanjutan dalam {$eskul->name}.\n3. Membangun kepercayaan diri, kebugaran jasmani, dan jiwa kepemimpinan peserta didik.",
-                'sasaran'     => "Peserta didik SDIT AN NADZIR yang terdaftar dalam ekstrakurikuler {$eskul->name} (Target: Minimal 85% siswa mencapai kompetensi tuntas berpredikat Baik).",
-                'sarana'      => "Area latihan sekolah, modul panduan materi eskul, peralatan penunjang, serta fasilitas pendukung lainnya.",
-                'sumber_dana' => "Bantuan Operasional Sekolah (BOS) / Anggaran Yayasan dan kas mandiri ekstrakurikuler.",
+                'visi'        => $program->visi ?: "Menjadikan ekstrakurikuler {$eskul->name} sebagai sarana pembentukan karakter islami, sportivitas, kreativitas, dan pencapaian prestasi unggul peserta didik.",
+                'misi'        => $program->misi ?: "1. Menumbuhkan minat, bakat, dan potensi peserta didik dalam bidang {$eskul->name} secara bertahap dan terukur.\n2. Menanamkan nilai-nilai kedisiplinan, akhlakul karimah, kemandirian, dan kerja sama tim.\n3. Melaksanakan pelatihan rutin secara berkesinambungan dengan metode yang menyenangkan.\n4. Mempersiapkan peserta didik untuk berpartisipasi dan berprestasi dalam berbagai ajang lomba / unjuk bakat.",
+                'tujuan'      => $program->tujuan ?: "1. Menyalurkan dan mengembangkan potensi minat bakat siswa secara optimal.\n2. Meningkatkan keterampilan teknik dasar dan lanjutan dalam {$eskul->name}.\n3. Membangun kepercayaan diri, kebugaran jasmani, dan jiwa kepemimpinan peserta didik.",
+                'sasaran'     => $program->sasaran ?: "Peserta didik SDIT AN NADZIR yang terdaftar dalam ekstrakurikuler {$eskul->name} (Target: Minimal 85% siswa mencapai kompetensi tuntas berpredikat Baik).",
+                'sarana'      => $program->sarana ?: "Area latihan sekolah, modul panduan materi eskul, peralatan penunjang, serta fasilitas pendukung lainnya.",
+                'sumber_dana' => $program->sumber_dana ?: "Bantuan Operasional Sekolah (BOS) / Anggaran Yayasan dan kas mandiri ekstrakurikuler.",
                 'kepsek_name' => Setting::get('headmaster_name', "Nur'asiah, S.Pd.I"),
-                'nip_kepsek'  => Setting::get('headmaster_nip', "-"),
+                'nip_kepsek'  => Setting::get('headmaster_nip', "141502002"),
             ]);
             $program->refresh();
         }
@@ -120,7 +120,7 @@ class EskulAdminController extends Controller
                 'sarana'      => "Area latihan sekolah, modul panduan materi eskul, peralatan penunjang, serta fasilitas pendukung lainnya.",
                 'sumber_dana' => "Bantuan Operasional Sekolah (BOS) / Anggaran Yayasan dan kas mandiri ekstrakurikuler.",
                 'kepsek_name' => Setting::get('headmaster_name', "Nur'asiah, S.Pd.I"),
-                'nip_kepsek'  => Setting::get('headmaster_nip', "-"),
+                'nip_kepsek'  => Setting::get('headmaster_nip', "141502002"),
             ]);
         }
 
@@ -406,7 +406,7 @@ class EskulAdminController extends Controller
             'npsn'           => Setting::get('npsn', '20616174'),
             'nns'            => Setting::get('nns', '101280432037'),
             'headmasterName' => Setting::get('headmaster_name', "Nur'asiah, S.Pd.I"),
-            'headmasterNip'  => Setting::get('headmaster_nip', "-"),
+            'headmasterNip'  => Setting::get('headmaster_nip', "141502002"),
         ];
     }
 

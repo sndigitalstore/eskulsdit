@@ -222,7 +222,7 @@
             <p class="title">Kepala Sekolah</p>
             <div class="space"></div>
             <p class="name">{{ $headmasterName ?? "Nur'asiah, S.Pd.I" }}</p>
-            <p style="font-size: 9.5pt; margin-top: 2px;">NIP: {{ $headmasterNip ?? '-' }}</p>
+            <p style="font-size: 9.5pt; margin-top: 2px;">NIY: {{ $headmasterNip ?? '141502002' }}</p>
         </div>
     </div>
 
