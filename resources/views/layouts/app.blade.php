@@ -485,15 +485,36 @@
         }
 
         @media print {
-            .sidebar, .header, .btn-print, .no-print,
+            html, body {
+                height: auto !important;
+                min-height: 100% !important;
+                overflow: visible !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .main-content {
+                display: block !important;
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .content {
+                padding: 0 !important;
+                margin: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+                animation: none !important;
+            }
+            .sidebar, .header, footer, .btn-print, .no-print,
             .custom-modal-backdrop,
             .modal-overlay,
             .modal-wa,
             .print-preview-modal-backdrop,
             div.modal { display: none !important; }
-            .card { box-shadow: none; border: none; padding: 0; }
-            .content { padding: 0; animation: none; }
-            tr:hover td { background: white; transform: none; }
+            .card { box-shadow: none !important; border: 1px solid #e2e8f0 !important; padding: 15px !important; }
+            tr:hover td { background: white !important; transform: none !important; }
         }
 
         /* Mobile Responsiveness */

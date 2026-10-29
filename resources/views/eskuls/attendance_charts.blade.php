@@ -503,33 +503,208 @@
     }
 
     /* Print Styles */
+    .print-only {
+        display: none;
+    }
+
     @media print {
-        body {
-            background: white !important;
-            padding: 0 !important;
+        @page {
+            size: A4 portrait;
+            margin: 10mm 10mm 12mm 10mm;
         }
-        .no-print, .charts-hero-actions, .mode-tabs-wrap, .filter-card, .sidebar, .main-header, .navbar {
+
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 10pt !important;
+        }
+
+        .no-print, 
+        .charts-hero, 
+        .charts-hero-actions, 
+        .mode-tabs-wrap, 
+        .filter-card, 
+        .sidebar, 
+        .header, 
+        .main-header, 
+        .navbar,
+        footer {
             display: none !important;
         }
+
+        .print-only {
+            display: block !important;
+        }
+
         .charts-page {
             max-width: 100% !important;
+            width: 100% !important;
             padding: 0 !important;
-            gap: 15px !important;
+            margin: 0 !important;
+            gap: 16px !important;
         }
-        .charts-hero {
-            background: #0f172a !important;
-            color: white !important;
-            padding: 16px 20px !important;
+
+        .print-doc-header {
+            text-align: center;
+            border-bottom: 2.5px solid #059669;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .print-doc-header h2 {
+            font-size: 13pt;
+            font-weight: 800;
+            color: #064e3b;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .print-doc-header p {
+            font-size: 9pt;
+            color: #334155;
+            margin: 0 0 3px 0;
+            line-height: 1.4;
+        }
+
+        .print-meta {
+            font-size: 7.8pt;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* KPI Cards in Print */
+        .kpi-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 10px !important;
+            margin-bottom: 14px !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .kpi-card {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 10px !important;
+            padding: 10px 12px !important;
+            gap: 6px !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        .chart-box, .table-card, .kpi-card {
+
+        .kpi-icon-box {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 1rem !important;
+        }
+
+        .kpi-main-val {
+            font-size: 1.5rem !important;
+        }
+
+        .kpi-sub-label {
+            font-size: 0.72rem !important;
+        }
+
+        /* Chart Boxes in Print */
+        .charts-row-main {
+            display: block !important;
+        }
+
+        .chart-box {
             box-shadow: none !important;
             border: 1px solid #cbd5e1 !important;
-            page-break-inside: avoid;
+            border-radius: 12px !important;
+            padding: 14px 16px !important;
+            margin-bottom: 16px !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
         }
-        .charts-row-main {
-            grid-template-columns: 1fr !important;
+
+        .chart-canvas-wrap {
+            height: 250px !important;
+            max-height: 250px !important;
+            width: 100% !important;
+        }
+
+        .doughnut-dual-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 20px !important;
+        }
+
+        /* Table in Print */
+        .table-card {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            overflow: visible !important;
+            margin-top: 14px !important;
+        }
+
+        .recap-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+
+        .recap-table thead {
+            display: table-header-group !important;
+        }
+
+        .recap-table th {
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+            border: 1px solid #cbd5e1 !important;
+            font-size: 7.5pt !important;
+            padding: 8px 6px !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .recap-table td {
+            border: 1px solid #e2e8f0 !important;
+            font-size: 7.8pt !important;
+            padding: 7px 6px !important;
+        }
+
+        .recap-table tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        /* Print Signatures Block */
+        .print-signatures {
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-top: 25px !important;
+            padding: 0 40px !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .sig-col {
+            text-align: center;
+            width: 250px;
+        }
+
+        .sig-col p {
+            margin: 0;
+            font-size: 9pt;
+            color: #1e293b;
+        }
+
+        .sig-space {
+            height: 60px;
+        }
+
+        .sig-name {
+            font-weight: 800;
+            text-decoration: underline;
         }
     }
 
@@ -550,7 +725,30 @@
 @section('content')
 <div class="charts-page">
 
-    {{-- 1. HERO BANNER --}}
+    {{-- PRINT ONLY: KOP SURAT RESMI & HEADER DOKUMEN --}}
+    <div class="print-only">
+        @include('partials.official_kop')
+
+        <div class="print-doc-header">
+            <h2>LAPORAN REKAPITULASI & GRAFIK PRESENSI EKSTRAKURIKULER</h2>
+            <p>
+                Tahun Ajaran: <strong>{{ $contextYear ? $contextYear->name : '-' }}</strong> &bull;
+                Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : 'Seluruh Ekstrakurikuler (' . $eskuls->count() . ' Cabang)' }}</strong>
+                @if($periodMode === 'date')
+                    &bull; Periode: {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') }} s.d. {{ \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y') }}
+                @elseif($periodMode === 'month')
+                    &bull; Periode: {{ \Carbon\Carbon::parse($selectedMonth . '-01')->translatedFormat('F Y') }}
+                @elseif($periodMode === 'semester')
+                    &bull; Semester: {{ $selectedSemester === '1' ? '1 (Ganjil)' : ($selectedSemester === '2' ? '2 (Genap)' : 'Semua Semester') }}
+                @elseif($periodMode === 'year')
+                    &bull; Rekap Multi-Tahun Ajaran
+                @endif
+            </p>
+            <div class="print-meta">Dicetak pada: {{ now()->translatedFormat('d F Y, H:i') }} WIB &bull; SIMUTQIN SDIT AN NADZIR</div>
+        </div>
+    </div>
+
+    {{-- 1. HERO BANNER (LAYAR MONITOR) --}}
     <div class="charts-hero">
         <div class="charts-hero-left">
             <div class="charts-hero-icon">
@@ -986,6 +1184,27 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    {{-- Tanda Tangan Resmi Hanya Saat Cetak Dokumen --}}
+    @php
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : 'Nur\'asiah, S.Pd.I');
+    @endphp
+    <div class="print-signatures print-only">
+        <div class="sig-col">
+            <p>Cinangka, {{ now()->translatedFormat('d F Y') }}</p>
+            <p class="sig-title" style="margin-top: 3px;">Koordinator Ekstrakurikuler,</p>
+            <div class="sig-space"></div>
+            <p class="sig-name">Najibudin, S.Pd</p>
+        </div>
+        <div class="sig-col">
+            <p>&nbsp;</p>
+            <p class="sig-title" style="margin-top: 3px;">Mengetahui,<br><b>Kepala SDIT AN NADZIR</b></p>
+            <div class="sig-space"></div>
+            <p class="sig-name">{{ $headmasterName }}</p>
         </div>
     </div>
 
