@@ -18,23 +18,128 @@ class AchievementController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Maybe list all achievements or generally accessed via student
-        // For now, let's just allow creating from student page.
-        // But if we want a global list:
-        $achievements = Achievement::with('student')->latest()->paginate(20);
-        return view('achievements.index', compact('achievements'));
+        $query = Achievement::with(['student', 'academicYear']);
+
+        // 1. Filter Tanggal Spesifik
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->date);
+        } else {
+            // 2. Filter Bulan & Tahun
+            if ($request->filled('month')) {
+                if (str_contains($request->month, '-')) {
+                    [$mYear, $mMonth] = explode('-', $request->month);
+                    $query->whereYear('date', $mYear)->whereMonth('date', $mMonth);
+                } else {
+                    $query->whereMonth('date', $request->month);
+                }
+            }
+
+            if ($request->filled('year')) {
+                $query->whereYear('date', $request->year);
+            }
+        }
+
+        // 3. Filter Tingkat Prestasi
+        if ($request->filled('level') && $request->level !== 'all') {
+            $query->where('level', $request->level);
+        }
+
+        // 4. Filter Pencarian Keyword (Nama Siswa, Nama Prestasi, Penyelenggara)
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('organizer', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('student', function ($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%")
+                         ->orWhere('class', 'like', "%{$search}%")
+                         ->orWhere('nisn', 'like', "%{$search}%")
+                         ->orWhere('nis', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $achievements = $query->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(20)->withQueryString();
+
+        // Data list tahun untuk dropdown
+        $availableYears = Achievement::selectRaw('YEAR(date) as yr')
+            ->whereNotNull('date')
+            ->distinct()
+            ->orderBy('yr', 'desc')
+            ->pluck('yr')
+            ->filter()
+            ->values()
+            ->all();
+
+        $currentYear = (int) date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            array_unshift($availableYears, $currentYear);
+            rsort($availableYears);
+        }
+
+        $totalAll = Achievement::count();
+        $isFiltered = $request->filled('date') || $request->filled('month') || $request->filled('year') || ($request->filled('level') && $request->level !== 'all') || $request->filled('search');
+
+        return view('achievements.index', compact('achievements', 'availableYears', 'totalAll', 'isFiltered'));
     }
 
-    public function print()
+    public function print(Request $request)
     {
-        // Fetch all achievements (or maybe filtered by year if needed later)
-        // For now, print all latest
-        $achievements = Achievement::with('student')->orderBy('date', 'desc')->get();
-        return view('achievements.print', compact('achievements'));
-    }
+        $query = Achievement::with(['student', 'academicYear']);
 
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->date);
+        } else {
+            if ($request->filled('month')) {
+                if (str_contains($request->month, '-')) {
+                    [$mYear, $mMonth] = explode('-', $request->month);
+                    $query->whereYear('date', $mYear)->whereMonth('date', $mMonth);
+                } else {
+                    $query->whereMonth('date', $request->month);
+                }
+            }
+
+            if ($request->filled('year')) {
+                $query->whereYear('date', $request->year);
+            }
+        }
+
+        if ($request->filled('level') && $request->level !== 'all') {
+            $query->where('level', $request->level);
+        }
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('organizer', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('student', function ($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%")
+                         ->orWhere('class', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $achievements = $query->orderBy('date', 'desc')->orderBy('id', 'desc')->get();
+
+        $filterDescription = null;
+        if ($request->filled('date')) {
+            $filterDescription = 'Tanggal: ' . \Carbon\Carbon::parse($request->date)->translatedFormat('d F Y');
+        } elseif ($request->filled('month')) {
+            $monthNum = (int) (str_contains($request->month, '-') ? explode('-', $request->month)[1] : $request->month);
+            $monthName = \Carbon\Carbon::create(null, $monthNum, 1)->translatedFormat('F');
+            $yearStr = $request->filled('year') ? $request->year : (str_contains($request->month, '-') ? explode('-', $request->month)[0] : date('Y'));
+            $filterDescription = "Bulan {$monthName} {$yearStr}";
+        } elseif ($request->filled('year')) {
+            $filterDescription = "Tahun {$request->year}";
+        }
+
+        return view('achievements.print', compact('achievements', 'filterDescription'));
+    }
     public function create(Request $request)
     {
         $student_id = $request->query('student_id');

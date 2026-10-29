@@ -444,6 +444,217 @@
             gap: 6px;
         }
     }
+    /* ===== FILTER CARD ===== */
+    .achievements-filter-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 18px 22px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        border: 1px solid #eef2f7;
+    }
+
+    .filter-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 14px;
+    }
+
+    .quick-pills-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .filter-label-tag {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 4px;
+    }
+
+    .quick-pill {
+        padding: 6px 13px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    .quick-pill:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
+
+    .quick-pill.active {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: #ffffff;
+        border-color: #047857;
+        box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+    }
+
+    .filter-active-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .active-badge {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #047857;
+        background: #ecfdf5;
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: 1px solid #a7f3d0;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-reset-filter {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #b91c1c;
+        background: #fef2f2;
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: 1px solid #fecaca;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-reset-filter:hover {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .filter-controls-grid {
+        display: grid;
+        grid-template-columns: 190px 180px 140px 170px 1fr;
+        gap: 12px;
+        align-items: flex-end;
+    }
+
+    .filter-field-col {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-col-label {
+        font-size: 0.76rem;
+        font-weight: 800;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .filter-ctrl {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: #1e293b;
+        background: #f8fafc;
+        min-height: 40px;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .filter-ctrl:focus {
+        border-color: #059669;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    }
+
+    .search-input-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .btn-filter-go {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 0.84rem;
+        font-weight: 700;
+        cursor: pointer;
+        min-height: 40px;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .btn-filter-go:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+    }
+
+    @media (max-width: 1180px) {
+        .filter-controls-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .search-col {
+            grid-column: span 3;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .achievements-filter-card {
+            padding: 14px;
+            border-radius: 14px;
+        }
+        .filter-top-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .filter-controls-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .search-col {
+            grid-column: span 1;
+        }
+    }
 </style>
 @endpush
 
@@ -458,12 +669,18 @@
             </div>
             <div class="achievements-header-text">
                 <h2>Data Prestasi Siswa</h2>
-                <p>Total <strong>{{ $achievements->total() }}</strong> prestasi kejuaraan & penghargaan tercatat.</p>
+                <p>
+                    @if($isFiltered)
+                        Menampilkan <strong>{{ $achievements->total() }}</strong> dari <strong>{{ $totalAll }}</strong> total prestasi tercatat (Filter Aktif).
+                    @else
+                        Total <strong>{{ $achievements->total() }}</strong> prestasi kejuaraan & penghargaan tercatat.
+                    @endif
+                </p>
             </div>
         </div>
 
         <div class="achievements-header-actions">
-            <a href="{{ route('achievements.print') }}" target="_blank" class="btn-act btn-act-dark" title="Cetak Rekap Laporan">
+            <a href="{{ route('achievements.print', request()->query()) }}" target="_blank" class="btn-act btn-act-dark" title="Cetak Rekap Laporan Sesuai Filter">
                 <i class="fas fa-print"></i> <span>Cetak</span>
             </a>
             @if(Auth::user()->role == 'admin')
@@ -477,13 +694,157 @@
         </div>
     </div>
 
-    {{-- 2. Data Card (Table on Desktop, Cards on Mobile) --}}
+    {{-- 2. Filter Bar (Filter Tanggal, Bulan, Tahun, Tingkat, & Pencarian) --}}
+    <div class="achievements-filter-card">
+        <form method="GET" action="{{ route('achievements.index') }}" id="achievementFilterForm">
+            
+            {{-- Baris Atas: Quick Filter Pills & Indikator Status Filter --}}
+            <div class="filter-top-bar">
+                <div class="quick-pills-wrap">
+                    <span class="filter-label-tag"><i class="fas fa-sliders-h"></i> Filter Cepat:</span>
+                    
+                    {{-- Pill Semua --}}
+                    <a href="{{ route('achievements.index') }}" 
+                       class="quick-pill {{ !$isFiltered ? 'active' : '' }}">
+                        <i class="fas fa-layer-group"></i> Semua ({{ $totalAll }})
+                    </a>
+
+                    {{-- Pill Hari Ini --}}
+                    <a href="{{ route('achievements.index', ['date' => now()->toDateString()]) }}" 
+                       class="quick-pill {{ request('date') === now()->toDateString() ? 'active' : '' }}">
+                        <i class="fas fa-calendar-day"></i> Hari Ini
+                    </a>
+
+                    {{-- Pill Bulan Ini --}}
+                    <a href="{{ route('achievements.index', ['month' => now()->format('m'), 'year' => now()->format('Y')]) }}" 
+                       class="quick-pill {{ (request('month') == now()->format('m') && request('year') == now()->format('Y') && !request('date')) ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i> Bulan Ini ({{ now()->translatedFormat('F Y') }})
+                    </a>
+                </div>
+
+                @if($isFiltered)
+                <div class="filter-active-indicator">
+                    <span class="active-badge">
+                        <i class="fas fa-filter"></i> Ditemukan <strong>{{ $achievements->total() }}</strong> Data
+                    </span>
+                    <a href="{{ route('achievements.index') }}" class="btn-reset-filter" title="Hapus semua filter">
+                        <i class="fas fa-times-circle"></i> Reset Filter
+                    </a>
+                </div>
+                @endif
+            </div>
+
+            {{-- Baris Bawah: Form Kontrol (Tanggal, Bulan, Tahun, Tingkat, Pencarian) --}}
+            <div class="filter-controls-grid">
+                
+                {{-- 1. Filter Tanggal Spesifik --}}
+                <div class="filter-field-col">
+                    <label class="filter-col-label">
+                        <i class="far fa-calendar-alt" style="color: #f59e0b;"></i> Tanggal
+                    </label>
+                    <input type="date" name="date" id="filterDateInput" value="{{ request('date') }}" 
+                           class="filter-ctrl" onchange="handleDateFilterChange(this)" title="Pilih tanggal tertentu">
+                </div>
+
+                {{-- 2. Filter Bulan --}}
+                <div class="filter-field-col">
+                    <label class="filter-col-label">
+                        <i class="fas fa-calendar-week" style="color: #059669;"></i> Bulan
+                    </label>
+                    <select name="month" id="filterMonthSelect" class="filter-ctrl" onchange="handleMonthYearChange()">
+                        <option value="">-- Semua Bulan --</option>
+                        @foreach([
+                            '01' => '01 - Januari',
+                            '02' => '02 - Februari',
+                            '03' => '03 - Maret',
+                            '04' => '04 - April',
+                            '05' => '05 - Mei',
+                            '06' => '06 - Juni',
+                            '07' => '07 - Juli',
+                            '08' => '08 - Agustus',
+                            '09' => '09 - September',
+                            '10' => '10 - Oktober',
+                            '11' => '11 - November',
+                            '12' => '12 - Desember'
+                        ] as $mNum => $mName)
+                            <option value="{{ $mNum }}" {{ (request('month') == $mNum || request('month') == (int)$mNum) ? 'selected' : '' }}>
+                                {{ $mName }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- 3. Filter Tahun --}}
+                <div class="filter-field-col">
+                    <label class="filter-col-label">
+                        <i class="fas fa-calendar" style="color: #0284c7;"></i> Tahun
+                    </label>
+                    <select name="year" id="filterYearSelect" class="filter-ctrl" onchange="handleMonthYearChange()">
+                        <option value="">-- Semua Tahun --</option>
+                        @foreach($availableYears as $yr)
+                            <option value="{{ $yr }}" {{ request('year') == $yr ? 'selected' : '' }}>
+                                {{ $yr }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- 4. Filter Tingkat Prestasi --}}
+                <div class="filter-field-col">
+                    <label class="filter-col-label">
+                        <i class="fas fa-award" style="color: #8b5cf6;"></i> Tingkat
+                    </label>
+                    <select name="level" class="filter-ctrl" onchange="this.form.submit()">
+                        <option value="">-- Semua Tingkat --</option>
+                        @foreach(['Sekolah', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Nasional', 'Internasional', 'Open Tournament'] as $lvl)
+                            <option value="{{ $lvl }}" {{ request('level') == $lvl ? 'selected' : '' }}>
+                                {{ $lvl }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- 5. Pencarian Keyword Siswa / Prestasi / Penyelenggara --}}
+                <div class="filter-field-col search-col">
+                    <label class="filter-col-label">
+                        <i class="fas fa-search" style="color: #475569;"></i> Cari Siswa / Prestasi
+                    </label>
+                    <div class="search-input-group">
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                               placeholder="Cari nama siswa, prestasi, penyelenggara..." 
+                               class="filter-ctrl">
+                        <button type="submit" class="btn-filter-go" title="Terapkan Filter">
+                            <i class="fas fa-filter"></i> <span>Filter</span>
+                        </button>
+                        @if($isFiltered)
+                        <a href="{{ route('achievements.index') }}" class="btn-reset-filter" style="height: 40px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;" title="Reset Filter">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    {{-- 3. Data Card (Table on Desktop, Cards on Mobile) --}}
     <div class="table-card">
         @if($achievements->isEmpty())
             <div style="text-align: center; padding: 48px 20px; color: #94a3b8;">
-                <i class="fas fa-trophy" style="font-size: 3rem; margin-bottom: 12px; color: #e2e8f0;"></i>
-                <h4 style="font-size: 1rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Belum Ada Data Prestasi</h4>
-                <p style="font-size: 0.84rem; color: #94a3b8;">Belum ada catatan kejuaraan atau prestasi siswa dalam sistem.</p>
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 12px; color: #cbd5e1;"></i>
+                @if($isFiltered)
+                    <h4 style="font-size: 1.05rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Tidak Ada Prestasi Sesuai Filter</h4>
+                    <p style="font-size: 0.84rem; color: #64748b; margin-bottom: 16px;">
+                        Tidak ditemukan data prestasi pada kriteria filter tanggal atau bulan yang dipilih.
+                    </p>
+                    <a href="{{ route('achievements.index') }}" class="btn-act btn-act-blue" style="font-size: 0.82rem; padding: 8px 18px; display: inline-flex;">
+                        <i class="fas fa-undo"></i> <span>Tampilkan Semua Prestasi</span>
+                    </a>
+                @else
+                    <h4 style="font-size: 1rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Belum Ada Data Prestasi</h4>
+                    <p style="font-size: 0.84rem; color: #94a3b8;">Belum ada catatan kejuaraan atau prestasi siswa dalam sistem.</p>
+                @endif
             </div>
         @else
             {{-- A. Desktop Table View (>= 769px) --}}
@@ -664,3 +1025,36 @@
 
 </div>
 @endsection
+@push('scripts')
+<script>
+    // Handler saat input tanggal diubah: reset bulan & tahun agar filter spesifik ke tanggal tersebut
+    function handleDateFilterChange(input) {
+        if (input.value) {
+            const monthSelect = document.getElementById('filterMonthSelect');
+            if (monthSelect) monthSelect.value = '';
+        }
+        document.getElementById('achievementFilterForm').submit();
+    }
+
+    // Handler saat dropdown bulan atau tahun diubah: reset input tanggal spesifik
+    function handleMonthYearChange() {
+        const dateInput = document.getElementById('filterDateInput');
+        if (dateInput) dateInput.value = '';
+
+        // Jika bulan dipilih tapi tahun belum dipilih, set tahun ke tahun saat ini
+        const monthSelect = document.getElementById('filterMonthSelect');
+        const yearSelect = document.getElementById('filterYearSelect');
+        if (monthSelect && monthSelect.value && yearSelect && !yearSelect.value) {
+            const curYr = new Date().getFullYear();
+            for (let i = 0; i < yearSelect.options.length; i++) {
+                if (yearSelect.options[i].value == curYr) {
+                    yearSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        document.getElementById('achievementFilterForm').submit();
+    }
+</script>
+@endpush

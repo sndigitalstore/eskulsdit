@@ -131,7 +131,11 @@
         <div style="display: inline-block; width: 100%;"> <!-- Wrap text to center distinct from logo -->
             <div style="font-size: 11pt; font-weight: bold; color: #047857; text-transform: uppercase; letter-spacing: 1px;">AN NADZIR ISLAMIC SCHOOL</div>
             <h1>Laporan Prestasi Siswa</h1>
-            <p>SDIT AN NADZIR - Tahun Ajaran {{ $activeYear ? $activeYear->name : '...' }}</p>
+            @if(!empty($filterDescription))
+                <p>SDIT AN NADZIR &bull; <strong>{{ $filterDescription }}</strong></p>
+            @else
+                <p>SDIT AN NADZIR - Tahun Ajaran {{ $activeYear ? $activeYear->name : '...' }}</p>
+            @endif
             <div style="font-size: 10pt; margin-top: 5px; color: #888;">Dicetak pada: {{ now()->translatedFormat('d F Y') }}</div>
         </div>
     </div>
@@ -148,7 +152,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($achievements as $index => $item)
+            @forelse($achievements as $index => $item)
             @php
                 $levelClass = 'level-sekolah';
                 if(str_contains(strtolower($item->level), 'kecamatan')) $levelClass = 'level-kecamatan';
@@ -173,7 +177,13 @@
                 </td>
                 <td>{{ $item->organizer ?? '-' }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" align="center" style="padding: 24px; color: #64748b; font-style: italic;">
+                    Tidak ada data prestasi yang tercatat pada filter / periode ini.
+                </td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
