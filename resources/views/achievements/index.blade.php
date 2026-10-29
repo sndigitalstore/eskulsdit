@@ -553,29 +553,64 @@
 
     .filter-controls-grid {
         display: grid;
-        grid-template-columns: 140px minmax(240px, 1.4fr) 145px 125px 140px 1.2fr;
+        grid-template-columns: minmax(250px, 1.35fr) minmax(140px, 0.9fr) minmax(125px, 0.8fr) minmax(140px, 0.9fr) minmax(240px, 1.4fr);
         gap: 12px;
         align-items: flex-end;
     }
 
+    /* Unified dual date range component */
     .date-range-flex {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         width: 100%;
+        background: #f8fafc;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 2px 8px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        min-height: 40px;
+    }
+
+    .date-range-flex:focus-within {
+        border-color: #059669;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
     }
 
     .date-ctrl {
         flex: 1;
         min-width: 0;
-        padding: 8px 8px;
+        border: none !important;
+        background: transparent !important;
+        padding: 6px 2px !important;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #1e293b;
+        outline: none !important;
+        box-shadow: none !important;
+        min-height: auto !important;
+    }
+
+    /* Webkit date picker cleanup */
+    .date-ctrl::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.65;
+        padding: 0;
+        margin: 0;
+    }
+    .date-ctrl::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
     }
 
     .range-sep {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #64748b;
+        font-size: 0.74rem;
+        font-weight: 800;
+        color: #94a3b8;
         white-space: nowrap;
+        user-select: none;
+        padding: 0 2px;
     }
 
     .filter-field-col {
@@ -648,12 +683,49 @@
         filter: brightness(1.05);
     }
 
-    @media (max-width: 1180px) {
+    .search-ctrl {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .btn-reset-icon {
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.82rem;
+        transition: all 0.2s;
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
+
+    .btn-reset-icon:hover {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    @media (max-width: 1250px) {
         .filter-controls-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: minmax(250px, 1.3fr) repeat(3, 1fr);
         }
         .search-col {
-            grid-column: span 3;
+            grid-column: span 4;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .filter-controls-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .date-range-col, .search-col {
+            grid-column: span 2;
         }
     }
 
@@ -717,6 +789,10 @@
     {{-- 2. Filter Bar (Filter Tanggal, Bulan, Tahun, Tingkat, & Pencarian) --}}
     <div class="achievements-filter-card">
         <form method="GET" action="{{ route('achievements.index') }}" id="achievementFilterForm">
+            {{-- Hidden Category diposisikan langsung di bawah form (di luar CSS Grid) --}}
+            @if(request('category'))
+            <input type="hidden" name="category" value="{{ request('category') }}">
+            @endif
             
             {{-- Baris Atas: Quick Filter Pills & Indikator Status Filter --}}
             <div class="filter-top-bar">
@@ -731,8 +807,9 @@
 
                     {{-- Pill Prestasi Sekolah / Juara Umum --}}
                     <a href="{{ route('achievements.index', ['category' => 'school']) }}" 
-                       class="quick-pill {{ request('category') === 'school' ? 'active' : '' }}" style="{{ request('category') === 'school' ? 'background: #f59e0b; border-color: #d97706; color: white;' : '' }}">
-                        <i class="fas fa-trophy" style="{{ request('category') === 'school' ? 'color: white;' : 'color: #f59e0b;' }}"></i> Sekolah / Juara Umum ({{ $totalSchool }})
+                       class="quick-pill {{ request('category') === 'school' ? 'active' : '' }}" 
+                       style="{{ request('category') === 'school' ? 'background: #f59e0b; border-color: #d97706; color: white;' : '' }}">
+                        <i class="fas fa-trophy" style="{{ request('category') === 'school' ? 'color: white;' : 'color: #f59e0b;' }}"></i> Juara Umum / Sekolah ({{ $totalSchool }})
                     </a>
 
                     {{-- Pill Tgl 1 - 30 (Bulan Ini) --}}
@@ -745,7 +822,7 @@
                        class="quick-pill {{ $isActiveTgl130 ? 'active' : '' }}" 
                        title="Filter data tanggal 1 s.d. 30 bulan ini"
                        style="{{ $isActiveTgl130 ? 'background: #059669; border-color: #047857; color: white;' : '' }}">
-                        <i class="far fa-calendar-check" style="{{ $isActiveTgl130 ? 'color: white;' : 'color: #059669;' }}"></i> Tgl 1 - 30 (Bulan Ini)
+                        <i class="far fa-calendar-check" style="{{ $isActiveTgl130 ? 'color: white;' : 'color: #059669;' }}"></i> Tgl 1 - 30
                     </a>
 
                     {{-- Pill Hari Ini --}}
@@ -756,15 +833,15 @@
 
                     {{-- Pill Bulan Ini --}}
                     <a href="{{ route('achievements.index', ['month' => now()->format('m'), 'year' => now()->format('Y')]) }}" 
-                       class="quick-pill {{ (request('month') == now()->format('m') && request('year') == now()->format('Y') && !request('date')) ? 'active' : '' }}">
-                        <i class="fas fa-calendar-alt"></i> Bulan Ini ({{ now()->translatedFormat('F Y') }})
+                       class="quick-pill {{ (request('month') == now()->format('m') && request('year') == now()->format('Y') && !request('date') && !request('start_date')) ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i> Bulan Ini
                     </a>
                 </div>
 
                 @if($isFiltered)
                 <div class="filter-active-indicator">
                     <span class="active-badge">
-                        <i class="fas fa-filter"></i> Ditemukan <strong>{{ $achievements->total() }}</strong> Data
+                        <i class="fas fa-check-circle"></i> Ditemukan <strong>{{ $achievements->total() }}</strong> Data
                     </span>
                     <a href="{{ route('achievements.index') }}" class="btn-reset-filter" title="Hapus semua filter">
                         <i class="fas fa-times-circle"></i> Reset Filter
@@ -773,27 +850,22 @@
                 @endif
             </div>
 
-            {{-- Baris Bawah: Form Kontrol (Tanggal, Bulan, Tahun, Tingkat, Pencarian) --}}
+            {{-- Baris Bawah: Form Kontrol (5 Kolom Bersih) --}}
             <div class="filter-controls-grid">
-                
-                {{-- Hidden Category jika aktif --}}
-                @if(request('category'))
-                <input type="hidden" name="category" value="{{ request('category') }}">
-                @endif
 
                 {{-- 1. Filter Rentang Tanggal (Dari & Sampai, misal Tgl 1 - 30) --}}
                 <div class="filter-field-col date-range-col">
                     <label class="filter-col-label">
-                        <i class="far fa-calendar-alt" style="color: #f59e0b;"></i> Rentang Tanggal (1 - 30)
+                        <i class="far fa-calendar-alt" style="color: #f59e0b;"></i> Rentang Tanggal
                     </label>
                     <div class="date-range-flex">
                         <input type="date" name="start_date" id="filterStartDate" 
                                value="{{ request('start_date', request('date')) }}" 
-                               class="filter-ctrl date-ctrl" title="Dari Tanggal (Contoh: Tgl 1)" placeholder="Dari">
+                               class="date-ctrl" title="Dari Tanggal (Contoh: Tgl 1)">
                         <span class="range-sep">s/d</span>
                         <input type="date" name="end_date" id="filterEndDate" 
                                value="{{ request('end_date', request('date')) }}" 
-                               class="filter-ctrl date-ctrl" title="Sampai Tanggal (Contoh: Tgl 30)" placeholder="Sampai">
+                               class="date-ctrl" title="Sampai Tanggal (Contoh: Tgl 30)">
                     </div>
                 </div>
 
@@ -803,7 +875,7 @@
                         <i class="fas fa-calendar-week" style="color: #059669;"></i> Bulan
                     </label>
                     <select name="month" id="filterMonthSelect" class="filter-ctrl" onchange="handleMonthYearChange()">
-                        <option value="">-- Semua Bulan --</option>
+                        <option value="">Semua Bulan</option>
                         @foreach([
                             '01' => '01 - Januari',
                             '02' => '02 - Februari',
@@ -831,7 +903,7 @@
                         <i class="fas fa-calendar" style="color: #0284c7;"></i> Tahun
                     </label>
                     <select name="year" id="filterYearSelect" class="filter-ctrl" onchange="handleMonthYearChange()">
-                        <option value="">-- Semua Tahun --</option>
+                        <option value="">Semua Tahun</option>
                         @foreach($availableYears as $yr)
                             <option value="{{ $yr }}" {{ request('year') == $yr ? 'selected' : '' }}>
                                 {{ $yr }}
@@ -846,7 +918,7 @@
                         <i class="fas fa-award" style="color: #8b5cf6;"></i> Tingkat
                     </label>
                     <select name="level" class="filter-ctrl" onchange="this.form.submit()">
-                        <option value="">-- Semua Tingkat --</option>
+                        <option value="">Semua Tingkat</option>
                         @foreach(['Sekolah', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Nasional', 'Internasional', 'Open Tournament'] as $lvl)
                             <option value="{{ $lvl }}" {{ request('level') == $lvl ? 'selected' : '' }}>
                                 {{ $lvl }}
@@ -863,12 +935,12 @@
                     <div class="search-input-group">
                         <input type="text" name="search" value="{{ request('search') }}" 
                                placeholder="Cari nama siswa, prestasi, penyelenggara..." 
-                               class="filter-ctrl">
+                               class="filter-ctrl search-ctrl">
                         <button type="submit" class="btn-filter-go" title="Terapkan Filter">
                             <i class="fas fa-filter"></i> <span>Filter</span>
                         </button>
                         @if($isFiltered)
-                        <a href="{{ route('achievements.index') }}" class="btn-reset-filter" style="height: 40px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;" title="Reset Filter">
+                        <a href="{{ route('achievements.index') }}" class="btn-reset-icon" title="Reset Filter">
                             <i class="fas fa-undo"></i>
                         </a>
                         @endif
@@ -903,13 +975,13 @@
                 <table class="achievements-table">
                     <thead>
                         <tr>
-                            <th>Tanggal</th>
-                            <th>Siswa / Lembaga</th>
-                            <th>Nama Prestasi</th>
-                            <th>Tingkat</th>
-                            <th>Periode</th>
-                            <th>Penyelenggara</th>
-                            <th style="text-align: center;">Aksi</th>
+                            <th width="12%">Tanggal</th>
+                            <th width="20%">Siswa / Lembaga</th>
+                            <th width="24%">Nama Prestasi</th>
+                            <th width="13%">Tingkat</th>
+                            <th width="12%">Periode</th>
+                            <th width="12%">Penyelenggara</th>
+                            <th width="7%" style="text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -930,8 +1002,10 @@
                                         <i class="fas fa-trophy" style="color: #f59e0b;"></i> {{ $achievement->school_name ?: 'SDIT AN NADZIR' }}
                                     </span>
                                 </div>
-                                <div style="font-size: 0.76rem; font-weight: 700; color: #b45309; margin-top: 2px;">
-                                    <span style="background: #fef3c7; padding: 2px 7px; border-radius: 5px;">Prestasi Sekolah / Lembaga</span>
+                                <div style="margin-top: 3px;">
+                                    <span style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; display: inline-block; white-space: nowrap;">
+                                        Prestasi Sekolah / Lembaga
+                                    </span>
                                 </div>
                                 @else
                                 <div>
