@@ -297,8 +297,9 @@ class MentoringGroupController extends Controller
             $selectedStudentId = $request->input('selected_student_id');
 
             $activeGroup->load(['students' => function($q) {
-                $q->orderBy('class')->orderBy('name');
+                $q->orderBy('name', 'asc');
             }]);
+            $activeGroup->setRelation('students', $activeGroup->students->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values());
 
             // Pastikan kolom dan tabel tahfidz siap dan jalankan sinkronisasi otomatis data sesi lampau
             \App\Http\Controllers\TahfidzAttendanceController::ensureTableExists();
@@ -324,12 +325,14 @@ class MentoringGroupController extends Controller
                 ->get()
                 ->keyBy('student_id');
 
-            // Data sesi pada tanggal ini untuk generate teks laporan WhatsApp
+            // Data sesi pada tanggal ini untuk generate teks laporan WhatsApp (diurutkan abjad A-Z)
             $sessionAttendanceList = TahfidzAttendance::whereIn('student_id', $studentIds)
                 ->where('mentoring_group_id', $activeGroup->id)
                 ->where('session_date', $sessionDate)
                 ->with('student')
-                ->get();
+                ->get()
+                ->sortBy(fn($a) => $a->student?->name ?? '', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values();
 
             // WhatsApp Message Generator
             $whatsappMessage = \App\Http\Controllers\TahfidzAttendanceController::generateWhatsappMessage(

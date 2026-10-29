@@ -1774,7 +1774,8 @@
 
     {{-- 3. KOTAK INFORMASI STATISTIK HIJAU (INFORMATIF & SIMPEL) --}}
     @php
-        $totalSiswa = $activeGroup->students->count();
+        $activeStudents = $activeGroup->students->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        $totalSiswa = $activeStudents->count();
         $kehadiranHariIni = $sessionAttendances->where('status', 'hadir')->count();
         $sudahSetorHariIni = $sessionAttendances->where('status', 'hadir')->filter(fn($a) => !empty($a->capaian))->count();
         $totalBaris = (int) ($totalGroupLines ?? 0);
@@ -1940,7 +1941,7 @@
                     <button type="button" class="clear-search-btn" id="clearSearchBtn" onclick="clearStudentSearchInput()" style="display: none;">&times;</button>
                 </div>
                 <div class="dropdown-options-list" id="studentDropdownOptionsList">
-                    @foreach($activeGroup->students as $idx => $std)
+                    @foreach($activeStudents as $idx => $std)
                         @php
                             $existingAtt = $sessionAttendances->get($std->id);
                             $hasSetor = $existingAtt && !empty($existingAtt->capaian);
@@ -2002,7 +2003,7 @@
         </div>
 
         {{-- FORM WORKSPACE PER SISWA (HANYA MUNCUL SATU PER SATU SAAT DIPILIH) --}}
-        @foreach($activeGroup->students as $idx => $std)
+        @foreach($activeStudents as $idx => $std)
             @php
                 $existingAtt = $sessionAttendances->get($std->id);
                 $currentStatus = $existingAtt ? $existingAtt->status : 'hadir';
@@ -2351,7 +2352,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($activeGroup->students as $idx => $std)
+                @forelse($activeStudents as $idx => $std)
                     @php
                         $existingAtt = $sessionAttendances->get($std->id);
                         $hasSetor = $existingAtt && !empty($existingAtt->capaian);
@@ -2430,7 +2431,7 @@
 </div>
 
 {{-- 9. STICKY BOTTOM BAR --}}
-@if($activeGroup->students->isNotEmpty())
+@if($activeStudents->isNotEmpty())
     <div class="sticky-bottom-bar">
         <div class="sticky-content">
             <div class="sticky-info-text">

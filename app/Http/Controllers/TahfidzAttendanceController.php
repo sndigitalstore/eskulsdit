@@ -670,12 +670,14 @@ class TahfidzAttendanceController extends Controller
                 ->where('academic_year_id', $yearId)
                 ->sum('jumlah_baris');
 
-            // Generate ulang teks laporan WA terbaru
+            // Generate ulang teks laporan WA terbaru (diurutkan abjad A-Z)
             $sessionAttendanceList = TahfidzAttendance::whereIn('student_id', $studentIds)
                 ->where('mentoring_group_id', $group->id)
                 ->where('session_date', $date)
                 ->with('student')
-                ->get();
+                ->get()
+                ->sortBy(fn($a) => $a->student?->name ?? '', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values();
             $whatsappMessage = self::generateWhatsappMessage($group, $date, $sessionAttendanceList);
 
             $savedAtt = $sessionAttendances->firstWhere('student_id', $studentId);
@@ -773,7 +775,7 @@ class TahfidzAttendanceController extends Controller
             ->where('session_date', $date)
             ->with('student')
             ->get()
-            ->sortBy(fn($r) => ($r->student?->class ?? '') . ($r->student?->name ?? ''))
+            ->sortBy(fn($r) => $r->student?->name ?? '', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
         $yearId          = $records->first()?->academic_year_id;
@@ -876,7 +878,7 @@ class TahfidzAttendanceController extends Controller
             ->where('session_date', $date)
             ->with('student')
             ->get()
-            ->sortBy(fn($r) => ($r->student?->class ?? '') . ($r->student?->name ?? ''))
+            ->sortBy(fn($r) => $r->student?->name ?? '', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
         $yearId   = $records->first()?->academic_year_id;
