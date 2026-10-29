@@ -553,9 +553,29 @@
 
     .filter-controls-grid {
         display: grid;
-        grid-template-columns: 160px 160px 160px 130px 150px 1fr;
+        grid-template-columns: 140px minmax(240px, 1.4fr) 145px 125px 140px 1.2fr;
         gap: 12px;
         align-items: flex-end;
+    }
+
+    .date-range-flex {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        width: 100%;
+    }
+
+    .date-ctrl {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 8px;
+    }
+
+    .range-sep {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+        white-space: nowrap;
     }
 
     .filter-field-col {
@@ -705,8 +725,27 @@
                     
                     {{-- Pill Semua --}}
                     <a href="{{ route('achievements.index') }}" 
-                       class="quick-pill {{ !$isFiltered ? 'active' : '' }}">
+                       class="quick-pill {{ (!$isFiltered && !request('category')) ? 'active' : '' }}">
                         <i class="fas fa-layer-group"></i> Semua ({{ $totalAll }})
+                    </a>
+
+                    {{-- Pill Prestasi Sekolah / Juara Umum --}}
+                    <a href="{{ route('achievements.index', ['category' => 'school']) }}" 
+                       class="quick-pill {{ request('category') === 'school' ? 'active' : '' }}" style="{{ request('category') === 'school' ? 'background: #f59e0b; border-color: #d97706; color: white;' : '' }}">
+                        <i class="fas fa-trophy" style="{{ request('category') === 'school' ? 'color: white;' : 'color: #f59e0b;' }}"></i> Sekolah / Juara Umum ({{ $totalSchool }})
+                    </a>
+
+                    {{-- Pill Tgl 1 - 30 (Bulan Ini) --}}
+                    @php
+                        $presetStart30 = now()->format('Y-m-01');
+                        $presetEnd30 = now()->format('Y-m-') . min(30, (int)now()->endOfMonth()->format('d'));
+                        $isActiveTgl130 = request('start_date') === $presetStart30 && request('end_date') === $presetEnd30;
+                    @endphp
+                    <a href="{{ route('achievements.index', array_merge(request()->query(), ['start_date' => $presetStart30, 'end_date' => $presetEnd30, 'month' => '', 'year' => '', 'date' => ''])) }}" 
+                       class="quick-pill {{ $isActiveTgl130 ? 'active' : '' }}" 
+                       title="Filter data tanggal 1 s.d. 30 bulan ini"
+                       style="{{ $isActiveTgl130 ? 'background: #059669; border-color: #047857; color: white;' : '' }}">
+                        <i class="far fa-calendar-check" style="{{ $isActiveTgl130 ? 'color: white;' : 'color: #059669;' }}"></i> Tgl 1 - 30 (Bulan Ini)
                     </a>
 
                     {{-- Pill Hari Ini --}}
@@ -737,13 +776,25 @@
             {{-- Baris Bawah: Form Kontrol (Tanggal, Bulan, Tahun, Tingkat, Pencarian) --}}
             <div class="filter-controls-grid">
                 
-                {{-- 1. Filter Tanggal Spesifik --}}
-                <div class="filter-field-col">
+                {{-- Hidden Category jika aktif --}}
+                @if(request('category'))
+                <input type="hidden" name="category" value="{{ request('category') }}">
+                @endif
+
+                {{-- 1. Filter Rentang Tanggal (Dari & Sampai, misal Tgl 1 - 30) --}}
+                <div class="filter-field-col date-range-col">
                     <label class="filter-col-label">
-                        <i class="far fa-calendar-alt" style="color: #f59e0b;"></i> Tanggal
+                        <i class="far fa-calendar-alt" style="color: #f59e0b;"></i> Rentang Tanggal (1 - 30)
                     </label>
-                    <input type="date" name="date" id="filterDateInput" value="{{ request('date') }}" 
-                           class="filter-ctrl" onchange="handleDateFilterChange(this)" title="Pilih tanggal tertentu">
+                    <div class="date-range-flex">
+                        <input type="date" name="start_date" id="filterStartDate" 
+                               value="{{ request('start_date', request('date')) }}" 
+                               class="filter-ctrl date-ctrl" title="Dari Tanggal (Contoh: Tgl 1)" placeholder="Dari">
+                        <span class="range-sep">s/d</span>
+                        <input type="date" name="end_date" id="filterEndDate" 
+                               value="{{ request('end_date', request('date')) }}" 
+                               class="filter-ctrl date-ctrl" title="Sampai Tanggal (Contoh: Tgl 30)" placeholder="Sampai">
+                    </div>
                 </div>
 
                 {{-- 2. Filter Bulan --}}
@@ -873,6 +924,16 @@
                                 </div>
                             </td>
                             <td>
+                                @if($achievement->category === 'school' || empty($achievement->student_id))
+                                <div>
+                                    <span style="font-weight: 800; color: #047857; display: inline-flex; align-items: center; gap: 5px;">
+                                        <i class="fas fa-trophy" style="color: #f59e0b;"></i> {{ $achievement->school_name ?: 'SDIT AN NADZIR' }}
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.76rem; font-weight: 700; color: #b45309; margin-top: 2px;">
+                                    <span style="background: #fef3c7; padding: 2px 7px; border-radius: 5px;">Prestasi Sekolah / Lembaga</span>
+                                </div>
+                                @else
                                 <div>
                                     <a href="{{ route('students.show', $achievement->student_id) }}" class="student-link">
                                         {{ $achievement->student->name ?? 'Siswa Dihapus' }}
@@ -881,6 +942,7 @@
                                 <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
                                     Kelas {{ $achievement->student->class ?? '-' }}
                                 </div>
+                                @endif
                             </td>
                             <td>
                                 <div style="font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
@@ -966,6 +1028,17 @@
                     {{-- Student & Metadata Details Box --}}
                     <div class="m-ach-details">
                         <div class="m-ach-student-row">
+                            @if($achievement->category === 'school' || empty($achievement->student_id))
+                            <div class="m-student-name-box">
+                                <i class="fas fa-trophy" style="color: #f59e0b;"></i>
+                                <span style="font-weight: 800; color: #047857;">
+                                    {{ $achievement->school_name ?: 'SDIT AN NADZIR' }}
+                                </span>
+                            </div>
+                            <span class="m-student-class-badge" style="background: #fef3c7; color: #b45309;">
+                                Prestasi Sekolah
+                            </span>
+                            @else
                             <div class="m-student-name-box">
                                 <i class="fas fa-user-graduate" style="color: #0284c7;"></i>
                                 <a href="{{ route('students.show', $achievement->student_id) }}" class="student-link">
@@ -975,6 +1048,7 @@
                             <span class="m-student-class-badge">
                                 Kelas {{ $achievement->student->class ?? '-' }}
                             </span>
+                            @endif
                         </div>
 
                         <div class="m-ach-meta-row">
@@ -1027,19 +1101,12 @@
 @endsection
 @push('scripts')
 <script>
-    // Handler saat input tanggal diubah: reset bulan & tahun agar filter spesifik ke tanggal tersebut
-    function handleDateFilterChange(input) {
-        if (input.value) {
-            const monthSelect = document.getElementById('filterMonthSelect');
-            if (monthSelect) monthSelect.value = '';
-        }
-        document.getElementById('achievementFilterForm').submit();
-    }
-
-    // Handler saat dropdown bulan atau tahun diubah: reset input tanggal spesifik
+    // Handler saat dropdown bulan atau tahun diubah: reset rentang tanggal
     function handleMonthYearChange() {
-        const dateInput = document.getElementById('filterDateInput');
-        if (dateInput) dateInput.value = '';
+        const startDate = document.getElementById('filterStartDate');
+        const endDate = document.getElementById('filterEndDate');
+        if (startDate) startDate.value = '';
+        if (endDate) endDate.value = '';
 
         // Jika bulan dipilih tapi tahun belum dipilih, set tahun ke tahun saat ini
         const monthSelect = document.getElementById('filterMonthSelect');

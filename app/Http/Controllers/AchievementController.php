@@ -71,8 +71,14 @@ class AchievementController extends Controller
             }
         }
 
-        // 2. Filter Tanggal Spesifik
-        if ($request->filled('date')) {
+        // 2. Filter Rentang Tanggal (Start Date & End Date, misal Tgl 1 - 30) atau Tanggal Tunggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('date', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('date', '<=', $request->end_date);
+        } elseif ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         } else {
             // 3. Filter Bulan & Tahun
@@ -135,6 +141,8 @@ class AchievementController extends Controller
         $totalStudent = Achievement::where('category', 'student')->whereNotNull('student_id')->count();
 
         $isFiltered = $request->filled('date') 
+            || $request->filled('start_date') 
+            || $request->filled('end_date') 
             || $request->filled('month') 
             || $request->filled('year') 
             || ($request->filled('level') && $request->level !== 'all') 
@@ -162,7 +170,13 @@ class AchievementController extends Controller
             }
         }
 
-        if ($request->filled('date')) {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('date', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('date', '<=', $request->end_date);
+        } elseif ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         } else {
             if ($request->filled('month')) {
@@ -200,7 +214,19 @@ class AchievementController extends Controller
         $achievements = $query->orderBy('date', 'desc')->orderBy('id', 'desc')->get();
 
         $filterDescription = null;
-        if ($request->filled('date')) {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            if ($request->start_date === $request->end_date) {
+                $filterDescription = 'Tanggal: ' . \Carbon\Carbon::parse($request->start_date)->translatedFormat('d F Y');
+            } else {
+                $sDate = \Carbon\Carbon::parse($request->start_date)->translatedFormat('d M Y');
+                $eDate = \Carbon\Carbon::parse($request->end_date)->translatedFormat('d M Y');
+                $filterDescription = "Periode: {$sDate} s.d. {$eDate}";
+            }
+        } elseif ($request->filled('start_date')) {
+            $filterDescription = "Mulai Tanggal: " . \Carbon\Carbon::parse($request->start_date)->translatedFormat('d F Y');
+        } elseif ($request->filled('end_date')) {
+            $filterDescription = "Sampai Tanggal: " . \Carbon\Carbon::parse($request->end_date)->translatedFormat('d F Y');
+        } elseif ($request->filled('date')) {
             $filterDescription = 'Tanggal: ' . \Carbon\Carbon::parse($request->date)->translatedFormat('d F Y');
         } elseif ($request->filled('month')) {
             $monthNum = (int) (str_contains($request->month, '-') ? explode('-', $request->month)[1] : $request->month);
