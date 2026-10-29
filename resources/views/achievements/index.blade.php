@@ -553,7 +553,7 @@
 
     .filter-controls-grid {
         display: grid;
-        grid-template-columns: 190px 180px 140px 170px 1fr;
+        grid-template-columns: 160px 160px 160px 130px 150px 1fr;
         gap: 12px;
         align-items: flex-end;
     }
@@ -853,7 +853,7 @@
                     <thead>
                         <tr>
                             <th>Tanggal</th>
-                            <th>Siswa</th>
+                            <th>Siswa / Lembaga</th>
                             <th>Nama Prestasi</th>
                             <th>Tingkat</th>
                             <th>Periode</th>

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Achievement extends Model
 {
     protected $fillable = [
+        'category',
+        'school_name',
         'student_id',
         'academic_year_id',
         'semester',
@@ -29,6 +31,10 @@ class Achievement extends Model
                     $achievement->semester = $activeYear->active_semester;
                 }
             }
+
+            if (empty($achievement->category)) {
+                $achievement->category = !empty($achievement->student_id) ? 'student' : 'school';
+            }
         });
     }
 
@@ -40,5 +46,18 @@ class Achievement extends Model
     public function academicYear()
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function isSchool(): bool
+    {
+        return $this->category === 'school' || empty($this->student_id);
+    }
+
+    public function getRecipientNameAttribute(): string
+    {
+        if ($this->isSchool()) {
+            return $this->school_name ?: 'SDIT An Nadzir';
+        }
+        return $this->student?->name ?: 'Siswa';
     }
 }

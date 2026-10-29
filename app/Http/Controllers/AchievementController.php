@@ -4,10 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\Achievement;
 use App\Models\Student;
+use App\Models\AcademicYear;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class AchievementController extends Controller
 {
+    protected static bool $schemaChecked = false;
+
+    /**
+     * Self-healing: Memastikan kolom category dan school_name tersedia serta student_id nullable
+     */
+    public static function ensureTableSchema(): void
+    {
+        if (self::$schemaChecked) {
+            return;
+        }
+        self::$schemaChecked = true;
+
+        try {
+            if (!Schema::hasColumn('achievements', 'category')) {
+                Schema::table('achievements', function ($table) {
+                    $table->string('category', 20)->default('student')->after('id');
+                });
+            }
+            if (!Schema::hasColumn('achievements', 'school_name')) {
+                Schema::table('achievements', function ($table) {
+                    $table->string('school_name')->nullable()->after('student_id');
+                });
+            }
+
+            // Memastikan student_id nullable agar prestasi sekolah (Juara Umum, dll) bisa diinput tanpa siswa
+            DB::statement("ALTER TABLE achievements MODIFY student_id BIGINT UNSIGNED NULL");
+        } catch (\Exception $e) {
+            // Silently handled if already modified
+        }
+    }
+
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -20,13 +54,28 @@ class AchievementController extends Controller
 
     public function index(Request $request)
     {
+        self::ensureTableSchema();
+
         $query = Achievement::with(['student', 'academicYear']);
 
-        // 1. Filter Tanggal Spesifik
+        // 1. Filter Kategori (Semua, Prestasi Siswa, Prestasi Sekolah)
+        if ($request->filled('category') && $request->category !== 'all') {
+            if ($request->category === 'school') {
+                $query->where(function($q) {
+                    $q->where('category', 'school')->orWhereNull('student_id');
+                });
+            } elseif ($request->category === 'student') {
+                $query->where(function($q) {
+                    $q->where('category', 'student')->whereNotNull('student_id');
+                });
+            }
+        }
+
+        // 2. Filter Tanggal Spesifik
         if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         } else {
-            // 2. Filter Bulan & Tahun
+            // 3. Filter Bulan & Tahun
             if ($request->filled('month')) {
                 if (str_contains($request->month, '-')) {
                     [$mYear, $mMonth] = explode('-', $request->month);
@@ -41,18 +90,19 @@ class AchievementController extends Controller
             }
         }
 
-        // 3. Filter Tingkat Prestasi
+        // 4. Filter Tingkat Prestasi
         if ($request->filled('level') && $request->level !== 'all') {
             $query->where('level', $request->level);
         }
 
-        // 4. Filter Pencarian Keyword (Nama Siswa, Nama Prestasi, Penyelenggara)
+        // 5. Filter Pencarian Keyword (Nama Siswa, Nama Prestasi, Penyelenggara, Nama Sekolah)
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('organizer', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('school_name', 'like', "%{$search}%")
                   ->orWhereHas('student', function ($sq) use ($search) {
                       $sq->where('name', 'like', "%{$search}%")
                          ->orWhere('class', 'like', "%{$search}%")
@@ -81,14 +131,36 @@ class AchievementController extends Controller
         }
 
         $totalAll = Achievement::count();
-        $isFiltered = $request->filled('date') || $request->filled('month') || $request->filled('year') || ($request->filled('level') && $request->level !== 'all') || $request->filled('search');
+        $totalSchool = Achievement::where('category', 'school')->orWhereNull('student_id')->count();
+        $totalStudent = Achievement::where('category', 'student')->whereNotNull('student_id')->count();
 
-        return view('achievements.index', compact('achievements', 'availableYears', 'totalAll', 'isFiltered'));
+        $isFiltered = $request->filled('date') 
+            || $request->filled('month') 
+            || $request->filled('year') 
+            || ($request->filled('level') && $request->level !== 'all') 
+            || ($request->filled('category') && $request->category !== 'all')
+            || $request->filled('search');
+
+        return view('achievements.index', compact('achievements', 'availableYears', 'totalAll', 'totalSchool', 'totalStudent', 'isFiltered'));
     }
 
     public function print(Request $request)
     {
+        self::ensureTableSchema();
+
         $query = Achievement::with(['student', 'academicYear']);
+
+        if ($request->filled('category') && $request->category !== 'all') {
+            if ($request->category === 'school') {
+                $query->where(function($q) {
+                    $q->where('category', 'school')->orWhereNull('student_id');
+                });
+            } elseif ($request->category === 'student') {
+                $query->where(function($q) {
+                    $q->where('category', 'student')->whereNotNull('student_id');
+                });
+            }
+        }
 
         if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
@@ -117,6 +189,7 @@ class AchievementController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('organizer', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('school_name', 'like', "%{$search}%")
                   ->orWhereHas('student', function ($sq) use ($search) {
                       $sq->where('name', 'like', "%{$search}%")
                          ->orWhere('class', 'like', "%{$search}%");
@@ -138,56 +211,95 @@ class AchievementController extends Controller
             $filterDescription = "Tahun {$request->year}";
         }
 
+        if ($request->category === 'school') {
+            $filterDescription = ($filterDescription ? $filterDescription . ' &bull; ' : '') . 'Kategori: Prestasi Sekolah/Lembaga';
+        } elseif ($request->category === 'student') {
+            $filterDescription = ($filterDescription ? $filterDescription . ' &bull; ' : '') . 'Kategori: Prestasi Siswa';
+        }
+
         return view('achievements.print', compact('achievements', 'filterDescription'));
     }
+
     public function create(Request $request)
     {
+        self::ensureTableSchema();
+
         $student_id = $request->query('student_id');
+        $category = $request->query('category', 'student');
         $student = null;
         $students = [];
 
         if ($student_id) {
             $student = Student::find($student_id);
         } else {
-            // If no student selected, we need list for dropdown
-            // Optimization: Maybe limit or use ajax search if too many. 
-            // For now, let's just get active students.
             $students = Student::activeYear()->active()->orderBy('name')->get();
         }
 
-        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
-        $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $academicYears = AcademicYear::orderBy('name', 'desc')->get();
 
-        return view('achievements.create', compact('student', 'students', 'activeYear', 'academicYears'));
+        return view('achievements.create', compact('student', 'students', 'activeYear', 'academicYears', 'category'));
     }
 
     public function store(Request $request)
     {
+        self::ensureTableSchema();
+
+        $category = $request->input('category', 'student');
+
+        if ($category === 'school') {
+            $request->validate([
+                'academic_year_id' => 'required|exists:academic_years,id',
+                'semester'         => 'required|in:1,2',
+                'name'             => 'required|string|max:255',
+                'level'            => 'required|string|max:255',
+                'date'             => 'required|date',
+                'school_name'      => 'nullable|string|max:255',
+                'organizer'        => 'nullable|string|max:255',
+                'description'      => 'nullable|string',
+            ]);
+
+            $data = $request->all();
+            $data['student_id'] = null;
+            $data['category'] = 'school';
+            $data['school_name'] = trim($request->input('school_name')) ?: 'SDIT An Nadzir';
+
+            $achievement = Achievement::create($data);
+
+            \App\Models\ActivityLog::log('Achievements', 'Create', "Menambahkan prestasi sekolah: {$achievement->name}");
+
+            return redirect()->route('achievements.index')
+                ->with('success', "Alhamdulillah, Prestasi Sekolah/Lembaga '{$achievement->name}' berhasil disimpan!");
+        }
+
+        // Kategori Prestasi Siswa
         $request->validate([
-            'student_id' => 'required|exists:students,id',
+            'student_id'       => 'required|exists:students,id',
             'academic_year_id' => 'required|exists:academic_years,id',
-            'semester' => 'required|in:1,2',
-            'name' => 'required|string|max:255',
-            'level' => 'required|string|max:255',
-            'date' => 'required|date',
-            'organizer' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
+            'semester'         => 'required|in:1,2',
+            'name'             => 'required|string|max:255',
+            'level'            => 'required|string|max:255',
+            'date'             => 'required|date',
+            'organizer'        => 'nullable|string|max:255',
+            'description'      => 'nullable|string',
         ]);
 
-        $achievement = Achievement::create($request->all());
+        $data = $request->all();
+        $data['category'] = 'student';
 
-        \App\Models\ActivityLog::log('Achievements', 'Create', "Menambahkan prestasi: {$achievement->name} untuk siswa ID: {$achievement->student_id}");
+        $achievement = Achievement::create($data);
+
+        \App\Models\ActivityLog::log('Achievements', 'Create', "Menambahkan prestasi siswa: {$achievement->name} untuk siswa ID: {$achievement->student_id}");
 
         if ($request->input('action') === 'finish') {
             if ($request->has('from_student') && $request->from_student) {
                 return redirect()->route('students.show', $request->student_id)
-                    ->with('success', 'Prestasi berhasil ditambahkan!');
+                    ->with('success', 'Prestasi siswa berhasil ditambahkan!');
             }
             return redirect()->route('achievements.index')
-                ->with('success', 'Prestasi berhasil ditambahkan!');
+                ->with('success', 'Prestasi siswa berhasil ditambahkan!');
         }
 
-        // Tetap di halaman input data prestasi untuk memudahkan penginputan berlanjut
         if ($request->has('from_student') && $request->from_student) {
             return redirect()->route('achievements.create', ['student_id' => $request->student_id, 'from_student' => 1])
                 ->with('success', 'Prestasi berhasil ditambahkan! Silakan input data prestasi berikutnya.');
@@ -199,43 +311,86 @@ class AchievementController extends Controller
 
     public function edit(Achievement $achievement)
     {
-        $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
+        self::ensureTableSchema();
+
+        $academicYears = AcademicYear::orderBy('name', 'desc')->get();
         return view('achievements.edit', compact('achievement', 'academicYears'));
     }
 
     public function update(Request $request, Achievement $achievement)
     {
+        self::ensureTableSchema();
+
+        $category = $request->input('category', $achievement->category ?: 'student');
+
+        if ($category === 'school') {
+            $request->validate([
+                'academic_year_id' => 'required|exists:academic_years,id',
+                'semester'         => 'required|in:1,2',
+                'name'             => 'required|string|max:255',
+                'level'            => 'required|string|max:255',
+                'date'             => 'required|date',
+                'school_name'      => 'nullable|string|max:255',
+                'organizer'        => 'nullable|string|max:255',
+                'description'      => 'nullable|string',
+            ]);
+
+            $data = $request->all();
+            $data['student_id'] = null;
+            $data['category'] = 'school';
+            $data['school_name'] = trim($request->input('school_name')) ?: 'SDIT An Nadzir';
+
+            $achievement->update($data);
+
+            \App\Models\ActivityLog::log('Achievements', 'Update', "Memperbarui prestasi sekolah: {$achievement->name}");
+
+            return redirect()->route('achievements.index')
+                ->with('success', 'Prestasi Sekolah berhasil diperbarui!');
+        }
+
         $request->validate([
+            'student_id'       => 'nullable|exists:students,id',
             'academic_year_id' => 'required|exists:academic_years,id',
-            'semester' => 'required|in:1,2',
-            'name' => 'required|string|max:255',
-            'level' => 'required|string|max:255',
-            'date' => 'required|date',
-            'organizer' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
+            'semester'         => 'required|in:1,2',
+            'name'             => 'required|string|max:255',
+            'level'            => 'required|string|max:255',
+            'date'             => 'required|date',
+            'organizer'        => 'nullable|string|max:255',
+            'description'      => 'nullable|string',
         ]);
 
-        $achievement->update($request->all());
+        $data = $request->all();
+        $data['category'] = 'student';
+
+        $achievement->update($data);
 
         \App\Models\ActivityLog::log('Achievements', 'Update', "Memperbarui prestasi: {$achievement->name}");
 
-        return redirect()->route('students.show', $achievement->student_id)
+        if ($achievement->student_id) {
+            return redirect()->route('students.show', $achievement->student_id)
+                ->with('success', 'Prestasi berhasil diperbarui!');
+        }
+        return redirect()->route('achievements.index')
             ->with('success', 'Prestasi berhasil diperbarui!');
     }
 
     public function bulk()
     {
-        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
-        $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
+        self::ensureTableSchema();
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $academicYears = AcademicYear::orderBy('name', 'desc')->get();
         return view('achievements.bulk', compact('activeYear', 'academicYears'));
     }
 
     public function storeBulk(Request $request)
     {
+        self::ensureTableSchema();
+
         $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
-            'semester' => 'required|in:1,2',
-            'bulk_data' => 'required|string',
+            'semester'         => 'required|in:1,2',
+            'bulk_data'        => 'required|string',
         ]);
 
         $lines = explode("\n", str_replace("\r", "", $request->bulk_data));
@@ -243,24 +398,44 @@ class AchievementController extends Controller
         $activeYearId = $request->academic_year_id;
         $semester = $request->semester;
 
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         try {
             foreach ($lines as $line) {
                 if (empty(trim($line))) continue;
 
-                // Format sesuai Request: Nama Siswa [0] | Kelas [1] | Nama Prestasi [2] | Tingkat [3] | Tanggal [4] | Penyelenggara [5] | Keterangan [6]
+                // Format: Nama Siswa/Sekolah [0] | Kelas [1] | Nama Prestasi [2] | Tingkat [3] | Tanggal [4] | Penyelenggara [5] | Keterangan [6]
                 $cols = explode("\t", $line);
                 
                 if (count($cols) >= 3) {
                     $studentName = trim($cols[0]);
-                    $className = trim($cols[1]); // New field in index 1
+                    $className = trim($cols[1] ?? '');
                     $achievementName = trim($cols[2]);
                     $level = trim($cols[3] ?? 'Sekolah');
                     $date = isset($cols[4]) && !empty(trim($cols[4])) ? trim($cols[4]) : date('Y-m-d');
                     $organizer = isset($cols[5]) ? trim($cols[5]) : null;
                     $description = isset($cols[6]) ? trim($cols[6]) : null;
 
-                    // Mencocokkan Siswa dengan Nama DAN Kelas agar lebih akurat
+                    $lowerName = strtolower($studentName);
+
+                    // Deteksi jika ini adalah prestasi sekolah / juara umum lembaga
+                    if (in_array($lowerName, ['sekolah', 'sdit', 'sdit an nadzir', 'sdit annadzir', 'lembaga', 'kontingen', 'kontingen sdit an nadzir']) || str_contains($lowerName, 'juara umum sekolah')) {
+                        Achievement::create([
+                            'category'         => 'school',
+                            'school_name'      => 'SDIT An Nadzir',
+                            'student_id'       => null,
+                            'academic_year_id' => $activeYearId,
+                            'semester'         => $semester,
+                            'name'             => $achievementName,
+                            'level'            => $level,
+                            'date'             => \Carbon\Carbon::parse($date)->format('Y-m-d'),
+                            'organizer'        => $organizer,
+                            'description'      => $description,
+                        ]);
+                        $count++;
+                        continue;
+                    }
+
+                    // Mencocokkan Siswa dengan Nama DAN Kelas
                     $query = Student::activeYear()->where('name', 'like', "%{$studentName}%");
                     
                     if (!empty($className)) {
@@ -271,22 +446,23 @@ class AchievementController extends Controller
                     
                     if ($student) {
                         Achievement::create([
-                            'student_id' => $student->id,
+                            'category'         => 'student',
+                            'student_id'       => $student->id,
                             'academic_year_id' => $activeYearId,
-                            'semester' => $semester,
-                            'name' => $achievementName,
-                            'level' => $level,
-                            'date' => \Carbon\Carbon::parse($date)->format('Y-m-d'),
-                            'organizer' => $organizer,
-                            'description' => $description,
+                            'semester'         => $semester,
+                            'name'             => $achievementName,
+                            'level'            => $level,
+                            'date'             => \Carbon\Carbon::parse($date)->format('Y-m-d'),
+                            'organizer'        => $organizer,
+                            'description'      => $description,
                         ]);
                         $count++;
                     }
                 }
             }
-            \Illuminate\Support\Facades\DB::commit();
+            DB::commit();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
+            DB::rollBack();
             return back()->with('error', 'Gagal memproses data: ' . $e->getMessage())->withInput();
         }
 
@@ -298,7 +474,6 @@ class AchievementController extends Controller
     public function destroy(Achievement $achievement)
     {
         \App\Models\ActivityLog::log('Achievements', 'Delete', "Menghapus data prestasi: {$achievement->name}");
-        $student_id = $achievement->student_id;
         $achievement->delete();
         return back()->with('success', 'Prestasi berhasil dihapus!');
     }

@@ -145,7 +145,7 @@
             <tr>
                 <th width="5%">No</th>
                 <th width="15%">Tanggal</th>
-                <th width="20%">Nama Siswa</th>
+                <th width="20%">Nama Siswa / Lembaga</th>
                 <th width="25%">Nama Prestasi</th>
                 <th width="15%">Tingkat</th>
                 <th width="20%">Penyelenggara</th>

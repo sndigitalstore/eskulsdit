@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piagam Penghargaan Prestasi - {{ $achievement->student->name ?? 'Siswa' }}</title>
+    <title>Piagam Penghargaan Prestasi - {{ $achievement->isSchool() ? ($achievement->school_name ?: 'SDIT An Nadzir') : ($achievement->student->name ?? 'Siswa') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700&family=Pinyon+Script&display=swap" rel="stylesheet">
     <style>
         @page {
@@ -281,9 +281,13 @@
                 <!-- Body -->
                 <div>
                     <p class="given-to">Diberikan Sebagai Penghargaan Setinggi-tingginya Kepada:</p>
-                    <div class="student-name">{{ $achievement->student->name ?? 'Siswa' }}</div>
+                    <div class="student-name">{{ $achievement->isSchool() ? ($achievement->school_name ?: 'SDIT AN NADZIR') : ($achievement->student->name ?? 'Siswa') }}</div>
                     <div class="student-class-info">
-                        NIS: {{ $achievement->student->nis ?? '-' }} &nbsp;|&nbsp; KELAS: {{ $achievement->student->class ?? '-' }}
+                        @if($achievement->isSchool())
+                            LEMBAGA PENDIDIKAN ISLAM TERPADU AN NADZIR &nbsp;|&nbsp; KABUPATEN SERANG
+                        @else
+                            NIS: {{ $achievement->student->nis ?? '-' }} &nbsp;|&nbsp; KELAS: {{ $achievement->student->class ?? '-' }}
+                        @endif
                     </div>
 
                     <div class="achievement-highlight">
@@ -309,8 +313,13 @@
                     </div>
 
                     <div class="sig-box">
-                        <p class="sig-title">Cinangka, {{ \Carbon\Carbon::parse($achievement->date)->isoFormat('D MMMM Y') }}<br><b>Wali Kelas {{ $achievement->student->class ?? '' }}</b></p>
-                        <p class="sig-name">{{ $achievement->student->homeroom_teacher_name ?? 'Wali Kelas' }}</p>
+                        @if($achievement->isSchool())
+                            <p class="sig-title">Cinangka, {{ \Carbon\Carbon::parse($achievement->date)->isoFormat('D MMMM Y') }}<br><b>Koordinator Prestasi & Kesiswaan</b></p>
+                            <p class="sig-name">Najibudin, S.Pd</p>
+                        @else
+                            <p class="sig-title">Cinangka, {{ \Carbon\Carbon::parse($achievement->date)->isoFormat('D MMMM Y') }}<br><b>Wali Kelas {{ $achievement->student->class ?? '' }}</b></p>
+                            <p class="sig-name">{{ $achievement->student->homeroom_teacher_name ?? 'Wali Kelas' }}</p>
+                        @endif
                     </div>
                 </div>
 
