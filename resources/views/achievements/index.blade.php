@@ -935,9 +935,13 @@
                                 </div>
                                 @else
                                 <div>
+                                    @if(!empty($achievement->student_id))
                                     <a href="{{ route('students.show', $achievement->student_id) }}" class="student-link">
                                         {{ $achievement->student->name ?? 'Siswa Dihapus' }}
                                     </a>
+                                    @else
+                                    <span class="student-link">{{ $achievement->student->name ?? 'Siswa Dihapus' }}</span>
+                                    @endif
                                 </div>
                                 <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
                                     Kelas {{ $achievement->student->class ?? '-' }}
@@ -1041,9 +1045,13 @@
                             @else
                             <div class="m-student-name-box">
                                 <i class="fas fa-user-graduate" style="color: #0284c7;"></i>
+                                @if(!empty($achievement->student_id))
                                 <a href="{{ route('students.show', $achievement->student_id) }}" class="student-link">
                                     {{ $achievement->student->name ?? 'Siswa Dihapus' }}
                                 </a>
+                                @else
+                                <span>{{ $achievement->student->name ?? 'Siswa Dihapus' }}</span>
+                                @endif
                             </div>
                             <span class="m-student-class-badge">
                                 Kelas {{ $achievement->student->class ?? '-' }}

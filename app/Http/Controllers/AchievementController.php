@@ -318,7 +318,7 @@ class AchievementController extends Controller
         \App\Models\ActivityLog::log('Achievements', 'Create', "Menambahkan prestasi siswa: {$achievement->name} untuk siswa ID: {$achievement->student_id}");
 
         if ($request->input('action') === 'finish') {
-            if ($request->has('from_student') && $request->from_student) {
+            if ($request->has('from_student') && $request->from_student && !empty($request->student_id)) {
                 return redirect()->route('students.show', $request->student_id)
                     ->with('success', 'Prestasi siswa berhasil ditambahkan!');
             }
