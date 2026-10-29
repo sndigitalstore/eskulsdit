@@ -2037,7 +2037,7 @@
                         <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80;"></span>
                         <span>FORM INPUT SETORAN AKTIF &bull; NO. {{ $idx + 1 }}</span>
                     </div>
-                    <button type="button" class="btn-close-form" onclick="deselectStudent()" title="Tutup form dan kembali ke pencarian">
+                    <button type="button" class="btn-close-form" onclick="returnToStudentSearch()" title="Tutup form dan kembali ke pencarian">
                         <i class="fas fa-times"></i> <span>Ganti / Tutup Form</span>
                     </button>
                 </div>
@@ -2048,7 +2048,6 @@
                     <input type="hidden" name="session_date" value="{{ $sessionDate }}">
                     <input type="hidden" name="academic_year_id" value="{{ $activeGroup->academic_year_id ?? $activeYear?->id }}">
                     <input type="hidden" name="redirect_to" value="workspace">
-                    <input type="hidden" name="selected_student_id" value="{{ $std->id }}">
 
                     <div class="student-entry-card {{ $currentStatus !== 'hadir' ? 'is-absent' : '' }}" id="card-student-{{ $std->id }}" style="border: none; padding: 0; box-shadow: none; margin-bottom: 0;">
                         {{-- BARIS ATAS: IDENTITAS + QUICK ACTIONS --}}
@@ -2311,9 +2310,9 @@
                         <div id="save-feedback-{{ $std->id }}" class="save-feedback-badge" style="display: none;"></div>
                     </div>
 
-                    <button type="button" onclick="deselectStudent()" 
+                    <button type="button" onclick="returnToStudentSearch()"
                             style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 9px 16px; border-radius: 9px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                        <i class="fas fa-check"></i> Selesai / Ganti Santri &rarr;
+                        <i class="fas fa-arrow-left"></i> Ganti / Pilih Santri Lain &rarr;
                     </button>
                 </div>
 
@@ -2867,8 +2866,9 @@
         }
     }
 
-    // Menutup / Ganti Siswa
+    // Menutup / Reset Pilihan Siswa
     function deselectStudent() {
+        closeAllSurahPickers();
         currentSelectedStudentId = null;
 
         const placeholder = document.getElementById('emptySelectionPlaceholder');
@@ -2888,6 +2888,38 @@
 
         document.querySelectorAll('.dropdown-student-item').forEach(it => it.classList.remove('is-active'));
         document.querySelectorAll('.roster-table tr').forEach(r => r.classList.remove('is-selected-row'));
+    }
+
+    // Otomatis kembali ke bagian pencarian santri & siap input siswa berikutnya
+    function returnToStudentSearch() {
+        deselectStudent();
+
+        // Bersihkan teks pencarian agar seluruh daftar santri siap dipilih
+        const searchInput = document.getElementById('studentSearchField');
+        if (searchInput) {
+            searchInput.value = '';
+            handleStudentSearchInput('');
+        }
+
+        // Scroll halus ke area dropdown pencarian
+        const searchBox = document.getElementById('studentSearchDropdownWrap');
+        if (searchBox) {
+            const yOffset = -90;
+            const y = searchBox.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+        }
+
+        // Buka dropdown dan fokuskan ke input pencarian agar guru bisa langsung ketik / pilih siswa selanjutnya
+        setTimeout(() => {
+            const wrap = document.getElementById('studentSearchDropdownWrap');
+            if (wrap) {
+                wrap.classList.add('is-open');
+                const searchField = document.getElementById('studentSearchField');
+                if (searchField) {
+                    searchField.focus();
+                }
+            }
+        }, 220);
     }
 
     // Inisialisasi AJAX Form Submission untuk Setiap Form Anak
@@ -2921,11 +2953,7 @@
                 })
                 .then(data => {
                     if (submitBtn) {
-                        submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-check"></i> <span>Tersimpan!</span>';
-                        setTimeout(() => {
-                            submitBtn.innerHTML = origBtnHtml;
-                        }, 2200);
                     }
 
                     if (feedbackBadge) {
@@ -2944,12 +2972,21 @@
                             position: 'top-end',
                             icon: 'success',
                             title: data.student_name + ' Berhasil Disimpan!',
-                            text: 'Data hafalan & kehadiran langsung tersinkron.',
+                            text: 'Kembali ke pencarian santri berikutnya...',
                             showConfirmButton: false,
-                            timer: 2400,
+                            timer: 2000,
                             timerProgressBar: true
                         });
                     }
+
+                    // Otomatis kembali ke form pencarian santri berikutnya
+                    setTimeout(() => {
+                        returnToStudentSearch();
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = origBtnHtml;
+                        }
+                    }, 650);
                 })
                 .catch(err => {
                     console.error('AJAX Submit Error, fallbacking to POST:', err);
@@ -3111,7 +3148,16 @@
                     timer: 2200,
                     timerProgressBar: true
                 });
-            }
+                    }
+
+                    // Otomatis kembali ke form pencarian santri berikutnya
+                    setTimeout(() => {
+                        returnToStudentSearch();
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = origBtnHtml;
+                        }
+                    }, 650);
         };
 
         if (navigator.clipboard && window.isSecureContext) {
@@ -3186,327 +3232,7 @@
     }
 
     @if($openShare)
-    // ================================================================
-    // LOGIKA PENCARIAN & PEMILIH SANTRI SETORAN (INPUT SATU PER SATU)
-    // ================================================================
-    let currentSelectedStudentId = null;
-
-    function toggleStudentDropdown(e) {
-        if (e) e.stopPropagation();
-        const wrap = document.getElementById('studentSearchDropdownWrap');
-        if (!wrap) return;
-        const willOpen = !wrap.classList.contains('is-open');
-        wrap.classList.toggle('is-open', willOpen);
-        if (willOpen) {
-            const input = document.getElementById('studentSearchField');
-            if (input) {
-                setTimeout(() => input.focus(), 60);
-            }
-        }
-    }
-
-    function closeStudentDropdown() {
-        const wrap = document.getElementById('studentSearchDropdownWrap');
-        if (wrap) wrap.classList.remove('is-open');
-    }
-
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('#studentSearchDropdownWrap')) {
-            closeStudentDropdown();
-        }
-    });
-
-    function handleStudentSearchInput(query) {
-        const cleanQ = query.toLowerCase().trim();
-        const clearBtn = document.getElementById('clearSearchBtn');
-        if (clearBtn) {
-            clearBtn.style.display = cleanQ ? 'flex' : 'none';
-        }
-        applyDropdownFilters();
-    }
-
-    function clearStudentSearchInput() {
-        const input = document.getElementById('studentSearchField');
-        if (input) {
-            input.value = '';
-            handleStudentSearchInput('');
-            input.focus();
-        }
-    }
-
-    let currentFilterStatus = 'all';
-    function filterStudentDropdown(status) {
-        currentFilterStatus = status;
-        document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.getElementById('filter-pill-' + status);
-        if (activeBtn) activeBtn.classList.add('active');
-        applyDropdownFilters();
-    }
-
-    function applyDropdownFilters() {
-        const searchInput = document.getElementById('studentSearchField');
-        const cleanQ = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const items = document.querySelectorAll('.dropdown-student-item');
-        let visibleCount = 0;
-
-        items.forEach(item => {
-            const name = item.dataset.name || '';
-            const cls = item.dataset.class || '';
-            const status = item.dataset.status || '';
-
-            const matchSearch = !cleanQ || name.includes(cleanQ) || cls.includes(cleanQ);
-            let matchFilter = true;
-            if (currentFilterStatus === 'belum') {
-                matchFilter = (status === 'belum' || status === 'absen');
-            } else if (currentFilterStatus === 'sudah') {
-                matchFilter = (status === 'sudah');
-            }
-
-            if (matchSearch && matchFilter) {
-                item.style.display = 'flex';
-                visibleCount++;
-            } else {
-                item.style.display = 'none';
-            }
-        });
-
-        const emptyNotice = document.getElementById('dropdownEmptyNotice');
-        if (emptyNotice) {
-            emptyNotice.style.display = (visibleCount === 0) ? 'block' : 'none';
-        }
-    }
-
-    // Memilih siswa: Memunculkan form input khusus anak tersebut
-    function selectStudent(studentId) {
-        currentSelectedStudentId = studentId;
-
-        // Sembunyikan empty placeholder
-        const placeholder = document.getElementById('emptySelectionPlaceholder');
-        if (placeholder) placeholder.style.display = 'none';
-
-        // Sembunyikan form anak lain
-        document.querySelectorAll('.active-student-form-card').forEach(card => {
-            card.style.display = 'none';
-        });
-
-        // Munculkan kotak form anak yang dipilih
-        const targetWorkspace = document.getElementById('student-workspace-' + studentId);
-        if (targetWorkspace) {
-            targetWorkspace.style.display = 'block';
-        }
-
-        // Update tampilan trigger dropdown
-        const triggerArea = document.getElementById('triggerDisplayArea');
-        const dropdownItem = document.getElementById('dropdown-item-' + studentId);
-        const studentName = dropdownItem?.querySelector('.item-name')?.innerText || 'Santri';
-        const studentClass = dropdownItem?.querySelector('.item-meta')?.innerText || '';
-
-        if (triggerArea) {
-            triggerArea.innerHTML = `
-                <div class="trigger-selected-wrap">
-                    <span style="width: 28px; height: 28px; border-radius: 6px; background: #047857; color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800;">
-                        <i class="fas fa-user-check"></i>
-                    </span>
-                    <div>
-                        <div class="trigger-selected-name">${studentName}</div>
-                        <div style="font-size: 0.72rem; color: #047857; font-weight: 600;">${studentClass} &bull; Form Aktif</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Highlight di daftar dropdown
-        document.querySelectorAll('.dropdown-student-item').forEach(it => it.classList.remove('is-active'));
-        if (dropdownItem) dropdownItem.classList.add('is-active');
-
-        // Highlight di tabel roster
-        document.querySelectorAll('.roster-table tr').forEach(r => r.classList.remove('is-selected-row'));
-        const rosterRow = document.getElementById('roster-row-' + studentId);
-        if (rosterRow) rosterRow.classList.add('is-selected-row');
-
-        closeStudentDropdown();
-
-        // Scroll halus ke kotak form yang muncul
-        const formArea = document.getElementById('activeStudentFormArea');
-        if (formArea) {
-            const yOffset = -70;
-            const y = formArea.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-    }
-
-    // Menutup / Ganti Siswa
-    function deselectStudent() {
-        currentSelectedStudentId = null;
-
-        const placeholder = document.getElementById('emptySelectionPlaceholder');
-        if (placeholder) placeholder.style.display = 'block';
-
-        document.querySelectorAll('.active-student-form-card').forEach(card => {
-            card.style.display = 'none';
-        });
-
-        const triggerArea = document.getElementById('triggerDisplayArea');
-        if (triggerArea) {
-            triggerArea.innerHTML = `
-                <i class="fas fa-user-graduate" style="color: #059669; font-size: 1.15rem; flex-shrink: 0;"></i>
-                <span class="trigger-placeholder" id="triggerPlaceholderText">-- Klik di sini untuk Cari / Pilih Nama Siswa yang Setoran --</span>
-            `;
-        }
-
-        document.querySelectorAll('.dropdown-student-item').forEach(it => it.classList.remove('is-active'));
-        document.querySelectorAll('.roster-table tr').forEach(r => r.classList.remove('is-selected-row'));
-    }
-
-    // Inisialisasi AJAX Form Submission untuk Setiap Form Anak
-    function initSingleStudentForms() {
-        document.querySelectorAll('.single-student-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const studentId = form.dataset.studentId;
-                const submitBtn = document.getElementById('btn-save-' + studentId);
-                const feedbackBadge = document.getElementById('save-feedback-' + studentId);
-                const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
-
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Menyimpan...</span>';
-                }
-
-                const formData = new FormData(form);
-
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-check"></i> <span>Tersimpan!</span>';
-                        setTimeout(() => {
-                            submitBtn.innerHTML = origBtnHtml;
-                        }, 2200);
-                    }
-
-                    if (feedbackBadge) {
-                        const now = new Date();
-                        const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-                        feedbackBadge.className = 'save-feedback-badge success';
-                        feedbackBadge.style.display = 'inline-flex';
-                        feedbackBadge.innerHTML = `<i class="fas fa-check-circle"></i> Berhasil disimpan pukul ${timeStr}`;
-                    }
-
-                    handleSaveSuccessUi(studentId, data);
-
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: data.student_name + ' Berhasil Disimpan!',
-                            text: 'Data hafalan & kehadiran langsung tersinkron.',
-                            showConfirmButton: false,
-                            timer: 2400,
-                            timerProgressBar: true
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error('AJAX Submit Error, fallbacking to POST:', err);
-                    form.submit();
-                });
-            });
-        });
-    }
-
-    function handleSaveSuccessUi(studentId, data) {
-        if (data.kehadiran_count !== undefined) {
-            const el = document.querySelector('.kpi-green-grid .kpi-green-card:nth-child(2) .kpi-green-value');
-            if (el) el.innerHTML = `${data.kehadiran_count} <span class="kpi-green-unit">/ {{ $totalSiswa }} Hadir</span>`;
-        }
-        if (data.sudah_setor_count !== undefined) {
-            const el = document.querySelector('.kpi-green-grid .kpi-green-card:nth-child(3) .kpi-green-value');
-            if (el) el.innerHTML = `${data.sudah_setor_count} <span class="kpi-green-unit">Siswa</span>`;
-
-            const rSetor = document.getElementById('roster-stat-setor');
-            if (rSetor) rSetor.innerText = data.sudah_setor_count;
-            const rBelum = document.getElementById('roster-stat-belum');
-            if (rBelum) rBelum.innerText = Math.max(0, {{ $totalSiswa }} - data.sudah_setor_count);
-
-            const pSudah = document.getElementById('count-pill-sudah');
-            if (pSudah) pSudah.innerText = data.sudah_setor_count;
-            const pBelum = document.getElementById('count-pill-belum');
-            if (pBelum) pBelum.innerText = Math.max(0, {{ $totalSiswa }} - data.sudah_setor_count);
-
-            const stCount = document.getElementById('sticky-setor-count');
-            if (stCount) stCount.innerText = data.sudah_setor_count;
-        }
-        if (data.total_baris !== undefined) {
-            const el = document.querySelector('.kpi-green-grid .kpi-green-card:nth-child(4) .kpi-green-value');
-            if (el) el.innerHTML = `${data.total_baris.toLocaleString('id-ID')} <span class="kpi-green-unit">Baris</span>`;
-        }
-
-        const dropdownItem = document.getElementById('dropdown-item-' + studentId);
-        const dropdownStatus = document.getElementById('dropdown-status-' + studentId);
-        const hasSetor = data.status === 'hadir' && data.capaian;
-
-        if (dropdownItem) {
-            dropdownItem.dataset.status = hasSetor ? 'sudah' : (data.status !== 'hadir' ? 'absen' : 'belum');
-        }
-
-        if (dropdownStatus) {
-            if (hasSetor) {
-                dropdownStatus.innerHTML = `<span class="badge-status-sudah"><i class="fas fa-check-circle"></i> Sudah: ${data.capaian.substring(0, 18)}</span>`;
-            } else if (data.status !== 'hadir') {
-                dropdownStatus.innerHTML = `<span class="badge-status-absen">${data.status.toUpperCase()}</span>`;
-            } else {
-                dropdownStatus.innerHTML = `<span class="badge-status-belum"><i class="far fa-clock"></i> Belum Setor</span>`;
-            }
-        }
-
-        const rosterTd = document.getElementById('roster-status-td-' + studentId);
-        const rosterBtn = document.getElementById('roster-btn-' + studentId);
-
-        if (rosterTd) {
-            if (hasSetor) {
-                const nilaiPart = data.nilai ? ` (Nilai: ${data.nilai})` : '';
-                rosterTd.innerHTML = `<span class="badge-status-sudah"><i class="fas fa-check-circle"></i> ${data.capaian}${nilaiPart}</span>`;
-            } else if (data.status !== 'hadir') {
-                rosterTd.innerHTML = `<span class="badge-status-absen">${data.status.toUpperCase()}</span>`;
-            } else {
-                rosterTd.innerHTML = `<span class="badge-status-belum"><i class="far fa-clock"></i> Belum Setor</span>`;
-            }
-        }
-
-        if (rosterBtn) {
-            if (hasSetor) {
-                rosterBtn.className = 'btn-action-select is-edit';
-                rosterBtn.innerHTML = '<i class="fas fa-edit"></i> <span>Ubah</span>';
-            } else {
-                rosterBtn.className = 'btn-action-select';
-                rosterBtn.innerHTML = '<i class="fas fa-plus-circle"></i> <span>Input</span>';
-            }
-        }
-
-        if (data.whatsapp_message) {
-            const ta = document.getElementById('waMessageTextarea');
-            if (ta) ta.value = data.whatsapp_message;
-        }
-    }
-
         document.addEventListener('DOMContentLoaded', function() {
-        initSingleStudentForms();
-        @if(!empty($selectedStudentId))
-            selectStudent('{{ $selectedStudentId }}');
-        @endif
             openWaModal();
         });
     @endif

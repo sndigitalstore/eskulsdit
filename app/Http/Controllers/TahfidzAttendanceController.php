@@ -710,7 +710,6 @@ class TahfidzAttendanceController extends Controller
                 ->route('tahfidz-groups.index', [
                     'group_id'            => $group->id,
                     'date'                => $date,
-                    'selected_student_id' => $selectedStudentId,
                     'open_share'          => $openShare ? 1 : 0
                 ])
                 ->with('success', "Alhamdulillah, absensi & setoran {$studentName} berhasil disimpan dan tersinkron!");
