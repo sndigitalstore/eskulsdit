@@ -988,7 +988,7 @@
                 <ul class="nav-submenu">
                     @if($isAdminOrHeadmaster)
                     <li class="nav-subitem">
-                        <a href="/eskuls" class="nav-sublink {{ request()->is('eskuls*') ? 'active' : '' }}">
+                        <a href="/eskuls" class="nav-sublink {{ (request()->is('eskuls') || (request()->is('eskuls/*') && !request()->is('eskuls/attendance-charts*'))) ? 'active' : '' }}">
                             <i class="fas fa-shapes"></i>
                             <span>Kelola Eskul</span>
                         </a>
@@ -1037,6 +1037,14 @@
                         </a>
                     </li>
                     @endif
+                    {{-- Grafik & Rekap Presensi Eskul --}}
+                    <li class="nav-subitem">
+                        <a href="{{ route('eskul.attendance-charts') }}" class="nav-sublink {{ request()->is('eskuls/attendance-charts*') ? 'active' : '' }}">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Grafik Presensi</span>
+                        </a>
+                    </li>
+
                     @if($isAdminOrHeadmaster)
                     <li class="nav-subitem">
                         <a href="{{ route('compliance.index') }}" class="nav-sublink {{ request()->is('compliance*') ? 'active' : '' }}">

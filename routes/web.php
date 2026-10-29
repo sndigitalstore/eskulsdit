@@ -199,6 +199,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/grades/report', [\App\Http\Controllers\GradeController::class, 'report'])->name('grades.report');
 
         Route::get('/compliance', [\App\Http\Controllers\ComplianceController::class, 'index'])->name('compliance.index');
+
+        // Grafik & Rekapitulasi Presensi Eskul (Pembina & Siswa)
+        Route::get('/eskuls/attendance-charts', [\App\Http\Controllers\EskulAttendanceChartController::class, 'index'])->name('eskul.attendance-charts');
+        Route::get('/eskuls/attendance-charts/print', [\App\Http\Controllers\EskulAttendanceChartController::class, 'print'])->name('eskul.attendance-charts.print');
     });
     
     Route::get('/reports/print-all', [\App\Http\Controllers\ReportController::class, 'printAll'])->name('reports.print-all');
