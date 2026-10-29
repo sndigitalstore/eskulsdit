@@ -653,14 +653,65 @@ class TahfidzAttendanceController extends Controller
             }
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            $studentId = is_array($request->attendance) ? array_key_first($request->attendance) : null;
+            $student = $studentId ? \App\Models\Student::find($studentId) : null;
+            $studentName = $student ? $student->name : 'Siswa';
+
+            // Hitung statistik terbaru untuk kelompok dan tanggal ini
+            $studentIds = $group->students->pluck('id');
+            $sessionAttendances = TahfidzAttendance::whereIn('student_id', $studentIds)
+                ->where('mentoring_group_id', $group->id)
+                ->where('session_date', $date)
+                ->get();
+            $kehadiranCount = $sessionAttendances->where('status', 'hadir')->count();
+            $sudahSetorCount = $sessionAttendances->where('status', 'hadir')->filter(fn($a) => !empty($a->capaian))->count();
+            $totalBaris = (int) TahfidzRecord::where('mentoring_group_id', $group->id)
+                ->where('academic_year_id', $yearId)
+                ->sum('jumlah_baris');
+
+            // Generate ulang teks laporan WA terbaru
+            $sessionAttendanceList = TahfidzAttendance::whereIn('student_id', $studentIds)
+                ->where('mentoring_group_id', $group->id)
+                ->where('session_date', $date)
+                ->with('student')
+                ->get();
+            $whatsappMessage = self::generateWhatsappMessage($group, $date, $sessionAttendanceList);
+
+            $savedAtt = $sessionAttendances->firstWhere('student_id', $studentId);
+
+            return response()->json([
+                'success'           => true,
+                'message'           => "Alhamdulillah, setoran {$studentName} berhasil disimpan!",
+                'session_date'      => $date,
+                'student_id'        => $studentId,
+                'student_name'      => $studentName,
+                'status'            => $savedAtt ? $savedAtt->status : 'hadir',
+                'capaian'           => $savedAtt ? $savedAtt->capaian : null,
+                'nilai'             => $savedAtt ? $savedAtt->nilai : null,
+                'jumlah_baris'      => $savedAtt ? $savedAtt->jumlah_baris : 0,
+                'hafalan_status'    => $savedAtt ? $savedAtt->hafalan_status : 'LULUS',
+                'kehadiran_count'   => $kehadiranCount,
+                'sudah_setor_count' => $sudahSetorCount,
+                'total_baris'       => $totalBaris,
+                'whatsapp_message'  => $whatsappMessage,
+            ]);
+        }
+
+        $openShare = (bool) $request->input('open_share', false);
+        $selectedStudentId = $request->input('selected_student_id') ?? (is_array($request->attendance) ? array_key_first($request->attendance) : null);
+        $studentObj = $selectedStudentId ? \App\Models\Student::find($selectedStudentId) : null;
+        $studentName = $studentObj ? $studentObj->name : 'Siswa';
+
         if ($request->input('redirect_to') === 'workspace' || !in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum'])) {
             return redirect()
                 ->route('tahfidz-groups.index', [
-                    'group_id'   => $group->id,
-                    'date'       => $date,
-                    'open_share' => 1
+                    'group_id'            => $group->id,
+                    'date'                => $date,
+                    'selected_student_id' => $selectedStudentId,
+                    'open_share'          => $openShare ? 1 : 0
                 ])
-                ->with('success', "Alhamdulillah, absensi & setoran sesi tanggal " . \Carbon\Carbon::parse($date)->locale('id')->isoFormat('D MMMM Y') . " berhasil disimpan dan tersinkron!");
+                ->with('success', "Alhamdulillah, absensi & setoran {$studentName} berhasil disimpan dan tersinkron!");
         }
 
         return redirect()

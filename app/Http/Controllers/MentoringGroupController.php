@@ -294,6 +294,7 @@ class MentoringGroupController extends Controller
 
             $today = date('Y-m-d');
             $sessionDate = $request->input('date', $today);
+            $selectedStudentId = $request->input('selected_student_id');
 
             $activeGroup->load(['students' => function($q) {
                 $q->orderBy('class')->orderBy('name');
@@ -436,7 +437,7 @@ class MentoringGroupController extends Controller
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
                 'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines',
                 'allSurahs', 'targetJuzList', 'targetJuzGroups', 'otherSurahs',
-                'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare',
+                'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare', 'selectedStudentId',
                 'munaqosahSchedules', 'munaqosahRegistrations', 'studentTargetProgress', 'myUpcomingExams'
             ));
         }
