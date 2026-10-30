@@ -91,9 +91,15 @@ class SupervisionController extends Controller
         // 4. Radar Kepatuhan Guru / Pembina Eskul
         $coachAttendances = collect();
         if (\Illuminate\Support\Facades\Schema::hasTable('teacher_attendances') && $yearId) {
-            $coachAttendances = TeacherAttendance::where('academic_year_id', $yearId)
-                ->where('semester', $semester)
-                ->get();
+            $coachQuery = TeacherAttendance::where('academic_year_id', $yearId);
+            if (\Illuminate\Support\Facades\Schema::hasColumn('teacher_attendances', 'semester')) {
+                $coachQuery->where('semester', $semester);
+            } elseif ($semester == '1') {
+                $coachQuery->whereMonth('date', '>=', 7);
+            } elseif ($semester == '2') {
+                $coachQuery->whereMonth('date', '<=', 6);
+            }
+            $coachAttendances = $coachQuery->get();
         }
         $totalCoachSessions = $coachAttendances->count();
         $presentCoachSessions = $coachAttendances->whereIn('status', ['present', 'substitute'])->count();
@@ -500,3 +506,4 @@ class SupervisionController extends Controller
         return view('supervisions.print', compact('supervision'));
     }
 }
+
