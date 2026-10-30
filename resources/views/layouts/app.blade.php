@@ -923,8 +923,47 @@
                 // 6. Laporan & Rapor: Admin, Headmaster, Kurikulum, Wali Kelas, Pembina Eskul, atau Guru Mentoring
                 $showReportMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isEskulCoach || $hasTilawati || $hasTahfidz;
 
+                // 7. Monitoring & Supervisi Kepala Sekolah
+                $showSupervisionMenu = $isAdminOrCurriculumOrHeadmaster || $isTeacher;
+                $isSupervisionActive = request()->is('supervision*');
+
                 $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*');
             @endphp
+
+            {{-- Monitoring & Supervisi Kepala Sekolah (Dropdown) --}}
+            @if($showSupervisionMenu)
+            <li class="nav-dropdown {{ $isSupervisionActive ? 'open active-parent' : '' }}" id="dropdown-supervisi">
+                <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
+                    <div class="toggle-content">
+                        <i class="fas fa-clipboard-check main-icon" style="color: #10b981;"></i>
+                        <span>Monitoring & Supervisi</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <ul class="nav-submenu">
+                    @if($isAdminOrCurriculumOrHeadmaster)
+                    <li class="nav-subitem">
+                        <a href="{{ route('supervisions.radar') }}" class="nav-sublink {{ request()->is('supervision-radar*') ? 'active' : '' }}">
+                            <i class="fas fa-chart-line" style="color: #059669;"></i>
+                            <span>Radar Mutu Sekolah</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('supervisions.create') }}" class="nav-sublink {{ request()->is('supervisions/create*') ? 'active' : '' }}">
+                            <i class="fas fa-plus-circle" style="color: #10b981;"></i>
+                            <span>Input Supervisi Guru</span>
+                        </a>
+                    </li>
+                    @endif
+                    <li class="nav-subitem">
+                        <a href="{{ route('supervisions.index') }}" class="nav-sublink {{ (request()->is('supervisions') || (request()->is('supervisions/*') && !request()->is('supervisions/create*'))) ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
+                            <span>{{ $isTeacher && !$isAdminOrCurriculumOrHeadmaster ? 'Hasil Supervisi Saya' : 'Riwayat Supervisi' }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif
 
             @if($showQuranMenu)
             <li class="nav-dropdown {{ $isQuranActive ? 'open active-parent' : '' }}" id="dropdown-quran">

@@ -31,8 +31,8 @@ Route::get('/login', function () {
         } catch (\Exception $e) {}
     }
 
-    // Ensure database migration for student extended fields has run
-    if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'nisn')) {
+    // Ensure database migration for student extended fields and supervisions has run
+    if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'nisn') || !\Illuminate\Support\Facades\Schema::hasTable('supervisions')) {
         try {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         } catch (\Exception $e) {}
@@ -69,8 +69,8 @@ Route::post('/login', function (Request $request) {
         ]);
     }
 
-    // Ensure database migration for student extended fields has run
-    if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'nisn')) {
+    // Ensure database migration for student extended fields and supervisions has run
+    if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'nisn') || !\Illuminate\Support\Facades\Schema::hasTable('supervisions')) {
         try {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         } catch (\Exception $e) {}
@@ -362,6 +362,22 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:admin,headmaster,curriculum'])->group(function () {
         Route::resource('curriculum/subjects', \App\Http\Controllers\SubjectController::class)->names('subjects');
+    });
+
+    // INSTRUMEN MONITORING & SUPERVISI KEPALA SEKOLAH
+    Route::middleware(['role:admin,headmaster,curriculum'])->group(function () {
+        Route::get('/supervision-radar', [\App\Http\Controllers\SupervisionController::class, 'radar'])->name('supervisions.radar');
+        Route::get('/supervisions/create', [\App\Http\Controllers\SupervisionController::class, 'create'])->name('supervisions.create');
+        Route::post('/supervisions', [\App\Http\Controllers\SupervisionController::class, 'store'])->name('supervisions.store');
+        Route::get('/supervisions/{supervision}/edit', [\App\Http\Controllers\SupervisionController::class, 'edit'])->name('supervisions.edit');
+        Route::put('/supervisions/{supervision}', [\App\Http\Controllers\SupervisionController::class, 'update'])->name('supervisions.update');
+        Route::delete('/supervisions/{supervision}', [\App\Http\Controllers\SupervisionController::class, 'destroy'])->name('supervisions.destroy');
+    });
+
+    Route::middleware(['role:admin,headmaster,curriculum,teacher'])->group(function () {
+        Route::get('/supervisions', [\App\Http\Controllers\SupervisionController::class, 'index'])->name('supervisions.index');
+        Route::get('/supervisions/{supervision}', [\App\Http\Controllers\SupervisionController::class, 'show'])->name('supervisions.show');
+        Route::get('/supervisions/{supervision}/print', [\App\Http\Controllers\SupervisionController::class, 'print'])->name('supervisions.print');
     });
 
 });
