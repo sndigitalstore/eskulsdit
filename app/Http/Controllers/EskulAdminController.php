@@ -389,8 +389,12 @@ class EskulAdminController extends Controller
     private function authorizeEskul(Eskul $eskul)
     {
         $user = auth()->user();
-        if ($user->role === 'teacher' && $user->eskul_id != $eskul->id) {
-            abort(403, 'Akses ditolak.');
+        if ($user->role === 'teacher') {
+            $isAuthorized = ($user->eskul_id == $eskul->id) || 
+                            (!empty($user->name) && strtolower(trim($eskul->instructor_name ?? '')) === strtolower(trim($user->name)));
+            if (!$isAuthorized) {
+                abort(403, 'Akses ditolak. Anda bukan pembina ekstrakurikuler ini.');
+            }
         }
     }
 

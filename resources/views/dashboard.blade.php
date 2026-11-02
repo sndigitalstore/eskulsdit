@@ -1290,6 +1290,71 @@
     </div>
 @endif
 
+@php
+    $coachEskulDashboard = null;
+    if (Auth::user()->role === 'teacher') {
+        if (!empty(Auth::user()->eskul_id)) {
+            $coachEskulDashboard = Auth::user()->eskul;
+        }
+        if (!$coachEskulDashboard && !empty(Auth::user()->name)) {
+            $coachEskulDashboard = \App\Models\Eskul::where('instructor_name', Auth::user()->name)->activeYear()->first();
+        }
+    }
+@endphp
+
+@if(Auth::user()->role === 'teacher' && $coachEskulDashboard)
+    <!-- Ekstrakurikuler yang Anda Bina Block -->
+    <div class="card duty-block" data-duty="eskul" style="margin-bottom: 2rem; padding: 24px; border-top: 4px solid #10b981; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-shapes" style="color: #10b981;"></i> Ekstrakurikuler yang Anda Bina
+                </h3>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
+                    Formulir jurnal harian pertemuan, penyusunan program kerja, serta rekap presensi kelompok eskul Anda.
+                </p>
+            </div>
+            <a href="/eskuls" class="btn-action-header" style="background: #10b981; color: white; padding: 7px 16px; font-size: 0.82rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-users-cog"></i> Buka Kelompok Eskul
+            </a>
+        </div>
+
+        <div style="background: #ffffff; border: 1.5px solid #d1fae5; border-radius: 14px; padding: 20px 24px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; border: 1px solid #a7f3d0;">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #064e3b;">
+                            {{ $coachEskulDashboard->name }}
+                        </h4>
+                        <div style="font-size: 0.82rem; color: #64748b; margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap;">
+                            <span><i class="far fa-clock" style="color: #10b981;"></i> Jadwal: <strong>{{ $coachEskulDashboard->schedule ?: '-' }}</strong></span>
+                            <span><i class="fas fa-users" style="color: #3b82f6;"></i> Anggota: <strong>{{ $coachEskulDashboard->students()->count() }} Siswa</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="{{ route('eskuls.jurnal.index', $coachEskulDashboard->id) }}" class="btn" style="background: #059669; color: white; font-weight: 700; font-size: 0.85rem; padding: 9px 16px; border-radius: 9px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+                        <i class="fas fa-book-open"></i> Form Jurnal Harian
+                    </a>
+                    <a href="{{ route('eskuls.program.index', $coachEskulDashboard->id) }}" class="btn" style="background: #2563eb; color: white; font-weight: 700; font-size: 0.85rem; padding: 9px 16px; border-radius: 9px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);">
+                        <i class="fas fa-clipboard-list"></i> Program Kerja
+                    </a>
+                    <a href="{{ route('attendance.create', ['eskul_id' => $coachEskulDashboard->id, 'date' => date('Y-m-d')]) }}" class="btn" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #334155; font-weight: 700; font-size: 0.85rem; padding: 9px 14px; border-radius: 9px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-clipboard-check" style="color: #10b981;"></i> Presensi
+                    </a>
+                    <a href="{{ route('grades.create', ['eskul_id' => $coachEskulDashboard->id, 'type' => 'daily', 'date' => date('Y-m-d')]) }}" class="btn" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #334155; font-weight: 700; font-size: 0.85rem; padding: 9px 14px; border-radius: 9px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-star" style="color: #f59e0b;"></i> Nilai
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
 @if((in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role === 'teacher' && !empty(Auth::user()->eskul_id))) && isset($todaySchedule) && count($todaySchedule) > 0)
     <div class="card duty-block" data-duty="eskul" style="margin-bottom: 2rem; background: linear-gradient(to right, #ffffff, #f0fdf4); border-left: 5px solid #10b981;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">

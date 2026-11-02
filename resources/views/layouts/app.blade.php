@@ -880,7 +880,11 @@
                 $isAdminOrCurriculumOrHeadmaster = in_array($role, ['admin', 'headmaster', 'curriculum']);
 
                 // Penugasan Guru Spesifik
-                $isEskulCoach = $isTeacher && !empty($loggedUser->eskul_id);
+                $userEskul = $loggedUser->eskul;
+                if (!$userEskul && !empty($loggedUser->name)) {
+                    $userEskul = \App\Models\Eskul::where('instructor_name', $loggedUser->name)->activeYear()->first();
+                }
+                $isEskulCoach = $isTeacher && (!empty($loggedUser->eskul_id) || $userEskul !== null);
                 $isHomeroom = $isTeacher && !empty($loggedUser->homeroom_class);
                 $isSubjectTeacher = $isTeacher && !empty($loggedUser->teaching_subject_ids);
 
@@ -1036,6 +1040,19 @@
             @if($showEskulMenu)
             @php
                 $isEskulActive = request()->is('eskuls*', 'attendance*', 'grades*', 'compliance*', 'teacher-attendance*');
+
+                $coachEskuls = collect();
+                if (isset($userEskul) && $userEskul) {
+                    $coachEskuls->push($userEskul);
+                }
+                if (!empty($loggedUser->name)) {
+                    $extraEskuls = \App\Models\Eskul::activeYear()
+                        ->where('instructor_name', $loggedUser->name)
+                        ->whereNotIn('id', $coachEskuls->pluck('id'))
+                        ->get();
+                    $coachEskuls = $coachEskuls->merge($extraEskuls);
+                }
+                $firstCoachEskul = $coachEskuls->first();
             @endphp
             <li class="nav-dropdown {{ $isEskulActive ? 'open active-parent' : '' }}" id="dropdown-eskul">
                 <div class="nav-dropdown-toggle" onclick="toggleNavDropdown(this, event)" role="button" tabindex="0">
@@ -1048,7 +1065,7 @@
                 <ul class="nav-submenu">
                     @if($isAdminOrHeadmaster)
                     <li class="nav-subitem">
-                        <a href="/eskuls" class="nav-sublink {{ (request()->is('eskuls') || (request()->is('eskuls/*') && !request()->is('eskuls/attendance-charts*'))) ? 'active' : '' }}">
+                        <a href="/eskuls" class="nav-sublink {{ (request()->is('eskuls') && !request()->is('eskuls/*')) ? 'active' : '' }}">
                             <i class="fas fa-shapes"></i>
                             <span>Kelola Eskul</span>
                         </a>
@@ -1061,6 +1078,48 @@
                     </li>
                     @endif
 
+                    {{-- MENU KHUSUS PEMBINA ESKUL: JURNAL & PROGRAM KERJA --}}
+                    @if($coachEskuls->isNotEmpty())
+                        @if($coachEskuls->count() === 1)
+                            <li class="nav-subitem">
+                                <a href="{{ route('eskuls.jurnal.index', $firstCoachEskul->id) }}" class="nav-sublink {{ request()->is('eskuls/*/jurnal*') ? 'active' : '' }}">
+                                    <i class="fas fa-book-open" style="color: #10b981;"></i>
+                                    <span>Jurnal Kegiatan</span>
+                                </a>
+                            </li>
+                            <li class="nav-subitem">
+                                <a href="{{ route('eskuls.program.index', $firstCoachEskul->id) }}" class="nav-sublink {{ request()->is('eskuls/*/program*') ? 'active' : '' }}">
+                                    <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
+                                    <span>Program Kerja</span>
+                                </a>
+                            </li>
+                        @else
+                            @foreach($coachEskuls as $cEsk)
+                                <li class="nav-subitem">
+                                    <a href="{{ route('eskuls.jurnal.index', $cEsk->id) }}" class="nav-sublink {{ request()->is('eskuls/' . $cEsk->id . '/jurnal*') ? 'active' : '' }}">
+                                        <i class="fas fa-book-open" style="color: #10b981;"></i>
+                                        <span>Jurnal {{ $cEsk->name }}</span>
+                                    </a>
+                                </li>
+                                <li class="nav-subitem">
+                                    <a href="{{ route('eskuls.program.index', $cEsk->id) }}" class="nav-sublink {{ request()->is('eskuls/' . $cEsk->id . '/program*') ? 'active' : '' }}">
+                                        <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
+                                        <span>Progker {{ $cEsk->name }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        @endif
+
+                        @if($isTeacher)
+                        <li class="nav-subitem">
+                            <a href="/eskuls" class="nav-sublink {{ (request()->is('eskuls') && !request()->is('eskuls/*')) ? 'active' : '' }}">
+                                <i class="fas fa-users-cog" style="color: #8b5cf6;"></i>
+                                <span>Kelompok Eskul Saya</span>
+                            </a>
+                        </li>
+                        @endif
+                    @endif
+
                     @if($isTeacher)
                     <li class="nav-subitem">
                         <a href="{{ route('teacher-attendance.index') }}" class="nav-sublink {{ request()->is('teacher-attendance*') ? 'active' : '' }}">
@@ -1068,17 +1127,14 @@
                             <span>Absensi Saya</span>
                         </a>
                     </li>
-                    @endif
-
-                    @if($isTeacher)
                     <li class="nav-subitem">
-                        <a href="{{ Auth::user()->eskul_id ? route('attendance.create', ['eskul_id' => Auth::user()->eskul_id, 'date' => date('Y-m-d')]) : '/attendance' }}" class="nav-sublink {{ request()->is('attendance*') ? 'active' : '' }}">
+                        <a href="{{ $firstCoachEskul ? route('attendance.create', ['eskul_id' => $firstCoachEskul->id, 'date' => date('Y-m-d')]) : '/attendance' }}" class="nav-sublink {{ request()->is('attendance*') ? 'active' : '' }}">
                             <i class="fas fa-clipboard-check"></i>
                             <span>Presensi Siswa</span>
                         </a>
                     </li>
                     <li class="nav-subitem">
-                        <a href="{{ Auth::user()->eskul_id ? route('grades.create', ['eskul_id' => Auth::user()->eskul_id, 'type' => 'daily', 'date' => date('Y-m-d')]) : '/grades' }}" class="nav-sublink {{ request()->is('grades*') ? 'active' : '' }}">
+                        <a href="{{ $firstCoachEskul ? route('grades.create', ['eskul_id' => $firstCoachEskul->id, 'type' => 'daily', 'date' => date('Y-m-d')]) : '/grades' }}" class="nav-sublink {{ request()->is('grades*') ? 'active' : '' }}">
                             <i class="fas fa-star"></i>
                             <span>Penilaian Siswa</span>
                         </a>

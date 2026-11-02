@@ -250,3 +250,4 @@ class Supervision extends Model
         };
     }
 }
+
