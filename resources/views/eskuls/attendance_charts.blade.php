@@ -733,7 +733,7 @@
             <h2>LAPORAN REKAPITULASI & GRAFIK PRESENSI EKSTRAKURIKULER</h2>
             <p>
                 Tahun Ajaran: <strong>{{ $contextYear ? $contextYear->name : '-' }}</strong> &bull;
-                Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : 'Seluruh Ekstrakurikuler (' . $eskuls->count() . ' Cabang)' }}</strong>
+                Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : ($isTeacherOnly ? ($eskuls->count() > 0 ? 'Kelompok Binaan' : 'Belum Ada Eskul') : 'Seluruh Ekstrakurikuler (' . $eskuls->count() . ' Cabang)') }}</strong>
                 @if($periodMode === 'date')
                     &bull; Periode: {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') }} s.d. {{ \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y') }}
                 @elseif($periodMode === 'month')
@@ -759,7 +759,7 @@
                 <p>
                     Visualisasi analitik kehadiran pembina & siswa eskul berbasis tanggal, bulanan, semester, dan tahunan.<br>
                     Tahun Ajaran: <strong>{{ $contextYear ? $contextYear->name : '-' }}</strong> &bull; 
-                    Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : 'Seluruh Eskul' }}</strong>
+                    Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : ($isTeacherOnly ? ($eskuls->count() > 0 ? 'Kelompok Binaan Anda' : 'Belum Ada Eskul') : 'Seluruh Eskul') }}</strong>
                 </p>
             </div>
         </div>
@@ -809,14 +809,30 @@
                     <label class="filter-label">
                         <i class="fas fa-basketball-ball" style="color: #f59e0b;"></i> Ekstrakurikuler
                     </label>
-                    <select name="eskul_id" class="filter-input" onchange="document.getElementById('filterChartsForm').submit()">
-                        <option value="all" {{ $selectedEskulId === 'all' ? 'selected' : '' }}>-- Seluruh Ekstrakurikuler --</option>
-                        @foreach($eskuls as $esk)
-                            <option value="{{ $esk->id }}" {{ (string)$selectedEskulId === (string)$esk->id ? 'selected' : '' }}>
-                                {{ $esk->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if($isTeacherOnly && $eskuls->count() <= 1)
+                        <select name="eskul_id" class="filter-input" disabled style="background: #f1f5f9; cursor: not-allowed; font-weight: 700; color: #064e3b;">
+                            @if($eskuls->isNotEmpty())
+                                <option value="{{ $eskuls->first()->id }}" selected>
+                                    {{ $eskuls->first()->name }} (Kelompok Anda)
+                                </option>
+                            @else
+                                <option value="">(Belum Ada Eskul Binaan)</option>
+                            @endif
+                        </select>
+                    @else
+                        <select name="eskul_id" class="filter-input" onchange="document.getElementById('filterChartsForm').submit()">
+                            @if($isTeacherOnly)
+                                <option value="all" {{ $selectedEskulId === 'all' ? 'selected' : '' }}>-- Seluruh Kelompok Binaan Saya ({{ $eskuls->count() }}) --</option>
+                            @else
+                                <option value="all" {{ $selectedEskulId === 'all' ? 'selected' : '' }}>-- Seluruh Ekstrakurikuler --</option>
+                            @endif
+                            @foreach($eskuls as $esk)
+                                <option value="{{ $esk->id }}" {{ (string)$selectedEskulId === (string)$esk->id ? 'selected' : '' }}>
+                                    {{ $esk->name }} {{ $isTeacherOnly ? '(Binaan Anda)' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
 
                 {{-- Dropdown Pilih Tahun Ajaran --}}
@@ -961,15 +977,17 @@
             </div>
             <div class="kpi-pills-row">
                 <span class="kpi-mini-pill" style="background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;">
-                    <i class="fas fa-shapes"></i> {{ $selectedEskul ? $selectedEskul->name : $eskuls->count() . ' Cabang Eskul' }}
+                    <i class="fas fa-shapes"></i> {{ $selectedEskul ? $selectedEskul->name : ($isTeacherOnly ? $eskuls->count() . ' Cabang Binaan' : $eskuls->count() . ' Cabang Eskul') }}
                 </span>
             </div>
         </div>
 
-        {{-- Card 4: Eskul Paling Aktif --}}
+        {{-- Card 4: Eskul Paling Aktif / Performa Kelompok --}}
         <div class="kpi-card" style="border-left: 4px solid #8b5cf6;">
             <div class="kpi-card-top">
-                <span class="kpi-tag" style="background: #f5f3ff; color: #6d28d9;">Performa Tertinggi</span>
+                <span class="kpi-tag" style="background: #f5f3ff; color: #6d28d9;">
+                    {{ ($isTeacherOnly && $eskuls->count() <= 1) ? 'Performa Kelompok Anda' : 'Performa Tertinggi' }}
+                </span>
                 <div class="kpi-icon-box" style="background: #ede9fe; color: #7c3aed;">
                     <i class="fas fa-trophy"></i>
                 </div>
@@ -1073,12 +1091,25 @@
     </div>
 
     {{-- 6. CHARTS ROW 2: KOMPARASI KEHADIRAN ANTAR EKSTRAKURIKULER --}}
-    @if($eskuls->count() > 1 && $selectedEskulId === 'all')
+    @if(!$isTeacherOnly && $eskuls->count() > 1 && $selectedEskulId === 'all')
     <div class="chart-box">
         <div class="chart-header">
             <h3>
                 <i class="fas fa-chart-bar" style="color: #8b5cf6;"></i>
                 Komparasi Tingkat Kehadiran per Cabang Ekstrakurikuler
+            </h3>
+            <span class="chart-badge">Siswa vs Pembina (%)</span>
+        </div>
+        <div class="chart-canvas-wrap" style="min-height: {{ max(300, $eskuls->count() * 38) }}px;">
+            <canvas id="eskulComparisonChart"></canvas>
+        </div>
+    </div>
+    @elseif($isTeacherOnly && $eskuls->count() > 1 && $selectedEskulId === 'all')
+    <div class="chart-box">
+        <div class="chart-header">
+            <h3>
+                <i class="fas fa-chart-bar" style="color: #8b5cf6;"></i>
+                Komparasi Kehadiran Kelompok Ekstrakurikuler Binaan Anda
             </h3>
             <span class="chart-badge">Siswa vs Pembina (%)</span>
         </div>
@@ -1093,7 +1124,7 @@
         <div class="table-card-header">
             <h3>
                 <i class="fas fa-table" style="color: #059669;"></i>
-                Tabel Rekapitulasi Presensi Ekstrakurikuler
+                {{ $isTeacherOnly ? 'Tabel Rekapitulasi Presensi Kelompok Anda' : 'Tabel Rekapitulasi Presensi Ekstrakurikuler' }}
             </h3>
             <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
                 Menampilkan {{ $eskulBreakdown->count() }} Ekstrakurikuler
@@ -1178,7 +1209,11 @@
                     <tr>
                         <td colspan="7" align="center" style="padding: 30px; color: #94a3b8;">
                             <i class="fas fa-info-circle" style="font-size: 1.5rem; margin-bottom: 6px; display: block;"></i>
-                            Belum ada catatan presensi pada filter ekstrakurikuler & periode waktu ini.
+                            @if($isTeacherOnly)
+                                Belum ada catatan presensi untuk kelompok ekstrakurikuler binaan Anda pada filter & periode waktu ini.
+                            @else
+                                Belum ada catatan presensi pada filter ekstrakurikuler & periode waktu ini.
+                            @endif
                         </td>
                     </tr>
                     @endforelse
@@ -1196,9 +1231,11 @@
     <div class="print-signatures print-only">
         <div class="sig-col">
             <p>Cinangka, {{ now()->translatedFormat('d F Y') }}</p>
-            <p class="sig-title" style="margin-top: 3px;">Koordinator Ekstrakurikuler,</p>
+            <p class="sig-title" style="margin-top: 3px;">
+                {{ $isTeacherOnly ? 'Pembina Ekstrakurikuler,' : 'Koordinator Ekstrakurikuler,' }}
+            </p>
             <div class="sig-space"></div>
-            <p class="sig-name">Najibudin, S.Pd</p>
+            <p class="sig-name">{{ $isTeacherOnly ? (auth()->user()->name ?? 'Pembina Eskul') : 'Najibudin, S.Pd' }}</p>
         </div>
         <div class="sig-col">
             <p>&nbsp;</p>

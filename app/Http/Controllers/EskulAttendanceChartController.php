@@ -23,6 +23,7 @@ class EskulAttendanceChartController extends Controller
         }
 
         $isPrint = $request->routeIs('eskul.attendance-charts.print') || $request->has('print');
+        $isTeacherOnly = ($user->role === 'teacher' && !in_array($user->role, ['admin', 'headmaster', 'curriculum']));
 
         // 1. Academic Year Context
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
@@ -30,21 +31,64 @@ class EskulAttendanceChartController extends Controller
         $selectedYearId = $request->input('academic_year_id', $activeYear ? $activeYear->id : ($academicYears->first()->id ?? null));
         $contextYear = $academicYears->where('id', $selectedYearId)->first() ?: $activeYear;
 
-        // 2. Daftar Ekstrakurikuler
+        // 2. Daftar Ekstrakurikuler (Bagi Akun Guru/Pembina dibatasi HANYA kelompok binaannya saja)
         $eskulsQuery = Eskul::query();
         if ($selectedYearId) {
             $eskulsQuery->where('academic_year_id', $selectedYearId);
         }
+
+        if ($isTeacherOnly) {
+            $eskulsQuery->where(function($q) use ($user) {
+                if (!empty($user->eskul_id)) {
+                    $q->where('id', $user->eskul_id);
+                }
+                if (!empty($user->name)) {
+                    $q->orWhere('instructor_name', $user->name)
+                      ->orWhere('instructor_name', 'LIKE', '%' . $user->name . '%');
+                }
+            });
+        }
+
         $eskuls = $eskulsQuery->orderBy('name')->get();
-        if ($eskuls->isEmpty()) {
+
+        // Fallback jika belum ditemukan dengan filter academic_year_id untuk pembina
+        if ($isTeacherOnly && $eskuls->isEmpty()) {
+            $eskuls = Eskul::where(function($q) use ($user) {
+                if (!empty($user->eskul_id)) {
+                    $q->where('id', $user->eskul_id);
+                }
+                if (!empty($user->name)) {
+                    $q->orWhere('instructor_name', $user->name)
+                      ->orWhere('instructor_name', 'LIKE', '%' . $user->name . '%');
+                }
+            })->orderBy('name')->get();
+        } elseif (!$isTeacherOnly && $eskuls->isEmpty()) {
             $eskuls = Eskul::orderBy('name')->get();
         }
 
         // 3. User & Eskul Selection
-        $isTeacherOnly = ($user->role === 'teacher' && !in_array($user->role, ['admin', 'headmaster']));
-        $defaultEskulId = ($isTeacherOnly && $user->eskul_id) ? $user->eskul_id : 'all';
-        $selectedEskulId = $request->input('eskul_id', $defaultEskulId);
-        $selectedEskul = ($selectedEskulId !== 'all') ? $eskuls->where('id', $selectedEskulId)->first() : null;
+        $teacherEskulIds = $isTeacherOnly ? $eskuls->pluck('id')->toArray() : [];
+
+        if ($isTeacherOnly) {
+            if ($eskuls->count() === 1) {
+                $selectedEskulId = $eskuls->first()->id;
+            } elseif ($eskuls->count() > 1) {
+                $requestedId = $request->input('eskul_id');
+                if ($requestedId && in_array((int)$requestedId, $teacherEskulIds)) {
+                    $selectedEskulId = (int)$requestedId;
+                } else {
+                    $selectedEskulId = ($requestedId === 'all') ? 'all' : $teacherEskulIds[0];
+                }
+            } else {
+                $selectedEskulId = 'none';
+            }
+        } else {
+            $selectedEskulId = $request->input('eskul_id', 'all');
+        }
+
+        $selectedEskul = ($selectedEskulId !== 'all' && $selectedEskulId !== 'none') 
+            ? $eskuls->where('id', $selectedEskulId)->first() 
+            : null;
 
         // 4. Mode Waktu: 'date' (Rentang Tanggal), 'month' (Bulanan), 'semester' (Semester), 'year' (Tahunan)
         $periodMode = $request->input('mode', 'month');
@@ -75,15 +119,40 @@ class EskulAttendanceChartController extends Controller
             $coachQuery->where('academic_year_id', $selectedYearId);
         }
 
-        if ($selectedEskulId !== 'all') {
+        if ($selectedEskulId !== 'all' && $selectedEskulId !== 'none') {
             $studentQuery->where('eskul_id', $selectedEskulId);
-            $coachQuery->where(function($q) use ($selectedEskulId) {
-                $q->whereHas('user', function($uq) use ($selectedEskulId) {
+            $coachQuery->where(function($q) use ($selectedEskulId, $selectedEskul) {
+                $q->whereHas('user', function($uq) use ($selectedEskulId, $selectedEskul) {
                     $uq->where('eskul_id', $selectedEskulId);
-                })->orWhereHas('substituteUser', function($sq) use ($selectedEskulId) {
+                    if ($selectedEskul && !empty($selectedEskul->instructor_name)) {
+                        $uq->orWhere('name', $selectedEskul->instructor_name);
+                    }
+                })->orWhereHas('substituteUser', function($sq) use ($selectedEskulId, $selectedEskul) {
                     $sq->where('eskul_id', $selectedEskulId);
+                    if ($selectedEskul && !empty($selectedEskul->instructor_name)) {
+                        $sq->orWhere('name', $selectedEskul->instructor_name);
+                    }
                 });
             });
+        } elseif ($isTeacherOnly) {
+            if (!empty($teacherEskulIds)) {
+                $studentQuery->whereIn('eskul_id', $teacherEskulIds);
+                $coachQuery->where(function($q) use ($teacherEskulIds, $eskuls, $user) {
+                    $instructors = $eskuls->pluck('instructor_name')->filter()->unique()->toArray();
+                    $q->where('user_id', $user->id)
+                      ->orWhereHas('user', function($uq) use ($teacherEskulIds, $instructors) {
+                          $uq->whereIn('eskul_id', $teacherEskulIds);
+                          if (!empty($instructors)) {
+                              $uq->orWhereIn('name', $instructors);
+                          }
+                      })->orWhereHas('substituteUser', function($sq) use ($teacherEskulIds) {
+                          $sq->whereIn('eskul_id', $teacherEskulIds);
+                      });
+                });
+            } else {
+                $studentQuery->whereRaw('1 = 0');
+                $coachQuery->whereRaw('1 = 0');
+            }
         } else {
             // Coach query for all eskuls: restrict to teachers with eskul
             $coachQuery->whereHas('user', function($uq) {
@@ -280,13 +349,26 @@ class EskulAttendanceChartController extends Controller
 
                 // Coach for year
                 $yCoachQuery = TeacherAttendance::where('academic_year_id', $yr->id);
-                if ($selectedEskulId !== 'all') {
-                    $yCoachQuery->where(function($q) use ($selectedEskulId) {
-                        $q->whereHas('user', function($uq) use ($selectedEskulId) {
+                if ($selectedEskulId !== 'all' && $selectedEskulId !== 'none') {
+                    $yCoachQuery->where(function($q) use ($selectedEskulId, $selectedEskul) {
+                        $q->whereHas('user', function($uq) use ($selectedEskulId, $selectedEskul) {
                             $uq->where('eskul_id', $selectedEskulId);
-                        })->orWhereHas('substituteUser', function($sq) use ($selectedEskulId) {
+                            if ($selectedEskul && !empty($selectedEskul->instructor_name)) {
+                                $uq->orWhere('name', $selectedEskul->instructor_name);
+                            }
+                        })->orWhereHas('substituteUser', function($sq) use ($selectedEskulId, $selectedEskul) {
                             $sq->where('eskul_id', $selectedEskulId);
+                            if ($selectedEskul && !empty($selectedEskul->instructor_name)) {
+                                $sq->orWhere('name', $selectedEskul->instructor_name);
+                            }
                         });
+                    });
+                } elseif ($isTeacherOnly && !empty($teacherEskulIds)) {
+                    $yCoachQuery->where(function($q) use ($teacherEskulIds, $user) {
+                        $q->where('user_id', $user->id)
+                          ->orWhereHas('user', function($uq) use ($teacherEskulIds) {
+                              $uq->whereIn('eskul_id', $teacherEskulIds);
+                          });
                     });
                 }
                 $yCoachRecords = $yCoachQuery->get();
@@ -298,8 +380,10 @@ class EskulAttendanceChartController extends Controller
 
                 // Student for year
                 $yStudentQuery = Attendance::where('academic_year_id', $yr->id);
-                if ($selectedEskulId !== 'all') {
+                if ($selectedEskulId !== 'all' && $selectedEskulId !== 'none') {
                     $yStudentQuery->where('eskul_id', $selectedEskulId);
+                } elseif ($isTeacherOnly && !empty($teacherEskulIds)) {
+                    $yStudentQuery->whereIn('eskul_id', $teacherEskulIds);
                 }
                 $yStudentRecords = $yStudentQuery->get();
                 $yStudentTotal = $yStudentRecords->count();
@@ -331,8 +415,14 @@ class EskulAttendanceChartController extends Controller
             $cItemRecords = (clone $cItemQuery)->where(function($q) use ($eskulItem) {
                 $q->whereHas('user', function($uq) use ($eskulItem) {
                     $uq->where('eskul_id', $eskulItem->id);
+                    if (!empty($eskulItem->instructor_name)) {
+                        $uq->orWhere('name', $eskulItem->instructor_name);
+                    }
                 })->orWhereHas('substituteUser', function($sq) use ($eskulItem) {
                     $sq->where('eskul_id', $eskulItem->id);
+                    if (!empty($eskulItem->instructor_name)) {
+                        $sq->orWhere('name', $eskulItem->instructor_name);
+                    }
                 });
             })->get();
 
@@ -349,6 +439,9 @@ class EskulAttendanceChartController extends Controller
 
             // Resolve Coach Name
             $assignedCoach = User::where('eskul_id', $eskulItem->id)->first();
+            if (!$assignedCoach && !empty($eskulItem->instructor_name)) {
+                $assignedCoach = User::where('name', 'LIKE', '%' . $eskulItem->instructor_name . '%')->first();
+            }
             $coachDisplayName = $eskulItem->instructor_name ?: ($assignedCoach ? $assignedCoach->name : 'Belum Ditentukan');
 
             // Predicate
@@ -403,6 +496,8 @@ class EskulAttendanceChartController extends Controller
 
         // 9. Data Structure for View
         return view('eskuls.attendance_charts', compact(
+            'isTeacherOnly',
+            'user',
             'academicYears',
             'activeYear',
             'selectedYearId',

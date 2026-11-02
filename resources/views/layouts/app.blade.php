@@ -1155,7 +1155,7 @@
                     @endif
                     {{-- Grafik & Rekap Presensi Eskul --}}
                     <li class="nav-subitem">
-                        <a href="{{ route('eskul.attendance-charts') }}" class="nav-sublink {{ request()->is('eskuls/attendance-charts*') ? 'active' : '' }}">
+                        <a href="{{ ($isTeacher && $firstCoachEskul) ? route('eskul.attendance-charts', ['eskul_id' => $firstCoachEskul->id]) : route('eskul.attendance-charts') }}" class="nav-sublink {{ request()->is('eskuls/attendance-charts*') ? 'active' : '' }}">
                             <i class="fas fa-chart-line"></i>
                             <span>Grafik Presensi</span>
                         </a>
