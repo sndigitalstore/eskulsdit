@@ -359,12 +359,6 @@ class CharacterCaseController extends Controller
         return view('character.cases.parent_letter', compact('case', 'headmasterName'));
     }
 
-        ActivityLog::log('Karakter', 'Update Kasus', "Memperbarui kasus ID: {$character_case->id} ({$character_case->title})");
-
-        return redirect()->route('character-cases.index')
-            ->with('success', 'Data catatan kasus pembinaan berhasil diperbarui.');
-    }
-
     public function destroy(CharacterCase $character_case)
     {
         $id = $character_case->id;

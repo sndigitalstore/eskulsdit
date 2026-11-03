@@ -304,12 +304,6 @@ class CharacterAppreciationController extends Controller
         return view('character.appreciations.certificate', compact('appreciation', 'headmasterName'));
     }
 
-        ActivityLog::log('Karakter', 'Update Apresiasi', "Memperbarui apresiasi ID: {$character_appreciation->id} ({$character_appreciation->title})");
-
-        return redirect()->route('character-appreciations.index')
-            ->with('success', 'Data apresiasi karakter siswa berhasil diperbarui.');
-    }
-
     public function destroy(CharacterAppreciation $character_appreciation)
     {
         $id = $character_appreciation->id;
