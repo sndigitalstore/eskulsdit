@@ -139,7 +139,11 @@
         <div style="font-weight: bold;">
             <i class="fas fa-file-contract"></i> Dokumen Pembinaan Siswa & Pemanggilan Orang Tua
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ $case->getWaUrl() }}" target="_blank" 
+               style="background: #25D366; color: white; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(37,211,102,0.3);">
+                <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Kirim ke WhatsApp Ortu
+            </a>
             <button onclick="window.print()" class="btn-print">
                 <i class="fas fa-print"></i> Cetak Dokumen (A4)
             </button>

@@ -303,6 +303,9 @@
                             </td>
                             <td style="padding: 12px 10px; text-align: center;">
                                 <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    <a href="{{ $case->getWaUrl() }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #25D366; color: #fff; text-decoration: none;" title="Kirim Pemberitahuan ke WhatsApp Ortu">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
                                     <a href="{{ route('character-cases.parent-notice', $case->id) }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #6366f1; color: #fff; text-decoration: none;" title="Cetak Berita Acara & Pemanggilan Ortu (PKKS/Akreditasi)">
                                         <i class="fas fa-print"></i>
                                     </a>

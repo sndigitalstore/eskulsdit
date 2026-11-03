@@ -98,4 +98,44 @@ class CharacterAppreciation extends Model
         }
         return ['bg' => '#f8fafc', 'color' => '#475569', 'icon' => 'fa-award', 'label' => $this->dimension_p5 ?: 'Profil Lulusan'];
     }
+
+    /**
+     * Menghasilkan teks notifikasi apresiasi WhatsApp untuk orang tua
+     */
+    public function getWaNotificationText(): string
+    {
+        $studentName = $this->student->name ?? 'Ananda';
+        $className = $this->student->class ?? '-';
+        $date = $this->date ? \Carbon\Carbon::parse($this->date)->translatedFormat('d F Y') : '-';
+        $dimension = $this->dimension_p5 ? "({$this->dimension_p5})" : "";
+
+        $msg = "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n"
+             . "Kabar Gembira & Membanggakan dari SDIT AN NADZIR! 🌟\n\n"
+             . "Yth. Orang Tua / Wali dari ananda *{$studentName}* (Kelas {$className}),\n\n"
+             . "Alhamdulillah biidznillah, ananda tercatat telah meraih *Apresiasi Karakter Islami (Bintang Karakter SMILE)* pada tanggal {$date}:\n\n"
+             . "🏆 *Keteladanan / Kebaikan:* {$this->title}\n"
+             . "🏷️ *Dimensi Profil Lulusan:* {$dimension}\n"
+             . "⭐ *Poin Kebaikan:* +{$this->point} Poin\n";
+
+        if ($this->reward) {
+            $msg .= "🎁 *Bentuk Penghargaan:* {$this->reward}\n";
+        }
+
+        $msg .= "\nKami mengucapkan terima kasih yang mendalam atas teladan dan bimbingan Ayah & Bunda di rumah. Semoga ananda terus istiqomah menjadi generasi Qur'ani yang sholeh/sholehah, cerdas, mandiri, dan berkarakter mulia.\n\n"
+             . "Piagam penghargaan resmi dapat dilihat dan diunduh pada SIMUTQIN SDIT AN NADZIR.\n\n"
+             . "Jazakumullahu Khairan Katsiran.\nWassalamu'alaikum Warahmatullahi Wabarakatuh.\n"
+             . "— _Kesiswaan & Dewan Asatidz SDIT AN NADZIR_";
+
+        return $msg;
+    }
+
+    /**
+     * Mendapatkan URL langsung ke WhatsApp API dengan pesan apresiasi terisi otomatis
+     */
+    public function getWaUrl(): string
+    {
+        $phone = $this->student ? $this->student->getFormattedWaPhone() : null;
+        $text = urlencode($this->getWaNotificationText());
+        return $phone ? "https://wa.me/{$phone}?text={$text}" : "https://wa.me/?text={$text}";
+    }
 }

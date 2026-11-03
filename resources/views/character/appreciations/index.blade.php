@@ -214,6 +214,9 @@
                             </td>
                             <td style="padding: 12px 10px; text-align: center;">
                                 <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    <a href="{{ $appr->getWaUrl() }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #25D366; color: #fff; text-decoration: none;" title="Kirim Kabar Baik / Ucapan Selamat ke WhatsApp Ortu">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
                                     <a href="{{ route('character-appreciations.certificate', $appr->id) }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #0284c7; color: #fff; text-decoration: none;" title="Cetak Piagam Bintang Karakter SMILE">
                                         <i class="fas fa-certificate"></i>
                                     </a>

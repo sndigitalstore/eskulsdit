@@ -189,4 +189,23 @@ class Student extends Model
         $suffix = substr($digits, -4);
         return $prefix . '-****-' . $suffix;
     }
+
+    /**
+     * Mendapatkan nomor WhatsApp orang tua terformat internasional (contoh: 628123456789)
+     */
+    public function getFormattedWaPhone(): ?string
+    {
+        $raw = $this->parent_phone ?: ($this->father_phone ?: $this->mother_phone);
+        if (empty($raw)) {
+            return null;
+        }
+        $digits = preg_replace('/[^0-9]/', '', (string)$raw);
+        if (empty($digits)) {
+            return null;
+        }
+        if (str_starts_with($digits, '0')) {
+            return '62' . substr($digits, 1);
+        }
+        return $digits;
+    }
 }

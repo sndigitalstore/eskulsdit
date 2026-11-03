@@ -113,4 +113,46 @@ class CharacterCase extends Model
             default          => ['label' => 'Wali Kelas',          'bg' => '#e0f2fe', 'color' => '#0369a1'],
         };
     }
+
+    /**
+     * Menghasilkan teks draf pesan WhatsApp resmi untuk orang tua / wali murid
+     */
+    public function getWaNotificationText(): string
+    {
+        $studentName = $this->student->name ?? 'Ananda';
+        $className = $this->student->class ?? '-';
+        $caseDate = $this->date ? \Carbon\Carbon::parse($this->date)->translatedFormat('l, d F Y') : '-';
+        $counselingDate = $this->counseling_date ? \Carbon\Carbon::parse($this->counseling_date)->translatedFormat('l, d F Y') : null;
+
+        $msg = "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n"
+             . "Yth. Orang Tua / Wali dari ananda *{$studentName}* (Kelas {$className}),\n\n"
+             . "Semoga Bapak/Ibu senantiasa dalam keadaan sehat walafiat serta dalam lindungan Allah SWT.\n\n"
+             . "Kami dari Bidang Kesiswaan & Bimbingan Konseling (BK) SDIT AN NADZIR bermaksud menyampaikan informasi catatan pembinaan karakter (SMILE Karakter) ananda tertanggal {$caseDate}:\n\n"
+             . "📌 *Perihal / Kejadian:* {$this->title}\n"
+             . "🏷️ *Kategori:* {$this->category} (" . ucfirst($this->severity) . ")\n";
+
+        if ($counselingDate) {
+            $msg .= "🗓️ *Jadwal Konseling/Silaturahmi:* {$counselingDate}\n";
+        }
+        if ($this->restorative_action) {
+            $msg .= "🌱 *Tindakan Restoratif (Disiplin Positif):* {$this->restorative_action}\n";
+        }
+
+        $msg .= "\nBesar harapan kami agar Bapak/Ibu dapat memberikan bimbingan dan pendampingan bersama di rumah demi pembiasaan akhlak mulia dan kedisiplinan berkarakter SMILE.\n\n"
+             . "Berita acara dan lembar pemanggilan resmi telah tercatat pada Sistem Informasi Mutu Terpadu (SIMUTQIN) SDIT AN NADZIR.\n\n"
+             . "Jazakumullahu Khairan Katsiran.\nWassalamu'alaikum Warahmatullahi Wabarakatuh.\n"
+             . "— _Kesiswaan & BK SDIT AN NADZIR_";
+
+        return $msg;
+    }
+
+    /**
+     * Mendapatkan URL langsung ke WhatsApp API dengan pesan terisi otomatis
+     */
+    public function getWaUrl(): string
+    {
+        $phone = $this->student ? $this->student->getFormattedWaPhone() : null;
+        $text = urlencode($this->getWaNotificationText());
+        return $phone ? "https://wa.me/{$phone}?text={$text}" : "https://wa.me/?text={$text}";
+    }
 }
