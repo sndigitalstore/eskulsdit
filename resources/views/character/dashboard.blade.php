@@ -19,7 +19,7 @@
                 </div>
                 <h2 style="margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em;">SMILE Karakter SDIT AN NADZIR</h2>
                 <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 0.92rem; max-width: 650px;">
-                    Pemantauan holistik pembiasaan karakter siswa berlandaskan nilai <strong>SMILE</strong> (• S – Sholeh, • M – Muslih, • I – Intellectual Curiosity, • L – Leadership, • E – Environmentally) secara akuntabel.
+                    Pemantauan holistik pembiasaan karakter siswa berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally)</strong> secara akuntabel.
                 </p>
             </div>
             
@@ -140,7 +140,7 @@
                 <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Standar Karakter</div>
                 <div style="font-size: 1.25rem; font-weight: 900; color: #1e293b;">SMILE & P5</div>
                 <div style="font-size: 0.73rem; color: #8b5cf6; font-weight: 700;">
-                    Sholeh &bull; Muslih &bull; Intellectual &bull; Leadership &bull; Environmentally
+                    Sholeh &bull; Muslih &bull; Intellectual Curiosity &bull; Leadership &bull; Environmentally
                 </div>
             </div>
         </div>

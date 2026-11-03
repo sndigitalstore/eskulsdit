@@ -13,7 +13,7 @@
                 <i class="fas fa-award" style="color: #10b981;"></i> Catatan Apresiasi & Perilaku Terpuji Siswa
             </h3>
             <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                Dokumentasi pembiasaan karakter unggul siswa berlandaskan nilai <strong>SMILE (• S – Sholeh, • M – Muslih, • I – Intellectual Curiosity, • L – Leadership, • E – Environmentally)</strong>.
+                Dokumentasi pembiasaan karakter unggul siswa berlandaskan nilai <strong>SMILE (Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally)</strong>.
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
