@@ -269,4 +269,9 @@ class SettingController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function updateProfile(Request $request)
+    {
+        return $this->update($request);
+    }
 }

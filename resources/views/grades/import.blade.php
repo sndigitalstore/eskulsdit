@@ -4,7 +4,6 @@
 @section('page-title', 'Import Nilai Masal')
 
 @section('content')
-@section('content')
 <div class="card" style="max-width: 600px; margin: 2rem auto; text-align: center;">
     <div style="margin-bottom: 2rem;">
         <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">

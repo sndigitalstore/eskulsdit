@@ -309,7 +309,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tilawati-groups/{group}/attendance/monthly',               [\App\Http\Controllers\TilawatiAttendanceController::class, 'monthly'])->name('tilawati.attendance.monthly');
     Route::get('/tilawati-groups/{group}/attendance/semester',              [\App\Http\Controllers\TilawatiAttendanceController::class, 'semester'])->name('tilawati.attendance.semester');
     Route::get('/tilawati-groups/{group}/attendance/session/print',         [\App\Http\Controllers\TilawatiAttendanceController::class, 'printSession'])->name('tilawati.attendance.print-session');
-    Route::get('/tilawati-groups/{group}/attendance/monthly/print',         [\App\Http\Controllers\TilawatiAttendanceController::class, 'printMonthly'])->name('tilawati.attendance.print-monthly');
+    Route::get('/tilawati-groups/{group}/attendance/monthly/print',         [\App\Http\Controllers\TilawatiAttendanceController::class, 'printMonthly'])->name('tilawati.attendance.monthly.print');
+    Route::get('/tilawati-groups/{group}/attendance/print-monthly',         [\App\Http\Controllers\TilawatiAttendanceController::class, 'printMonthly'])->name('tilawati.attendance.print-monthly');
 
     // Munaqisy (Munaqosah Qur'an: Tilawati & Tahfidz)
     Route::get('/munaqosah',                                               [\App\Http\Controllers\MunaqosahController::class, 'index'])->name('munaqosah.index');

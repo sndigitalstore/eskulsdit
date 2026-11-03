@@ -1,3 +1,9 @@
+@extends('layouts.app')
+
+@section('title', 'Ujian Tasmi\' Al-Qur\'an Sekali Duduk')
+@section('page-title', 'Ujian Tasmi\' Bil Ghaib')
+
+@section('content')
 <style>
     @media (max-width: 768px) {
         .tasmi-content-wrapper {
