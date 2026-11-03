@@ -25,6 +25,9 @@
                 <a href="{{ route('supervisions.radar') }}" class="btn" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #334155; font-weight: 700; padding: 9px 18px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-chart-line" style="color: #059669;"></i> Radar Mutu
                 </a>
+                <a href="{{ route('supervisions.recap-print', request()->query()) }}" target="_blank" class="btn" style="background: #1e293b; color: white; font-weight: 700; padding: 9px 18px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);">
+                    <i class="fas fa-print"></i> Cetak Rekap PKKS
+                </a>
                 <a href="{{ route('supervisions.create') }}" class="btn" style="background: #059669; color: white; font-weight: 700; padding: 9px 18px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);">
                     <i class="fas fa-plus-circle"></i> Input Supervisi Baru
                 </a>

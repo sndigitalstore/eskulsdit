@@ -30,6 +30,9 @@
                 <a href="{{ route('supervisions.create') }}" class="btn-action-header" style="background: #10b981; color: white; font-weight: 700; padding: 11px 20px; border-radius: 12px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-plus-circle"></i> Input Supervisi Baru
                 </a>
+                <a href="{{ route('supervisions.recap-print') }}" target="_blank" class="btn-action-header" style="background: rgba(255, 255, 255, 0.22); backdrop-filter: blur(10px); color: white; font-weight: 700; padding: 11px 20px; border-radius: 12px; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.35); display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-print"></i> Cetak Rekap PKKS
+                </a>
                 <a href="{{ route('supervisions.index') }}" class="btn-action-header" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(10px); color: white; font-weight: 700; padding: 11px 20px; border-radius: 12px; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.3); display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-clipboard-list"></i> Arsip & Riwayat Supervisi
                 </a>
@@ -121,9 +124,14 @@
                     {{ $characterAppreciationsCount }} Apresiasi &bull; {{ $characterCasesCount }} Catatan Kasus
                 </div>
             </div>
-            <div style="display: flex; gap: 8px; font-size: 0.78rem; font-weight: 700;">
-                <span style="background: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 6px;">{{ $characterAppreciationsCount }} Bintang SMILE</span>
-                <span style="background: #fef2f2; color: #b91c1c; padding: 2px 8px; border-radius: 6px;">{{ $characterCasesCount }} Kasus</span>
+            <div style="display: flex; gap: 6px; font-size: 0.74rem; font-weight: 700; flex-wrap: wrap;">
+                <span style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 6px;">{{ $characterAppreciationsCount }} Bintang SMILE</span>
+                <span style="background: #fef2f2; color: #b91c1c; padding: 2px 7px; border-radius: 6px;">{{ $characterCasesCount }} Kasus</span>
+                @if(($tppkCasesCount ?? 0) > 0)
+                    <span style="background: #fef3c7; color: #b45309; padding: 2px 7px; border-radius: 6px;" title="Kasus Perundungan / Kekerasan yang Perlu Ditindaklanjuti TPPK"><i class="fas fa-shield-alt"></i> {{ $tppkCasesCount }} TPPK</span>
+                @else
+                    <span style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 6px;" title="Lingkungan Aman & Bebas Perundungan"><i class="fas fa-shield-alt"></i> Aman</span>
+                @endif
             </div>
         </div>
     </div>

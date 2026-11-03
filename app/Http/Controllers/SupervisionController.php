@@ -108,11 +108,16 @@ class SupervisionController extends Controller
         // 5. Radar Karakter & Prestasi Siswa
         $characterAppreciationsCount = 0;
         $characterCasesCount = 0;
+        $tppkCasesCount = 0;
         if (\Illuminate\Support\Facades\Schema::hasTable('character_appreciations') && $yearId) {
             $characterAppreciationsCount = CharacterAppreciation::where('academic_year_id', $yearId)->count();
         }
         if (\Illuminate\Support\Facades\Schema::hasTable('character_cases') && $yearId) {
             $characterCasesCount = CharacterCase::where('academic_year_id', $yearId)->count();
+            $tppkCasesCount = CharacterCase::where('academic_year_id', $yearId)
+                ->whereNotNull('tppk_category')
+                ->where('tppk_category', '!=', 'non_tppk')
+                ->count();
         }
 
         $achievementsCount = 0;
@@ -139,6 +144,7 @@ class SupervisionController extends Controller
             'coachComplianceRate',
             'characterAppreciationsCount',
             'characterCasesCount',
+            'tppkCasesCount',
             'achievementsCount',
             'recentSupervisions'
         ));
@@ -504,6 +510,61 @@ class SupervisionController extends Controller
         }
 
         return view('supervisions.print', compact('supervision'));
+    }
+
+    /**
+     * Cetak Laporan Rekapitulasi Pelaksanaan Supervisi Guru (Format Resmi PKKS & Akreditasi)
+     */
+    public function recapPrint(Request $request)
+    {
+        $this->ensureMigration();
+
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            abort(403, 'Akses terbatas untuk Kepala Sekolah, Kurikulum, dan Administrator.');
+        }
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $selectedYearId = $request->academic_year_id ?: ($activeYear ? $activeYear->id : null);
+        $selectedYear = $selectedYearId ? AcademicYear::find($selectedYearId) : $activeYear;
+        $selectedSemester = $request->semester ?: ($activeYear ? $activeYear->active_semester : '1');
+        $selectedType = $request->supervision_type;
+
+        $query = Supervision::with(['teacher', 'supervisor']);
+
+        if ($selectedYearId) {
+            $query->where('academic_year_id', $selectedYearId);
+        }
+        if ($selectedSemester && $selectedSemester !== 'all') {
+            $query->where('semester', $selectedSemester);
+        }
+        if ($selectedType) {
+            $query->where('supervision_type', $selectedType);
+        }
+
+        $supervisions = $query->orderBy('supervision_date', 'asc')->orderBy('id', 'asc')->get();
+
+        $totalTeachers = User::where('role', 'teacher')->activeYear()->count();
+        $uniqueSupervised = $supervisions->pluck('teacher_id')->unique()->count();
+        $avgScore = $supervisions->count() > 0 ? round($supervisions->avg('total_score'), 1) : 0;
+
+        $predicateStats = [
+            'A' => $supervisions->filter(fn($s) => str_contains($s->predicate, 'Sangat Baik'))->count(),
+            'B' => $supervisions->filter(fn($s) => str_contains($s->predicate, 'Baik') && !str_contains($s->predicate, 'Sangat'))->count(),
+            'C' => $supervisions->filter(fn($s) => str_contains($s->predicate, 'Cukup'))->count(),
+            'D' => $supervisions->filter(fn($s) => str_contains($s->predicate, 'Perlu Pembinaan'))->count(),
+        ];
+
+        return view('supervisions.recap_print', compact(
+            'supervisions',
+            'selectedYear',
+            'selectedSemester',
+            'selectedType',
+            'totalTeachers',
+            'uniqueSupervised',
+            'avgScore',
+            'predicateStats'
+        ));
     }
 }
 

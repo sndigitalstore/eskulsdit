@@ -370,6 +370,7 @@ Route::middleware(['auth'])->group(function () {
     // INSTRUMEN MONITORING & SUPERVISI KEPALA SEKOLAH
     Route::middleware(['role:admin,headmaster,curriculum'])->group(function () {
         Route::get('/supervision-radar', [\App\Http\Controllers\SupervisionController::class, 'radar'])->name('supervisions.radar');
+        Route::get('/supervisions-recap/print', [\App\Http\Controllers\SupervisionController::class, 'recapPrint'])->name('supervisions.recap-print');
         Route::get('/supervisions/create', [\App\Http\Controllers\SupervisionController::class, 'create'])->name('supervisions.create');
         Route::post('/supervisions', [\App\Http\Controllers\SupervisionController::class, 'store'])->name('supervisions.store');
         Route::get('/supervisions/{supervision}/edit', [\App\Http\Controllers\SupervisionController::class, 'edit'])->name('supervisions.edit');
