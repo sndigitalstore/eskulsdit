@@ -41,19 +41,9 @@
                     1. Penerima Apresiasi & Waktu
                 </h4>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Pilih Siswa <span style="color: #ef4444;">*</span>
-                        </label>
-                        <select name="student_id" class="form-control" required>
-                            <option value="">-- Pilih Siswa --</option>
-                            @foreach($students as $st)
-                                <option value="{{ $st->id }}" {{ (old('student_id', $selectedStudent->id ?? '') == $st->id) ? 'selected' : '' }}>
-                                    {{ $st->name }} (Kelas {{ $st->class }}) - NIS: {{ $st->nis ?? '-' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @include('character.partials.student_search_picker', ['students' => $students, 'selectedStudent' => $selectedStudent, 'theme' => 'green'])
                     </div>
 
                     <div>
@@ -78,7 +68,7 @@
                     2. Nilai Karakter SMILE & Bentuk Kebaikan
                 </h4>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Kategori Nilai SMILE <span style="color: #ef4444;">*</span>
@@ -104,7 +94,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Poin Kebaikan (+) <span style="color: #ef4444;">*</span>

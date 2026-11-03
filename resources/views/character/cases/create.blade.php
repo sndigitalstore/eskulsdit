@@ -41,19 +41,9 @@
                     1. Identitas Siswa & Waktu Kejadian
                 </h4>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Pilih Siswa <span style="color: #ef4444;">*</span>
-                        </label>
-                        <select name="student_id" id="student_id" class="form-control" required>
-                            <option value="">-- Pilih Siswa --</option>
-                            @foreach($students as $st)
-                                <option value="{{ $st->id }}" {{ (old('student_id', $selectedStudent->id ?? '') == $st->id) ? 'selected' : '' }}>
-                                    {{ $st->name }} (Kelas {{ $st->class }}) - NIS: {{ $st->nis ?? '-' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @include('character.partials.student_search_picker', ['students' => $students, 'selectedStudent' => $selectedStudent, 'theme' => 'red'])
                     </div>
 
                     <div>
@@ -87,7 +77,7 @@
                     2. Uraian & Bobot Kasus
                 </h4>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Kategori Masalah <span style="color: #ef4444;">*</span>
@@ -114,7 +104,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Tingkat Keparahan <span style="color: #ef4444;">*</span>
@@ -162,7 +152,7 @@
                     <textarea name="restorative_action" rows="2" class="form-control" placeholder="Bentuk perbaikan diri siswa (contoh: tilawah mandiri 1 juz, merapikan musholla, membuat tulisan refleksi akhlak, meminta maaf secara tulus)">{{ old('restorative_action') }}</textarea>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Tindakan Langsung Guru / Pelapor
@@ -178,7 +168,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Alur / Level Penanganan Kasus <span style="font-size: 0.75rem; color: #0284c7;">[SOP Akreditasi]</span>

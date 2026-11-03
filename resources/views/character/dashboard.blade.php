@@ -131,14 +131,14 @@
             </div>
         </div>
 
-        <!-- Standar Mutu Karakter JSIT / P5 -->
+        <!-- Standar Mutu Karakter SMILE & 8 Dimensi Profil Lulusan -->
         <div class="card" style="border-left: 5px solid #8b5cf6; display: flex; align-items: center; gap: 14px; padding: 18px 20px;">
             <div style="width: 52px; height: 52px; border-radius: 14px; background: #ede9fe; color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fas fa-star-and-crescent"></i>
             </div>
             <div>
                 <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Standar Karakter</div>
-                <div style="font-size: 1.25rem; font-weight: 900; color: #1e293b;">SMILE & P5</div>
+                <div style="font-size: 1.15rem; font-weight: 900; color: #1e293b;">SMILE & 8 Dimensi Profil Lulusan</div>
                 <div style="font-size: 0.73rem; color: #8b5cf6; font-weight: 700;">
                     Sholeh &bull; Muslih &bull; Intellectual Curiosity &bull; Leadership &bull; Environmentally
                 </div>

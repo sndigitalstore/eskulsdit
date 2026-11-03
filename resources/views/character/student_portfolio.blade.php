@@ -229,7 +229,7 @@
 
         <!-- Tabel 1: Rekam Apresiasi Kebaikan -->
         <div class="section-header">
-            <i class="fas fa-award" style="color: #10b981;"></i> 1. Catatan Apresiasi & Keteladanan Akhlak (SMILE & P5)
+            <i class="fas fa-award" style="color: #10b981;"></i> 1. Catatan Apresiasi & Keteladanan Akhlak (SMILE & 8 Dimensi Profil Lulusan)
         </div>
         <table class="table-custom">
             <thead>
@@ -238,7 +238,7 @@
                     <th width="14%">Tanggal</th>
                     <th width="20%">Kategori SMILE</th>
                     <th width="35%">Uraian Kebaikan & Prestasi</th>
-                    <th width="16%">Dimensi P5</th>
+                    <th width="16%">8 Dimensi Profil Lulusan</th>
                     <th width="10%" style="text-align: center;">Poin</th>
                 </tr>
             </thead>

@@ -253,7 +253,7 @@
                             <i class="fas fa-star"></i> Kategori SMILE: {{ $appreciation->category }}
                         </span>
                         <span class="cert-pill" style="background: #ecfdf5; color: #065f46; border-color: #a7f3d0;">
-                            <i class="fas fa-award"></i> Dimensi P5: {{ $appreciation->dimension_p5 ?: 'Adab Islami SIT' }}
+                            <i class="fas fa-award"></i> Profil Lulusan: {{ $appreciation->dimension_p5 ?: 'Adab Islami SIT' }}
                         </span>
                         <span class="cert-pill" style="background: #ede9fe; color: #6b21a8; border-color: #ddd6fe;">
                             <i class="fas fa-plus-circle"></i> +{{ $appreciation->point }} Poin Kebaikan
