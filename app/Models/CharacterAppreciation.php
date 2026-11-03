@@ -74,24 +74,28 @@ class CharacterAppreciation extends Model
     }
 
     /**
-     * Helper to get Dimension P5 & SIT Theme
+     * Helper to get Dimension Profil Lulusan / P5 Theme
      */
     public function getDimensionP5ThemeAttribute()
     {
         $dim = strtolower($this->dimension_p5 ?? '');
-        if (str_contains($dim, 'beriman') || str_contains($dim, 'bertaqwa')) {
-            return ['bg' => '#ecfdf5', 'color' => '#065f46', 'label' => 'Beriman & Bertaqwa'];
-        } elseif (str_contains($dim, 'mandiri')) {
-            return ['bg' => '#eff6ff', 'color' => '#1e40af', 'label' => 'Mandiri'];
-        } elseif (str_contains($dim, 'gotong') || str_contains($dim, 'royong')) {
-            return ['bg' => '#fef3c7', 'color' => '#92400e', 'label' => 'Gotong Royong'];
-        } elseif (str_contains($dim, 'kritis')) {
-            return ['bg' => '#f3e8ff', 'color' => '#6b21a8', 'label' => 'Bernalar Kritis'];
+        if (str_contains($dim, 'iman') || str_contains($dim, 'takwa') || str_contains($dim, 'taqwa') || str_contains($dim, 'spiritual')) {
+            return ['bg' => '#ecfdf5', 'color' => '#047857', 'icon' => 'fa-star-and-crescent', 'label' => 'Keimanan & Ketakwaan'];
+        } elseif (str_contains($dim, 'kewargaan') || str_contains($dim, 'kebinekaan')) {
+            return ['bg' => '#fef2f2', 'color' => '#b91c1c', 'icon' => 'fa-flag', 'label' => 'Kewargaan'];
+        } elseif (str_contains($dim, 'kritis') || str_contains($dim, 'nalar')) {
+            return ['bg' => '#eff6ff', 'color' => '#1d4ed8', 'icon' => 'fa-brain', 'label' => 'Penalaran Kritis'];
         } elseif (str_contains($dim, 'kreatif')) {
-            return ['bg' => '#fdf2f8', 'color' => '#9d174d', 'label' => 'Kreatif'];
-        } elseif (str_contains($dim, 'kebinekaan') || str_contains($dim, 'kebhinekaan')) {
-            return ['bg' => '#ffedd5', 'color' => '#9a3412', 'label' => 'Berkebinekaan Global'];
+            return ['bg' => '#faf5ff', 'color' => '#7c3aed', 'icon' => 'fa-lightbulb', 'label' => 'Kreativitas'];
+        } elseif (str_contains($dim, 'kolaborasi') || str_contains($dim, 'gotong') || str_contains($dim, 'royong')) {
+            return ['bg' => '#f0fdf4', 'color' => '#15803d', 'icon' => 'fa-users', 'label' => 'Kolaborasi'];
+        } elseif (str_contains($dim, 'mandiri')) {
+            return ['bg' => '#fff7ed', 'color' => '#c2410c', 'icon' => 'fa-user-check', 'label' => 'Kemandirian'];
+        } elseif (str_contains($dim, 'kesehatan') || str_contains($dim, 'sehat') || str_contains($dim, 'raga')) {
+            return ['bg' => '#ecfdf5', 'color' => '#059669', 'icon' => 'fa-heartbeat', 'label' => 'Kesehatan'];
+        } elseif (str_contains($dim, 'komunikasi') || str_contains($dim, 'tutur') || str_contains($dim, 'wicara')) {
+            return ['bg' => '#e0f2fe', 'color' => '#0284c7', 'icon' => 'fa-comments', 'label' => 'Komunikasi'];
         }
-        return ['bg' => '#f8fafc', 'color' => '#475569', 'label' => $this->dimension_p5 ?: 'Karakter JSIT'];
+        return ['bg' => '#f8fafc', 'color' => '#475569', 'icon' => 'fa-award', 'label' => $this->dimension_p5 ?: 'Profil Lulusan'];
     }
 }

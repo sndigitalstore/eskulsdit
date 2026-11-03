@@ -868,4 +868,180 @@ class AcademicReportController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
+
+    /**
+     * Print official A4 Raport Kekhasan SDIT An Nadzir (Al-Qur'an & Karakter SMILE 8 Profil Lulusan).
+     */
+    public function printKekhasan(Request $request, Student $student)
+    {
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $student->class) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport kekhasan untuk kelas binaan Anda.');
+            }
+        }
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
+        $academicYear = AcademicYear::find($yearId);
+
+        $assessmentType = $request->assessment ?? 'SAS_1';
+        if (!array_key_exists($assessmentType, self::ASSESSMENT_TYPES)) {
+            $assessmentType = 'SAS_1';
+        }
+        $assessmentInfo = self::ASSESSMENT_TYPES[$assessmentType];
+
+        $summary = AcademicSummary::where('student_id', $student->id)
+            ->where('academic_year_id', $yearId)
+            ->where('assessment_type', $assessmentType)
+            ->first();
+
+        $eskuls = $student->eskuls;
+        $eskulGrades = Grade::where('student_id', $student->id)
+            ->where('academic_year_id', $yearId)
+            ->where('semester', $assessmentInfo['semester'])
+            ->get()
+            ->keyBy('eskul_id');
+
+        $homeroomTeacher = User::where('homeroom_class', $student->class)->first();
+
+        // Qur'an Mentoring: Tilawati & Tahfidz
+        $tilawatiGroup = $student->tilawatiGroup($yearId);
+        $tilawatiPivot = $tilawatiGroup ? $student->mentoringGroups()->where('mentoring_groups.id', $tilawatiGroup->id)->first()?->pivot : null;
+
+        $tahfidzGroup = $student->tahfidzGroup($yearId);
+        $latestTahfidzRecord = $student->tahfidzRecords()
+            ->where('academic_year_id', $yearId)
+            ->latest('session_date')
+            ->first();
+        $totalHafalanRecords = $student->tahfidzRecords()
+            ->where('academic_year_id', $yearId)
+            ->count();
+
+        // Karakter SMILE & 8 Profil Lulusan
+        $characterAppreciations = $student->characterAppreciations()
+            ->where('academic_year_id', $yearId)
+            ->latest('date')
+            ->get();
+
+        $characterCases = $student->characterCases()
+            ->where('academic_year_id', $yearId)
+            ->get();
+
+        $appreciationPoints = $characterAppreciations->sum('point');
+        $casePoints = $characterCases->sum('point');
+        $netPoint = $appreciationPoints - $casePoints;
+
+        return view('curriculum.reports.print_kekhasan', compact(
+            'student',
+            'academicYear',
+            'assessmentType',
+            'assessmentInfo',
+            'summary',
+            'eskuls',
+            'eskulGrades',
+            'homeroomTeacher',
+            'tilawatiGroup',
+            'tilawatiPivot',
+            'tahfidzGroup',
+            'latestTahfidzRecord',
+            'totalHafalanRecords',
+            'characterAppreciations',
+            'characterCases',
+            'appreciationPoints',
+            'casePoints',
+            'netPoint'
+        ));
+    }
+
+    /**
+     * Print official A4 Raport Kekhasan SDIT An Nadzir for ALL students in a class.
+     */
+    public function printAllKekhasan(Request $request)
+    {
+        $class = $request->class;
+        $user = Auth::user();
+        if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class) || $user->homeroom_class !== $class) {
+                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport untuk kelas binaan Anda.');
+            }
+        }
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
+        $academicYear = AcademicYear::find($yearId);
+
+        $assessmentType = $request->assessment ?? 'SAS_1';
+        if (!array_key_exists($assessmentType, self::ASSESSMENT_TYPES)) {
+            $assessmentType = 'SAS_1';
+        }
+        $assessmentInfo = self::ASSESSMENT_TYPES[$assessmentType];
+
+        $students = Student::forYear($yearId)
+            ->where('class', $class)
+            ->where('status', 'active')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $summaries = AcademicSummary::where('academic_year_id', $yearId)
+            ->where('assessment_type', $assessmentType)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        $homeroomTeacher = User::where('homeroom_class', $class)->first();
+
+        $studentData = [];
+        foreach ($students as $stu) {
+            $eskulGrades = Grade::where('student_id', $stu->id)
+                ->where('academic_year_id', $yearId)
+                ->where('semester', $assessmentInfo['semester'])
+                ->get()
+                ->keyBy('eskul_id');
+
+            $tilawatiGroup = $stu->tilawatiGroup($yearId);
+            $tilawatiPivot = $tilawatiGroup ? $stu->mentoringGroups()->where('mentoring_groups.id', $tilawatiGroup->id)->first()?->pivot : null;
+
+            $tahfidzGroup = $stu->tahfidzGroup($yearId);
+            $latestTahfidzRecord = $stu->tahfidzRecords()
+                ->where('academic_year_id', $yearId)
+                ->latest('session_date')
+                ->first();
+
+            $characterAppreciations = $stu->characterAppreciations()
+                ->where('academic_year_id', $yearId)
+                ->latest('date')
+                ->get();
+
+            $characterCases = $stu->characterCases()
+                ->where('academic_year_id', $yearId)
+                ->get();
+
+            $studentData[$stu->id] = [
+                'student' => $stu,
+                'summary' => $summaries[$stu->id] ?? null,
+                'eskuls' => $stu->eskuls,
+                'eskulGrades' => $eskulGrades,
+                'tilawatiGroup' => $tilawatiGroup,
+                'tilawatiPivot' => $tilawatiPivot,
+                'tahfidzGroup' => $tahfidzGroup,
+                'latestTahfidzRecord' => $latestTahfidzRecord,
+                'characterAppreciations' => $characterAppreciations,
+                'characterCases' => $characterCases,
+                'appreciationPoints' => $characterAppreciations->sum('point'),
+                'casePoints' => $characterCases->sum('point'),
+                'netPoint' => $characterAppreciations->sum('point') - $characterCases->sum('point'),
+            ];
+        }
+
+        return view('curriculum.reports.print_all_kekhasan', compact(
+            'class',
+            'academicYear',
+            'assessmentType',
+            'assessmentInfo',
+            'homeroomTeacher',
+            'students',
+            'studentData'
+        ));
+    }
 }

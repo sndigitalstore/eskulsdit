@@ -94,13 +94,14 @@ class CharacterAppreciationController extends Controller
         ];
 
         $p5Dimensions = [
-            'Beriman & Bertaqwa'   => 'Beriman, Bertakwa kepada Tuhan YME, dan Berakhlak Mulia',
-            'Mandiri'              => 'Mandiri (Bertanggung jawab & disiplin diri)',
-            'Gotong Royong'        => 'Bergotong Royong (Peduli, berbagi, tolong menolong)',
-            'Bernalar Kritis'      => 'Bernalar Kritis (Reflektif & analitis)',
-            'Kreatif'              => 'Kreatif (Inovatif & menghasilkan karya)',
-            'Berkebinekaan Global' => 'Berkebinekaan Global (Toleran & menghargai sesama)',
-            'Adab Islami SIT'      => 'Standar Mutu Karakter SIT (Akhlak Qur\'ani)',
+            'Keimanan & Ketakwaan' => '1. Keimanan dan Ketakwaan kepada Tuhan YME (Spiritual & Akhlak)',
+            'Kewargaan'            => '2. Kewargaan (Cinta Tanah Air, Taat Norma & Kepedulian Sosial)',
+            'Penalaran Kritis'     => '3. Penalaran Kritis (Berpikir Logis, Analitis & Reflektif)',
+            'Kreativitas'          => '4. Kreativitas (Inovatif, Orisinal & Solutif)',
+            'Kolaborasi'           => '5. Kolaborasi (Semangat Bergotong Royong & Kerja Sama Tim)',
+            'Kemandirian'          => '6. Kemandirian (Tanggung Jawab Belajar & Disiplin Diri)',
+            'Kesehatan'            => '7. Kesehatan (Kebugaran Fisik, Thaharah, & Kesejahteraan Jiwa)',
+            'Komunikasi'           => '8. Komunikasi (Santun, Terampil Berpendapat & Percaya Diri)',
         ];
 
         return view('character.appreciations.index', compact(
@@ -153,13 +154,14 @@ class CharacterAppreciationController extends Controller
         ];
 
         $p5Dimensions = [
-            'Beriman & Bertaqwa'   => 'Beriman, Bertakwa kepada Tuhan YME, dan Berakhlak Mulia',
-            'Mandiri'              => 'Mandiri (Bertanggung jawab & disiplin diri)',
-            'Gotong Royong'        => 'Bergotong Royong (Peduli, berbagi, tolong menolong)',
-            'Bernalar Kritis'      => 'Bernalar Kritis (Reflektif & analitis)',
-            'Kreatif'              => 'Kreatif (Inovatif & menghasilkan karya)',
-            'Berkebinekaan Global' => 'Berkebinekaan Global (Toleran & menghargai sesama)',
-            'Adab Islami SIT'      => 'Standar Mutu Karakter SIT (Akhlak Qur\'ani)',
+            'Keimanan & Ketakwaan' => '1. Keimanan dan Ketakwaan kepada Tuhan YME (Spiritual & Akhlak)',
+            'Kewargaan'            => '2. Kewargaan (Cinta Tanah Air, Taat Norma & Kepedulian Sosial)',
+            'Penalaran Kritis'     => '3. Penalaran Kritis (Berpikir Logis, Analitis & Reflektif)',
+            'Kreativitas'          => '4. Kreativitas (Inovatif, Orisinal & Solutif)',
+            'Kolaborasi'           => '5. Kolaborasi (Semangat Bergotong Royong & Kerja Sama Tim)',
+            'Kemandirian'          => '6. Kemandirian (Tanggung Jawab Belajar & Disiplin Diri)',
+            'Kesehatan'            => '7. Kesehatan (Kebugaran Fisik, Thaharah, & Kesejahteraan Jiwa)',
+            'Komunikasi'           => '8. Komunikasi (Santun, Terampil Berpendapat & Percaya Diri)',
         ];
 
         return view('character.appreciations.create', compact(
@@ -242,13 +244,14 @@ class CharacterAppreciationController extends Controller
         ];
 
         $p5Dimensions = [
-            'Beriman & Bertaqwa'   => 'Beriman, Bertakwa kepada Tuhan YME, dan Berakhlak Mulia',
-            'Mandiri'              => 'Mandiri (Bertanggung jawab & disiplin diri)',
-            'Gotong Royong'        => 'Bergotong Royong (Peduli, berbagi, tolong menolong)',
-            'Bernalar Kritis'      => 'Bernalar Kritis (Reflektif & analitis)',
-            'Kreatif'              => 'Kreatif (Inovatif & menghasilkan karya)',
-            'Berkebinekaan Global' => 'Berkebinekaan Global (Toleran & menghargai sesama)',
-            'Adab Islami SIT'      => 'Standar Mutu Karakter SIT (Akhlak Qur\'ani)',
+            'Keimanan & Ketakwaan' => '1. Keimanan dan Ketakwaan kepada Tuhan YME (Spiritual & Akhlak)',
+            'Kewargaan'            => '2. Kewargaan (Cinta Tanah Air, Taat Norma & Kepedulian Sosial)',
+            'Penalaran Kritis'     => '3. Penalaran Kritis (Berpikir Logis, Analitis & Reflektif)',
+            'Kreativitas'          => '4. Kreativitas (Inovatif, Orisinal & Solutif)',
+            'Kolaborasi'           => '5. Kolaborasi (Semangat Bergotong Royong & Kerja Sama Tim)',
+            'Kemandirian'          => '6. Kemandirian (Tanggung Jawab Belajar & Disiplin Diri)',
+            'Kesehatan'            => '7. Kesehatan (Kebugaran Fisik, Thaharah, & Kesejahteraan Jiwa)',
+            'Komunikasi'           => '8. Komunikasi (Santun, Terampil Berpendapat & Percaya Diri)',
         ];
 
         return view('character.appreciations.edit', compact('appreciation', 'students', 'classes', 'categories', 'p5Dimensions'));

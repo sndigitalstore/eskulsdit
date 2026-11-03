@@ -103,7 +103,7 @@
                     </select>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Dimensi Profil Lulusan / P5</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">8 Dimensi Profil Lulusan (Deep Learning)</label>
                     <select name="dimension_p5" class="form-control" style="height: 40px; font-size: 0.88rem;">
                         <option value="">-- Semua Dimensi --</option>
                         @foreach($p5Dimensions as $pKey => $pLabel)

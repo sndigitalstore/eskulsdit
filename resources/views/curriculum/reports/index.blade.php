@@ -73,6 +73,9 @@
                     <a href="{{ route('academic-reports.print-all-students', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn-action-header" style="background: white; color: #0284c7; font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                         <i class="fas fa-print"></i> Cetak Semua Rapor (A4)
                     </a>
+                    <a href="{{ route('academic-reports.print-all-kekhasan', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn-action-header" style="background: #065f46; color: white; font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(6, 95, 70, 0.4);">
+                        <i class="fas fa-certificate"></i> Cetak Semua Rapor Kekhasan (A4)
+                    </a>
                     <a href="{{ route('academic-reports.export-leger', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" class="btn-action-header" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4); font-weight: 700; padding: 10px 18px; border-radius: 12px; text-decoration: none; color: white;">
                         <i class="fas fa-file-excel"></i> Unduh Leger
                     </a>
@@ -285,12 +288,21 @@
                                         @endif
                                     </td>
                                     <td style="padding: 10px; text-align: center;">
-                                        <a href="{{ route('academic-reports.print-student', ['student' => $row['student']->id, 'year_id' => $selectedYearId, 'assessment' => $selectedAssessment]) }}" 
-                                           target="_blank" 
-                                           class="btn btn-sm" 
-                                           style="background: #0284c7; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                            <i class="fas fa-print"></i> Cetak Rapor
-                                        </a>
+                                        <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                                            <a href="{{ route('academic-reports.print-student', ['student' => $row['student']->id, 'year_id' => $selectedYearId, 'assessment' => $selectedAssessment]) }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm" 
+                                               style="background: #0284c7; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-print"></i> Cetak Rapor
+                                            </a>
+                                            <a href="{{ route('academic-reports.print-kekhasan', ['student' => $row['student']->id, 'year_id' => $selectedYearId, 'assessment' => $selectedAssessment]) }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm" 
+                                               style="background: #065f46; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"
+                                               title="Cetak Rapor Kekhasan (Al-Qur'an & Karakter)">
+                                                <i class="fas fa-certificate"></i> Kekhasan
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

@@ -408,44 +408,99 @@
                 </tbody>
             </table>
 
-            <!-- TABLE PEMBIASAAN KARAKTER SMILE -->
-            <div class="section-title">C. Pembiasaan Karakter SMILE SDIT AN NADZIR</div>
+            <!-- TABLE PEMBIASAAN KARAKTER SMILE & 8 PROFIL LULUSAN -->
+            <div class="section-title">C. Pembiasaan Karakter Kekhasan SMILE & 8 Profil Lulusan (Deep Learning)</div>
             <table class="table-data" style="margin-bottom: 12px;">
                 <thead>
                     <tr>
                         <th style="width: 30px;">No</th>
-                        <th style="text-align: left; width: 220px;">Dimensi Karakter SMILE</th>
-                        <th style="width: 80px;">Predikat</th>
-                        <th style="text-align: left;">Deskripsi Pembiasaan Perilaku</th>
+                        <th style="text-align: left; width: 170px;">Dimensi Profil Lulusan</th>
+                        <th style="text-align: center; width: 85px;">Pilar SMILE</th>
+                        <th style="width: 85px;">Capaian</th>
+                        <th style="text-align: left;">Deskripsi Capaian Pembiasaan Perilaku</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $smileDimensions = [
-                            ['code' => 'S', 'name' => 'Sholeh', 'desc' => 'Taat beribadah, tertib shalat fardhu & dhuha, mengamalkan adab Islami sehari-hari.'],
-                            ['code' => 'M', 'name' => 'Muslih', 'desc' => 'Membawa kebaikan, gemar tolong-menolong, peduli sesama, dan mendamaikan lingkungan.'],
-                            ['code' => 'I', 'name' => 'Intellectual Curiosity', 'desc' => 'Memiliki rasa ingin tahu tinggi, gemar membaca/literasi, dan semangat menggali ilmu.'],
-                            ['code' => 'L', 'name' => 'Leadership', 'desc' => 'Bertanggung jawab, berani memimpin, disiplin, dan amanah dalam menjalankan tugas.'],
-                            ['code' => 'E', 'name' => 'Environmentally', 'desc' => 'Menjaga kebersihan diri, merawat fasilitas kelas, dan mencintai kelestarian lingkungan.'],
+                        $gradDimensions = [
+                            [
+                                'name' => 'Keimanan & Ketakwaan',
+                                'smile' => 'S - Sholeh',
+                                'desc' => 'Taat menjalankan ibadah shalat fardhu dan dhuha, tadarus Al-Qur\'an, berdoa sebelum/sesudah belajar, serta senantiasa mengamalkan adab mulia dalam tutur kata dan perilaku sehari-hari.',
+                                'keywords' => ['iman', 'takwa', 'taqwa', 'sholeh', 'ibadah', 'sholat']
+                            ],
+                            [
+                                'name' => 'Kewargaan',
+                                'smile' => 'M - Muslih',
+                                'desc' => 'Menunjukkan kecintaan kepada tanah air, mematuhi tata tertib sekolah, menghormati guru dan orang tua, serta memiliki kepedulian terhadap kemaslahatan bersama.',
+                                'keywords' => ['kewargaan', 'warga', 'muslih', 'tertib', 'adab']
+                            ],
+                            [
+                                'name' => 'Penalaran Kritis',
+                                'smile' => 'I - Intellectual',
+                                'desc' => 'Mampu berpikir logis dan analitis, aktif bertanya hal-hal bernilai ilmu, gemar membaca (literasi), serta terampil memecahkan masalah dalam tugas belajar.',
+                                'keywords' => ['kritis', 'nalar', 'curiosity', 'intellectual', 'tanya']
+                            ],
+                            [
+                                'name' => 'Kreativitas',
+                                'smile' => 'I - Intellectual',
+                                'desc' => 'Memiliki daya imajinasi dan orisinalitas tinggi, berani mencoba hal-hal baru yang bermanfaat, serta mampu menghasilkan karya inovatif dalam pembelajaran.',
+                                'keywords' => ['kreatif', 'kreasi', 'karya', 'inovasi']
+                            ],
+                            [
+                                'name' => 'Kolaborasi',
+                                'smile' => 'M - Muslih',
+                                'desc' => 'Terampil bekerja sama dalam kelompok, berjiwa gotong-royong, memiliki empati, gemar tolong-menolong, dan menghargai peran serta pendapat teman.',
+                                'keywords' => ['kolaborasi', 'gotong', 'royong', 'teman', 'bantu']
+                            ],
+                            [
+                                'name' => 'Kemandirian',
+                                'smile' => 'L - Leadership',
+                                'desc' => 'Bertanggung jawab atas perlengkapan dan tugas pribadinya, disiplin waktu, memiliki motivasi belajar intrinsik, dan tidak bergantung berlebihan pada orang lain.',
+                                'keywords' => ['mandiri', 'tanggung jawab', 'disiplin', 'tugas']
+                            ],
+                            [
+                                'name' => 'Kesehatan',
+                                'smile' => 'S - Sholeh',
+                                'desc' => 'Senantiasa menjaga kebersihan diri (thaharah), kebugaran jasmani, merawat kesehatan fisik, serta memiliki ketenangan dan kematangan emosi.',
+                                'keywords' => ['kesehatan', 'sehat', 'thaharah', 'bersih', 'jasmani']
+                            ],
+                            [
+                                'name' => 'Komunikasi',
+                                'smile' => 'L - Leadership',
+                                'desc' => 'Mampu menyampaikan ide dan pendapat secara santun, menyimak dengan penuh perhatian, terampil berdialog, serta percaya diri dalam interaksi sosial.',
+                                'keywords' => ['komunikasi', 'bicara', 'santun', 'pendapat', 'leadership']
+                            ],
                         ];
                     @endphp
-                    @foreach($smileDimensions as $idx => $dim)
+                    @foreach($gradDimensions as $idx => $dim)
                         @php
                             $dimAppreciation = $characterAppreciations->first(function($app) use ($dim) {
-                                return stripos($app->category, $dim['name']) !== false || stripos($app->title, $dim['name']) !== false;
+                                $c = strtolower($app->category ?? '');
+                                $d = strtolower($app->dimension_p5 ?? '');
+                                $t = strtolower($app->title ?? '');
+                                foreach ($dim['keywords'] as $kw) {
+                                    if (str_contains($c, $kw) || str_contains($d, $kw) || str_contains($t, $kw)) {
+                                        return true;
+                                    }
+                                }
+                                return false;
                             });
                         @endphp
                         <tr>
                             <td class="text-center">{{ $idx + 1 }}</td>
                             <td>
-                                <strong>{{ $dim['code'] }} – {{ $dim['name'] }}</strong>
+                                <strong>{{ $dim['name'] }}</strong>
                             </td>
-                            <td class="text-center font-bold" style="color: #166534;">
-                                {{ $dimAppreciation ? 'A (Sangat Baik)' : 'B (Baik)' }}
+                            <td class="text-center" style="font-size: 8pt; color: #065f46; font-weight: 700;">
+                                {{ $dim['smile'] }}
                             </td>
-                            <td style="font-size: 8.5pt;">
+                            <td class="text-center font-bold" style="color: {{ $dimAppreciation ? '#15803d' : '#0369a1' }}; font-size: 8.5pt;">
+                                {{ $dimAppreciation ? 'SBh (Sangat Baik)' : 'BSH (Berkembang)' }}
+                            </td>
+                            <td style="font-size: 8.5pt; line-height: 1.35;">
                                 @if($dimAppreciation)
-                                    <strong>{{ $dimAppreciation->title }}:</strong> {{ $dimAppreciation->description ?? $dim['desc'] }}
+                                    <strong style="color: #065f46;">{{ $dimAppreciation->title }}:</strong> {{ $dimAppreciation->description ?? $dim['desc'] }}
                                 @else
                                     {{ $dim['desc'] }}
                                 @endif

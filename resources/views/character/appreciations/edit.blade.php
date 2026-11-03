@@ -86,7 +86,7 @@
 
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Dimensi Profil Lulusan / P5 / SIT (Akreditasi)
+                            8 Dimensi Profil Lulusan (Deep Learning / SKL)
                         </label>
                         <select name="dimension_p5" class="form-control">
                             <option value="">-- Pilih Dimensi (Opsional) --</option>
