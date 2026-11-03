@@ -287,7 +287,7 @@
             <div class="kop-surat">
                 <img src="{{ asset('assets/images/logo.png') }}" class="kop-logo" alt="Logo SDIT An Nadzir" onerror="this.style.display='none'">
                 <div class="kop-text">
-                    <h1>YAYASAN PENDIDIKAN ISLAM AN NADZIR</h1>
+                    <h1>AN NADZIR ISLAMIC SCHOOL</h1>
                     <h2>SEKOLAH DASAR ISLAM TERPADU (SDIT) AN NADZIR</h2>
                     <p>NPSN: 69978738 &bull; Izin Operasional: 421.2/18-Disdikbud/2018 &bull; Akreditasi: B</p>
                     <p>Jl. Raya Karang Bolong Km. 140, Desa Cinangka, Kec. Cinangka, Kab. Serang, Banten 42167</p>

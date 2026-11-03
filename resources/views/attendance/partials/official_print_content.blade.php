@@ -26,7 +26,7 @@
                 </td>
                 <td style="border: none; text-align: center; vertical-align: middle; padding: 0 10px;">
                     <div style="font-size: 8.5pt; font-weight: bold; color: #333333; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.15;">
-                        YAYASAN PENDIDIKAN ISLAM AN NADZIR
+                        AN NADZIR ISLAMIC SCHOOL
                     </div>
                     <div style="font-size: 17pt; font-weight: 900; color: #064e3b; letter-spacing: 0.5px; line-height: 1.2; margin: 2px 0;">
                         SDIT AN NADZIR
