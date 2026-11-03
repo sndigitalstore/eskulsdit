@@ -251,6 +251,7 @@ class CharacterCaseController extends Controller
 
         $student = Student::find($request->student_id);
         ActivityLog::log('Karakter', 'Create Kasus', "Mencatat kasus: {$case->title} ({$case->severity}) untuk siswa {$student->name}");
+        \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();
 
         return redirect()->route('character-cases.index')
             ->with('success', "Data kasus pembinaan siswa '{$student->name}' berhasil dicatat.");
@@ -341,6 +342,7 @@ class CharacterCaseController extends Controller
         ]);
 
         ActivityLog::log('Karakter', 'Update Kasus', "Memperbarui kasus ID: {$character_case->id} ({$character_case->title})");
+        \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();
 
         return redirect()->route('character-cases.index')
             ->with('success', 'Data catatan kasus pembinaan berhasil diperbarui.');
@@ -366,6 +368,7 @@ class CharacterCaseController extends Controller
         $character_case->delete();
 
         ActivityLog::log('Karakter', 'Delete Kasus', "Menghapus kasus ID: {$id} ({$title})");
+        \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();
 
         return redirect()->route('character-cases.index')
             ->with('success', 'Catatan kasus berhasil dihapus.');

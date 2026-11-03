@@ -8,11 +8,32 @@ use App\Models\CharacterCase;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 
 class CharacterDashboardController extends Controller
 {
+    /**
+     * Cache versioning helper for zero-downtime and universal driver compatibility (File, Redis, Database)
+     */
+    public static function getCacheVersion(): string
+    {
+        return (string) Cache::get('char_analytics_cache_version', '1');
+    }
+
+    /**
+     * Invalidate analytics and character dashboard cache on data mutations
+     */
+    public static function invalidateAnalyticsCache(): void
+    {
+        try {
+            Cache::put('char_analytics_cache_version', (string) microtime(true), 86400 * 30);
+        } catch (\Throwable $e) {
+            // Ignore
+        }
+    }
+
     protected function ensureTablesExist()
     {
         if (!Schema::hasTable('character_cases') || !Schema::hasTable('character_appreciations') || !Schema::hasColumn('character_cases', 'tppk_category')) {
@@ -53,68 +74,77 @@ class CharacterDashboardController extends Controller
         $apprBase = CharacterAppreciation::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
             ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)));
 
-        // Stat cards
-        $totalCases = (clone $caseBase)->count();
-        $resolvedCases = (clone $caseBase)->where('status', 'selesai')->count();
-        $activeCases = (clone $caseBase)->where('status', 'dalam_pembinaan')->count();
-        $tppkCases = (clone $caseBase)->where(function($q) {
-            $q->whereNotNull('tppk_category')->where('tppk_category', '!=', 'non_tppk');
-        })->count();
+        // Cached dashboard analytics (10 minutes TTL with auto-invalidation on new case/appreciation)
+        $cacheVersion = self::getCacheVersion();
+        $dashCacheKey = "char_dashboard_v{$cacheVersion}_{$selectedYearId}_" . ($selectedClass ?: 'ALL');
 
-        $totalAppreciations = (clone $apprBase)->count();
-        $totalAppreciationPoints = (clone $apprBase)->sum('point');
+        $cachedDash = Cache::remember($dashCacheKey, 600, function() use ($selectedYearId, $selectedClass, $caseBase, $apprBase) {
+            // Stat cards
+            $totalCases = (clone $caseBase)->count();
+            $resolvedCases = (clone $caseBase)->where('status', 'selesai')->count();
+            $activeCases = (clone $caseBase)->where('status', 'dalam_pembinaan')->count();
+            $tppkCases = (clone $caseBase)->where(function($q) {
+                $q->whereNotNull('tppk_category')->where('tppk_category', '!=', 'non_tppk');
+            })->count();
 
-        // Top students by appreciation
-        $topStudents = Student::forYear($selectedYearId)
-            ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->where('class', $selectedClass))
-            ->withCount([
-                'characterAppreciations as appreciation_count' => function($q) use ($selectedYearId) {
-                    $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId));
-                }
-            ])
-            ->withSum([
-                'characterAppreciations as total_points' => function($q) use ($selectedYearId) {
-                    $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId));
-                }
-            ], 'point')
-            ->having('appreciation_count', '>', 0)
-            ->orderByDesc('total_points')
-            ->take(5)
-            ->get();
+            $totalAppreciations = (clone $apprBase)->count();
+            $totalAppreciationPoints = (clone $apprBase)->sum('point');
 
-        // Students needing attention (most cases)
-        $attentionStudents = Student::forYear($selectedYearId)
-            ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->where('class', $selectedClass))
-            ->withCount([
-                'characterCases as case_count' => function($q) use ($selectedYearId) {
-                    $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId));
-                }
-            ])
-            ->having('case_count', '>', 0)
-            ->orderByDesc('case_count')
-            ->take(5)
-            ->get();
+            // Top students by appreciation
+            $topStudents = Student::forYear($selectedYearId)
+                ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->where('class', $selectedClass))
+                ->withCount([
+                    'characterAppreciations as appreciation_count' => function($q) use ($selectedYearId) {
+                        $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId));
+                    }
+                ])
+                ->withSum([
+                    'characterAppreciations as total_points' => function($q) use ($selectedYearId) {
+                        $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId));
+                    }
+                ], 'point')
+                ->having('appreciation_count', '>', 0)
+                ->orderByDesc('total_points')
+                ->take(5)
+                ->get();
 
-        // Recent activity
-        $recentCases = (clone $caseBase)->with('student')->orderBy('date', 'desc')->take(5)->get();
-        $recentAppreciations = (clone $apprBase)->with('student')->orderBy('date', 'desc')->take(5)->get();
+            // Students needing attention (most cases)
+            $attentionStudents = Student::forYear($selectedYearId)
+                ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->where('class', $selectedClass))
+                ->withCount([
+                    'characterCases as case_count' => function($q) use ($selectedYearId) {
+                        $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId));
+                    }
+                ])
+                ->having('case_count', '>', 0)
+                ->orderByDesc('case_count')
+                ->take(5)
+                ->get();
 
-        return view('character.dashboard', compact(
-            'academicYears',
-            'classes',
-            'selectedYearId',
-            'selectedClass',
-            'totalCases',
-            'resolvedCases',
-            'activeCases',
-            'tppkCases',
-            'totalAppreciations',
-            'totalAppreciationPoints',
-            'topStudents',
-            'attentionStudents',
-            'recentCases',
-            'recentAppreciations'
-        ));
+            // Recent activity
+            $recentCases = (clone $caseBase)->with('student')->orderBy('date', 'desc')->take(5)->get();
+            $recentAppreciations = (clone $apprBase)->with('student')->orderBy('date', 'desc')->take(5)->get();
+
+            return compact(
+                'totalCases',
+                'resolvedCases',
+                'activeCases',
+                'tppkCases',
+                'totalAppreciations',
+                'totalAppreciationPoints',
+                'topStudents',
+                'attentionStudents',
+                'recentCases',
+                'recentAppreciations'
+            );
+        });
+
+        return view('character.dashboard', array_merge([
+            'academicYears' => $academicYears,
+            'classes' => $classes,
+            'selectedYearId' => $selectedYearId,
+            'selectedClass' => $selectedClass,
+        ], $cachedDash));
     }
 
     public function report(Request $request)
@@ -305,7 +335,7 @@ class CharacterDashboardController extends Controller
     }
 
     /**
-     * Membangun dataset analitik capaian karakter (Harian, Bulanan, Semester, Tahunan)
+     * Membangun dataset analitik capaian karakter (Harian, Bulanan, Semester, Tahunan) dengan Query Caching cerdas
      */
     protected function buildAnalyticsData(Request $request)
     {
@@ -347,348 +377,357 @@ class CharacterDashboardController extends Controller
         $apprBase = CharacterAppreciation::when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
             ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)));
 
-        // Executive KPI stats
-        $totalCases = (clone $caseBase)->count();
-        $resolvedCases = (clone $caseBase)->where('status', 'selesai')->count();
-        $activeCases = (clone $caseBase)->where('status', 'dalam_pembinaan')->count();
-        $totalCasePoints = (clone $caseBase)->sum('point');
+        // Caching 10 menit untuk dataset analitik agregasi
+        $cacheVersion = self::getCacheVersion();
+        $cacheKey = "char_analytics_v{$cacheVersion}_{$selectedYearId}_" . ($selectedClass ?: 'ALL') . "_{$period}_{$days}";
 
-        $totalAppreciations = (clone $apprBase)->count();
-        $totalAppreciationPoints = (clone $apprBase)->sum('point');
-        $netPoints = $totalAppreciationPoints - $totalCasePoints;
+        $cachedMetrics = Cache::remember($cacheKey, 600, function() use ($selectedYearId, $selectedClass, $period, $days, $caseBase, $apprBase, $academicYear) {
 
-        $tppkCases = (clone $caseBase)->where(function($q) {
-            $q->whereNotNull('tppk_category')->where('tppk_category', '!=', 'non_tppk');
-        })->count();
+            // Executive KPI stats
+            $totalCases = (clone $caseBase)->count();
+            $resolvedCases = (clone $caseBase)->where('status', 'selesai')->count();
+            $activeCases = (clone $caseBase)->where('status', 'dalam_pembinaan')->count();
+            $totalCasePoints = (clone $caseBase)->sum('point');
 
-        $resolveRate = $totalCases > 0 ? round(($resolvedCases / $totalCases) * 100, 1) : 100;
+            $totalAppreciations = (clone $apprBase)->count();
+            $totalAppreciationPoints = (clone $apprBase)->sum('point');
+            $netPoints = $totalAppreciationPoints - $totalCasePoints;
 
-        // Data Trend Series based on selected period
-        $trendLabels = [];
-        $trendCases = [];
-        $trendAppreciations = [];
-        $trendPoints = [];
-        $tableData = [];
+            $tppkCases = (clone $caseBase)->where(function($q) {
+                $q->whereNotNull('tppk_category')->where('tppk_category', '!=', 'non_tppk');
+            })->count();
 
-        if ($period === 'daily') {
-            // Rentang Harian: X hari terakhir s.d hari ini
-            $startDate = \Carbon\Carbon::now()->subDays($days - 1)->startOfDay();
-            $endDate = \Carbon\Carbon::now()->endOfDay();
+            $resolveRate = $totalCases > 0 ? round(($resolvedCases / $totalCases) * 100, 1) : 100;
 
-            $casesByDate = (clone $caseBase)
-                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                ->selectRaw('date, count(*) as count, sum(point) as points')
-                ->groupBy('date')
-                ->get()
-                ->keyBy(fn($item) => $item->date ? $item->date->format('Y-m-d') : '');
+            // Data Trend Series based on selected period
+            $trendLabels = [];
+            $trendCases = [];
+            $trendAppreciations = [];
+            $trendPoints = [];
+            $tableData = [];
 
-            $apprByDate = (clone $apprBase)
-                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                ->selectRaw('date, count(*) as count, sum(point) as points')
-                ->groupBy('date')
-                ->get()
-                ->keyBy(fn($item) => $item->date ? $item->date->format('Y-m-d') : '');
+            if ($period === 'daily') {
+                // Rentang Harian: X hari terakhir s.d hari ini
+                $startDate = \Carbon\Carbon::now()->subDays($days - 1)->startOfDay();
+                $endDate = \Carbon\Carbon::now()->endOfDay();
 
-            $cursor = clone $startDate;
-            while ($cursor->lte($endDate)) {
-                $ymd = $cursor->format('Y-m-d');
-                $label = $cursor->translatedFormat('d M');
-                $trendLabels[] = $label;
+                $casesByDate = (clone $caseBase)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->selectRaw('date, count(*) as count, sum(point) as points')
+                    ->groupBy('date')
+                    ->get()
+                    ->keyBy(fn($item) => $item->date ? $item->date->format('Y-m-d') : '');
 
-                $cCount = $casesByDate[$ymd]->count ?? 0;
-                $cPoints = $casesByDate[$ymd]->points ?? 0;
-                $aCount = $apprByDate[$ymd]->count ?? 0;
-                $aPoints = $apprByDate[$ymd]->points ?? 0;
+                $apprByDate = (clone $apprBase)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->selectRaw('date, count(*) as count, sum(point) as points')
+                    ->groupBy('date')
+                    ->get()
+                    ->keyBy(fn($item) => $item->date ? $item->date->format('Y-m-d') : '');
 
-                $trendCases[] = $cCount;
-                $trendAppreciations[] = $aCount;
-                $trendPoints[] = $aPoints;
+                $cursor = clone $startDate;
+                while ($cursor->lte($endDate)) {
+                    $ymd = $cursor->format('Y-m-d');
+                    $label = $cursor->translatedFormat('d M');
+                    $trendLabels[] = $label;
 
-                $tableData[] = [
-                    'label' => $cursor->translatedFormat('l, d F Y'),
-                    'cases_count' => $cCount,
-                    'case_points' => $cPoints,
-                    'appr_count' => $aCount,
-                    'appr_points' => $aPoints,
-                    'net' => $aPoints - $cPoints,
+                    $cCount = $casesByDate[$ymd]->count ?? 0;
+                    $cPoints = $casesByDate[$ymd]->points ?? 0;
+                    $aCount = $apprByDate[$ymd]->count ?? 0;
+                    $aPoints = $apprByDate[$ymd]->points ?? 0;
+
+                    $trendCases[] = $cCount;
+                    $trendAppreciations[] = $aCount;
+                    $trendPoints[] = $aPoints;
+
+                    $tableData[] = [
+                        'label' => $cursor->translatedFormat('l, d F Y'),
+                        'cases_count' => $cCount,
+                        'case_points' => $cPoints,
+                        'appr_count' => $aCount,
+                        'appr_points' => $aPoints,
+                        'net' => $aPoints - $cPoints,
+                    ];
+
+                    $cursor->addDay();
+                }
+
+                // Urutkan tabel dari tanggal terbaru untuk tampilan
+                $tableDataReversed = array_reverse($tableData);
+            } elseif ($period === 'monthly') {
+                // 12 Bulan Tahun Pelajaran (Juli s.d Juni)
+                $yearStart = 2026;
+                if ($academicYear && preg_match('/(\d{4})/', $academicYear->name, $matches)) {
+                    $yearStart = (int) $matches[1];
+                }
+
+                $months = [
+                    ['num' => 7,  'year' => $yearStart,     'name' => 'Juli'],
+                    ['num' => 8,  'year' => $yearStart,     'name' => 'Agustus'],
+                    ['num' => 9,  'year' => $yearStart,     'name' => 'September'],
+                    ['num' => 10, 'year' => $yearStart,     'name' => 'Oktober'],
+                    ['num' => 11, 'year' => $yearStart,     'name' => 'November'],
+                    ['num' => 12, 'year' => $yearStart,     'name' => 'Desember'],
+                    ['num' => 1,  'year' => $yearStart + 1, 'name' => 'Januari'],
+                    ['num' => 2,  'year' => $yearStart + 1, 'name' => 'Februari'],
+                    ['num' => 3,  'year' => $yearStart + 1, 'name' => 'Maret'],
+                    ['num' => 4,  'year' => $yearStart + 1, 'name' => 'April'],
+                    ['num' => 5,  'year' => $yearStart + 1, 'name' => 'Mei'],
+                    ['num' => 6,  'year' => $yearStart + 1, 'name' => 'Juni'],
                 ];
 
-                $cursor->addDay();
-            }
+                foreach ($months as $m) {
+                    $trendLabels[] = $m['name'];
 
-            // Urutkan tabel dari tanggal terbaru untuk tampilan
-            $tableDataReversed = array_reverse($tableData);
-        } elseif ($period === 'monthly') {
-            // 12 Bulan Tahun Pelajaran (Juli s.d Juni)
-            $yearStart = 2026;
-            if ($academicYear && preg_match('/(\d{4})/', $academicYear->name, $matches)) {
-                $yearStart = (int) $matches[1];
-            }
+                    $mCases = (clone $caseBase)->whereMonth('date', $m['num'])->whereYear('date', $m['year'])->get();
+                    $mApprs = (clone $apprBase)->whereMonth('date', $m['num'])->whereYear('date', $m['year'])->get();
 
-            $months = [
-                ['num' => 7,  'year' => $yearStart,     'name' => 'Juli'],
-                ['num' => 8,  'year' => $yearStart,     'name' => 'Agustus'],
-                ['num' => 9,  'year' => $yearStart,     'name' => 'September'],
-                ['num' => 10, 'year' => $yearStart,     'name' => 'Oktober'],
-                ['num' => 11, 'year' => $yearStart,     'name' => 'November'],
-                ['num' => 12, 'year' => $yearStart,     'name' => 'Desember'],
-                ['num' => 1,  'year' => $yearStart + 1, 'name' => 'Januari'],
-                ['num' => 2,  'year' => $yearStart + 1, 'name' => 'Februari'],
-                ['num' => 3,  'year' => $yearStart + 1, 'name' => 'Maret'],
-                ['num' => 4,  'year' => $yearStart + 1, 'name' => 'April'],
-                ['num' => 5,  'year' => $yearStart + 1, 'name' => 'Mei'],
-                ['num' => 6,  'year' => $yearStart + 1, 'name' => 'Juni'],
-            ];
+                    $cCount = $mCases->count();
+                    $cPoints = $mCases->sum('point');
+                    $aCount = $mApprs->count();
+                    $aPoints = $mApprs->sum('point');
 
-            foreach ($months as $m) {
-                $trendLabels[] = $m['name'];
-                $cCount = (clone $caseBase)->whereYear('date', $m['year'])->whereMonth('date', $m['num'])->count();
-                $cPoints = (clone $caseBase)->whereYear('date', $m['year'])->whereMonth('date', $m['num'])->sum('point');
-                $aCount = (clone $apprBase)->whereYear('date', $m['year'])->whereMonth('date', $m['num'])->count();
-                $aPoints = (clone $apprBase)->whereYear('date', $m['year'])->whereMonth('date', $m['num'])->sum('point');
+                    $trendCases[] = $cCount;
+                    $trendAppreciations[] = $aCount;
+                    $trendPoints[] = $aPoints;
 
-                $trendCases[] = $cCount;
-                $trendAppreciations[] = $aCount;
-                $trendPoints[] = $aPoints;
+                    $tableData[] = [
+                        'label' => $m['name'] . ' ' . $m['year'],
+                        'cases_count' => $cCount,
+                        'case_points' => $cPoints,
+                        'appr_count' => $aCount,
+                        'appr_points' => $aPoints,
+                        'net' => $aPoints - $cPoints,
+                    ];
+                }
 
-                $tableData[] = [
-                    'label' => $m['name'] . ' ' . $m['year'],
-                    'cases_count' => $cCount,
-                    'case_points' => $cPoints,
-                    'appr_count' => $aCount,
-                    'appr_points' => $aPoints,
-                    'net' => $aPoints - $cPoints,
+                $tableDataReversed = array_reverse($tableData);
+            } elseif ($period === 'semester') {
+                // Semester Ganjil vs Semester Genap
+                $yearStart = 2026;
+                if ($academicYear && preg_match('/(\d{4})/', $academicYear->name, $matches)) {
+                    $yearStart = (int) $matches[1];
+                }
+
+                $semesters = [
+                    [
+                        'name' => 'Semester 1 (Ganjil)',
+                        'start' => "$yearStart-07-01",
+                        'end' => "$yearStart-12-31"
+                    ],
+                    [
+                        'name' => 'Semester 2 (Genap)',
+                        'start' => ($yearStart + 1) . "-01-01",
+                        'end' => ($yearStart + 1) . "-06-30"
+                    ]
                 ];
-            }
-            $tableDataReversed = $tableData;
-        } elseif ($period === 'semester') {
-            // Semester Ganjil vs Semester Genap
-            $yearStart = 2026;
-            if ($academicYear && preg_match('/(\d{4})/', $academicYear->name, $matches)) {
-                $yearStart = (int) $matches[1];
-            }
 
-            $semesters = [
-                [
-                    'name' => 'Semester 1 (Ganjil)',
-                    'months' => [7, 8, 9, 10, 11, 12],
-                    'year' => $yearStart,
-                ],
-                [
-                    'name' => 'Semester 2 (Genap)',
-                    'months' => [1, 2, 3, 4, 5, 6],
-                    'year' => $yearStart + 1,
-                ]
-            ];
+                foreach ($semesters as $s) {
+                    $trendLabels[] = $s['name'];
 
-            foreach ($semesters as $sem) {
-                $trendLabels[] = $sem['name'];
-                $cCount = (clone $caseBase)->whereYear('date', $sem['year'])->whereIn(\Illuminate\Support\Facades\DB::raw('MONTH(date)'), $sem['months'])->count();
-                $cResolved = (clone $caseBase)->whereYear('date', $sem['year'])->whereIn(\Illuminate\Support\Facades\DB::raw('MONTH(date)'), $sem['months'])->where('status', 'selesai')->count();
-                $cPoints = (clone $caseBase)->whereYear('date', $sem['year'])->whereIn(\Illuminate\Support\Facades\DB::raw('MONTH(date)'), $sem['months'])->sum('point');
+                    $sCases = (clone $caseBase)->whereBetween('date', [$s['start'], $s['end']])->get();
+                    $sApprs = (clone $apprBase)->whereBetween('date', [$s['start'], $s['end']])->get();
 
-                $aCount = (clone $apprBase)->whereYear('date', $sem['year'])->whereIn(\Illuminate\Support\Facades\DB::raw('MONTH(date)'), $sem['months'])->count();
-                $aPoints = (clone $apprBase)->whereYear('date', $sem['year'])->whereIn(\Illuminate\Support\Facades\DB::raw('MONTH(date)'), $sem['months'])->sum('point');
+                    $cCount = $sCases->count();
+                    $cPoints = $sCases->sum('point');
+                    $aCount = $sApprs->count();
+                    $aPoints = $sApprs->sum('point');
 
-                $trendCases[] = $cCount;
-                $trendAppreciations[] = $aCount;
-                $trendPoints[] = $aPoints;
+                    $trendCases[] = $cCount;
+                    $trendAppreciations[] = $aCount;
+                    $trendPoints[] = $aPoints;
 
-                $tableData[] = [
-                    'label' => $sem['name'],
-                    'cases_count' => $cCount,
-                    'cases_resolved' => $cResolved,
-                    'case_points' => $cPoints,
-                    'appr_count' => $aCount,
-                    'appr_points' => $aPoints,
-                    'net' => $aPoints - $cPoints,
-                ];
-            }
-            $tableDataReversed = $tableData;
-        } elseif ($period === 'yearly') {
-            // Komparasi Antar Tahun Ajaran
-            $allYears = AcademicYear::orderBy('name', 'asc')->get();
+                    $tableData[] = [
+                        'label' => $s['name'],
+                        'cases_count' => $cCount,
+                        'case_points' => $cPoints,
+                        'appr_count' => $aCount,
+                        'appr_points' => $aPoints,
+                        'net' => $aPoints - $cPoints,
+                    ];
+                }
 
-            foreach ($allYears as $ay) {
-                $trendLabels[] = $ay->name;
-                $cCount = CharacterCase::where('academic_year_id', $ay->id)
-                    ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)))
-                    ->count();
-                $cResolved = CharacterCase::where('academic_year_id', $ay->id)
-                    ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)))
-                    ->where('status', 'selesai')
-                    ->count();
-                $cPoints = CharacterCase::where('academic_year_id', $ay->id)
-                    ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)))
-                    ->sum('point');
-
-                $aCount = CharacterAppreciation::where('academic_year_id', $ay->id)
-                    ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)))
-                    ->count();
-                $aPoints = CharacterAppreciation::where('academic_year_id', $ay->id)
-                    ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)))
-                    ->sum('point');
-
-                $trendCases[] = $cCount;
-                $trendAppreciations[] = $aCount;
-                $trendPoints[] = $aPoints;
-
-                $tableData[] = [
-                    'label' => $ay->name . ($ay->is_active ? ' (Aktif)' : ''),
-                    'cases_count' => $cCount,
-                    'cases_resolved' => $cResolved,
-                    'case_points' => $cPoints,
-                    'appr_count' => $aCount,
-                    'appr_points' => $aPoints,
-                    'net' => $aPoints - $cPoints,
-                ];
-            }
-            $tableDataReversed = $tableData;
-        }
-
-        // 2. Analitik 8 Dimensi Profil Lulusan (Deep Learning / SKL)
-        $dimensionLabels = [
-            'Keimanan & Ketakwaan',
-            'Kewargaan',
-            'Penalaran Kritis',
-            'Kreativitas',
-            'Kolaborasi',
-            'Kemandirian',
-            'Kesehatan',
-            'Komunikasi'
-        ];
-
-        $apprList = (clone $apprBase)->get();
-        $dimensionCounts = array_fill_keys($dimensionLabels, 0);
-        foreach ($apprList as $ap) {
-            $dim = strtolower($ap->dimension_p5 ?? '');
-            if (str_contains($dim, 'iman') || str_contains($dim, 'takwa') || str_contains($dim, 'taqwa') || str_contains($dim, 'spiritual')) {
-                $dimensionCounts['Keimanan & Ketakwaan']++;
-            } elseif (str_contains($dim, 'kewargaan') || str_contains($dim, 'kebinekaan')) {
-                $dimensionCounts['Kewargaan']++;
-            } elseif (str_contains($dim, 'kritis') || str_contains($dim, 'nalar')) {
-                $dimensionCounts['Penalaran Kritis']++;
-            } elseif (str_contains($dim, 'kreatif')) {
-                $dimensionCounts['Kreativitas']++;
-            } elseif (str_contains($dim, 'kolaborasi') || str_contains($dim, 'gotong') || str_contains($dim, 'royong')) {
-                $dimensionCounts['Kolaborasi']++;
-            } elseif (str_contains($dim, 'mandiri')) {
-                $dimensionCounts['Kemandirian']++;
-            } elseif (str_contains($dim, 'kesehatan') || str_contains($dim, 'sehat') || str_contains($dim, 'raga')) {
-                $dimensionCounts['Kesehatan']++;
-            } elseif (str_contains($dim, 'komunikasi') || str_contains($dim, 'tutur') || str_contains($dim, 'wicara')) {
-                $dimensionCounts['Komunikasi']++;
+                $tableDataReversed = $tableData;
             } else {
-                $dimensionCounts['Keimanan & Ketakwaan']++;
+                // Tahunan (Yearly - komparasi antar tahun ajaran)
+                $allYears = AcademicYear::orderBy('name', 'asc')->take(5)->get();
+                foreach ($allYears as $y) {
+                    $trendLabels[] = $y->name;
+
+                    $yCaseBase = CharacterCase::where('academic_year_id', $y->id)
+                        ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)));
+                    $yApprBase = CharacterAppreciation::where('academic_year_id', $y->id)
+                        ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass)));
+
+                    $cCount = $yCaseBase->count();
+                    $cPoints = $yCaseBase->sum('point');
+                    $aCount = $yApprBase->count();
+                    $aPoints = $yApprBase->sum('point');
+
+                    $trendCases[] = $cCount;
+                    $trendAppreciations[] = $aCount;
+                    $trendPoints[] = $aPoints;
+
+                    $tableData[] = [
+                        'label' => 'Tahun Ajaran ' . $y->name . ($y->is_active ? ' (Aktif)' : ''),
+                        'cases_count' => $cCount,
+                        'case_points' => $cPoints,
+                        'appr_count' => $aCount,
+                        'appr_points' => $aPoints,
+                        'net' => $aPoints - $cPoints,
+                    ];
+                }
+
+                $tableDataReversed = array_reverse($tableData);
             }
-        }
 
-        // 3. Kategori Kasus & Tingkat Keparahan
-        $severityCounts = [
-            'ringan' => (clone $caseBase)->where('severity', 'ringan')->count(),
-            'sedang' => (clone $caseBase)->where('severity', 'sedang')->count(),
-            'berat'  => (clone $caseBase)->where('severity', 'berat')->count(),
-        ];
-
-        $statusCounts = [
-            'selesai' => (clone $caseBase)->where('status', 'selesai')->count(),
-            'dalam_pembinaan' => (clone $caseBase)->where('status', 'dalam_pembinaan')->count(),
-        ];
-
-        // 4. Komparasi Antar Kelas (Rombel)
-        $classComparison = [];
-        $allClassList = Student::forYear($selectedYearId)->select('class')->distinct()->whereNotNull('class')->orderBy('class')->pluck('class');
-        foreach ($allClassList as $cls) {
-            $clsStudentCount = Student::forYear($selectedYearId)->where('class', $cls)->count();
-            $clsApprCount = CharacterAppreciation::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->count();
-            $clsApprPoints = CharacterAppreciation::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->sum('point');
-            $clsCaseCount = CharacterCase::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->count();
-            $clsCasePoints = CharacterCase::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->sum('point');
-
-            $classComparison[] = [
-                'class' => $cls,
-                'students_count' => $clsStudentCount,
-                'appr_count' => $clsApprCount,
-                'appr_points' => $clsApprPoints,
-                'case_count' => $clsCaseCount,
-                'case_points' => $clsCasePoints,
-                'net_points' => $clsApprPoints - $clsCasePoints,
+            // 2. Sebaran 8 Dimensi Profil Lulusan Kemendikdasmen (Deep Learning)
+            $dimensionLabels = [
+                'Keimanan & Ketakwaan',
+                'Kewargaan',
+                'Penalaran Kritis',
+                'Kreativitas',
+                'Kolaborasi',
+                'Kemandirian',
+                'Kesehatan',
+                'Komunikasi'
             ];
-        }
 
-        // 5. Sebaran Predikat Karakter Siswa
-        $studentsQuery = Student::forYear($selectedYearId)
-            ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->where('class', $selectedClass))
-            ->where(function($q) {
-                $q->where('status', '!=', 'graduated')->orWhereNull('status');
-            })
-            ->with([
-                'characterCases' => fn($q) => $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId)),
-                'characterAppreciations' => fn($q) => $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId))
-            ])
-            ->get();
-
-        $predicateCounts = [
-            'Bintang Karakter SMILE' => 0,
-            'Baik & Kondusif' => 0,
-            'Dalam Pembinaan' => 0,
-            'Perlu Pendampingan Intensif' => 0,
-        ];
-
-        foreach ($studentsQuery as $st) {
-            $cCount = $st->characterCases->count();
-            $aCount = $st->characterAppreciations->count();
-            $unresolved = $st->characterCases->where('status', 'dalam_pembinaan')->count();
-            $net = $st->characterAppreciations->sum('point') - $st->characterCases->sum('point');
-
-            if ($cCount == 0 && $aCount >= 3) {
-                $predicateCounts['Bintang Karakter SMILE']++;
-            } elseif ($unresolved > 2 || $net < -10) {
-                $predicateCounts['Perlu Pendampingan Intensif']++;
-            } elseif ($cCount > 0 && $unresolved > 0) {
-                $predicateCounts['Dalam Pembinaan']++;
-            } else {
-                $predicateCounts['Baik & Kondusif']++;
+            $apprList = (clone $apprBase)->get();
+            $dimensionCounts = array_fill_keys($dimensionLabels, 0);
+            foreach ($apprList as $ap) {
+                $dim = strtolower($ap->dimension_p5 ?? '');
+                if (str_contains($dim, 'iman') || str_contains($dim, 'takwa') || str_contains($dim, 'taqwa') || str_contains($dim, 'spiritual')) {
+                    $dimensionCounts['Keimanan & Ketakwaan']++;
+                } elseif (str_contains($dim, 'kewargaan') || str_contains($dim, 'kebinekaan')) {
+                    $dimensionCounts['Kewargaan']++;
+                } elseif (str_contains($dim, 'kritis') || str_contains($dim, 'nalar')) {
+                    $dimensionCounts['Penalaran Kritis']++;
+                } elseif (str_contains($dim, 'kreatif')) {
+                    $dimensionCounts['Kreativitas']++;
+                } elseif (str_contains($dim, 'kolaborasi') || str_contains($dim, 'gotong') || str_contains($dim, 'royong')) {
+                    $dimensionCounts['Kolaborasi']++;
+                } elseif (str_contains($dim, 'mandiri')) {
+                    $dimensionCounts['Kemandirian']++;
+                } elseif (str_contains($dim, 'kesehatan') || str_contains($dim, 'sehat') || str_contains($dim, 'raga')) {
+                    $dimensionCounts['Kesehatan']++;
+                } elseif (str_contains($dim, 'komunikasi') || str_contains($dim, 'tutur') || str_contains($dim, 'wicara')) {
+                    $dimensionCounts['Komunikasi']++;
+                } else {
+                    $dimensionCounts['Keimanan & Ketakwaan']++;
+                }
             }
-        }
+
+            // 3. Kategori Kasus & Tingkat Keparahan
+            $severityCounts = [
+                'ringan' => (clone $caseBase)->where('severity', 'ringan')->count(),
+                'sedang' => (clone $caseBase)->where('severity', 'sedang')->count(),
+                'berat'  => (clone $caseBase)->where('severity', 'berat')->count(),
+            ];
+
+            $statusCounts = [
+                'selesai' => (clone $caseBase)->where('status', 'selesai')->count(),
+                'dalam_pembinaan' => (clone $caseBase)->where('status', 'dalam_pembinaan')->count(),
+            ];
+
+            // 4. Komparasi Antar Kelas (Rombel)
+            $classComparison = [];
+            $allClassList = Student::forYear($selectedYearId)->select('class')->distinct()->whereNotNull('class')->orderBy('class')->pluck('class');
+            foreach ($allClassList as $cls) {
+                $clsStudentCount = Student::forYear($selectedYearId)->where('class', $cls)->count();
+                $clsApprCount = CharacterAppreciation::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->count();
+                $clsApprPoints = CharacterAppreciation::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->sum('point');
+                $clsCaseCount = CharacterCase::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->count();
+                $clsCasePoints = CharacterCase::where('academic_year_id', $selectedYearId)->whereHas('student', fn($q) => $q->where('class', $cls))->sum('point');
+
+                $classComparison[] = [
+                    'class' => $cls,
+                    'students_count' => $clsStudentCount,
+                    'appr_count' => $clsApprCount,
+                    'appr_points' => $clsApprPoints,
+                    'case_count' => $clsCaseCount,
+                    'case_points' => $clsCasePoints,
+                    'net_points' => $clsApprPoints - $clsCasePoints,
+                ];
+            }
+
+            // 5. Sebaran Predikat Karakter Siswa
+            $studentsQuery = Student::forYear($selectedYearId)
+                ->when($selectedClass && $selectedClass !== 'ALL', fn($q) => $q->where('class', $selectedClass))
+                ->where(function($q) {
+                    $q->where('status', '!=', 'graduated')->orWhereNull('status');
+                })
+                ->with([
+                    'characterCases' => fn($q) => $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId)),
+                    'characterAppreciations' => fn($q) => $q->when($selectedYearId, fn($sub) => $sub->where('academic_year_id', $selectedYearId))
+                ])
+                ->get();
+
+            $predicateCounts = [
+                'Bintang Karakter SMILE' => 0,
+                'Baik & Kondusif' => 0,
+                'Dalam Pembinaan' => 0,
+                'Perlu Pendampingan Intensif' => 0,
+            ];
+
+            foreach ($studentsQuery as $st) {
+                $cCount = $st->characterCases->count();
+                $aCount = $st->characterAppreciations->count();
+                $unresolved = $st->characterCases->where('status', 'dalam_pembinaan')->count();
+                $net = $st->characterAppreciations->sum('point') - $st->characterCases->sum('point');
+
+                if ($cCount == 0 && $aCount >= 3) {
+                    $predicateCounts['Bintang Karakter SMILE']++;
+                } elseif ($unresolved > 2 || $net < -10) {
+                    $predicateCounts['Perlu Pendampingan Intensif']++;
+                } elseif ($cCount > 0 && $unresolved > 0) {
+                    $predicateCounts['Dalam Pembinaan']++;
+                } else {
+                    $predicateCounts['Baik & Kondusif']++;
+                }
+            }
+
+            return compact(
+                'totalCases',
+                'resolvedCases',
+                'activeCases',
+                'totalCasePoints',
+                'totalAppreciations',
+                'totalAppreciationPoints',
+                'netPoints',
+                'tppkCases',
+                'resolveRate',
+                'trendLabels',
+                'trendCases',
+                'trendAppreciations',
+                'trendPoints',
+                'tableData',
+                'tableDataReversed',
+                'dimensionLabels',
+                'dimensionCounts',
+                'severityCounts',
+                'statusCounts',
+                'classComparison',
+                'predicateCounts'
+            );
+        });
 
         $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
         $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
         $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : "Nur'asiah, S.Pd.I");
         $headmasterNip = \App\Models\Setting::get('headmaster_nip', '141502002');
 
-        return compact(
-            'academicYears',
-            'academicYear',
-            'classes',
-            'selectedYearId',
-            'selectedClass',
-            'period',
-            'days',
-            'totalCases',
-            'resolvedCases',
-            'activeCases',
-            'totalCasePoints',
-            'totalAppreciations',
-            'totalAppreciationPoints',
-            'netPoints',
-            'tppkCases',
-            'resolveRate',
-            'trendLabels',
-            'trendCases',
-            'trendAppreciations',
-            'trendPoints',
-            'tableData',
-            'tableDataReversed',
-            'dimensionLabels',
-            'dimensionCounts',
-            'severityCounts',
-            'statusCounts',
-            'classComparison',
-            'predicateCounts',
-            'headmasterName',
-            'headmasterNip'
-        );
+        return array_merge([
+            'academicYears' => $academicYears,
+            'academicYear' => $academicYear,
+            'classes' => $classes,
+            'selectedYearId' => $selectedYearId,
+            'selectedClass' => $selectedClass,
+            'period' => $period,
+            'days' => $days,
+            'headmasterName' => $headmasterName,
+            'headmasterNip' => $headmasterNip
+        ], $cachedMetrics);
     }
 
     public function analytics(Request $request)

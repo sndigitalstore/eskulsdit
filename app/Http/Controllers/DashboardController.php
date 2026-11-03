@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\Eskul;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -218,28 +219,29 @@ class DashboardController extends Controller
         // --- CHART DATA PREPARATION ---
 
         // 1. Eskul Popularity (Top 5)
-        $popularEskuls = Eskul::activeYear()->withCount(['students' => function($q) use ($activeYear) {
-            if ($activeYear) {
-                $q->where('student_eskul.academic_year_id', $activeYear->id);
-            }
-        }])
-        ->orderByDesc('students_count')
-        ->limit(5)
-        ->get();
+        $popularEskuls = Cache::remember("dashboard_popular_eskuls_" . ($activeYear ? $activeYear->id : 0), 300, function() use ($activeYear) {
+            return Eskul::activeYear()->withCount(["students" => function($q) use ($activeYear) {
+                if ($activeYear) {
+                    $q->where("student_eskul.academic_year_id", $activeYear->id);
+                }
+            }])
+            ->orderByDesc("students_count")
+            ->limit(5)
+            ->get();
+        });
 
         $chartEskulLabels = $popularEskuls->pluck('name');
         $chartEskulData = $popularEskuls->pluck('students_count');
 
         // 2. Attendance Distribution (Active Year)
-        $attendanceStats = \App\Models\Attendance::select('status', DB::raw('count(*) as total'))
-            ->when($activeYear, function($q) use ($activeYear) {
-                return $q->where('academic_year_id', $activeYear->id);
-            })
-            // Teacher sees global stats? Or maybe personalized?
-            // User requested: "Jadwal dan Aktivitas Baru" specifically. 
-            // Charts usually are kept global for "Big Picture" or can be ignored for now unless asked.
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        $attendanceStats = Cache::remember("dashboard_attendance_stats_" . ($activeYear ? $activeYear->id : 0), 300, function() use ($activeYear) {
+            return \App\Models\Attendance::select("status", DB::raw("count(*) as total"))
+                ->when($activeYear, function($q) use ($activeYear) {
+                    return $q->where("academic_year_id", $activeYear->id);
+                })
+                ->groupBy("status")
+                ->pluck("total", "status");
+        });
         
         // Ensure all keys exist for consistency
         $chartAttendanceData = [

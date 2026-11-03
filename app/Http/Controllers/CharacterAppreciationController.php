@@ -214,6 +214,7 @@ class CharacterAppreciationController extends Controller
         ]);
 
         ActivityLog::log('Karakter', 'Create Apresiasi', "Memberikan apresiasi: {$appreciation->title} (+{$appreciation->point} poin) untuk siswa {$student->name}");
+        \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();
 
         return redirect()->route('character-appreciations.index')
             ->with('success', "Apresiasi karakter untuk siswa '{$student->name}' berhasil dicatat.");
@@ -286,6 +287,7 @@ class CharacterAppreciationController extends Controller
         ]);
 
         ActivityLog::log('Karakter', 'Update Apresiasi', "Memperbarui apresiasi ID: {$character_appreciation->id} ({$character_appreciation->title})");
+        \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();
 
         return redirect()->route('character-appreciations.index')
             ->with('success', 'Data apresiasi karakter berhasil diperbarui.');
@@ -311,6 +313,7 @@ class CharacterAppreciationController extends Controller
         $character_appreciation->delete();
 
         ActivityLog::log('Karakter', 'Delete Apresiasi', "Menghapus apresiasi ID: {$id} ({$title})");
+        \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();
 
         return redirect()->route('character-appreciations.index')
             ->with('success', 'Data apresiasi berhasil dihapus.');
