@@ -67,64 +67,80 @@
         </form>
     </div>
 
-    <!-- KPI Summary Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 24px;">
+    <!-- KPI Summary Grid (Keterpaduan Akreditasi & PKKS) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 24px;">
         
         <!-- Apresiasi Kebaikan -->
-        <div class="card" style="border-left: 5px solid #10b981; display: flex; align-items: center; gap: 16px; padding: 20px;">
-            <div style="width: 56px; height: 56px; border-radius: 14px; background: #dcfce7; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
+        <div class="card" style="border-left: 5px solid #10b981; display: flex; align-items: center; gap: 14px; padding: 18px 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: #dcfce7; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fas fa-award"></i>
             </div>
             <div>
-                <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Apresiasi Terkumpul</div>
-                <div style="font-size: 1.8rem; font-weight: 900; color: #1e293b;">{{ $totalAppreciations }} <span style="font-size: 0.9rem; font-weight: 600; color: #64748b;">kali</span></div>
-                <div style="font-size: 0.78rem; color: #10b981; font-weight: 600;">
-                    <i class="fas fa-star"></i> Total Poin Kebaikan: +{{ $totalAppreciationPoints }}
+                <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Apresiasi Terkumpul</div>
+                <div style="font-size: 1.7rem; font-weight: 900; color: #1e293b;">{{ $totalAppreciations }} <span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">kali</span></div>
+                <div style="font-size: 0.76rem; color: #10b981; font-weight: 700;">
+                    <i class="fas fa-star"></i> Poin: +{{ $totalAppreciationPoints }}
                 </div>
             </div>
         </div>
 
         <!-- Data Kasus Pembinaan -->
-        <div class="card" style="border-left: 5px solid #ef4444; display: flex; align-items: center; gap: 16px; padding: 20px;">
-            <div style="width: 56px; height: 56px; border-radius: 14px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
+        <div class="card" style="border-left: 5px solid #ef4444; display: flex; align-items: center; gap: 14px; padding: 18px 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
             <div>
-                <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Kasus Pembinaan</div>
-                <div style="font-size: 1.8rem; font-weight: 900; color: #1e293b;">{{ $totalCases }} <span style="font-size: 0.9rem; font-weight: 600; color: #64748b;">catatan</span></div>
-                <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
-                    <span style="color: #ef4444;">{{ $activeCases }} dalam bina</span> • <span style="color: #10b981;">{{ $resolvedCases }} selesai</span>
+                <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Kasus Pembinaan</div>
+                <div style="font-size: 1.7rem; font-weight: 900; color: #1e293b;">{{ $totalCases }} <span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">catatan</span></div>
+                <div style="font-size: 0.76rem; color: #64748b; font-weight: 600;">
+                    <span style="color: #ef4444;">{{ $activeCases }} dibina</span> • <span style="color: #10b981;">{{ $resolvedCases }} selesai</span>
                 </div>
             </div>
         </div>
 
-        <!-- Rasio Penyelesaian -->
-        <div class="card" style="border-left: 5px solid #0284c7; display: flex; align-items: center; gap: 16px; padding: 20px;">
-            <div style="width: 56px; height: 56px; border-radius: 14px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
+        <!-- Iklim Keamanan & TPPK (Akreditasi & Anti-Bullying) -->
+        <div class="card" style="border-left: 5px solid #f59e0b; display: flex; align-items: center; gap: 14px; padding: 18px 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: {{ ($tppkCases ?? 0) > 0 ? '#fef3c7' : '#ecfdf5' }}; color: {{ ($tppkCases ?? 0) > 0 ? '#b45309' : '#047857' }}; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Iklim Keamanan / TPPK</div>
+                <div style="font-size: 1.7rem; font-weight: 900; color: {{ ($tppkCases ?? 0) > 0 ? '#b45309' : '#047857' }};">
+                    {{ $tppkCases ?? 0 }} <span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">kasus</span>
+                </div>
+                <div style="font-size: 0.76rem; font-weight: 700; color: {{ ($tppkCases ?? 0) > 0 ? '#b45309' : '#047857' }};">
+                    {{ ($tppkCases ?? 0) > 0 ? 'Perlu Pemantauan TPPK' : 'Bebas Bullying & Kondusif' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rasio Penyelesaian (Komitmen Guru & Pembinaan) -->
+        <div class="card" style="border-left: 5px solid #0284c7; display: flex; align-items: center; gap: 14px; padding: 18px 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fas fa-clipboard-check"></i>
             </div>
             <div>
-                <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Penyelesaian Kasus</div>
+                <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Penyelesaian Kasus</div>
                 @php
                     $resolvePct = $totalCases > 0 ? round(($resolvedCases / $totalCases) * 100, 1) : 100;
                 @endphp
-                <div style="font-size: 1.8rem; font-weight: 900; color: #1e293b;">{{ $resolvePct }}%</div>
-                <div style="font-size: 0.78rem; color: #0284c7; font-weight: 600;">
-                    <i class="fas fa-shield-alt"></i> Komitmen pembinaan guru
+                <div style="font-size: 1.7rem; font-weight: 900; color: #1e293b;">{{ $resolvePct }}%</div>
+                <div style="font-size: 0.76rem; color: #0284c7; font-weight: 600;">
+                    <i class="fas fa-user-check"></i> Komitmen Tindak Lanjut
                 </div>
             </div>
         </div>
 
-        <!-- Akuntabilitas Sekolah -->
-        <div class="card" style="border-left: 5px solid #8b5cf6; display: flex; align-items: center; gap: 16px; padding: 20px;">
-            <div style="width: 56px; height: 56px; border-radius: 14px; background: #ede9fe; color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
-                <i class="fas fa-user-shield"></i>
+        <!-- Standar Mutu Karakter JSIT / P5 -->
+        <div class="card" style="border-left: 5px solid #8b5cf6; display: flex; align-items: center; gap: 14px; padding: 18px 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: #ede9fe; color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
+                <i class="fas fa-star-and-crescent"></i>
             </div>
             <div>
-                <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Sistem Monitoring</div>
-                <div style="font-size: 1.35rem; font-weight: 900; color: #1e293b;">SMILE Terpadu</div>
-                <div style="font-size: 0.78rem; color: #8b5cf6; font-weight: 600;">
-                    Terdokumentasi & Terverifikasi
+                <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Standar Karakter</div>
+                <div style="font-size: 1.25rem; font-weight: 900; color: #1e293b;">SMILE & P5</div>
+                <div style="font-size: 0.76rem; color: #8b5cf6; font-weight: 700;">
+                    Sholeh &bull; Muslih &bull; Intelek
                 </div>
             </div>
         </div>
@@ -162,7 +178,12 @@
                             <span style="display: inline-block; padding: 3px 10px; border-radius: 999px; background: #dcfce7; color: #15803d; font-weight: 800; font-size: 0.82rem;">
                                 +{{ $st->total_points ?? 0 }} Poin
                             </span>
-                            <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">{{ $st->appreciation_count }} apresiasi</div>
+                            <div style="margin-top: 3px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                                <span style="font-size: 0.72rem; color: #64748b;">{{ $st->appreciation_count }} apresiasi</span>
+                                <a href="{{ route('character.student.portfolio', $st->id) }}" target="_blank" style="font-size: 0.72rem; color: #0284c7; text-decoration: none; font-weight: 700;">
+                                    <i class="fas fa-file-alt"></i> Portofolio
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @empty
@@ -201,8 +222,11 @@
                             <span style="display: inline-block; padding: 3px 10px; border-radius: 999px; background: #fef3c7; color: #b45309; font-weight: 800; font-size: 0.82rem;">
                                 {{ $st->case_count }} Catatan Kasus
                             </span>
-                            <div style="margin-top: 2px;">
-                                <a href="{{ route('character-cases.create', ['student_id' => $st->id]) }}" style="font-size: 0.72rem; color: #0284c7; text-decoration: none; font-weight: 600;">
+                            <div style="margin-top: 3px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                                <a href="{{ route('character.student.portfolio', $st->id) }}" target="_blank" style="font-size: 0.72rem; color: #64748b; text-decoration: none; font-weight: 700;">
+                                    <i class="fas fa-file-alt"></i> Portofolio
+                                </a>
+                                <a href="{{ route('character-cases.create', ['student_id' => $st->id]) }}" style="font-size: 0.72rem; color: #ef4444; text-decoration: none; font-weight: 700;">
                                     + Bina Siswa
                                 </a>
                             </div>

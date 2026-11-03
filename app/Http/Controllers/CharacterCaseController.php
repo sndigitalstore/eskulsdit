@@ -18,7 +18,7 @@ class CharacterCaseController extends Controller
      */
     protected function ensureTableExists()
     {
-        if (!Schema::hasTable('character_cases')) {
+        if (!Schema::hasTable('character_cases') || !Schema::hasColumn('character_cases', 'tppk_category')) {
             try {
                 Artisan::call('migrate', ['--force' => true]);
             } catch (\Throwable $e) {
@@ -37,6 +37,8 @@ class CharacterCaseController extends Controller
         $selectedSeverity = $request->severity;
         $selectedStatus = $request->status;
         $selectedCategory = $request->category;
+        $selectedTppk = $request->tppk_category;
+        $selectedHandlingLevel = $request->handling_level;
         $search = $request->search;
 
         $user = Auth::user();
@@ -59,6 +61,8 @@ class CharacterCaseController extends Controller
             ->when($selectedSeverity, fn($q) => $q->where('severity', $selectedSeverity))
             ->when($selectedStatus, fn($q) => $q->where('status', $selectedStatus))
             ->when($selectedCategory, fn($q) => $q->where('category', $selectedCategory))
+            ->when($selectedTppk, fn($q) => $q->where('tppk_category', $selectedTppk))
+            ->when($selectedHandlingLevel, fn($q) => $q->where('handling_level', $selectedHandlingLevel))
             ->when($search, function($q) use ($search) {
                 $q->where(function($sub) use ($search) {
                     $sub->where('title', 'like', "%{$search}%")
@@ -82,6 +86,9 @@ class CharacterCaseController extends Controller
             'dalam_pembinaan' => (clone $statsBase)->where('status', 'dalam_pembinaan')->count(),
             'selesai' => (clone $statsBase)->where('status', 'selesai')->count(),
             'panggilan_ortu' => (clone $statsBase)->where('status', 'panggilan_ortu')->count(),
+            'tppk_total' => (clone $statsBase)->where(function($q) {
+                $q->whereNotNull('tppk_category')->where('tppk_category', '!=', 'non_tppk');
+            })->count(),
         ];
 
         $cases = $query->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(20)->withQueryString();
@@ -97,6 +104,22 @@ class CharacterCaseController extends Controller
             'Lainnya',
         ];
 
+        $tppkCategories = [
+            'non_tppk'             => 'Non-TPPK (Pelanggaran Tata Tertib Reguler)',
+            'perundungan_bullying' => 'Perundungan / Bullying',
+            'kekerasan_verbal'     => 'Kekerasan Verbal (Mengejek / Mengancam / Menghina)',
+            'kekerasan_fisik'      => 'Kekerasan Fisik (Memukul / Mendorong / Berkelahi)',
+            'kekerasan_siber'      => 'Kekerasan Siber / Media Sosial',
+            'intimidasi'           => 'Intimidasi & Pemalakan',
+        ];
+
+        $handlingLevels = [
+            'wali_kelas'     => 'Level 1: Wali Kelas (Teguran & Pembinaan Awal)',
+            'bk_kesiswaan'   => 'Level 2: Guru BK / Kesiswaan (Konseling Mendalam)',
+            'mediasi_ortu'   => 'Level 3: Mediasi & Panggilan Orang Tua',
+            'kepala_sekolah' => 'Level 4: Kepala Sekolah & Tim Pencegahan Kekerasan (TPPK)',
+        ];
+
         return view('character.cases.index', compact(
             'cases',
             'stats',
@@ -107,8 +130,12 @@ class CharacterCaseController extends Controller
             'selectedSeverity',
             'selectedStatus',
             'selectedCategory',
+            'selectedTppk',
+            'selectedHandlingLevel',
             'search',
-            'categories'
+            'categories',
+            'tppkCategories',
+            'handlingLevels'
         ));
     }
 
@@ -146,13 +173,31 @@ class CharacterCaseController extends Controller
             'Lainnya' => 'Lainnya',
         ];
 
+        $tppkCategories = [
+            'non_tppk'             => 'Non-TPPK (Pelanggaran Tata Tertib Reguler)',
+            'perundungan_bullying' => 'Perundungan / Bullying',
+            'kekerasan_verbal'     => 'Kekerasan Verbal (Mengejek / Mengancam / Menghina)',
+            'kekerasan_fisik'      => 'Kekerasan Fisik (Memukul / Mendorong / Berkelahi)',
+            'kekerasan_siber'      => 'Kekerasan Siber / Media Sosial',
+            'intimidasi'           => 'Intimidasi & Pemalakan',
+        ];
+
+        $handlingLevels = [
+            'wali_kelas'     => 'Level 1: Wali Kelas (Teguran & Pembinaan Awal)',
+            'bk_kesiswaan'   => 'Level 2: Guru BK / Kesiswaan (Konseling Mendalam)',
+            'mediasi_ortu'   => 'Level 3: Mediasi & Panggilan Orang Tua',
+            'kepala_sekolah' => 'Level 4: Kepala Sekolah & Tim Pencegahan Kekerasan (TPPK)',
+        ];
+
         return view('character.cases.create', compact(
             'students',
             'selectedStudent',
             'selectedClass',
             'classes',
             'activeYear',
-            'categories'
+            'categories',
+            'tppkCategories',
+            'handlingLevels'
         ));
     }
 
@@ -161,39 +206,47 @@ class CharacterCaseController extends Controller
         $this->ensureTableExists();
 
         $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'date' => 'required|date',
-            'category' => 'required|string|max:100',
-            'title' => 'required|string|max:255',
-            'severity' => 'required|in:ringan,sedang,berat',
-            'point' => 'required|integer|min:0|max:100',
-            'location' => 'nullable|string|max:150',
-            'description' => 'nullable|string',
-            'action_taken' => 'nullable|string',
-            'follow_up' => 'nullable|string',
-            'status' => 'required|in:dalam_pembinaan,selesai,panggilan_ortu',
-            'reported_by' => 'nullable|string|max:150',
-            'notes' => 'nullable|string',
+            'student_id'         => 'required|exists:students,id',
+            'date'               => 'required|date',
+            'category'           => 'required|string|max:100',
+            'tppk_category'      => 'nullable|string|max:50',
+            'title'              => 'required|string|max:255',
+            'severity'           => 'required|in:ringan,sedang,berat',
+            'point'              => 'required|integer|min:0|max:100',
+            'location'           => 'nullable|string|max:150',
+            'description'        => 'nullable|string',
+            'action_taken'       => 'nullable|string',
+            'restorative_action' => 'nullable|string',
+            'follow_up'          => 'nullable|string',
+            'status'             => 'required|in:dalam_pembinaan,selesai,panggilan_ortu',
+            'handling_level'     => 'nullable|string|max:30',
+            'reported_by'        => 'nullable|string|max:150',
+            'counseling_date'    => 'nullable|date',
+            'notes'              => 'nullable|string',
         ]);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
 
         $case = CharacterCase::create([
-            'academic_year_id' => $request->academic_year_id ?? ($activeYear ? $activeYear->id : null),
-            'student_id' => $request->student_id,
-            'date' => $request->date,
-            'category' => $request->category,
-            'title' => $request->title,
-            'severity' => $request->severity,
-            'point' => $request->point,
-            'location' => $request->location,
-            'description' => $request->description,
-            'action_taken' => $request->action_taken,
-            'follow_up' => $request->follow_up,
-            'status' => $request->status,
-            'reported_by' => $request->reported_by ?? Auth::user()->name,
-            'parent_notified' => $request->has('parent_notified'),
-            'notes' => $request->notes,
+            'academic_year_id'   => $request->academic_year_id ?? ($activeYear ? $activeYear->id : null),
+            'student_id'         => $request->student_id,
+            'date'               => $request->date,
+            'category'           => $request->category,
+            'tppk_category'      => $request->tppk_category ?? 'non_tppk',
+            'title'              => $request->title,
+            'severity'           => $request->severity,
+            'point'              => $request->point,
+            'location'           => $request->location,
+            'description'        => $request->description,
+            'action_taken'       => $request->action_taken,
+            'restorative_action' => $request->restorative_action,
+            'follow_up'          => $request->follow_up,
+            'status'             => $request->status,
+            'handling_level'     => $request->handling_level ?? 'wali_kelas',
+            'reported_by'        => $request->reported_by ?? Auth::user()->name,
+            'parent_notified'    => $request->has('parent_notified'),
+            'counseling_date'    => $request->counseling_date,
+            'notes'              => $request->notes,
         ]);
 
         $student = Student::find($request->student_id);
@@ -227,41 +280,84 @@ class CharacterCaseController extends Controller
             'Lainnya' => 'Lainnya',
         ];
 
-        return view('character.cases.edit', compact('case', 'students', 'classes', 'categories'));
+        $tppkCategories = [
+            'non_tppk'             => 'Non-TPPK (Pelanggaran Tata Tertib Reguler)',
+            'perundungan_bullying' => 'Perundungan / Bullying',
+            'kekerasan_verbal'     => 'Kekerasan Verbal (Mengejek / Mengancam / Menghina)',
+            'kekerasan_fisik'      => 'Kekerasan Fisik (Memukul / Mendorong / Berkelahi)',
+            'kekerasan_siber'      => 'Kekerasan Siber / Media Sosial',
+            'intimidasi'           => 'Intimidasi & Pemalakan',
+        ];
+
+        $handlingLevels = [
+            'wali_kelas'     => 'Level 1: Wali Kelas (Teguran & Pembinaan Awal)',
+            'bk_kesiswaan'   => 'Level 2: Guru BK / Kesiswaan (Konseling Mendalam)',
+            'mediasi_ortu'   => 'Level 3: Mediasi & Panggilan Orang Tua',
+            'kepala_sekolah' => 'Level 4: Kepala Sekolah & Tim Pencegahan Kekerasan (TPPK)',
+        ];
+
+        return view('character.cases.edit', compact('case', 'students', 'classes', 'categories', 'tppkCategories', 'handlingLevels'));
     }
 
     public function update(Request $request, CharacterCase $character_case)
     {
         $request->validate([
-            'date' => 'required|date',
-            'category' => 'required|string|max:100',
-            'title' => 'required|string|max:255',
-            'severity' => 'required|in:ringan,sedang,berat',
-            'point' => 'required|integer|min:0|max:100',
-            'location' => 'nullable|string|max:150',
-            'description' => 'nullable|string',
-            'action_taken' => 'nullable|string',
-            'follow_up' => 'nullable|string',
-            'status' => 'required|in:dalam_pembinaan,selesai,panggilan_ortu',
-            'reported_by' => 'nullable|string|max:150',
-            'notes' => 'nullable|string',
+            'date'               => 'required|date',
+            'category'           => 'required|string|max:100',
+            'tppk_category'      => 'nullable|string|max:50',
+            'title'              => 'required|string|max:255',
+            'severity'           => 'required|in:ringan,sedang,berat',
+            'point'              => 'required|integer|min:0|max:100',
+            'location'           => 'nullable|string|max:150',
+            'description'        => 'nullable|string',
+            'action_taken'       => 'nullable|string',
+            'restorative_action' => 'nullable|string',
+            'follow_up'          => 'nullable|string',
+            'status'             => 'required|in:dalam_pembinaan,selesai,panggilan_ortu',
+            'handling_level'     => 'nullable|string|max:30',
+            'reported_by'        => 'nullable|string|max:150',
+            'counseling_date'    => 'nullable|date',
+            'notes'              => 'nullable|string',
         ]);
 
         $character_case->update([
-            'date' => $request->date,
-            'category' => $request->category,
-            'title' => $request->title,
-            'severity' => $request->severity,
-            'point' => $request->point,
-            'location' => $request->location,
-            'description' => $request->description,
-            'action_taken' => $request->action_taken,
-            'follow_up' => $request->follow_up,
-            'status' => $request->status,
-            'reported_by' => $request->reported_by,
-            'parent_notified' => $request->has('parent_notified'),
-            'notes' => $request->notes,
+            'date'               => $request->date,
+            'category'           => $request->category,
+            'tppk_category'      => $request->tppk_category ?? 'non_tppk',
+            'title'              => $request->title,
+            'severity'           => $request->severity,
+            'point'              => $request->point,
+            'location'           => $request->location,
+            'description'        => $request->description,
+            'action_taken'       => $request->action_taken,
+            'restorative_action' => $request->restorative_action,
+            'follow_up'          => $request->follow_up,
+            'status'             => $request->status,
+            'handling_level'     => $request->handling_level ?? 'wali_kelas',
+            'reported_by'        => $request->reported_by,
+            'parent_notified'    => $request->has('parent_notified'),
+            'counseling_date'    => $request->counseling_date,
+            'notes'              => $request->notes,
         ]);
+
+        ActivityLog::log('Karakter', 'Update Kasus', "Memperbarui kasus ID: {$character_case->id} ({$character_case->title})");
+
+        return redirect()->route('character-cases.index')
+            ->with('success', 'Data catatan kasus pembinaan berhasil diperbarui.');
+    }
+
+    /**
+     * Cetak Berita Acara Pembinaan & Surat Pemanggilan Orang Tua (Dokumen Resmi Akreditasi & PKKS)
+     */
+    public function parentNotice(CharacterCase $character_case)
+    {
+        $case = $character_case->load(['student', 'academicYear']);
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : "Nur'asiah, S.Pd.I");
+
+        return view('character.cases.parent_letter', compact('case', 'headmasterName'));
+    }
 
         ActivityLog::log('Karakter', 'Update Kasus', "Memperbarui kasus ID: {$character_case->id} ({$character_case->title})");
 

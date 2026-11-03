@@ -18,7 +18,7 @@ class CharacterAppreciationController extends Controller
      */
     protected function ensureTableExists()
     {
-        if (!Schema::hasTable('character_appreciations')) {
+        if (!Schema::hasTable('character_appreciations') || !Schema::hasColumn('character_appreciations', 'dimension_p5')) {
             try {
                 Artisan::call('migrate', ['--force' => true]);
             } catch (\Throwable $e) {
@@ -35,6 +35,7 @@ class CharacterAppreciationController extends Controller
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $selectedClass = $request->class;
         $selectedCategory = $request->category;
+        $selectedDimension = $request->dimension_p5;
         $search = $request->search;
 
         $user = Auth::user();
@@ -55,11 +56,13 @@ class CharacterAppreciationController extends Controller
                 $q->whereHas('student', fn($sq) => $sq->where('class', $selectedClass));
             })
             ->when($selectedCategory, fn($q) => $q->where('category', $selectedCategory))
+            ->when($selectedDimension, fn($q) => $q->where('dimension_p5', $selectedDimension))
             ->when($search, function($q) use ($search) {
                 $q->where(function($sub) use ($search) {
                     $sub->where('title', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
                         ->orWhere('reward', 'like', "%{$search}%")
+                        ->orWhere('certificate_no', 'like', "%{$search}%")
                         ->orWhere('given_by', 'like', "%{$search}%")
                         ->orWhereHas('student', fn($sq) => $sq->where('name', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
                 });
@@ -72,8 +75,8 @@ class CharacterAppreciationController extends Controller
             });
 
         $stats = [
-            'total' => (clone $statsBase)->count(),
-            'total_points' => (clone $statsBase)->sum('point'),
+            'total'           => (clone $statsBase)->count(),
+            'total_points'    => (clone $statsBase)->sum('point'),
             'unique_students' => (clone $statsBase)->distinct('student_id')->count('student_id'),
         ];
 
@@ -90,6 +93,16 @@ class CharacterAppreciationController extends Controller
             'Lainnya',
         ];
 
+        $p5Dimensions = [
+            'Beriman & Bertaqwa'   => 'Beriman, Bertakwa kepada Tuhan YME, dan Berakhlak Mulia',
+            'Mandiri'              => 'Mandiri (Bertanggung jawab & disiplin diri)',
+            'Gotong Royong'        => 'Bergotong Royong (Peduli, berbagi, tolong menolong)',
+            'Bernalar Kritis'      => 'Bernalar Kritis (Reflektif & analitis)',
+            'Kreatif'              => 'Kreatif (Inovatif & menghasilkan karya)',
+            'Berkebinekaan Global' => 'Berkebinekaan Global (Toleran & menghargai sesama)',
+            'Adab Islami SIT'      => 'Standar Mutu Karakter SIT (Akhlak Qur\'ani)',
+        ];
+
         return view('character.appreciations.index', compact(
             'appreciations',
             'stats',
@@ -98,8 +111,10 @@ class CharacterAppreciationController extends Controller
             'selectedYearId',
             'selectedClass',
             'selectedCategory',
+            'selectedDimension',
             'search',
-            'categories'
+            'categories',
+            'p5Dimensions'
         ));
     }
 
@@ -137,13 +152,24 @@ class CharacterAppreciationController extends Controller
             'Lainnya' => 'Lainnya',
         ];
 
+        $p5Dimensions = [
+            'Beriman & Bertaqwa'   => 'Beriman, Bertakwa kepada Tuhan YME, dan Berakhlak Mulia',
+            'Mandiri'              => 'Mandiri (Bertanggung jawab & disiplin diri)',
+            'Gotong Royong'        => 'Bergotong Royong (Peduli, berbagi, tolong menolong)',
+            'Bernalar Kritis'      => 'Bernalar Kritis (Reflektif & analitis)',
+            'Kreatif'              => 'Kreatif (Inovatif & menghasilkan karya)',
+            'Berkebinekaan Global' => 'Berkebinekaan Global (Toleran & menghargai sesama)',
+            'Adab Islami SIT'      => 'Standar Mutu Karakter SIT (Akhlak Qur\'ani)',
+        ];
+
         return view('character.appreciations.create', compact(
             'students',
             'selectedStudent',
             'selectedClass',
             'classes',
             'activeYear',
-            'categories'
+            'categories',
+            'p5Dimensions'
         ));
     }
 
@@ -152,33 +178,39 @@ class CharacterAppreciationController extends Controller
         $this->ensureTableExists();
 
         $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'date' => 'required|date',
-            'category' => 'required|string|max:100',
-            'title' => 'required|string|max:255',
-            'point' => 'required|integer|min:1|max:100',
-            'reward' => 'nullable|string|max:150',
-            'description' => 'nullable|string',
-            'given_by' => 'nullable|string|max:150',
-            'notes' => 'nullable|string',
+            'student_id'     => 'required|exists:students,id',
+            'date'           => 'required|date',
+            'category'       => 'required|string|max:100',
+            'dimension_p5'   => 'nullable|string|max:100',
+            'title'          => 'required|string|max:255',
+            'point'          => 'required|integer|min:1|max:100',
+            'reward'         => 'nullable|string|max:150',
+            'certificate_no' => 'nullable|string|max:100',
+            'description'    => 'nullable|string',
+            'given_by'       => 'nullable|string|max:150',
+            'notes'          => 'nullable|string',
         ]);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
+        $student = Student::find($request->student_id);
+
+        $autoCert = $request->certificate_no ?: ('PIAGAM/SMILE/' . date('Ym') . '/' . str_pad($student->id, 3, '0', STR_PAD_LEFT) . '-' . rand(10, 99));
 
         $appreciation = CharacterAppreciation::create([
             'academic_year_id' => $request->academic_year_id ?? ($activeYear ? $activeYear->id : null),
-            'student_id' => $request->student_id,
-            'date' => $request->date,
-            'category' => $request->category,
-            'title' => $request->title,
-            'point' => $request->point,
-            'reward' => $request->reward,
-            'description' => $request->description,
-            'given_by' => $request->given_by ?? Auth::user()->name,
-            'notes' => $request->notes,
+            'student_id'       => $request->student_id,
+            'date'             => $request->date,
+            'category'         => $request->category,
+            'dimension_p5'     => $request->dimension_p5 ?? 'Adab Islami SIT',
+            'title'            => $request->title,
+            'point'            => $request->point,
+            'reward'           => $request->reward,
+            'certificate_no'   => $autoCert,
+            'description'      => $request->description,
+            'given_by'         => $request->given_by ?? Auth::user()->name,
+            'notes'            => $request->notes,
         ]);
 
-        $student = Student::find($request->student_id);
         ActivityLog::log('Karakter', 'Create Apresiasi', "Memberikan apresiasi: {$appreciation->title} (+{$appreciation->point} poin) untuk siswa {$student->name}");
 
         return redirect()->route('character-appreciations.index')
@@ -209,32 +241,65 @@ class CharacterAppreciationController extends Controller
             'Lainnya' => 'Lainnya',
         ];
 
-        return view('character.appreciations.edit', compact('appreciation', 'students', 'classes', 'categories'));
+        $p5Dimensions = [
+            'Beriman & Bertaqwa'   => 'Beriman, Bertakwa kepada Tuhan YME, dan Berakhlak Mulia',
+            'Mandiri'              => 'Mandiri (Bertanggung jawab & disiplin diri)',
+            'Gotong Royong'        => 'Bergotong Royong (Peduli, berbagi, tolong menolong)',
+            'Bernalar Kritis'      => 'Bernalar Kritis (Reflektif & analitis)',
+            'Kreatif'              => 'Kreatif (Inovatif & menghasilkan karya)',
+            'Berkebinekaan Global' => 'Berkebinekaan Global (Toleran & menghargai sesama)',
+            'Adab Islami SIT'      => 'Standar Mutu Karakter SIT (Akhlak Qur\'ani)',
+        ];
+
+        return view('character.appreciations.edit', compact('appreciation', 'students', 'classes', 'categories', 'p5Dimensions'));
     }
 
     public function update(Request $request, CharacterAppreciation $character_appreciation)
     {
         $request->validate([
-            'date' => 'required|date',
-            'category' => 'required|string|max:100',
-            'title' => 'required|string|max:255',
-            'point' => 'required|integer|min:1|max:100',
-            'reward' => 'nullable|string|max:150',
-            'description' => 'nullable|string',
-            'given_by' => 'nullable|string|max:150',
-            'notes' => 'nullable|string',
+            'date'           => 'required|date',
+            'category'       => 'required|string|max:100',
+            'dimension_p5'   => 'nullable|string|max:100',
+            'title'          => 'required|string|max:255',
+            'point'          => 'required|integer|min:1|max:100',
+            'reward'         => 'nullable|string|max:150',
+            'certificate_no' => 'nullable|string|max:100',
+            'description'    => 'nullable|string',
+            'given_by'       => 'nullable|string|max:150',
+            'notes'          => 'nullable|string',
         ]);
 
         $character_appreciation->update([
-            'date' => $request->date,
-            'category' => $request->category,
-            'title' => $request->title,
-            'point' => $request->point,
-            'reward' => $request->reward,
-            'description' => $request->description,
-            'given_by' => $request->given_by,
-            'notes' => $request->notes,
+            'date'           => $request->date,
+            'category'       => $request->category,
+            'dimension_p5'   => $request->dimension_p5 ?? 'Adab Islami SIT',
+            'title'          => $request->title,
+            'point'          => $request->point,
+            'reward'         => $request->reward,
+            'certificate_no' => $request->certificate_no,
+            'description'    => $request->description,
+            'given_by'       => $request->given_by,
+            'notes'          => $request->notes,
         ]);
+
+        ActivityLog::log('Karakter', 'Update Apresiasi', "Memperbarui apresiasi ID: {$character_appreciation->id} ({$character_appreciation->title})");
+
+        return redirect()->route('character-appreciations.index')
+            ->with('success', 'Data apresiasi karakter berhasil diperbarui.');
+    }
+
+    /**
+     * Cetak Piagam Penghargaan Bintang Karakter SMILE Resmi (Bukti Fisik Akreditasi & Reward Siswa)
+     */
+    public function certificate(CharacterAppreciation $character_appreciation)
+    {
+        $appreciation = $character_appreciation->load(['student', 'academicYear']);
+        $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
+        $headmasterName = !empty($headmasterSetting) ? $headmasterSetting : ($headmasterUser ? $headmasterUser->name : "Nur'asiah, S.Pd.I");
+
+        return view('character.appreciations.certificate', compact('appreciation', 'headmasterName'));
+    }
 
         ActivityLog::log('Karakter', 'Update Apresiasi', "Memperbarui apresiasi ID: {$character_appreciation->id} ({$character_appreciation->title})");
 

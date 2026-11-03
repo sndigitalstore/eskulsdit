@@ -128,7 +128,7 @@
                                 <th style="padding: 12px 10px; text-align: center; width: 110px;">Kasus (-)</th>
                                 <th style="padding: 12px 10px; text-align: center; width: 100px;">Poin Bersih</th>
                                 <th style="padding: 12px 10px; text-align: center; width: 170px;">Predikat Karakter</th>
-                                <th style="padding: 12px 10px; text-align: center; width: 120px;">Aksi Cepat</th>
+                                <th style="padding: 12px 10px; text-align: center; width: 160px;">Aksi & Portofolio</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -179,11 +179,14 @@
                                         </span>
                                     </td>
                                     <td style="padding: 12px 10px; text-align: center;">
-                                        <div style="display: flex; gap: 4px; justify-content: center;">
-                                            <a href="{{ route('character-appreciations.create', ['student_id' => $st->id]) }}" class="btn-action-header btn-green" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none; background: #10b981;" title="Beri Apresiasi">
+                                        <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                            <a href="{{ route('character.student.portfolio', $st->id) }}" target="_blank" class="btn-action-header btn-blue" style="padding: 3px 8px; font-size: 0.72rem; text-decoration: none;" title="Cetak Portofolio Karakter (PKKS/Akreditasi)">
+                                                <i class="fas fa-file-alt"></i> Portofolio
+                                            </a>
+                                            <a href="{{ route('character-appreciations.create', ['student_id' => $st->id]) }}" class="btn-action-header btn-green" style="padding: 3px 6px; font-size: 0.72rem; text-decoration: none; background: #10b981;" title="Beri Apresiasi">
                                                 <i class="fas fa-plus"></i> <i class="fas fa-award"></i>
                                             </a>
-                                            <a href="{{ route('character-cases.create', ['student_id' => $st->id]) }}" class="btn-action-header btn-red" style="padding: 3px 8px; font-size: 0.75rem; text-decoration: none; background: #ef4444;" title="Catat Kasus">
+                                            <a href="{{ route('character-cases.create', ['student_id' => $st->id]) }}" class="btn-action-header btn-red" style="padding: 3px 6px; font-size: 0.72rem; text-decoration: none; background: #ef4444;" title="Catat Kasus">
                                                 <i class="fas fa-plus"></i> <i class="fas fa-exclamation"></i>
                                             </a>
                                         </div>

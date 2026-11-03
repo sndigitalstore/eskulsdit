@@ -103,6 +103,15 @@
                     </select>
                 </div>
                 <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Dimensi Profil Lulusan / P5</label>
+                    <select name="dimension_p5" class="form-control" style="height: 40px; font-size: 0.88rem;">
+                        <option value="">-- Semua Dimensi --</option>
+                        @foreach($p5Dimensions as $pKey => $pLabel)
+                            <option value="{{ $pKey }}" {{ ($selectedDimension ?? '') == $pKey ? 'selected' : '' }}>{{ $pLabel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Cari Nama / Bentuk Apresiasi</label>
                     <input type="text" name="search" value="{{ $search }}" class="form-control" placeholder="Kata kunci..." style="height: 40px; font-size: 0.88rem;">
                 </div>
@@ -121,7 +130,7 @@
             <div style="font-size: 0.92rem; font-weight: 700; color: #1e293b;">
                 Menampilkan {{ $appreciations->total() }} Catatan Apresiasi
             </div>
-            @if(request()->anyFilled(['class', 'category', 'search']))
+            @if(request()->anyFilled(['class', 'category', 'dimension_p5', 'search']))
                 <a href="{{ route('character-appreciations.index') }}" style="font-size: 0.82rem; color: #ef4444; font-weight: 600; text-decoration: none;">
                     <i class="fas fa-times-circle"></i> Reset Filter
                 </a>
@@ -165,6 +174,13 @@
                                     <i class="fas {{ $appr->category_theme['icon'] }}"></i>
                                     {{ $appr->category }}
                                 </span>
+                                @if($appr->dimension_p5)
+                                    <div style="margin-top: 4px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; background: {{ $appr->dimension_p5_theme['bg'] }}; color: {{ $appr->dimension_p5_theme['color'] }};">
+                                            <i class="fas {{ $appr->dimension_p5_theme['icon'] }}"></i> {{ $appr->dimension_p5 }}
+                                        </span>
+                                    </div>
+                                @endif
                             </td>
                             <td style="padding: 12px 10px;">
                                 <div style="font-weight: 700; color: #1e293b;">
@@ -173,6 +189,11 @@
                                 @if($appr->description)
                                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px; line-height: 1.3;">
                                         {{ Str::limit($appr->description, 100) }}
+                                    </div>
+                                @endif
+                                @if($appr->certificate_no)
+                                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">
+                                        <i class="fas fa-certificate" style="color: #f59e0b;"></i> No. Piagam: <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-size: 0.72rem;">{{ $appr->certificate_no }}</code>
                                     </div>
                                 @endif
                             </td>
@@ -192,7 +213,10 @@
                                 </div>
                             </td>
                             <td style="padding: 12px 10px; text-align: center;">
-                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    <a href="{{ route('character-appreciations.certificate', $appr->id) }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #0284c7; color: #fff; text-decoration: none;" title="Cetak Piagam Bintang Karakter SMILE">
+                                        <i class="fas fa-certificate"></i>
+                                    </a>
                                     <a href="{{ route('character-appreciations.edit', $appr->id) }}" class="btn-action-header btn-orange" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" title="Edit Apresiasi">
                                         <i class="fas fa-edit"></i>
                                     </a>

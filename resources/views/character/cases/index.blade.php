@@ -90,6 +90,15 @@
                 <i class="fas fa-check-double"></i>
             </div>
         </div>
+        <div class="card" style="padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid #7c3aed;">
+            <div>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #7c3aed; text-transform: uppercase;">TPPK (Permendikbud 46)</span>
+                <div style="font-size: 1.5rem; font-weight: 900; color: #7c3aed;">{{ $stats['tppk_total'] ?? 0 }}</div>
+            </div>
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: #ede9fe; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+        </div>
     </div>
 
     <!-- Filter Card -->
@@ -134,6 +143,24 @@
                     </select>
                 </div>
                 <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Klasifikasi TPPK (Akreditasi)</label>
+                    <select name="tppk_category" class="form-control" style="height: 40px; font-size: 0.88rem;">
+                        <option value="">-- Semua Klasifikasi --</option>
+                        @foreach($tppkCategories as $tKey => $tLabel)
+                            <option value="{{ $tKey }}" {{ $selectedTppk == $tKey ? 'selected' : '' }}>{{ $tLabel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Level Penanganan (PKKS)</label>
+                    <select name="handling_level" class="form-control" style="height: 40px; font-size: 0.88rem;">
+                        <option value="">-- Semua Level --</option>
+                        @foreach($handlingLevels as $hKey => $hLabel)
+                            <option value="{{ $hKey }}" {{ $selectedHandlingLevel == $hKey ? 'selected' : '' }}>{{ $hLabel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Kategori Kasus</label>
                     <select name="category" class="form-control" style="height: 40px; font-size: 0.88rem;">
                         <option value="">-- Semua Kategori --</option>
@@ -161,7 +188,7 @@
             <div style="font-size: 0.92rem; font-weight: 700; color: #1e293b;">
                 Menampilkan {{ $cases->total() }} Catatan Kasus
             </div>
-            @if(request()->anyFilled(['class', 'severity', 'status', 'category', 'search']))
+            @if(request()->anyFilled(['class', 'severity', 'status', 'category', 'tppk_category', 'handling_level', 'search']))
                 <a href="{{ route('character-cases.index') }}" style="font-size: 0.82rem; color: #ef4444; font-weight: 600; text-decoration: none;">
                     <i class="fas fa-times-circle"></i> Reset Filter
                 </a>
@@ -204,6 +231,13 @@
                                 </div>
                             </td>
                             <td style="padding: 12px 10px;">
+                                @if($case->tppk_category && $case->tppk_category !== 'non_tppk')
+                                    <div style="margin-bottom: 4px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: {{ $case->tppk_badge['bg'] }}; color: {{ $case->tppk_badge['color'] }}; border: 1px solid {{ $case->tppk_badge['border'] }};">
+                                            <i class="fas fa-shield-alt"></i> {{ $case->tppk_badge['label'] }}
+                                        </span>
+                                    </div>
+                                @endif
                                 <div style="font-size: 0.75rem; font-weight: 700; color: #b45309; text-transform: uppercase;">
                                     {{ $case->category }}
                                 </div>
@@ -230,9 +264,21 @@
                                 </div>
                             </td>
                             <td style="padding: 12px 10px;">
+                                @if($case->handling_level)
+                                    <div style="margin-bottom: 4px;">
+                                        <span style="display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: {{ $case->handling_level_badge['bg'] }}; color: {{ $case->handling_level_badge['color'] }};">
+                                            <i class="fas fa-user-shield"></i> {{ $case->handling_level_badge['label'] }}
+                                        </span>
+                                    </div>
+                                @endif
                                 @if($case->action_taken)
                                     <div style="font-size: 0.78rem; color: #334155; line-height: 1.3;">
                                         <strong style="color: #047857;">Tindakan:</strong> {{ Str::limit($case->action_taken, 80) }}
+                                    </div>
+                                @endif
+                                @if($case->restorative_action)
+                                    <div style="font-size: 0.76rem; color: #1e40af; line-height: 1.3; margin-top: 2px; background: #eff6ff; padding: 3px 6px; border-radius: 4px;">
+                                        <strong style="color: #1d4ed8;"><i class="fas fa-hand-holding-heart"></i> Restorasi:</strong> {{ Str::limit($case->restorative_action, 80) }}
                                     </div>
                                 @endif
                                 @if($case->follow_up)
@@ -240,7 +286,7 @@
                                         <strong>Komitmen:</strong> {{ Str::limit($case->follow_up, 80) }}
                                     </div>
                                 @endif
-                                @if(!$case->action_taken && !$case->follow_up)
+                                @if(!$case->action_taken && !$case->restorative_action && !$case->follow_up)
                                     <span style="color: #94a3b8; font-size: 0.78rem; font-style: italic;">Belum ada catatan tindakan</span>
                                 @endif
                             </td>
@@ -256,7 +302,10 @@
                                 @endif
                             </td>
                             <td style="padding: 12px 10px; text-align: center;">
-                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    <a href="{{ route('character-cases.parent-notice', $case->id) }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #6366f1; color: #fff; text-decoration: none;" title="Cetak Berita Acara & Pemanggilan Ortu (PKKS/Akreditasi)">
+                                        <i class="fas fa-print"></i>
+                                    </a>
                                     <a href="{{ route('character-cases.edit', $case->id) }}" class="btn-action-header btn-orange" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" title="Edit Catatan">
                                         <i class="fas fa-edit"></i>
                                     </a>

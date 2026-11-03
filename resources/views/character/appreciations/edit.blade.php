@@ -72,7 +72,7 @@
                     2. Nilai Karakter SMILE & Bentuk Kebaikan
                 </h4>
 
-                <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Kategori Nilai SMILE <span style="color: #ef4444;">*</span>
@@ -86,9 +86,30 @@
 
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
+                            Dimensi Profil Lulusan / P5 / SIT (Akreditasi)
+                        </label>
+                        <select name="dimension_p5" class="form-control">
+                            <option value="">-- Pilih Dimensi (Opsional) --</option>
+                            @foreach($p5Dimensions as $pKey => $pLabel)
+                                <option value="{{ $pKey }}" {{ old('dimension_p5', $appreciation->dimension_p5) == $pKey ? 'selected' : '' }}>{{ $pLabel }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Poin Kebaikan (+) <span style="color: #ef4444;">*</span>
                         </label>
                         <input type="number" name="point" class="form-control" value="{{ old('point', $appreciation->point) }}" min="1" max="100" required>
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
+                            No. Piagam Penghargaan
+                        </label>
+                        <input type="text" name="certificate_no" class="form-control" value="{{ old('certificate_no', $appreciation->certificate_no) }}" placeholder="Nomor piagam resmi">
                     </div>
                 </div>
 

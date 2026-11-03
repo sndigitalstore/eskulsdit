@@ -338,15 +338,18 @@ Route::middleware(['auth'])->group(function () {
 
     // SMILE KARAKTER (Pemantauan Karakter Siswa)
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
-        Route::get('/character',                         [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');
-        Route::get('/character/report',                  [\App\Http\Controllers\CharacterDashboardController::class, 'report'])->name('character.report');
-        Route::get('/character/report/print',            [\App\Http\Controllers\CharacterDashboardController::class, 'printClassReport'])->name('character.report.print');
+        Route::get('/character',                                      [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');
+        Route::get('/character/report',                               [\App\Http\Controllers\CharacterDashboardController::class, 'report'])->name('character.report');
+        Route::get('/character/report/print',                         [\App\Http\Controllers\CharacterDashboardController::class, 'printClassReport'])->name('character.report.print');
+        Route::get('/character/student/{student}/portfolio',          [\App\Http\Controllers\CharacterDashboardController::class, 'studentPortfolio'])->name('character.student.portfolio');
 
-        Route::get('/character-cases/print',             [\App\Http\Controllers\CharacterCaseController::class, 'print'])->name('character-cases.print');
-        Route::resource('character-cases',               \App\Http\Controllers\CharacterCaseController::class);
+        Route::get('/character-cases/print',                          [\App\Http\Controllers\CharacterCaseController::class, 'print'])->name('character-cases.print');
+        Route::get('/character-cases/{character_case}/parent-notice', [\App\Http\Controllers\CharacterCaseController::class, 'parentNotice'])->name('character-cases.parent-notice');
+        Route::resource('character-cases',                            \App\Http\Controllers\CharacterCaseController::class);
 
-        Route::get('/character-appreciations/print',     [\App\Http\Controllers\CharacterAppreciationController::class, 'print'])->name('character-appreciations.print');
-        Route::resource('character-appreciations',       \App\Http\Controllers\CharacterAppreciationController::class);
+        Route::get('/character-appreciations/print',                  [\App\Http\Controllers\CharacterAppreciationController::class, 'print'])->name('character-appreciations.print');
+        Route::get('/character-appreciations/{character_appreciation}/certificate', [\App\Http\Controllers\CharacterAppreciationController::class, 'certificate'])->name('character-appreciations.certificate');
+        Route::resource('character-appreciations',                    \App\Http\Controllers\CharacterAppreciationController::class);
     });
 
     // SMILE KURIKULUM (Raport Akademik STS 1, SAS 1, STS 2, SAS 2 & Mata Pelajaran)

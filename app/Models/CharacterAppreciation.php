@@ -11,10 +11,12 @@ class CharacterAppreciation extends Model
         'student_id',
         'date',
         'category',
+        'dimension_p5',
         'title',
         'description',
         'point',
         'reward',
+        'certificate_no',
         'given_by',
         'notes',
     ];
@@ -69,5 +71,27 @@ class CharacterAppreciation extends Model
             return ['bg' => '#d1fae5', 'color' => '#065f46', 'icon' => 'fa-leaf'];
         }
         return ['bg' => '#f1f5f9', 'color' => '#334155', 'icon' => 'fa-star'];
+    }
+
+    /**
+     * Helper to get Dimension P5 & SIT Theme
+     */
+    public function getDimensionP5ThemeAttribute()
+    {
+        $dim = strtolower($this->dimension_p5 ?? '');
+        if (str_contains($dim, 'beriman') || str_contains($dim, 'bertaqwa')) {
+            return ['bg' => '#ecfdf5', 'color' => '#065f46', 'label' => 'Beriman & Bertaqwa'];
+        } elseif (str_contains($dim, 'mandiri')) {
+            return ['bg' => '#eff6ff', 'color' => '#1e40af', 'label' => 'Mandiri'];
+        } elseif (str_contains($dim, 'gotong') || str_contains($dim, 'royong')) {
+            return ['bg' => '#fef3c7', 'color' => '#92400e', 'label' => 'Gotong Royong'];
+        } elseif (str_contains($dim, 'kritis')) {
+            return ['bg' => '#f3e8ff', 'color' => '#6b21a8', 'label' => 'Bernalar Kritis'];
+        } elseif (str_contains($dim, 'kreatif')) {
+            return ['bg' => '#fdf2f8', 'color' => '#9d174d', 'label' => 'Kreatif'];
+        } elseif (str_contains($dim, 'kebinekaan') || str_contains($dim, 'kebhinekaan')) {
+            return ['bg' => '#ffedd5', 'color' => '#9a3412', 'label' => 'Berkebinekaan Global'];
+        }
+        return ['bg' => '#f8fafc', 'color' => '#475569', 'label' => $this->dimension_p5 ?: 'Karakter JSIT'];
     }
 }

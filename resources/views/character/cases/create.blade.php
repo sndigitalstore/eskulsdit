@@ -87,10 +87,10 @@
                     2. Uraian & Bobot Kasus
                 </h4>
 
-                <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Kategori Kasus <span style="color: #ef4444;">*</span>
+                            Kategori Masalah <span style="color: #ef4444;">*</span>
                         </label>
                         <select name="category" class="form-control" required>
                             <option value="">-- Pilih Kategori --</option>
@@ -100,6 +100,21 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
+                            Klasifikasi TPPK (Anti-Kekerasan & Bullying) <span style="font-size: 0.75rem; color: #0284c7;">[Standar Akreditasi]</span>
+                        </label>
+                        <select name="tppk_category" class="form-control">
+                            @foreach($tppkCategories as $tKey => $tLabel)
+                                <option value="{{ $tKey }}" {{ old('tppk_category', 'non_tppk') == $tKey ? 'selected' : '' }}>
+                                    {{ $tLabel }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Tingkat Keparahan <span style="color: #ef4444;">*</span>
@@ -140,23 +155,43 @@
                     3. Tindakan Pembinaan & Evaluasi
                 </h4>
 
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #065f46; font-size: 0.88rem;">
+                        <i class="fas fa-seedling"></i> Aksi Restorasi Karakter / Konsekuensi Logis Edukatif <span style="font-size: 0.75rem; color: #64748b;">[Disiplin Positif]</span>
+                    </label>
+                    <textarea name="restorative_action" rows="2" class="form-control" placeholder="Bentuk perbaikan diri siswa (contoh: tilawah mandiri 1 juz, merapikan musholla, membuat tulisan refleksi akhlak, meminta maaf secara tulus)">{{ old('restorative_action') }}</textarea>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
-                            Tindakan Langsung Guru / Pembina
+                            Tindakan Langsung Guru / Pelapor
                         </label>
-                        <textarea name="action_taken" rows="2" class="form-control" placeholder="Contoh: Dinasehati secara empatik, diminta mengulang wudhu, dll">{{ old('action_taken') }}</textarea>
+                        <textarea name="action_taken" rows="2" class="form-control" placeholder="Contoh: Dinasehati secara empatik, pengingat adab mulia">{{ old('action_taken') }}</textarea>
                     </div>
 
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Komitmen Siswa / Rencana Tindak Lanjut
                         </label>
-                        <textarea name="follow_up" rows="2" class="form-control" placeholder="Contoh: Menulis surat komitmen, meminta maaf kepada teman, dll">{{ old('follow_up') }}</textarea>
+                        <textarea name="follow_up" rows="2" class="form-control" placeholder="Contoh: Menulis komitmen di buku mutaba'ah, berjanji tidak mengulangi">{{ old('follow_up') }}</textarea>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
+                            Alur / Level Penanganan Kasus <span style="font-size: 0.75rem; color: #0284c7;">[SOP Akreditasi]</span>
+                        </label>
+                        <select name="handling_level" class="form-control">
+                            @foreach($handlingLevels as $hKey => $hLabel)
+                                <option value="{{ $hKey }}" {{ old('handling_level', 'wali_kelas') == $hKey ? 'selected' : '' }}>
+                                    {{ $hLabel }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-weight: 700; color: #334155; font-size: 0.88rem;">
                             Status Pembinaan <span style="color: #ef4444;">*</span>
@@ -167,12 +202,21 @@
                             <option value="panggilan_ortu" {{ old('status') == 'panggilan_ortu' ? 'selected' : '' }}>Panggilan Orang Tua</option>
                         </select>
                     </div>
+                </div>
 
-                    <div style="padding-top: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px;">
+                    <div>
                         <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; color: #334155; font-size: 0.9rem;">
                             <input type="checkbox" name="parent_notified" value="1" {{ old('parent_notified') ? 'checked' : '' }} style="width: 18px; height: 18px;">
                             <span>Sudah diberitahukan ke Orang Tua / Wali Siswa</span>
                         </label>
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 700; color: #334155; font-size: 0.82rem;">
+                            Tanggal Pemanggilan / Konseling Ortu (Bila ada)
+                        </label>
+                        <input type="date" name="counseling_date" class="form-control" value="{{ old('counseling_date') }}">
                     </div>
                 </div>
             </div>
