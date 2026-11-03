@@ -384,7 +384,7 @@
                     ['code' => 'M', 'name' => 'Muslih', 'desc' => 'Membawa kebaikan, gemar tolong-menolong, peduli sesama, dan mendamaikan lingkungan.'],
                     ['code' => 'I', 'name' => 'Intellectual Curiosity', 'desc' => 'Memiliki rasa ingin tahu tinggi, gemar membaca/literasi, dan semangat menggali ilmu.'],
                     ['code' => 'L', 'name' => 'Leadership', 'desc' => 'Bertanggung jawab, berani memimpin, disiplin, dan amanah dalam menjalankan tugas.'],
-                    ['code' => 'E', 'name' => 'Environmentally Friendly', 'desc' => 'Menjaga kebersihan diri, merawat fasilitas kelas, dan mencintai kelestarian lingkungan.'],
+                    ['code' => 'E', 'name' => 'Environmentally', 'desc' => 'Menjaga kebersihan diri, merawat fasilitas kelas, dan mencintai kelestarian lingkungan.'],
                 ];
             @endphp
             @foreach($smileDimensions as $idx => $dim)

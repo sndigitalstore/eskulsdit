@@ -316,8 +316,15 @@
         <div class="feedback-box">
             <strong>Catatan & Refleksi Wali Kelas:</strong><br>
             <span style="font-style: italic; color: #334155;">
-                Ananda {{ $student->name }} menunjukkan dinamika perkembangan karakter yang terpantau secara transparan. Diharapkan kerjasama aktif antara pihak sekolah dan orang tua di rumah agar nilai-nilai kebaikan SMILE (Sholeh, Muslih, Intelek, Mandiri, Peduli Lingkungan) senantiasa tertanam kokoh dalam kepribadian ananda.
+                Ananda {{ $student->name }} menunjukkan dinamika perkembangan karakter yang terpantau secara transparan. Diharapkan kerjasama aktif antara pihak sekolah dan orang tua di rumah agar nilai-nilai kebaikan SMILE (• S – Sholeh, • M – Muslih, • I – Intellectual Curiosity, • L – Leadership, • E – Environmentally) senantiasa tertanam kokoh dalam kepribadian ananda.
             </span>
+            <div style="margin-top: 6px; font-size: 8pt; color: #065f46; font-weight: 700; display: flex; flex-wrap: wrap; gap: 10px;">
+                <span>• S – Sholeh</span>
+                <span>• M – Muslih</span>
+                <span>• I – Intellectual Curiosity</span>
+                <span>• L – Leadership</span>
+                <span>• E – Environmentally</span>
+            </div>
         </div>
 
         <!-- Signatures -->

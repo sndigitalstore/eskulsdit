@@ -440,7 +440,7 @@ class AcademicReportController extends Controller
             ->where('academic_year_id', $yearId)
             ->count();
 
-        // Karakter SMILE: Sholeh, Muslih, Intellectual Curiosity, Leadership, Environmentally Friendly
+        // Karakter SMILE: • S – Sholeh, • M – Muslih, • I – Intellectual Curiosity, • L – Leadership, • E – Environmentally
         $characterAppreciations = $student->characterAppreciations()
             ->where('academic_year_id', $yearId)
             ->latest('date')

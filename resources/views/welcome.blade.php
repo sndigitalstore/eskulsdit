@@ -1870,7 +1870,7 @@
                 </div>
                 <h3 class="pillar-title">SMILE Karakter</h3>
                 <p class="pillar-text">
-                    Pemantauan adab dan akhlak siswa berlandaskan nilai Sholeh, Muslih, Intellectual Curiosity, Leadership, & Environmentally Friendly.
+                    Pemantauan adab dan akhlak siswa berlandaskan nilai SMILE (• S – Sholeh, • M – Muslih, • I – Intellectual Curiosity, • L – Leadership, • E – Environmentally).
                 </p>
                 <ul class="pillar-features-list">
                     <li><i class="fas fa-check"></i> Buku Saku Apresiasi & Kebaikan</li>
