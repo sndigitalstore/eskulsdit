@@ -131,7 +131,7 @@ class StudentController extends Controller
             'eskul_1_id' => 'nullable|exists:eskuls,id',
             'eskul_name' => 'nullable|string|max:255',
             'instructor_name' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         // Auto-create/find SchoolClass so it stays registered
@@ -162,7 +162,7 @@ class StudentController extends Controller
              // Create new student (academic_year_id auto-filled by model boot event)
              $photoPath = null;
              if ($request->hasFile('photo')) {
-                 $photoPath = $request->file('photo')->store('students', 'public');
+                 $photoPath = \App\Services\ImageOptimizer::optimizeAndStore($request->file('photo'), 'students', 800, 82);
              }
 
              $student = \App\Models\Student::create([
@@ -404,7 +404,7 @@ class StudentController extends Controller
             'school_program' => 'nullable|string|max:50',
             'eskul_1_id' => 'nullable|exists:eskuls,id',
             'eskul_2_id' => 'nullable|exists:eskuls,id',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'last_sync' => 'nullable|string'
         ]);
 
@@ -442,7 +442,7 @@ class StudentController extends Controller
             if ($student->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($student->photo);
             }
-            $updateData['photo'] = $request->file('photo')->store('students', 'public');
+            $updateData['photo'] = \App\Services\ImageOptimizer::optimizeAndStore($request->file('photo'), 'students', 800, 82);
         }
 
         $student->update($updateData);
