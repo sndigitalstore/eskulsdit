@@ -339,6 +339,8 @@ Route::middleware(['auth'])->group(function () {
     // SMILE KARAKTER (Pemantauan Karakter Siswa)
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
         Route::get('/character',                                      [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');
+        Route::get('/character/analytics',                            [\App\Http\Controllers\CharacterDashboardController::class, 'analytics'])->name('character.analytics');
+        Route::get('/character/analytics/print',                      [\App\Http\Controllers\CharacterDashboardController::class, 'printAnalytics'])->name('character.analytics.print');
         Route::get('/character/report',                               [\App\Http\Controllers\CharacterDashboardController::class, 'report'])->name('character.report');
         Route::get('/character/report/print',                         [\App\Http\Controllers\CharacterDashboardController::class, 'printClassReport'])->name('character.report.print');
         Route::get('/character/student/{student}/portfolio',          [\App\Http\Controllers\CharacterDashboardController::class, 'studentPortfolio'])->name('character.student.portfolio');

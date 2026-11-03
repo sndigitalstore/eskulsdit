@@ -1194,9 +1194,15 @@
                 </div>
                 <ul class="nav-submenu">
                     <li class="nav-subitem">
-                        <a href="{{ route('character.dashboard') }}" class="nav-sublink {{ request()->is('character') ? 'active' : '' }}">
+                        <a href="{{ route('character.dashboard') }}" class="nav-sublink {{ (request()->is('character') && !request()->is('character/*')) ? 'active' : '' }}">
                             <i class="fas fa-chart-pie" style="color: #6366f1;"></i>
                             <span>Pantauan Karakter</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('character.analytics') }}" class="nav-sublink {{ request()->is('character/analytics*') ? 'active' : '' }}">
+                            <i class="fas fa-chart-line" style="color: #ec4899;"></i>
+                            <span>Grafik Capaian Karakter</span>
                         </a>
                     </li>
                     <li class="nav-subitem">
