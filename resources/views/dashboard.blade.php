@@ -1501,6 +1501,33 @@
         <!-- Wali Kelas Widgets: Belum Daftar & Sebaran Eskul -->
         @if($isHomeroomTeacher)
             <div class="duty-block" data-duty="homeroom" style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- BANNER AKSI CEPAT CETAK RAPOR KEKHASAN & AKADEMIK WALI KELAS -->
+                <div class="card" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: white; border: none; border-radius: 20px; padding: 22px 24px; box-shadow: 0 10px 25px -4px rgba(6, 95, 70, 0.4); margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div style="flex: 1; min-width: 260px;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                <i class="fas fa-certificate"></i> Modul Mandiri Wali Kelas
+                            </div>
+                            <h3 style="font-size: 1.3rem; font-weight: 800; color: white; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
+                                Rapor Kekhasan SDIT An Nadzir (Kelas {{ $homeroomClass }})
+                            </h3>
+                            <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 0.88rem; line-height: 1.4;">
+                                Cetak langsung dokumen resmi A4: Capaian Al-Qur'an (Tahfidz & Tilawati), 8 Dimensi Profil Lulusan Kemendikdasmen, dan Nilai Eskul santri kelas binaan Anda.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                            <a href="{{ route('academic-reports.print-all-kekhasan', ['class' => $homeroomClass]) }}" target="_blank" 
+                               style="background: #ffffff; color: #065f46; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.86rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+                                <i class="fas fa-print"></i> Cetak Semua Rapor Kekhasan (A4)
+                            </a>
+                            <a href="{{ route('academic-reports.index', ['class' => $homeroomClass]) }}" 
+                               style="background: rgba(255,255,255,0.2); color: white; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.86rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.35);">
+                                <i class="fas fa-table"></i> Kelola Rapor Kelas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Hasil Ujian Munaqosah Siswa Kelas Binaan (Lanjut / Belum Lanjut) -->
                 <div class="card" style="border-top: 5px solid #059669; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">

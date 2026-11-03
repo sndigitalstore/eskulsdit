@@ -220,6 +220,9 @@
                         <a href="{{ route('academic-reports.print-all-students', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn btn-sm btn-primary" style="font-weight: 700; background: #0284c7;">
                             <i class="fas fa-print"></i> Cetak Semua Rapor (A4)
                         </a>
+                        <a href="{{ route('academic-reports.print-all-kekhasan', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" target="_blank" class="btn btn-sm" style="font-weight: 700; background: #065f46; color: white;">
+                            <i class="fas fa-certificate"></i> Cetak Semua Rapor Kekhasan (A4)
+                        </a>
                         <a href="{{ route('academic-reports.export-leger', ['year_id' => $selectedYearId, 'class' => $selectedClass, 'assessment' => $selectedAssessment]) }}" class="btn btn-sm btn-success" style="font-weight: 700; background: #16a34a;">
                             <i class="fas fa-file-excel"></i> Unduh Leger
                         </a>

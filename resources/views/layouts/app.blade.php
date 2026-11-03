@@ -1217,6 +1217,12 @@
                             <span>Laporan & Rekap</span>
                         </a>
                     </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index', ['tab' => 'recap']) }}" class="nav-sublink {{ request()->is('curriculum/academic-reports*') ? 'active' : '' }}">
+                            <i class="fas fa-certificate" style="color: #059669;"></i>
+                            <span>Rapor Kekhasan (SMILE)</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             @endif
@@ -1239,6 +1245,12 @@
                         $isReportRoute = request()->is('curriculum/academic-reports*');
                         $currentAssessment = request()->get('assessment', 'STS_1');
                     @endphp
+                    <li class="nav-subitem">
+                        <a href="{{ route('academic-reports.index', ['tab' => 'recap']) }}" class="nav-sublink {{ $isReportRoute ? 'active' : '' }}" style="background: rgba(6, 95, 70, 0.08); border-left: 3px solid #059669;">
+                            <i class="fas fa-certificate" style="color: #059669;"></i>
+                            <span style="font-weight: 700; color: #065f46;">Rapor Kekhasan SDIT</span>
+                        </a>
+                    </li>
                     <li class="nav-subitem">
                         <a href="{{ route('academic-reports.index', ['assessment' => 'STS_1']) }}" class="nav-sublink {{ $isReportRoute && $currentAssessment === 'STS_1' ? 'active' : '' }}">
                             <i class="fas fa-calendar-alt" style="color: #0284c7;"></i>

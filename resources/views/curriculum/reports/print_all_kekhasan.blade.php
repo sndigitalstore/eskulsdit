@@ -318,7 +318,7 @@
                     <td><strong>Kelas / Rombel</strong></td>
                     <td>: Kelas {{ $stu->class }}</td>
                     <td><strong>Wali Kelas</strong></td>
-                    <td>: {{ $homeroomTeacher ? $homeroomTeacher->name : '-' }}</td>
+                    <td>: {{ ($data['homeroomTeacher'] ?? $homeroomTeacher) ? ($data['homeroomTeacher'] ?? $homeroomTeacher)->name : 'Wali Kelas ' . $stu->class }}</td>
                 </tr>
             </table>
 
@@ -493,15 +493,18 @@
                     </div>
                 </div>
 
+                @php
+                    $curTeacher = $data['homeroomTeacher'] ?? $homeroomTeacher;
+                @endphp
                 <div class="sig-block">
                     <div>
                         Cinangka, {{ now()->translatedFormat('d F Y') }}<br>
-                        <strong>Wali Kelas {{ $class }}</strong>
+                        <strong>Wali Kelas {{ $stu->class }}</strong>
                     </div>
                     <div>
                         <br><br><br>
-                        <strong><u>{{ $homeroomTeacher ? $homeroomTeacher->name : '(............................................)' }}</u></strong><br>
-                        <span style="font-size: 7.5pt; color: #555;">Wali Kelas</span>
+                        <strong><u>{{ $curTeacher ? $curTeacher->name : 'Wali Kelas ' . $stu->class }}</u></strong><br>
+                        <span style="font-size: 7.5pt; color: #555;">NIP/NIY: {{ $curTeacher?->nip ?? '-' }}</span>
                     </div>
                 </div>
 
@@ -523,3 +526,4 @@
 
 </body>
 </html>
+

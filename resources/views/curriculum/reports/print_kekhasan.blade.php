@@ -240,7 +240,7 @@
                 <td><strong>Kelas / Rombel</strong></td>
                 <td>: Kelas {{ $student->class }}</td>
                 <td><strong>Wali Kelas</strong></td>
-                <td>: {{ $homeroomTeacher ? $homeroomTeacher->name : '-' }}</td>
+                <td>: {{ $homeroomTeacher ? $homeroomTeacher->name : 'Wali Kelas ' . $student->class }}</td>
             </tr>
         </table>
 
@@ -483,8 +483,8 @@
                 </div>
                 <div>
                     <br><br><br>
-                    <strong><u>{{ $homeroomTeacher ? $homeroomTeacher->name : '(............................................)' }}</u></strong><br>
-                    <span style="font-size: 7.5pt; color: #555;">Wali Kelas</span>
+                    <strong><u>{{ $homeroomTeacher ? $homeroomTeacher->name : 'Wali Kelas ' . $student->class }}</u></strong><br>
+                    <span style="font-size: 7.5pt; color: #555;">NIP/NIY: {{ $homeroomTeacher?->nip ?? '-' }}</span>
                 </div>
             </div>
 
@@ -505,3 +505,4 @@
 
 </body>
 </html>
+

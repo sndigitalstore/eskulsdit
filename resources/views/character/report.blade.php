@@ -58,8 +58,11 @@
             </p>
         </div>
         @if($selectedClass && $students->count() > 0)
-            <div>
-                <a href="{{ route('character.report.print', ['year_id' => $selectedYearId, 'class' => $selectedClass]) }}" target="_blank" class="btn-action-header btn-blue" style="text-decoration: none; padding: 10px 18px; font-weight: 700; background: #0284c7;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <a href="{{ route('academic-reports.print-all-kekhasan', ['year_id' => $selectedYearId, 'class' => $selectedClass]) }}" target="_blank" class="btn-action-header" style="text-decoration: none; padding: 10px 18px; font-weight: 700; background: #065f46; color: white; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(6,95,70,0.3);">
+                    <i class="fas fa-certificate"></i> Cetak Rapor Kekhasan (A4)
+                </a>
+                <a href="{{ route('character.report.print', ['year_id' => $selectedYearId, 'class' => $selectedClass]) }}" target="_blank" class="btn-action-header btn-blue" style="text-decoration: none; padding: 10px 18px; font-weight: 700; background: #0284c7; border-radius: 12px;">
                     <i class="fas fa-print"></i> Cetak Laporan Karakter Kelas (A4)
                 </a>
             </div>

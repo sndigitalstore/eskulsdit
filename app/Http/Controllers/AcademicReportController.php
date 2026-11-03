@@ -378,16 +378,99 @@ class AcademicReportController extends Controller
     }
 
     /**
+     * Helper to verify if the authenticated teacher is authorized for the given class.
+     * Tolerant to case-sensitivity and 'Kelas ' prefixes.
+     */
+    private function checkHomeroomAccess(?string $targetClass, string $errorMessage = 'Akses ditolak. Anda hanya dapat mencetak raport untuk kelas binaan Anda.')
+    {
+        $user = Auth::user();
+        if ($user && $user->role === 'teacher') {
+            $userCleanClass = trim(str_ireplace('kelas', '', (string)$user->homeroom_class));
+            $targetCleanClass = trim(str_ireplace('kelas', '', (string)$targetClass));
+            if (empty($userCleanClass) || strcasecmp($userCleanClass, $targetCleanClass) !== 0) {
+                abort(403, $errorMessage);
+            }
+        }
+    }
+
+    /**
+     * Resolve the Homeroom Teacher for a given class and academic year.
+     * Matches with priority:
+     * 1. Logged in user if they are the teacher of this class
+     * 2. Teacher matching class with specific academic_year_id
+     * 3. Teacher matching class with active academic year
+     * 4. Any teacher assigned to this class
+     */
+    private function resolveHomeroomTeacher(?string $className, ?int $yearId = null): ?User
+    {
+        if (empty($className)) {
+            return null;
+        }
+
+        $cleanClass = trim(str_ireplace('kelas', '', (string)$className));
+        $authUser = Auth::user();
+
+        // 1. Jika guru yang sedang login adalah wali kelas dari kelas ini, utamakan akun login
+        if ($authUser && $authUser->role === 'teacher' && !empty($authUser->homeroom_class)) {
+            $authCleanClass = trim(str_ireplace('kelas', '', (string)$authUser->homeroom_class));
+            if (strcasecmp($authCleanClass, $cleanClass) === 0) {
+                return $authUser;
+            }
+        }
+
+        // 2. Cari dengan filter tahun ajaran yang diminta
+        if ($yearId) {
+            $teacher = User::where('role', 'teacher')
+                ->where('academic_year_id', $yearId)
+                ->where(function($q) use ($className, $cleanClass) {
+                    $q->where('homeroom_class', $className)
+                      ->orWhere('homeroom_class', $cleanClass)
+                      ->orWhere('homeroom_class', 'Kelas ' . $cleanClass)
+                      ->orWhereRaw('LOWER(TRIM(REPLACE(homeroom_class, "Kelas ", ""))) = ?', [strtolower($cleanClass)]);
+                })
+                ->first();
+
+            if ($teacher) {
+                return $teacher;
+            }
+        }
+
+        // 3. Fallback: Cari guru aktif pada tahun ajaran aktif
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if ($activeYear && (!$yearId || $yearId !== $activeYear->id)) {
+            $teacher = User::where('role', 'teacher')
+                ->where('academic_year_id', $activeYear->id)
+                ->where(function($q) use ($className, $cleanClass) {
+                    $q->where('homeroom_class', $className)
+                      ->orWhere('homeroom_class', $cleanClass)
+                      ->orWhere('homeroom_class', 'Kelas ' . $cleanClass)
+                      ->orWhereRaw('LOWER(TRIM(REPLACE(homeroom_class, "Kelas ", ""))) = ?', [strtolower($cleanClass)]);
+                })
+                ->first();
+
+            if ($teacher) {
+                return $teacher;
+            }
+        }
+
+        // 4. Fallback umum: Cari guru manapun dengan kelas tsb
+        return User::where('role', 'teacher')
+            ->where(function($q) use ($className, $cleanClass) {
+                $q->where('homeroom_class', $className)
+                  ->orWhere('homeroom_class', $cleanClass)
+                  ->orWhere('homeroom_class', 'Kelas ' . $cleanClass)
+                  ->orWhereRaw('LOWER(TRIM(REPLACE(homeroom_class, "Kelas ", ""))) = ?', [strtolower($cleanClass)]);
+            })
+            ->latest('id')
+            ->first();
+    }
+
+    /**
      * Print official A4 individual academic report card for a student.
      */
     public function printStudent(Request $request, Student $student)
     {
-        $user = Auth::user();
-        if ($user->role === 'teacher') {
-            if (empty($user->homeroom_class) || $user->homeroom_class !== $student->class) {
-                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport untuk siswa kelas binaan Anda.');
-            }
-        }
+        $this->checkHomeroomAccess($student->class, 'Akses ditolak. Anda hanya dapat mencetak raport untuk siswa kelas binaan Anda.');
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
@@ -425,7 +508,7 @@ class AcademicReportController extends Controller
             ->keyBy('eskul_id');
 
         // Homeroom teacher
-        $homeroomTeacher = User::where('homeroom_class', $student->class)->first();
+        $homeroomTeacher = $this->resolveHomeroomTeacher($student->class, $yearId);
 
         // Qur'an Mentoring: Tilawati & Tahfidz
         $tilawatiGroup = $student->tilawatiGroup($yearId);
@@ -472,12 +555,7 @@ class AcademicReportController extends Controller
     public function printAllStudents(Request $request)
     {
         $class = $request->class;
-        $user = Auth::user();
-        if ($user->role === 'teacher') {
-            if (empty($user->homeroom_class) || $user->homeroom_class !== $class) {
-                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport untuk kelas binaan Anda.');
-            }
-        }
+        $this->checkHomeroomAccess($class, 'Akses ditolak. Anda hanya dapat mencetak raport untuk kelas binaan Anda.');
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
@@ -513,7 +591,7 @@ class AcademicReportController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        $homeroomTeacher = User::where('homeroom_class', $class)->first();
+        $homeroomTeacher = $this->resolveHomeroomTeacher($class, $yearId);
 
         // Preload student specific data
         $studentData = [];
@@ -603,7 +681,7 @@ class AcademicReportController extends Controller
             $scoresMap[$sc->student_id][$sc->subject_id] = $sc;
         }
 
-        $homeroomTeacher = User::where('homeroom_class', $class)->first();
+        $homeroomTeacher = $this->resolveHomeroomTeacher($class, $yearId);
 
         return view('curriculum.reports.print_class_recap', compact(
             'academicYear',
@@ -874,12 +952,7 @@ class AcademicReportController extends Controller
      */
     public function printKekhasan(Request $request, Student $student)
     {
-        $user = Auth::user();
-        if ($user->role === 'teacher') {
-            if (empty($user->homeroom_class) || $user->homeroom_class !== $student->class) {
-                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport kekhasan untuk kelas binaan Anda.');
-            }
-        }
+        $this->checkHomeroomAccess($student->class, 'Akses ditolak. Anda hanya dapat mencetak raport kekhasan untuk kelas binaan Anda.');
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
@@ -903,7 +976,7 @@ class AcademicReportController extends Controller
             ->get()
             ->keyBy('eskul_id');
 
-        $homeroomTeacher = User::where('homeroom_class', $student->class)->first();
+        $homeroomTeacher = $this->resolveHomeroomTeacher($student->class, $yearId);
 
         // Qur'an Mentoring: Tilawati & Tahfidz
         $tilawatiGroup = $student->tilawatiGroup($yearId);
@@ -960,12 +1033,7 @@ class AcademicReportController extends Controller
     public function printAllKekhasan(Request $request)
     {
         $class = $request->class;
-        $user = Auth::user();
-        if ($user->role === 'teacher') {
-            if (empty($user->homeroom_class) || $user->homeroom_class !== $class) {
-                abort(403, 'Akses ditolak. Anda hanya dapat mencetak raport untuk kelas binaan Anda.');
-            }
-        }
+        $this->checkHomeroomAccess($class, 'Akses ditolak. Anda hanya dapat mencetak raport kekhasan untuk kelas binaan Anda.');
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $yearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
@@ -989,7 +1057,7 @@ class AcademicReportController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        $homeroomTeacher = User::where('homeroom_class', $class)->first();
+        $homeroomTeacher = $this->resolveHomeroomTeacher($class, $yearId);
 
         $studentData = [];
         foreach ($students as $stu) {
@@ -1017,11 +1085,14 @@ class AcademicReportController extends Controller
                 ->where('academic_year_id', $yearId)
                 ->get();
 
+            $stuHomeroomTeacher = $this->resolveHomeroomTeacher($stu->class, $yearId) ?? $homeroomTeacher;
+
             $studentData[$stu->id] = [
                 'student' => $stu,
                 'summary' => $summaries[$stu->id] ?? null,
                 'eskuls' => $stu->eskuls,
                 'eskulGrades' => $eskulGrades,
+                'homeroomTeacher' => $stuHomeroomTeacher,
                 'tilawatiGroup' => $tilawatiGroup,
                 'tilawatiPivot' => $tilawatiPivot,
                 'tahfidzGroup' => $tahfidzGroup,
