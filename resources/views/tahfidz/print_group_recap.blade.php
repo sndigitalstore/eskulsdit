@@ -141,8 +141,8 @@
                 </div>
                 <div style="font-family:sans-serif; font-size: 8.5pt; text-align: right; color: #0f766e; font-weight: 700;">
                     {{ $student->hafalan->count() }} Catatan &nbsp;·&nbsp;
-                    <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; border: 1px solid #86efac;">
-                        <i class="fas fa-align-left"></i> {{ (int) $student->hafalan->sum('jumlah_baris') }} Baris
+                    <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; border: 1px solid #86efac;" title="Total baris lanjut tuntas (mengulang tidak dihitung)">
+                        <i class="fas fa-align-left"></i> {{ (int) $student->hafalan->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris') }} Baris (Lanjut)
                     </span>
                 </div>
             </div>

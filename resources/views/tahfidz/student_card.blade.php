@@ -296,8 +296,8 @@
         {{-- Stats --}}
         <div class="stats-grid-card" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px;">
             <div class="stat-box" style="background: rgba(220, 252, 231, 0.25); border: 1.5px solid rgba(134, 239, 172, 0.45);">
-                <div class="stat-num" style="color: #6ee7b7;">{{ (int) $records->sum('jumlah_baris') }}</div>
-                <div class="stat-lbl" style="color: #a7f3d0;">Baris Dihafal</div>
+                <div class="stat-num" style="color: #6ee7b7;">{{ (int) $records->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris') }}</div>
+                <div class="stat-lbl" style="color: #a7f3d0;" title="Total baris dari setoran dengan status Lanjut">Baris Dihafal (Lanjut)</div>
             </div>
             <div class="stat-box">
                 <div class="stat-num">{{ $totalSetoran }}</div>

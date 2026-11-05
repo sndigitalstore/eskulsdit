@@ -306,9 +306,21 @@ class MentoringGroupController extends Controller
             \App\Http\Controllers\TahfidzAttendanceController::syncPastAttendances();
 
             $studentIds = $activeGroup->students->pluck('id');
+            // Hanya hitung baris yang lanjut (quality lancar / cukup), status mengulang (perlu_perbaikan) tidak dihitung
             $totalGroupLines = TahfidzRecord::where('mentoring_group_id', $activeGroup->id)
                 ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                ->whereIn('quality', ['lancar', 'cukup'])
                 ->sum('jumlah_baris');
+
+            // Akumulasi baris tuntas / lanjut per siswa di kelompok ini
+            $studentLines = TahfidzRecord::whereIn('student_id', $studentIds)
+                ->where('mentoring_group_id', $activeGroup->id)
+                ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                ->whereIn('quality', ['lancar', 'cukup'])
+                ->selectRaw('student_id, SUM(jumlah_baris) as total_baris')
+                ->groupBy('student_id')
+                ->pluck('total_baris', 'student_id')
+                ->toArray();
 
             // Riwayat setoran siswa di kelompok ini (terbaru per siswa, untuk panduan hafalan terakhir)
             $latestRecords = TahfidzRecord::whereIn('student_id', $studentIds)
@@ -438,7 +450,7 @@ class MentoringGroupController extends Controller
 
             return view('tahfidz.teacher_workspace', compact(
                 'myGroups', 'activeGroup', 'activeYear', 'academicYears', 'selectedYearId',
-                'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines',
+                'latestRecords', 'sessionAttendances', 'whatsappMessage', 'totalGroupLines', 'studentLines',
                 'allSurahs', 'targetJuzList', 'targetJuzGroups', 'otherSurahs',
                 'isSessionSaved', 'isEditMode', 'today', 'sessionDate', 'openShare', 'selectedStudentId',
                 'munaqosahSchedules', 'munaqosahRegistrations', 'studentTargetProgress', 'myUpcomingExams'
@@ -652,7 +664,19 @@ class MentoringGroupController extends Controller
                 ->keyBy('student_id');
         }
 
-        return view('mentoring.show', compact('group', 'type', 'typeLabel', 'classes', 'enrolledStudentIds', 'studentsInOtherGroups', 'isAdmin', 'isMyGroup', 'munaqosahSchedules', 'munaqosahRegistrations'));
+        $studentLines = [];
+        if ($type === 'tahfidz' && !empty($enrolledStudentIds)) {
+            $studentLines = TahfidzRecord::whereIn('student_id', $enrolledStudentIds)
+                ->where('mentoring_group_id', $group->id)
+                ->when($group->academic_year_id, fn($q) => $q->where('academic_year_id', $group->academic_year_id))
+                ->whereIn('quality', ['lancar', 'cukup'])
+                ->selectRaw('student_id, SUM(jumlah_baris) as total_baris')
+                ->groupBy('student_id')
+                ->pluck('total_baris', 'student_id')
+                ->toArray();
+        }
+
+        return view('mentoring.show', compact('group', 'type', 'typeLabel', 'classes', 'enrolledStudentIds', 'studentsInOtherGroups', 'isAdmin', 'isMyGroup', 'munaqosahSchedules', 'munaqosahRegistrations', 'studentLines'));
     }
 
     public function edit(Request $request, $id)

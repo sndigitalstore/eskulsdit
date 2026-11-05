@@ -666,8 +666,16 @@ class TahfidzAttendanceController extends Controller
                 ->get();
             $kehadiranCount = $sessionAttendances->where('status', 'hadir')->count();
             $sudahSetorCount = $sessionAttendances->where('status', 'hadir')->filter(fn($a) => !empty($a->capaian))->count();
+            // Hanya hitung baris lanjut (lancar / cukup), yang mengulang (perlu_perbaikan) tidak dihitung
             $totalBaris = (int) TahfidzRecord::where('mentoring_group_id', $group->id)
                 ->where('academic_year_id', $yearId)
+                ->whereIn('quality', ['lancar', 'cukup'])
+                ->sum('jumlah_baris');
+
+            $studentTotalBaris = (int) TahfidzRecord::where('student_id', $studentId)
+                ->where('mentoring_group_id', $group->id)
+                ->where('academic_year_id', $yearId)
+                ->whereIn('quality', ['lancar', 'cukup'])
                 ->sum('jumlah_baris');
 
             // Generate ulang teks laporan WA terbaru (diurutkan abjad A-Z)
@@ -683,20 +691,21 @@ class TahfidzAttendanceController extends Controller
             $savedAtt = $sessionAttendances->firstWhere('student_id', $studentId);
 
             return response()->json([
-                'success'           => true,
-                'message'           => "Alhamdulillah, setoran {$studentName} berhasil disimpan!",
-                'session_date'      => $date,
-                'student_id'        => $studentId,
-                'student_name'      => $studentName,
-                'status'            => $savedAtt ? $savedAtt->status : 'hadir',
-                'capaian'           => $savedAtt ? $savedAtt->capaian : null,
-                'nilai'             => $savedAtt ? $savedAtt->nilai : null,
-                'jumlah_baris'      => $savedAtt ? $savedAtt->jumlah_baris : 0,
-                'hafalan_status'    => $savedAtt ? $savedAtt->hafalan_status : 'LULUS',
-                'kehadiran_count'   => $kehadiranCount,
-                'sudah_setor_count' => $sudahSetorCount,
-                'total_baris'       => $totalBaris,
-                'whatsapp_message'  => $whatsappMessage,
+                'success'             => true,
+                'message'             => "Alhamdulillah, setoran {$studentName} berhasil disimpan!",
+                'session_date'        => $date,
+                'student_id'          => $studentId,
+                'student_name'        => $studentName,
+                'status'              => $savedAtt ? $savedAtt->status : 'hadir',
+                'capaian'             => $savedAtt ? $savedAtt->capaian : null,
+                'nilai'               => $savedAtt ? $savedAtt->nilai : null,
+                'jumlah_baris'        => $savedAtt ? $savedAtt->jumlah_baris : 0,
+                'student_total_baris' => $studentTotalBaris,
+                'hafalan_status'      => $savedAtt ? $savedAtt->hafalan_status : 'LULUS',
+                'kehadiran_count'     => $kehadiranCount,
+                'sudah_setor_count'   => $sudahSetorCount,
+                'total_baris'         => $totalBaris,
+                'whatsapp_message'    => $whatsappMessage,
             ]);
         }
 
@@ -824,12 +833,15 @@ class TahfidzAttendanceController extends Controller
                 } else {
                     $capaian = !empty($rec->capaian) ? $rec->capaian : '-';
                     $isLulus = (strtoupper($rec->hafalan_status ?? 'LULUS') === 'LULUS');
-                    $statusStr = $isLulus ? "✅ *Status:* ✓ LULUS" : "❌ *Status:* ✗ BELUM LULUS";
+                    $statusStr = $isLulus ? "✅ *Status:* ✓ LULUS (Lanjut)" : "🔄 *Status:* ✕ MENGULANG";
                     $nilaiStr = !empty($rec->nilai) ? "⭐ *Nilai:* {$rec->nilai}\n" : "";
                     $tugas = !empty($rec->tugas_besok) ? $rec->tugas_besok : '-';
                     $notes = !empty($rec->notes) ? $rec->notes : ($isLulus ? 'Barakallah..' : 'Lancarkan lagi ya sholih/sholihah..');
 
-                    $barisText = ($rec->jumlah_baris && $rec->jumlah_baris > 0) ? " ({$rec->jumlah_baris} Baris)" : "";
+                    $barisText = "";
+                    if ($rec->jumlah_baris && $rec->jumlah_baris > 0) {
+                        $barisText = $isLulus ? " ({$rec->jumlah_baris} Baris Lanjut)" : " ({$rec->jumlah_baris} Baris - Mengulang)";
+                    }
                     $msg .= "📖 *Capaian Hari Ini:*\n";
                     $msg .= "{$capaian}{$barisText}\n";
                     if ($nilaiStr !== "") {

@@ -384,7 +384,7 @@ class ReportController extends Controller
                 foreach ($students as $std) {
                     $records = $std->tahfidzRecords;
                     $std->total_records_count = $records->count();
-                    $std->total_baris = (int) $records->sum('jumlah_baris');
+                    $std->total_baris = (int) $records->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris');
                     $std->baru_count = $records->where('type', 'setoran_baru')->count();
                     $std->murojaah_count = $records->where('type', 'murojaah')->count();
                     $std->latest_record = $records->first();
@@ -1191,7 +1191,7 @@ class ReportController extends Controller
         foreach ($students as $std) {
             $records = $std->tahfidzRecords;
             $std->total_records_count = $records->count();
-            $std->total_baris = (int) $records->sum('jumlah_baris');
+            $std->total_baris = (int) $records->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris');
             $std->baru_count = $records->where('type', 'setoran_baru')->count();
             $std->murojaah_count = $records->where('type', 'murojaah')->count();
             $std->latest_record = $records->first();
@@ -1390,7 +1390,7 @@ class ReportController extends Controller
         foreach ($students as $std) {
             $records = $std->tahfidzRecords;
             $std->total_records_count = $records->count();
-            $std->total_baris = (int) $records->sum('jumlah_baris');
+            $std->total_baris = (int) $records->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris');
             $std->baru_count = $records->where('type', 'setoran_baru')->count();
             $std->murojaah_count = $records->where('type', 'murojaah')->count();
             $std->latest_record = $records->sortByDesc('session_date')->first();

@@ -1962,6 +1962,7 @@
                                     @if(isset($studentTargetProgress[$std->id]))
                                         &bull; Target: {{ $studentTargetProgress[$std->id]['percent'] }}%
                                     @endif
+                                    &bull; <span style="color: #047857; font-weight: 700;" id="dropdown-baris-{{ $std->id }}"><i class="fas fa-align-left" style="font-size: 0.7rem;"></i> {{ number_format($studentLines[$std->id] ?? 0, 0, ',', '.') }} Baris</span>
                                 </div>
                             </div>
                             <div class="item-badge-status" id="dropdown-status-{{ $std->id }}">
@@ -2063,6 +2064,10 @@
                                     <div class="student-meta-row">
                                         <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 5px; font-weight: 700; color: #334155;">
                                             Kelas {{ $std->class }}
+                                        </span>
+                                        {{-- BADGE CAPAIAN BARIS SISWA (HANYA LANJUT/LULUS) --}}
+                                        <span style="background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; padding: 2px 9px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;" id="student-baris-badge-{{ $std->id }}" title="Total baris hafalan tuntas yang dicapai (Hanya status Lulus/Lanjut yang dihitung)">
+                                            <i class="fas fa-align-left" style="color: #059669;"></i> Capaian: <strong style="color: #047857;">{{ number_format($studentLines[$std->id] ?? 0, 0, ',', '.') }}</strong> Baris
                                         </span>
                                         @php
                                             $prog = $studentTargetProgress[$std->id] ?? null;
@@ -2255,7 +2260,7 @@
 
                         {{-- 4. JUMLAH BARIS --}}
                         <div class="hafalan-col-baris">
-                            <label class="hafalan-field-label">📏 Baris</label>
+                            <label class="hafalan-field-label" title="Jumlah baris yang dihafal (hanya dihitung jika status Lulus / Lanjut)">📏 Baris <span style="font-size: 0.7rem; color: #059669; font-weight: normal;">(Lanjut)</span></label>
                             <input type="number" name="attendance[{{ $std->id }}][jumlah_baris]" 
                                    class="input-clean" 
                                    min="0" max="500"
@@ -2271,13 +2276,13 @@
                                     <input type="radio" name="attendance[{{ $std->id }}][hafalan_status]" value="LULUS" 
                                            class="lulus-radio" style="display: none;" 
                                            {{ $currentLulus === 'LULUS' ? 'checked' : '' }}>
-                                    <span class="lulus-pill-btn btn-lulus">✓ Lulus</span>
+                                    <span class="lulus-pill-btn btn-lulus" title="Lulus / Lanjut (Baris Dihitung)">✓ Lulus</span>
                                 </label>
                                 <label class="lulus-pill-btn" style="padding: 0; margin: 0; width: 100%;">
                                     <input type="radio" name="attendance[{{ $std->id }}][hafalan_status]" value="BELUM LULUS" 
                                            class="lulus-radio" style="display: none;"
                                            {{ $currentLulus === 'BELUM LULUS' ? 'checked' : '' }}>
-                                    <span class="lulus-pill-btn btn-ulang">✕ Ulang</span>
+                                    <span class="lulus-pill-btn btn-ulang" title="Mengulang (Baris Tidak Dihitung)">✕ Ulang</span>
                                 </label>
                             </div>
                         </div>
@@ -3021,6 +3026,16 @@
         if (data.total_baris !== undefined) {
             const el = document.querySelector('.kpi-green-grid .kpi-green-card:nth-child(4) .kpi-green-value');
             if (el) el.innerHTML = `${data.total_baris.toLocaleString('id-ID')} <span class="kpi-green-unit">Baris</span>`;
+        }
+        if (data.student_total_baris !== undefined) {
+            const badge = document.getElementById('student-baris-badge-' + studentId);
+            if (badge) {
+                badge.innerHTML = `<i class="fas fa-align-left" style="color: #059669;"></i> Capaian: <strong style="color: #047857;">${data.student_total_baris.toLocaleString('id-ID')}</strong> Baris`;
+            }
+            const dropBaris = document.getElementById('dropdown-baris-' + studentId);
+            if (dropBaris) {
+                dropBaris.innerHTML = `<i class="fas fa-align-left" style="font-size: 0.7rem;"></i> ${data.student_total_baris.toLocaleString('id-ID')} Baris`;
+            }
         }
 
         const dropdownItem = document.getElementById('dropdown-item-' + studentId);

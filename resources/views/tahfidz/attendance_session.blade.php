@@ -23,7 +23,8 @@
     $alpha = $records->where('status','alpha')->count();
     $total = $records->count();
     $lulusCount = $records->where('status', 'hadir')->where('hafalan_status', 'LULUS')->count();
-    $totalBarisSesi = (int) $records->sum('jumlah_baris');
+    // Hanya hitung baris jika hafalan berstatus Lulus (Lanjut), status Mengulang tidak dihitung
+    $totalBarisSesi = (int) $records->where('status', 'hadir')->filter(fn($r) => strtoupper($r->hafalan_status ?? 'LULUS') === 'LULUS')->sum('jumlah_baris');
     $sessionDate = \Carbon\Carbon::parse($date);
 @endphp
 

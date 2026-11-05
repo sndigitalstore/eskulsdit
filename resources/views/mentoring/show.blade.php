@@ -321,7 +321,14 @@
                                 </span>
                             </td>
                             <td style="padding: 14px 16px; color: #475569; font-size: 0.88rem;">
-                                {{ $student->pivot->notes ?? '-' }}
+                                @if($type === 'tahfidz' && isset($studentLines[$student->id]))
+                                    <div style="margin-bottom: 4px;">
+                                        <span style="background: #ecfdf5; color: #047857; font-weight: 800; font-size: 0.76rem; padding: 2px 8px; border-radius: 5px; border: 1px solid #a7f3d0; display: inline-flex; align-items: center; gap: 4px;" title="Capaian baris setoran berstatus Lanjut (Mengulang tidak dihitung)">
+                                            <i class="fas fa-align-left"></i> {{ number_format($studentLines[$student->id] ?? 0, 0, ',', '.') }} Baris (Lanjut)
+                                        </span>
+                                    </div>
+                                @endif
+                                <div>{{ $student->pivot->notes ?? '-' }}</div>
                             </td>
                             <td style="padding: 14px 16px; text-align: center; color: #64748b; font-size: 0.85rem;">
                                 {{ $student->pivot->created_at ? $student->pivot->created_at->format('d/m/Y') : '-' }}
@@ -404,6 +411,11 @@
                                     </span>
                                     @if($student->nis)
                                         <span style="color: #64748b; font-size: 0.74rem; font-family: monospace;">{{ $student->nis }}</span>
+                                    @endif
+                                    @if($type === 'tahfidz' && isset($studentLines[$student->id]))
+                                        <span style="background: #ecfdf5; color: #047857; font-weight: 800; font-size: 0.72rem; padding: 1px 7px; border-radius: 4px; border: 1px solid #a7f3d0; display: inline-flex; align-items: center; gap: 3px;" title="Capaian baris setoran berstatus Lanjut">
+                                            <i class="fas fa-align-left"></i> {{ number_format($studentLines[$student->id] ?? 0, 0, ',', '.') }} Baris
+                                        </span>
                                     @endif
                                 </div>
                             </div>
