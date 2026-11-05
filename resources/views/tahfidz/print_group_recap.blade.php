@@ -80,9 +80,11 @@
             ({{ $students->count() }} Siswa)
         </span>
         <div style="display: flex; gap: 10px; align-items: center;">
-            <a href="{{ route('reports.tahfidz.export', ['group_id' => $group->id, 'year_id' => $yearId]) }}" class="btn-print" style="background: #0284c7; text-decoration: none;">
-                <i class="fas fa-file-excel"></i> Download Excel
-            </a>
+            @if(!Auth::check() || Auth::user()->role !== 'teacher' || Auth::user()->isHomeroom())
+                <a href="{{ route('reports.tahfidz.export', ['group_id' => $group->id, 'year_id' => $yearId]) }}" class="btn-print" style="background: #0284c7; text-decoration: none;">
+                    <i class="fas fa-file-excel"></i> Download Excel
+                </a>
+            @endif
             <button onclick="window.print()" class="btn-print"><i class="fas fa-print"></i> Cetak / PDF</button>
             <button onclick="window.close()" style="background: #475569; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer;">Tutup</button>
         </div>

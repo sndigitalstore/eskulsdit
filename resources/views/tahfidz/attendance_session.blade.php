@@ -197,10 +197,12 @@
                         style="background: #25d366; border: none; color: white; padding: 9px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
                     <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Share WA
                 </button>
-                <a href="{{ route('reports.tahfidz.export', ['group_id' => $group->id, 'year_id' => $yearId]) }}"
-                   style="background: #0284c7; border: 1px solid #0369a1; color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(2,132,199,0.3);">
-                    <i class="fas fa-file-excel"></i> Download Excel
-                </a>
+                @if(!Auth::check() || Auth::user()->role !== 'teacher' || Auth::user()->isHomeroom())
+                    <a href="{{ route('reports.tahfidz.export', ['group_id' => $group->id, 'year_id' => $yearId]) }}"
+                       style="background: #0284c7; border: 1px solid #0369a1; color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(2,132,199,0.3);">
+                        <i class="fas fa-file-excel"></i> Download Excel
+                    </a>
+                @endif
                 <a href="{{ route('tahfidz.attendance.create', ['group' => $group->id, 'date' => $date, 'year_id' => $yearId]) }}"
                    style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-edit"></i> Edit Sesi

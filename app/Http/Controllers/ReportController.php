@@ -622,21 +622,10 @@ class ReportController extends Controller
 
         $user = Auth::user();
         if ($user->role === 'teacher') {
-            if (!empty($user->homeroom_class)) {
-                $class = $user->homeroom_class;
-            } else {
-                $class = null;
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak: Unduh Excel laporan tahfidz hanya dapat diakses oleh Wali Kelas atau Administrator.');
             }
-            if ($groupId) {
-                $grp = \App\Models\MentoringGroup::find($groupId);
-                if (!$grp || ($grp->mentor_user_id != $user->id && $grp->mentor_name != $user->name)) {
-                    if (empty($user->homeroom_class)) {
-                        abort(403, 'Akses ditolak: Anda hanya dapat mengunduh rekap tahfidz kelompok yang Anda bimbing.');
-                    }
-                }
-            } elseif (empty($user->homeroom_class)) {
-                abort(403, 'Akses ditolak: Silakan tentukan kelompok yang Anda bimbing.');
-            }
+            $class = $user->homeroom_class;
         }
 
         $activeYear = AcademicYear::where('is_active', true)->first();
@@ -1287,6 +1276,9 @@ class ReportController extends Controller
         $user = Auth::user();
         $myTahfidzGroupIds = [];
         if ($user->role === 'teacher') {
+            if (empty($user->homeroom_class)) {
+                abort(403, 'Akses ditolak: Cetak Raport Tahfidz Standar Nasional hanya dapat diakses oleh Wali Kelas atau Administrator.');
+            }
             $isHomeroom = !empty($user->homeroom_class);
             $myTahfidzGroupIds = MentoringGroup::where('type', 'tahfidz')
                 ->where(function($q) use ($user) {
