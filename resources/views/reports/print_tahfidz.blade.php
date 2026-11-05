@@ -134,7 +134,7 @@
             page-break-inside: avoid; 
         }
         .signature-table { width: 100%; border-collapse: collapse; }
-        .signature-table td { border: none; text-align: center; width: 33.33%; vertical-align: top; padding: 0 10px; }
+        .signature-table td { border: none; text-align: center; width: 45%; vertical-align: top; padding: 0 15px; }
 
         @media print {
             .no-print-bar { display: none !important; }
@@ -157,9 +157,13 @@
 
     @php
         $currentDate = \Carbon\Carbon::now()->isoFormat('D MMMM Y');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
         $headmasterName = \App\Models\Setting::where('key','headmaster_name')->value('value')
-            ?? optional(\App\Models\User::where('role','headmaster')->first())->name
+            ?? $headmasterUser?->name
             ?? "Nur'asiah, S.Pd.I";
+        $headmasterNip = \App\Models\Setting::get('headmaster_nip')
+            ?: \App\Models\Setting::get('headmaster_niy')
+            ?: ($headmasterUser?->nip ?: '141502002');
         $firstGroup = $groupObj ?? ($students->first() ? $students->first()->mentoringGroups->first() : null);
         $mentorName = $firstGroup ? ($firstGroup->mentorUser?->name ?? $firstGroup->mentor_name ?? '-') : '-';
     @endphp
@@ -319,25 +323,19 @@
             </tbody>
         </table>
 
-        <!-- TANDA TANGAN AKUNTABEL BERTINGKAT (3 PIHAK) -->
+        <!-- TANDA TANGAN RESMI (2 PIHAK: KEPALA SEKOLAH & MUSYRIF TAHFIDZ) -->
         <div class="signature-section">
             <table class="signature-table">
                 <tr>
-                    <td>
+                    <td style="width: 45%;">
                         Mengetahui,<br>
                         <strong>Kepala Sekolah</strong><br>
                         <div style="height: 55px;"></div>
                         <strong style="text-decoration: underline;">{{ $headmasterName }}</strong><br>
-                        <span style="font-size: 8pt; color: #555;">NIP/NPY. SDIT-AN-201801</span>
+                        <span style="font-size: 8pt; color: #555;">NIY. {{ $headmasterNip }}</span>
                     </td>
-                    <td>
-                        Diperiksa oleh,<br>
-                        <strong>Wali Kelas {{ $class ?? '' }}</strong><br>
-                        <div style="height: 55px;"></div>
-                        <strong style="text-decoration: underline;">{{ $homeroomTeacher ? $homeroomTeacher->name : '....................................' }}</strong><br>
-                        <span style="font-size: 8pt; color: #555;">Guru Wali Kelas</span>
-                    </td>
-                    <td>
+                    <td style="width: 10%;"></td>
+                    <td style="width: 45%;">
                         Cinangka, {{ $currentDate }}<br>
                         <strong>Musyrif / Pembina Tahfidz</strong><br>
                         <div style="height: 55px;"></div>

@@ -90,9 +90,13 @@
 
     @php
         $currentDate = \Carbon\Carbon::now()->isoFormat('D MMMM Y');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
         $headmasterName = \App\Models\Setting::where('key','headmaster_name')->value('value')
-            ?? optional(\App\Models\User::where('role','headmaster')->first())->name
+            ?? $headmasterUser?->name
             ?? "Nur'asiah, S.Pd.I";
+        $headmasterNip = \App\Models\Setting::get('headmaster_nip')
+            ?: \App\Models\Setting::get('headmaster_niy')
+            ?: ($headmasterUser?->nip ?: '141502002');
         $qualityBg = fn($q) => match($q) {
             'lancar'          => '#16a34a',
             'cukup'           => '#d97706',
@@ -202,7 +206,7 @@
         <div class="signature-section">
             <table class="signature-table">
                 <tr>
-                    <td>Mengetahui,<br><strong>Kepala SDIT AN NADZIR</strong><br><br><br><br><br><strong><u>{{ $headmasterName }}</u></strong></td>
+                    <td>Mengetahui,<br><strong>Kepala SDIT AN NADZIR</strong><br><br><br><br><br><strong><u>{{ $headmasterName }}</u></strong><br><span style="font-size: 8pt; color: #555;">NIY. {{ $headmasterNip }}</span></td>
                     <td>Cinangka, {{ $currentDate }}<br><strong>Pembimbing Tahfidz</strong><br><br><br><br><br><strong><u>{{ $group->mentor_name }}</u></strong></td>
                 </tr>
             </table>

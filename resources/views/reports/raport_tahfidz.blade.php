@@ -431,6 +431,9 @@
 
     @php
         $currentDate = \Carbon\Carbon::now()->isoFormat('D MMMM Y');
+        $headmasterNip = \App\Models\Setting::get('headmaster_nip')
+            ?: \App\Models\Setting::get('headmaster_niy')
+            ?: '141502002';
     @endphp
 
     @forelse($students as $student)
@@ -758,7 +761,7 @@
                             <span class="job-title">Kepala SDIT AN NADZIR</span>
                             <div style="height: 48px;"></div>
                             <span class="sign-name">{{ $headmasterName }}</span>
-                            <div class="sign-nip">NIP/NIY: SDIT-AN-201801</div>
+                            <div class="sign-nip">NIY: {{ $headmasterNip }}</div>
                         </td>
                     </tr>
                 </table>

@@ -156,9 +156,13 @@
 
     @php
         $currentDate = \Carbon\Carbon::now()->isoFormat('D MMMM Y');
+        $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
         $headmasterName = \App\Models\Setting::where('key','headmaster_name')->value('value')
-            ?? optional(\App\Models\User::where('role','headmaster')->first())->name
+            ?? $headmasterUser?->name
             ?? "Nur'asiah, S.Pd.I";
+        $headmasterNip = \App\Models\Setting::get('headmaster_nip')
+            ?: \App\Models\Setting::get('headmaster_niy')
+            ?: ($headmasterUser?->nip ?: '141502002');
         $firstGroup = $groupObj ?? ($students->first() ? $students->first()->mentoringGroups->first() : null);
         $mentorName = $firstGroup ? ($firstGroup->mentorUser?->name ?? $firstGroup->mentor_name ?? '-') : '-';
     @endphp
@@ -268,7 +272,7 @@
                         <strong>Kepala Sekolah</strong><br>
                         <div style="height: 60px;"></div>
                         <strong style="text-decoration: underline;">{{ $headmasterName }}</strong><br>
-                        <span style="font-size: 8pt; color: #555;">NIP/NPY. SDIT-AN-201801</span>
+                        <span style="font-size: 8pt; color: #555;">NIY. {{ $headmasterNip }}</span>
                     </td>
                     <td>
                         Diperiksa oleh,<br>
