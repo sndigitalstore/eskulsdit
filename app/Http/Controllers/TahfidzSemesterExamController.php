@@ -199,7 +199,7 @@ class TahfidzSemesterExamController extends Controller
             ];
         }
 
-        $allSurahs = TahfidzAttendanceController::getAllSurahs();
+        $allSurahs = TahfidzAttendanceController::getAllSurahNames();
         $groupAverage = count($totalScores) > 0 ? round(array_sum($totalScores) / count($totalScores), 2) : 0;
 
         return view('tahfidz.semester_exam.index', compact(

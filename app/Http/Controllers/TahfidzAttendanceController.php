@@ -271,6 +271,11 @@ class TahfidzAttendanceController extends Controller
     /**
      * Daftar seluruh 114 Surat dalam Al-Qur'an secara berurutan
      */
+    public static function getAllSurahs(): array
+    {
+        return self::getAllSurahNames();
+    }
+
     public static function getAllSurahNames(): array
     {
         return [
