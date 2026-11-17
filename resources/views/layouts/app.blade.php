@@ -931,7 +931,7 @@
                 $showSupervisionMenu = $isAdminOrCurriculumOrHeadmaster || $isTeacher;
                 $isSupervisionActive = request()->is('supervision*');
 
-                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*');
+                $isQuranActive = request()->is('mentoring-management*', 'tilawati-groups*', 'tahfidz-groups*', 'munaqosah*', 'tasmi*', 'tahfidz/semester-exam*');
             @endphp
 
             {{-- Monitoring & Supervisi Kepala Sekolah (Dropdown) --}}
@@ -1020,6 +1020,16 @@
                         <a href="{{ route('tasmi.index') }}" class="nav-sublink {{ request()->is('tasmi*') ? 'active' : '' }}">
                             <i class="fas fa-certificate"></i>
                             <span>Ujian Tasmi' (Bil Ghaib)</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    {{-- Fitur Ujian Hafalan Semester (Evaluasi Akhir Semester Halaqah) --}}
+                    @if($isAdminOrCurriculumOrHeadmaster || ($isTeacher && $hasTahfidz))
+                    <li class="nav-subitem">
+                        <a href="{{ route('tahfidz.semester-exam.index') }}" class="nav-sublink {{ request()->is('tahfidz/semester-exam*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-check" style="color: #059669;"></i>
+                            <span>Ujian Hafalan Semester</span>
                         </a>
                     </li>
                     @endif

@@ -1764,6 +1764,13 @@
                 @endif
             </div>
 
+            <a href="{{ route('tahfidz.semester-exam.index', ['group_id' => $activeGroup->id, 'year_id' => $selectedYearId]) }}"
+               style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;"
+               title="Buka Form Penilaian Ujian Hafalan Semester">
+                <i class="fas fa-clipboard-check"></i>
+                <span>Ujian Semester</span>
+            </a>
+
             <button type="button" onclick="openWaModal()" class="btn-header-wa"
                     style="background: #25D366; color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);">
                 <i class="fab fa-whatsapp" style="font-size: 1rem;"></i>

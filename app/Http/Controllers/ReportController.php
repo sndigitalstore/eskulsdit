@@ -1378,8 +1378,21 @@ class ReportController extends Controller
             ?? optional(\App\Models\User::where('role','headmaster')->first())->name
             ?? "Nur'asiah, S.Pd.I";
 
+        $currentSemester = ($periodType === 'semester_2') ? '2' : '1';
+        $semesterExams = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('tahfidz_semester_exams')) {
+            $studentIds = $students->pluck('id');
+            $semesterExams = \App\Models\TahfidzSemesterExam::with('items')
+                ->whereIn('student_id', $studentIds)
+                ->where('academic_year_id', $yearId)
+                ->where('semester', $currentSemester)
+                ->get()
+                ->keyBy('student_id');
+        }
+
         // Precompute standard national assessment rubric for each student
         foreach ($students as $std) {
+            $std->semester_exam = $semesterExams->get($std->id);
             $records = $std->tahfidzRecords;
             $std->total_records_count = $records->count();
             $std->total_baris = (int) $records->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris');
@@ -1492,7 +1505,7 @@ class ReportController extends Controller
         }
 
         return view('reports.raport_tahfidz', compact(
-            'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 'headmasterName', 'studentId', 'semesterLabel'
+            'students', 'class', 'groupObj', 'yearName', 'yearId', 'homeroomTeacher', 'activeYear', 'headmasterName', 'studentId', 'semesterLabel', 'currentSemester'
         ));
     }
 

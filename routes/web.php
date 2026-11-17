@@ -337,6 +337,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tasmi/{tasmi}/certificate',                              [\App\Http\Controllers\TasmiExamController::class, 'printCertificate'])->name('tasmi.certificate');
     Route::get('/tasmi/{tasmi}/report',                                   [\App\Http\Controllers\TasmiExamController::class, 'printReport'])->name('tasmi.report');
 
+    // Ujian Hafalan Akhir Semester (Evaluasi Semesteran Tahfidz per Halaqah)
+    Route::get('/tahfidz/semester-exam',                                  [\App\Http\Controllers\TahfidzSemesterExamController::class, 'index'])->name('tahfidz.semester-exam.index');
+    Route::post('/tahfidz/semester-exam',                                 [\App\Http\Controllers\TahfidzSemesterExamController::class, 'store'])->name('tahfidz.semester-exam.store');
+    Route::get('/tahfidz/semester-exam/print',                            [\App\Http\Controllers\TahfidzSemesterExamController::class, 'printRecap'])->name('tahfidz.semester-exam.print');
+
     // SMILE KARAKTER (Pemantauan Karakter Siswa)
     Route::middleware(['role:admin,headmaster,teacher'])->group(function () {
         Route::get('/character',                                      [\App\Http\Controllers\CharacterDashboardController::class, 'dashboard'])->name('character.dashboard');

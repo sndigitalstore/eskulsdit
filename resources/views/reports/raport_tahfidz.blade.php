@@ -620,72 +620,112 @@
                 </tbody>
             </table>
 
-            <!-- 6. BAGIAN B: RINCIAN DAFTAR SURAT YANG TELAH DIHAFAL / DISETORKAN -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                <div class="section-header" style="margin: 0 0 5px 0;">
-                    <i class="fas fa-book-open"></i> B. Rincian Histori Setoran & Muroja'ah Hafalan
+            @if($student->semester_exam && $student->semester_exam->items->isNotEmpty())
+                <!-- 6. BAGIAN B: HASIL UJIAN HAFALAN AL-QUR'AN AKHIR SEMESTER (FORMAT SURAT & NILAI) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <div class="section-header" style="margin: 0 0 5px 0;">
+                        <i class="fas fa-clipboard-check"></i> B. Hasil Ujian Hafalan Al-Qur'an Akhir Semester {{ $student->semester_exam->semester }} (Surat Tuntas)
+                    </div>
+                    <span style="font-size: 7.5pt; color: #059669; font-weight: 700; font-family: Arial, sans-serif;">
+                        <i class="fas fa-check-circle"></i> Teruji {{ $student->semester_exam->items->count() }} Surat &bull; Rata-Rata: {{ number_format($student->semester_exam->average_score, 1) }} ({{ $student->semester_exam->predicate }})
+                    </span>
                 </div>
-                <span style="font-size: 7.5pt; color: #64748b; font-family: Arial, sans-serif;">
-                    Total {{ $records->count() }} Setoran Tercatat
-                </span>
-            </div>
-            <table class="raport-table">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;">No</th>
-                        <th style="width: 14%;">Tanggal</th>
-                        <th style="width: 25%; text-align: left;">Nama Surat</th>
-                        <th style="width: 14%;">Batasan Ayat</th>
-                        <th style="width: 14%;">Kategori</th>
-                        <th style="width: 14%;">Mutu Hafalan</th>
-                        <th style="width: 14%; text-align: left;">Catatan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        // Show up to 8 most relevant/recent records to fit neatly within one standard A4 page
-                        $displayRecords = $records->sortByDesc('session_date')->take(8);
-                    @endphp
-                    @forelse($displayRecords as $k => $rec)
+                <table class="raport-table">
+                    <thead>
                         <tr>
-                            <td style="text-align: center; color: #64748b;">{{ $k + 1 }}</td>
-                            <td style="text-align: center;">{{ $rec->session_date ? $rec->session_date->format('d/m/Y') : '-' }}</td>
-                            <td style="font-weight: 700; color: #0f172a;">
-                                {{ $rec->surah_name }}
-                                @if($rec->juz)
-                                    <span style="font-size: 7pt; color: #64748b; font-weight: normal;">(Juz {{ $rec->juz }})</span>
-                                @endif
-                            </td>
-                            <td style="text-align: center;">
-                                Ayat {{ $rec->start_ayah ?? 1 }}{{ $rec->end_ayah && $rec->end_ayah != $rec->start_ayah ? ' - ' . $rec->end_ayah : '' }}
-                            </td>
-                            <td style="text-align: center;">
-                                <span style="font-size: 7pt; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: {{ $rec->type === 'setoran_baru' ? '#e0f2fe; color: #0369a1;' : '#ede9fe; color: #6d28d9;' }}">
-                                    {{ $rec->type === 'setoran_baru' ? 'Ziyadah (Baru)' : 'Muroja\'ah' }}
-                                </span>
-                            </td>
-                            <td style="text-align: center;">
-                                @if($rec->quality === 'lancar')
-                                    <span style="color: #15803d; font-weight: bold;"><i class="fas fa-check-circle"></i> Lancar (Mutqin)</span>
-                                @elseif($rec->quality === 'cukup')
-                                    <span style="color: #b45309; font-weight: bold;"><i class="fas fa-info-circle"></i> Cukup Lancar</span>
-                                @else
-                                    <span style="color: #b91c1c; font-weight: bold;"><i class="fas fa-exclamation-circle"></i> Perlu Bimbingan</span>
-                                @endif
-                            </td>
-                            <td style="font-size: 7.5pt; color: #475569;">
-                                {{ $rec->notes ? \Illuminate\Support\Str::limit($rec->notes, 30) : '-' }}
-                            </td>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 32%; text-align: left;">Nama Surat yang Diujikan</th>
+                            <th style="width: 12%;">Juz</th>
+                            <th style="width: 14%;">Nilai (0-100)</th>
+                            <th style="width: 15%;">Predikat</th>
+                            <th style="width: 22%; text-align: left;">Catatan Musyrif Penguji</th>
                         </tr>
-                    @empty
+                    </thead>
+                    <tbody>
+                        @foreach($student->semester_exam->items as $k => $item)
+                            <tr>
+                                <td style="text-align: center; color: #64748b;">{{ $k + 1 }}</td>
+                                <td style="font-weight: 700; color: #0f172a;">{{ $item->surah_name }}</td>
+                                <td style="text-align: center;">{{ $item->juz ? 'Juz ' . $item->juz : '-' }}</td>
+                                <td style="text-align: center; font-weight: 900; font-size: 9pt; color: #047857;">{{ number_format($item->score, 0) }}</td>
+                                <td style="text-align: center;">
+                                    <span class="badge-pred pred-{{ $item->score >= 90 ? 'A' : ($item->score >= 80 ? 'B' : ($item->score >= 70 ? 'C' : 'D')) }}">
+                                        {{ $item->predicate ?? \App\Models\TahfidzSemesterExam::resolvePredicate((float)$item->score) }}
+                                    </span>
+                                </td>
+                                <td style="font-size: 7.5pt; color: #475569;">{{ $item->notes ?: 'Tuntas diujikan' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <!-- 6. BAGIAN B: RINCIAN DAFTAR SURAT YANG TELAH DIHAFAL / DISETORKAN -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <div class="section-header" style="margin: 0 0 5px 0;">
+                        <i class="fas fa-book-open"></i> B. Rincian Histori Setoran & Muroja'ah Hafalan
+                    </div>
+                    <span style="font-size: 7.5pt; color: #64748b; font-family: Arial, sans-serif;">
+                        Total {{ $records->count() }} Setoran Tercatat
+                    </span>
+                </div>
+                <table class="raport-table">
+                    <thead>
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 12px; color: #94a3b8; font-style: italic;">
-                                Belum ada riwayat setoran hafalan tercatat pada semester ini.
-                            </td>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 14%;">Tanggal</th>
+                            <th style="width: 25%; text-align: left;">Nama Surat</th>
+                            <th style="width: 14%;">Batasan Ayat</th>
+                            <th style="width: 14%;">Kategori</th>
+                            <th style="width: 14%;">Mutu Hafalan</th>
+                            <th style="width: 14%; text-align: left;">Catatan</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @php
+                            // Show up to 8 most relevant/recent records to fit neatly within one standard A4 page
+                            $displayRecords = $records->sortByDesc('session_date')->take(8);
+                        @endphp
+                        @forelse($displayRecords as $k => $rec)
+                            <tr>
+                                <td style="text-align: center; color: #64748b;">{{ $k + 1 }}</td>
+                                <td style="text-align: center;">{{ $rec->session_date ? $rec->session_date->format('d/m/Y') : '-' }}</td>
+                                <td style="font-weight: 700; color: #0f172a;">
+                                    {{ $rec->surah_name }}
+                                    @if($rec->juz)
+                                        <span style="font-size: 7pt; color: #64748b; font-weight: normal;">(Juz {{ $rec->juz }})</span>
+                                    @endif
+                                </td>
+                                <td style="text-align: center;">
+                                    Ayat {{ $rec->start_ayah ?? 1 }}{{ $rec->end_ayah && $rec->end_ayah != $rec->start_ayah ? ' - ' . $rec->end_ayah : '' }}
+                                </td>
+                                <td style="text-align: center;">
+                                    <span style="font-size: 7pt; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: {{ $rec->type === 'setoran_baru' ? '#e0f2fe; color: #0369a1;' : '#ede9fe; color: #6d28d9;' }}">
+                                        {{ $rec->type === 'setoran_baru' ? 'Ziyadah (Baru)' : 'Muroja\'ah' }}
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if($rec->quality === 'lancar')
+                                        <span style="color: #15803d; font-weight: bold;"><i class="fas fa-check-circle"></i> Lancar (Mutqin)</span>
+                                    @elseif($rec->quality === 'cukup')
+                                        <span style="color: #b45309; font-weight: bold;"><i class="fas fa-info-circle"></i> Cukup Lancar</span>
+                                    @else
+                                        <span style="color: #b91c1c; font-weight: bold;"><i class="fas fa-exclamation-circle"></i> Perlu Bimbingan</span>
+                                    @endif
+                                </td>
+                                <td style="font-size: 7.5pt; color: #475569;">
+                                    {{ $rec->notes ? \Illuminate\Support\Str::limit($rec->notes, 30) : '-' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 12px; color: #94a3b8; font-style: italic;">
+                                    Belum ada riwayat setoran hafalan tercatat pada semester ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            @endif
 
             <!-- 7. BAGIAN C: PRESENSI & CATATAN MOTIVASI PEMBIMBING (SIDE BY SIDE) -->
             <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; margin-bottom: 8px;">
