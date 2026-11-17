@@ -197,7 +197,7 @@
             </a>
             @endif
 
-            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || (Auth::user()->role === 'teacher' && !empty(Auth::user()->homeroom_class)))
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || (Auth::user()->role === 'teacher' && !empty(Auth::user()->homeroom_class)))
             <a href="{{ route('character.report') }}" 
                class="report-tab-btn inactive"
                style="color: #d97706;">
@@ -247,7 +247,7 @@
                         <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Kelas</label>
                         <select name="class" class="form-control">
                             <option value="">-- Semua Kelas / Pilih Kelas --</option>
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
                                 <option value="ALL" {{ $selectedClass == 'ALL' ? 'selected' : '' }} style="font-weight: bold; color: #16a34a;">
                                     🌟 -- SEMUA KELAS (REKAP SEKOLAH) --
                                 </option>
@@ -524,7 +524,7 @@
                         <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #475569; font-size: 0.85rem;">Kelas</label>
                         <select name="class" class="form-control">
                             <option value="">-- Semua Kelas / Pilih Kelas --</option>
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
                                 <option value="ALL" {{ $selectedClass == 'ALL' ? 'selected' : '' }} style="font-weight: bold; color: #0284c7;">
                                     🌟 -- SEMUA KELAS (REKAP SEKOLAH) --
                                 </option>
@@ -897,7 +897,7 @@
                         <label style="display: block; margin-bottom: 8px; color: #888;">Kelas</label>
                         <select name="class" class="form-control" required>
                             <option value="">-- Pilih Kelas --</option>
-                            @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
                                 <option value="ALL" {{ $selectedClass == 'ALL' ? 'selected' : '' }} style="font-weight: bold; color: #2563eb;">
                                     🌟 -- CETAK SEMUA KELAS (LAPORAN KESELURAHAN) --
                                 </option>
@@ -915,7 +915,7 @@
         </div>
 
         <!-- Special Feature: Calistung Export -->
-        @if(in_array(Auth::user()->role, ['admin', 'headmaster']))
+        @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
         <div class="card no-print" style="margin-bottom: 20px; border-left: 5px solid #2ecc71;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
@@ -967,7 +967,7 @@
         
         <!-- Action Buttons -->
         <div class="no-print" style="margin: 20px 0; display: flex; gap: 8px; justify-content: flex-end;">
-            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || $isHomeroom)
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || $isHomeroom)
              <a href="{{ route('reports.print-recap-class', ['class' => $selectedClass, 'year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-green">
                 <i class="fas fa-print"></i> Cetak Rekap (Wali Kelas)
             </a>
@@ -975,7 +975,7 @@
              <button onclick="togglePreview()" id="btnPreview" class="btn-action-header btn-blue">
                 <i class="fas fa-eye"></i> Mode Preview Cetak
             </button>
-            @if(in_array(Auth::user()->role, ['admin', 'headmaster']) || $isHomeroom)
+            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']) || $isHomeroom)
             <a href="{{ route('reports.print-full', ['class' => $selectedClass, 'year_id' => $selectedYearId, 'period' => $selectedPeriod]) }}" target="_blank" class="btn-action-header btn-dark">
                 <i class="fas fa-print"></i> Cetak Laporan (Nilai & Absensi)
             </a>

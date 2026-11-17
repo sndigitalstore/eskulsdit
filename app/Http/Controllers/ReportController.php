@@ -22,7 +22,7 @@ class ReportController extends Controller
         $isHomeroom = $isTeacher && !empty($user->homeroom_class);
         $isEskulCoach = $isTeacher && !empty($user->eskul_id);
         $isCurriculum = $user->role === 'curriculum';
-        $isAdminOrHeadmaster = in_array($user->role, ['admin', 'headmaster']);
+        $isAdminOrHeadmaster = in_array($user->role, ['admin', 'headmaster', 'curriculum']);
 
         // Deteksi peran mentoring Qur'an untuk guru
         $hasTilawati = false;
@@ -602,8 +602,8 @@ class ReportController extends Controller
     public function exportCalistung()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user->role !== 'admin') {
-            abort(403, 'Akses ditolak: Hanya Admin yang dapat mengunduh laporan kelulusan Calistung.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            abort(403, 'Akses ditolak: Hanya Admin, Kepala Sekolah, dan Kurikulum yang dapat mengunduh laporan kelulusan Calistung.');
         }
 
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CalistungGraduatesExport, 'Siswa_Lulus_Calistung_' . date('Ymd_His') . '.xlsx');
@@ -803,8 +803,8 @@ class ReportController extends Controller
     public function printCalistungGraduates()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user->role !== 'admin') {
-            abort(403, 'Akses ditolak: Hanya Admin yang dapat mencetak laporan kelulusan Calistung.');
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            abort(403, 'Akses ditolak: Hanya Admin, Kepala Sekolah, dan Kurikulum yang dapat mencetak laporan kelulusan Calistung.');
         }
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         $yearName = $activeYear ? $activeYear->name : '-';

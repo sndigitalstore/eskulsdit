@@ -1359,11 +1359,11 @@
                 $isCharacterReportActive = request()->is('character/report*');
                 $isAnyReportActive = $isReportActive || $isAcademicReportActive || $isCharacterReportActive;
 
-                $canSeeEskulReport = $isAdminOrHeadmaster || $isHomeroom || $isEskulCoach;
+                $canSeeEskulReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isEskulCoach;
                 $canSeeTilawatiReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || ($isTeacher && $hasTilawati);
                 $canSeeTahfidzReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || ($isTeacher && $hasTahfidz);
                 $canSeeAcademicReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
-                $canSeeCharacterReport = $isAdminOrHeadmaster || $isHomeroom;
+                $canSeeCharacterReport = $isAdminOrCurriculumOrHeadmaster || $isHomeroom;
             @endphp
 
             <li class="nav-dropdown {{ $isAnyReportActive ? 'open active-parent' : '' }}" id="dropdown-laporan">
