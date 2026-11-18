@@ -68,6 +68,33 @@ class TahfidzSemesterExamController extends Controller
     }
 
     /**
+     * Bersihkan nama surat dari embel-embel teks seperti ayat, tasmi, dsb.
+     */
+    public static function cleanSurahName(?string $raw): string
+    {
+        if (!$raw || trim($raw) === '') {
+            return '';
+        }
+        $clean = trim($raw);
+        $clean = preg_replace('/^(?:QS\.?|Surat|Surah)\s+/i', '', $clean);
+        $clean = preg_replace('/\s*(?:ayat\s*tasmi|tasmi|\(juz\s*\d+\)|juz\s*\d+|ayat\s*\d+.*|:\s*\d+.*).*/i', '', $clean);
+        return trim($clean, " :-,()'");
+    }
+
+    /**
+     * Dapatkan mapping seluruh 114 surat ke nomor Juz-nya
+     */
+    public static function getSurahToJuzMap(): array
+    {
+        $allSurahs = TahfidzAttendanceController::getAllSurahNames();
+        $map = [];
+        foreach ($allSurahs as $surah) {
+            $map[$surah] = TahfidzAttendanceController::determineJuzForSurah($surah);
+        }
+        return $map;
+    }
+
+    /**
      * Halaman Utama: Form Penilaian Ujian Hafalan Semester Halaqah
      */
     public function index(Request $request)
@@ -128,6 +155,17 @@ class TahfidzSemesterExamController extends Controller
             ->get()
             ->keyBy('student_id');
 
+        // Ambil data ujian Semester 1 jika sedang di Semester 2 (agar riwayat tuntas tetap ada & tidak diuji ulang)
+        $sem1Exams = collect();
+        if ($selectedSemester === '2') {
+            $sem1Exams = TahfidzSemesterExam::with('items')
+                ->whereIn('student_id', $studentIds)
+                ->where('academic_year_id', $selectedYearId)
+                ->where('semester', '1')
+                ->get()
+                ->keyBy('student_id');
+        }
+
         // Ambil riwayat setoran siswa di semester ini untuk AUTO-POPULATE surat tuntas
         $semesterRecords = TahfidzRecord::whereIn('student_id', $studentIds)
             ->where('mentoring_group_id', $activeGroup->id)
@@ -148,6 +186,25 @@ class TahfidzSemesterExamController extends Controller
             $itemsList = [];
             $isSaved = false;
 
+            // Ekstrak riwayat ujian Semester 1 jika ada (untuk ditampilkan sebagai riwayat tuntas permanen)
+            $sem1ItemsList = [];
+            $sem1SurahKeys = [];
+            $stdSem1Exam = $sem1Exams->get($std->id);
+            if ($stdSem1Exam && $stdSem1Exam->items->isNotEmpty()) {
+                foreach ($stdSem1Exam->items as $s1It) {
+                    $cleanSurah = self::cleanSurahName($s1It->surah_name);
+                    $sem1ItemsList[] = [
+                        'surah_name' => $cleanSurah ?: $s1It->surah_name,
+                        'juz'        => $s1It->juz ?? TahfidzAttendanceController::determineJuzForSurah($cleanSurah ?: $s1It->surah_name),
+                        'score'      => (float)$s1It->score,
+                        'predicate'  => $s1It->predicate ?? TahfidzSemesterExam::resolvePredicate((float)$s1It->score),
+                        'notes'      => $s1It->notes ?? '',
+                    ];
+                    $normKey = strtolower(preg_replace('/[^a-z0-9]/', '', $cleanSurah ?: $s1It->surah_name));
+                    $sem1SurahKeys[$normKey] = true;
+                }
+            }
+
             if ($savedExam && $savedExam->items->isNotEmpty()) {
                 $isSaved = true;
                 $totalEvaluated++;
@@ -155,9 +212,10 @@ class TahfidzSemesterExamController extends Controller
                     $totalScores[] = (float)$savedExam->average_score;
                 }
                 foreach ($savedExam->items as $it) {
+                    $cleanName = self::cleanSurahName($it->surah_name);
                     $itemsList[] = [
-                        'surah_name' => $it->surah_name,
-                        'juz'        => $it->juz,
+                        'surah_name' => $cleanName ?: $it->surah_name,
+                        'juz'        => $it->juz ?? TahfidzAttendanceController::determineJuzForSurah($cleanName ?: $it->surah_name),
                         'score'      => (float)$it->score,
                         'predicate'  => $it->predicate ?? TahfidzSemesterExam::resolvePredicate((float)$it->score),
                         'notes'      => $it->notes ?? '',
@@ -166,18 +224,48 @@ class TahfidzSemesterExamController extends Controller
             } else {
                 // Auto-populate dari histori setoran santri di semester ini
                 $recs = $semesterRecords->get($std->id, collect());
-                $uniqueSurahs = $recs->groupBy('surah_name');
 
-                foreach ($uniqueSurahs as $surahName => $sRecs) {
-                    $avgScore = $sRecs->whereNotNull('nilai')->avg('nilai');
-                    $suggestedScore = $avgScore ? round((float)$avgScore) : 85;
-                    $juzNum = $sRecs->first()->juz ?? null;
+                // Jika kosong pada rentang tanggal semester, ambil riwayat setoran siswa di kelompok ini
+                if ($recs->isEmpty()) {
+                    $recs = TahfidzRecord::where('student_id', $std->id)
+                        ->where('mentoring_group_id', $activeGroup->id)
+                        ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
+                        ->whereIn('quality', ['lancar', 'cukup'])
+                        ->orderBy('session_date', 'asc')
+                        ->get();
+                }
 
+                $groupedSurahs = [];
+                foreach ($recs as $rec) {
+                    $cleanName = self::cleanSurahName($rec->surah_name);
+                    if (empty($cleanName)) continue;
+
+                    // JIKA SEMESTER 2: Lewati surat yang SUDAH tuntas diujikan di Semester 1!
+                    if ($selectedSemester === '2') {
+                        $normKey = strtolower(preg_replace('/[^a-z0-9]/', '', $cleanName));
+                        if (isset($sem1SurahKeys[$normKey])) {
+                            continue; // Sudah tuntas di semester 1, fokus ke surat baru
+                        }
+                    }
+
+                    if (!isset($groupedSurahs[$cleanName])) {
+                        $groupedSurahs[$cleanName] = [
+                            'scores' => [],
+                            'juz'    => $rec->juz ?? TahfidzAttendanceController::determineJuzForSurah($cleanName),
+                        ];
+                    }
+                    if ($rec->nilai) {
+                        $groupedSurahs[$cleanName]['scores'][] = (float)$rec->nilai;
+                    }
+                }
+
+                foreach ($groupedSurahs as $surahName => $sData) {
+                    $avgScore = count($sData['scores']) > 0 ? round(array_sum($sData['scores']) / count($sData['scores'])) : 85;
                     $itemsList[] = [
                         'surah_name' => $surahName,
-                        'juz'        => $juzNum,
-                        'score'      => $suggestedScore,
-                        'predicate'  => TahfidzSemesterExam::resolvePredicate((float)$suggestedScore),
+                        'juz'        => $sData['juz'] ?? TahfidzAttendanceController::determineJuzForSurah($surahName),
+                        'score'      => $avgScore,
+                        'predicate'  => TahfidzSemesterExam::resolvePredicate((float)$avgScore),
                         'notes'      => '',
                     ];
                 }
@@ -195,16 +283,18 @@ class TahfidzSemesterExamController extends Controller
                 'predicate'         => $currentPredicate,
                 'notes'             => $savedExam?->notes ?? '',
                 'items'             => $itemsList,
+                'sem1_items'        => $sem1ItemsList,
                 'history_count'     => $semesterRecords->get($std->id, collect())->count(),
             ];
         }
 
         $allSurahs = TahfidzAttendanceController::getAllSurahNames();
+        $surahToJuzMap = self::getSurahToJuzMap();
         $groupAverage = count($totalScores) > 0 ? round(array_sum($totalScores) / count($totalScores), 2) : 0;
 
         return view('tahfidz.semester_exam.index', compact(
             'myGroups', 'activeGroup', 'academicYears', 'selectedYearId', 'yearObj',
-            'selectedSemester', 'students', 'studentsExamData', 'allSurahs',
+            'selectedSemester', 'students', 'studentsExamData', 'allSurahs', 'surahToJuzMap',
             'totalEvaluated', 'groupAverage', 'isAdminOrPrivileged', 'startDate', 'endDate'
         ));
     }
@@ -260,15 +350,18 @@ class TahfidzSemesterExamController extends Controller
                 $order = 1;
 
                 foreach ($items as $it) {
-                    $surah = trim($it['surah_name'] ?? '');
+                    $surah = self::cleanSurahName($it['surah_name'] ?? '');
                     if (empty($surah)) continue;
 
                     $score = min(100, max(0, (float)($it['score'] ?? 0)));
                     $scores[] = $score;
+                    
+                    // Otomatis tentukan nomor Juz jika kosong atau tidak diinputkan guru
+                    $juz = !empty($it['juz']) ? (int)$it['juz'] : TahfidzAttendanceController::determineJuzForSurah($surah);
 
                     $validItems[] = [
                         'surah_name' => $surah,
-                        'juz'        => !empty($it['juz']) ? (int)$it['juz'] : null,
+                        'juz'        => $juz,
                         'score'      => $score,
                         'predicate'  => TahfidzSemesterExam::resolvePredicate($score),
                         'notes'      => $it['notes'] ?? null,
@@ -322,10 +415,29 @@ class TahfidzSemesterExamController extends Controller
             );
 
             if ($request->ajax()) {
+                $firstStudentId = array_key_first($request->students);
+                $singleData = null;
+                if (count($request->students) === 1 && $firstStudentId) {
+                    $exam = TahfidzSemesterExam::where('student_id', $firstStudentId)
+                        ->where('academic_year_id', $yearId)
+                        ->where('semester', $semester)
+                        ->with('items')
+                        ->first();
+                    if ($exam) {
+                        $singleData = [
+                            'student_id'    => (int)$firstStudentId,
+                            'average_score' => number_format($exam->average_score, 1),
+                            'predicate'     => $exam->predicate,
+                            'items_count'   => $exam->items->count(),
+                        ];
+                    }
+                }
+
                 return response()->json([
-                    'success' => true,
-                    'message' => "Nilai Ujian Semester {$semester} berhasil disimpan untuk {$savedCount} santri!",
-                    'saved_count' => $savedCount
+                    'success'     => true,
+                    'message'     => "Nilai Ujian Semester {$semester} berhasil disimpan untuk {$savedCount} santri!",
+                    'saved_count' => $savedCount,
+                    'student'     => $singleData,
                 ]);
             }
 
@@ -364,13 +476,23 @@ class TahfidzSemesterExamController extends Controller
             ->get()
             ->keyBy('student_id');
 
+        $sem1Exams = collect();
+        if ($semester === '2') {
+            $sem1Exams = TahfidzSemesterExam::with('items')
+                ->whereIn('student_id', $studentIds)
+                ->where('academic_year_id', $yearId)
+                ->where('semester', '1')
+                ->get()
+                ->keyBy('student_id');
+        }
+
         $headmasterName = Setting::get('headmaster_name', "Nur'asiah, S.Pd.I");
         $headmasterNip = Setting::get('headmaster_nip', '141502002');
         $currentDate = Carbon::now()->isoFormat('D MMMM Y');
         $mentorName = $group->mentorUser?->name ?? $group->mentor_name ?? '-';
 
         return view('tahfidz.semester_exam.print', compact(
-            'group', 'academicYear', 'semester', 'students', 'exams',
+            'group', 'academicYear', 'semester', 'students', 'exams', 'sem1Exams',
             'headmasterName', 'headmasterNip', 'mentorName', 'currentDate'
         ));
     }

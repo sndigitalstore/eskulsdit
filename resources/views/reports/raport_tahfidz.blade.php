@@ -658,6 +658,22 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                @if($student->semester_exam->semester == '2' && $student->semester1_exam && $student->semester1_exam->items->isNotEmpty())
+                    <div style="margin-top: 6px; background: #f0fdf4; border: 1px dashed #86efac; border-radius: 5px; padding: 5px 8px;">
+                        <div style="font-size: 6.8pt; font-weight: 700; color: #166534; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-check-double"></i> Riwayat Tuntas Ujian Semester 1 (Ganjil) &bull; Rata-Rata: {{ number_format($student->semester1_exam->average_score, 1) }} ({{ $student->semester1_exam->predicate }})</span>
+                            <span style="color: #15803d; font-size: 6.5pt;">Tuntas &bull; Tidak Perlu Diuji Ulang</span>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                            @foreach($student->semester1_exam->items as $s1)
+                                <span style="font-size: 6.5pt; background: #ffffff; border: 1px solid #bbf7d0; border-radius: 3px; padding: 1.5px 5px; color: #1e293b;">
+                                    <strong>{{ $s1->surah_name }}</strong>@if($s1->juz) (Juz {{ $s1->juz }})@endif: <strong style="color: #15803d;">{{ number_format($s1->score, 0) }}</strong> ({{ $s1->predicate }})
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             @else
                 <!-- 6. BAGIAN B: RINCIAN DAFTAR SURAT YANG TELAH DIHAFAL / DISETORKAN -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">

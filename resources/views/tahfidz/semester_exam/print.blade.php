@@ -247,11 +247,22 @@
                         <td>
                             @forelse($items as $item)
                                 <span class="surah-item-chip">
-                                    {{ $item->surah_name }}: <strong>{{ number_format($item->score, 0) }}</strong>
+                                    {{ $item->surah_name }}@if($item->juz) (Juz {{ $item->juz }})@endif: <strong>{{ number_format($item->score, 0) }}</strong>
                                 </span>
                             @empty
-                                <span style="color: #94a3b8; font-style: italic; font-size: 7.5pt;">Belum ada surat yang dinilai</span>
+                                <span style="color: #94a3b8; font-style: italic; font-size: 7.5pt;">Belum ada surat yang dinilai pada Semester {{ $semester }}</span>
                             @endforelse
+
+                            @if($semester == '2' && isset($sem1Exams) && ($s1Exam = $sem1Exams->get($std->id)) && $s1Exam->items->isNotEmpty())
+                                <div style="margin-top: 4px; padding-top: 3px; border-top: 1px dashed #cbd5e1; font-size: 7pt; color: #166534;">
+                                    <span style="font-weight: bold;"><i class="fas fa-check-double"></i> Tuntas Sem 1:</span>
+                                    @foreach($s1Exam->items as $s1)
+                                        <span style="display: inline-block; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1px 4px; border-radius: 3px; margin: 1px 1px;">
+                                            {{ $s1->surah_name }}: <strong>{{ number_format($s1->score, 0) }}</strong>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
                         </td>
                         <td style="text-align: center; font-weight: 900; font-size: 9.5pt; color: {{ $avg >= 80 ? '#15803d' : ($avg >= 70 ? '#b45309' : '#b91c1c') }};">
                             {{ $avg > 0 ? number_format($avg, 1) : '-' }}

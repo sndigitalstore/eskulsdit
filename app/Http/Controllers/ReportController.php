@@ -1380,6 +1380,7 @@ class ReportController extends Controller
 
         $currentSemester = ($periodType === 'semester_2') ? '2' : '1';
         $semesterExams = collect();
+        $semester1Exams = collect();
         if (\Illuminate\Support\Facades\Schema::hasTable('tahfidz_semester_exams')) {
             $studentIds = $students->pluck('id');
             $semesterExams = \App\Models\TahfidzSemesterExam::with('items')
@@ -1388,11 +1389,21 @@ class ReportController extends Controller
                 ->where('semester', $currentSemester)
                 ->get()
                 ->keyBy('student_id');
+
+            if ($currentSemester === '2') {
+                $semester1Exams = \App\Models\TahfidzSemesterExam::with('items')
+                    ->whereIn('student_id', $studentIds)
+                    ->where('academic_year_id', $yearId)
+                    ->where('semester', '1')
+                    ->get()
+                    ->keyBy('student_id');
+            }
         }
 
         // Precompute standard national assessment rubric for each student
         foreach ($students as $std) {
             $std->semester_exam = $semesterExams->get($std->id);
+            $std->semester1_exam = $semester1Exams->get($std->id);
             $records = $std->tahfidzRecords;
             $std->total_records_count = $records->count();
             $std->total_baris = (int) $records->whereIn('quality', ['lancar', 'cukup'])->sum('jumlah_baris');
