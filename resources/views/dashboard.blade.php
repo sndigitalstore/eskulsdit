@@ -1800,7 +1800,7 @@
         @endif
 
         <!-- Recent Activity Feed -->
-        @if(Auth::user()->role !== 'curriculum' && isset($recentActivities) && count($recentActivities) > 0)
+        @if(!in_array(Auth::user()->role, ['curriculum', 'teacher']) && isset($recentActivities) && count($recentActivities) > 0)
         <div class="card">
             <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-history" style="color: #10b981; margin-right: 10px;"></i> Aktivitas Terbaru</h3>
             <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -1825,6 +1825,7 @@
         </div>
         @endif
 
+        @if(!in_array(Auth::user()->role, ['curriculum', 'teacher']))
         <!-- Grade Stats -->
         <div class="card">
             <h3 style="margin-bottom: 1.5rem;">Statistik Kelas & Rombel</h3>
@@ -1862,6 +1863,7 @@
                 </tbody>
             </table>
         </div>
+        @endif
     </div>
 
 
@@ -1869,7 +1871,7 @@
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
         
         <!-- Top Participating Classes -->
-        @if(Auth::user()->role !== 'curriculum' && isset($topClasses) && count($topClasses) > 0)
+        @if(!in_array(Auth::user()->role, ['curriculum', 'teacher']) && isset($topClasses) && count($topClasses) > 0)
         <div class="card">
             <h3 style="margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center;">
                 <i class="fas fa-trophy" style="color: #f1c40f; margin-right: 10px;"></i> Kelas Teraktif
@@ -1890,7 +1892,7 @@
         </div>
         @endif
 
-        @if(Auth::user()->role !== 'curriculum')
+        @if(!in_array(Auth::user()->role, ['curriculum', 'teacher']))
         <!-- Kategori Eskul Diminati -->
         <div class="card" style="background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 25px;">
             <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; color: #2c3e50;">
