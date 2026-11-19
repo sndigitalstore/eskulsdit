@@ -1965,6 +1965,68 @@
                     </div>
                     <i class="fas fa-arrow-right" style="color: #ccc;"></i>
                 </a>
+                <!-- Pintasan Absensi Guru - Admin -->
+                <a href="{{ route('teacher-attendance.index') }}" style="padding: 15px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecdd3; border-radius: 12px; text-decoration: none; color: #9f1239; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; border-radius: 8px; background: #f43f5e; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.92rem;">Absensi Guru Hari Ini</div>
+                            <div style="font-size: 0.74rem; color: #be123c; font-weight: 500;">
+                                {{ $teacherAttendancePresent ?? 0 }} / {{ $registeredTeacherAccounts ?? 0 }} Hadir
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #fda4af;"></i>
+                </a>
+                @elseif(auth()->user()->role == 'headmaster')
+                <!-- Pintasan Kepala Sekolah -->
+                <a href="{{ route('teacher-attendance.index') }}" style="padding: 15px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecdd3; border-radius: 12px; text-decoration: none; color: #9f1239; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; border-radius: 8px; background: #f43f5e; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.92rem;">Absensi Guru Hari Ini</div>
+                            <div style="font-size: 0.74rem; color: #be123c; font-weight: 500;">
+                                {{ $teacherAttendancePresent ?? 0 }} / {{ $registeredTeacherAccounts ?? 0 }} Hadir
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #fda4af;"></i>
+                </a>
+                <a href="{{ route('reports.index') }}" style="padding: 15px; background: #f9f9f9; border-radius: 12px; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-alt" style="color: #ff7eb3;"></i> Cetak Laporan
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: #ccc;"></i>
+                </a>
+                @elseif(auth()->user()->role == 'teacher')
+                <!-- Pintasan Guru: Absensi Diri Sendiri -->
+                @php
+                    $myTodayAttendance = \App\Models\TeacherAttendance::where('user_id', auth()->id())
+                        ->where('date', now()->toDateString())
+                        ->first();
+                @endphp
+                <a href="{{ route('teacher-attendance.index') }}" style="padding: 15px; background: {{ $myTodayAttendance ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)' : 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)' }}; border: 1.5px solid {{ $myTodayAttendance ? '#6ee7b7' : '#fecdd3' }}; border-radius: 12px; text-decoration: none; color: {{ $myTodayAttendance ? '#065f46' : '#9f1239' }}; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: {{ $myTodayAttendance ? '#10b981' : '#f43f5e' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; box-shadow: 0 4px 10px {{ $myTodayAttendance ? 'rgba(16,185,129,0.3)' : 'rgba(244,63,94,0.3)' }};">
+                            <i class="fas fa-{{ $myTodayAttendance ? 'check-circle' : 'fingerprint' }}"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.95rem;">Absensi Saya Hari Ini</div>
+                            <div style="font-size: 0.75rem; font-weight: 600; margin-top: 1px;">
+                                @if($myTodayAttendance)
+                                    <span style="color: #059669;"><i class="fas fa-check"></i> Sudah Absen — {{ ucfirst($myTodayAttendance->status) }}</span>
+                                @else
+                                    <span style="color: #be123c;"><i class="fas fa-exclamation-circle"></i> Belum Absen Hari Ini</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right" style="color: {{ $myTodayAttendance ? '#6ee7b7' : '#fda4af' }};"></i>
+                </a>
                 @elseif(auth()->user()->role == 'curriculum')
                 <a href="{{ route('academic-reports.index') }}" style="padding: 15px; background: #f0f9ff; border-radius: 12px; text-decoration: none; color: #0369a1; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;">
                     <div style="display: flex; align-items: center; gap: 10px;">
