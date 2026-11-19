@@ -48,50 +48,273 @@
     </div>
 @endif
 
+<!-- STYLES KHUSUS DASHBOARD RESPONSIVE & ESTETIKA MOBILE -->
+<style>
+.hero-mobile-bar {
+    display: none;
+}
+.hero-body-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.hero-desktop-clock {
+    display: block;
+    text-align: right;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    /* 1. HERO SECTION MOBILE (RAPI & ESTETIK) */
+    .dashboard-hero {
+        padding: 16px 18px !important;
+        border-radius: 20px !important;
+        margin-bottom: 16px !important;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 60%, #f1f5f9 100%) !important;
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05) !important;
+        display: block !important;
+        text-align: left !important;
+    }
+    .hero-mobile-bar {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 10px !important;
+        border-bottom: 1px dashed #e2e8f0 !important;
+    }
+    .hero-mobile-date {
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+    .hero-mobile-clock-pill {
+        background: #ecfdf5 !important;
+        color: #059669 !important;
+        border: 1px solid #a7f3d0 !important;
+        padding: 3px 10px !important;
+        border-radius: 20px !important;
+        font-weight: 800 !important;
+        font-size: 0.82rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12) !important;
+    }
+    .live-pulse-dot {
+        width: 7px;
+        height: 7px;
+        background: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulseGreen 1.8s infinite;
+    }
+    @keyframes pulseGreen {
+        0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .hero-body-row {
+        display: block !important;
+        text-align: left !important;
+    }
+    .hero-main-info {
+        text-align: left !important;
+        width: 100% !important;
+    }
+    .hero-greeting {
+        font-size: 1.35rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        line-height: 1.3 !important;
+        margin-bottom: 6px !important;
+        text-align: left !important;
+    }
+    .hero-subinfo {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        text-align: left !important;
+    }
+    .hero-academic-term {
+        font-size: 0.82rem !important;
+        color: #64748b !important;
+        margin-bottom: 4px !important;
+    }
+    .hero-badges-wrap {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        justify-content: flex-start !important;
+    }
+    .hero-badges-wrap span {
+        font-size: 0.72rem !important;
+        padding: 3px 9px !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+    }
+    .hero-desktop-clock {
+        display: none !important;
+    }
+
+    /* 2. FOKUS PENUGASAN (DUTY SWITCHER) MOBILE */
+    .duty-switcher-container {
+        padding: 12px 14px !important;
+        border-radius: 18px !important;
+        margin-bottom: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .duty-subtext {
+        display: none !important;
+    }
+    .duty-switcher-buttons {
+        display: flex !important;
+        gap: 8px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 2px 2px 6px 2px !important;
+        scrollbar-width: none !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+    }
+    .duty-switcher-buttons::-webkit-scrollbar {
+        display: none !important;
+    }
+    .duty-switcher-btn {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        padding: 7px 14px !important;
+        font-size: 0.8rem !important;
+        border-radius: 12px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* 3. STATS GRID (2 KOLOM SIMETRIS RAPI DI MOBILE) */
+    .stats-grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-bottom: 18px !important;
+    }
+    .stats-grid-container .card {
+        min-height: 105px !important;
+        padding: 12px 12px 10px 12px !important;
+        border-radius: 16px !important;
+        margin-bottom: 0 !important;
+    }
+    .stats-grid-container .card h3 {
+        font-size: 1.5rem !important;
+        margin-bottom: 2px !important;
+        line-height: 1.15 !important;
+    }
+    .stats-grid-container .card.card-schedule h3 {
+        font-size: 0.92rem !important;
+        line-height: 1.25 !important;
+        margin-top: 3px !important;
+        margin-bottom: 4px !important;
+        word-break: normal !important;
+    }
+    .stats-grid-container .card p {
+        font-size: 0.74rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 3px !important;
+    }
+    .stats-grid-container .card .stat-icon-wrapper {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 9px !important;
+    }
+    .stats-grid-container .card .stat-icon-wrapper i {
+        font-size: 0.92rem !important;
+    }
+    .stats-grid-container .card svg {
+        height: 22px !important;
+        bottom: 4px !important;
+        opacity: 0.65 !important;
+    }
+
+    /* 4. ESKUL ACTION BUTTONS (2x2 GRID RAPI) */
+    .eskul-action-btns {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    .eskul-action-btns .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        font-size: 0.78rem !important;
+        padding: 8px 10px !important;
+    }
+}
+</style>
+
 <!-- Hero Section -->
-<div class="dashboard-hero responsive-flex" style="background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); padding: 28px 32px; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;">
-    <div style="z-index: 2;">
-        <h2 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px;">
-            <span id="greeting">Selamat Datang</span>, {{ Auth::user()->name }}! 👋
-        </h2>
-        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
-            <p style="color: #64748b; font-size: 0.95rem; margin: 0; font-weight: 500;">
-                 Tahun Ajaran <b style="color: #0f172a;">{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b style="color: #0f172a;">{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
-            </p>
-            @if(Auth::user()->role === 'admin')
-                <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Kesiswaan & Administrator</span>
-            @elseif(Auth::user()->role === 'curriculum')
-                <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Tim Kurikulum</span>
-            @elseif(Auth::user()->role === 'headmaster')
-                <span style="background: #fef3c7; color: #92400e; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-user-tie"></i> Kepala Sekolah</span>
-            @else
-                @if($isHomeroomTeacher)
-                    <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>
-                @endif
-                @if(Auth::user()->eskul)
-                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Pembina {{ Auth::user()->eskul->name }}</span>
-                @endif
-                @if(isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty())
-                    <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-book-reader"></i> Pembimbing Tilawati ({{ $myTilawatiGroups->count() }})</span>
-                @endif
-                @if(isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())
-                    <span style="background: #f0f9ff; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-quran"></i> Pembimbing Tahfidz ({{ $myTahfidzGroups->count() }})</span>
-                @endif
-                @if(isset($mySubjectsCount) && $mySubjectsCount > 0)
-                    <span style="background: #f5f3ff; color: #6d28d9; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Guru Mapel ({{ $mySubjectsCount }})</span>
-                @endif
-                @if($isMunaqisyExaminer ?? false)
-                    <span style="background: #e0e7ff; color: #3730a3; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-user-check"></i> Dewan Munaqisy</span>
-                @endif
-            @endif
+<div class="dashboard-hero" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%); padding: 26px 30px; border-radius: 22px; border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04); margin-bottom: 24px; position: relative; overflow: hidden;">
+    <!-- Mobile-Only Status Bar (Date + Live Clock Pill) -->
+    <div class="hero-mobile-bar">
+        <div class="hero-mobile-date">
+            <i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}
+        </div>
+        <div class="hero-mobile-clock-pill">
+            <span class="live-pulse-dot"></span>
+            <span class="live-clock-text">{{ \Carbon\Carbon::now()->format('H:i') }}</span>
         </div>
     </div>
-    <div style="text-align: right; z-index: 2;">
-        <div id="clock" style="font-size: 2.1rem; font-weight: 800; color: #10b981; letter-spacing: -0.5px;">00:00</div>
-        <div style="font-size: 0.88rem; font-weight: 600; color: #64748b;">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</div>
+
+    <div class="hero-body-row">
+        <div class="hero-main-info" style="z-index: 2;">
+            <h2 class="hero-greeting" style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px;">
+                <span id="greeting">Selamat Datang</span>, {{ Auth::user()->name }}! 👋
+            </h2>
+            <div class="hero-subinfo" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+                <p class="hero-academic-term" style="color: #64748b; font-size: 0.92rem; margin: 0; font-weight: 500;">
+                     Tahun Ajaran <b style="color: #0f172a;">{{ $activeYear ? $activeYear->name : '-' }}</b> • Semester <b style="color: #0f172a;">{{ $activeYear ? $activeYear->active_semester : '-' }}</b>
+                </p>
+                <div class="hero-badges-wrap" style="display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    @if(Auth::user()->role === 'admin')
+                        <span style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Kesiswaan & Administrator</span>
+                    @elseif(Auth::user()->role === 'curriculum')
+                        <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Tim Kurikulum</span>
+                    @elseif(Auth::user()->role === 'headmaster')
+                        <span style="background: #fef3c7; color: #92400e; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-user-tie"></i> Kepala Sekolah</span>
+                    @else
+                        @if($isHomeroomTeacher)
+                            <span style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Wali Kelas {{ $homeroomClass }}</span>
+                        @endif
+                        @if(Auth::user()->eskul)
+                            <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Pembina {{ Auth::user()->eskul->name }}</span>
+                        @endif
+                        @if(isset($myTilawatiGroups) && $myTilawatiGroups->isNotEmpty())
+                            <span style="background: #ecfdf5; color: #047857; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-book-reader"></i> Pembimbing Tilawati ({{ $myTilawatiGroups->count() }})</span>
+                        @endif
+                        @if(isset($myTahfidzGroups) && $myTahfidzGroups->isNotEmpty())
+                            <span style="background: #f0f9ff; color: #0369a1; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-quran"></i> Pembimbing Tahfidz ({{ $myTahfidzGroups->count() }})</span>
+                        @endif
+                        @if(isset($mySubjectsCount) && $mySubjectsCount > 0)
+                            <span style="background: #f5f3ff; color: #6d28d9; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Guru Mapel ({{ $mySubjectsCount }})</span>
+                        @endif
+                        @if($isMunaqisyExaminer ?? false)
+                            <span style="background: #e0e7ff; color: #3730a3; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;"><i class="fas fa-user-check"></i> Dewan Munaqisy</span>
+                        @endif
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="hero-desktop-clock" style="text-align: right; z-index: 2;">
+            <div id="clock" style="font-size: 2.1rem; font-weight: 800; color: #10b981; letter-spacing: -0.5px;">00:00</div>
+            <div style="font-size: 0.88rem; font-weight: 600; color: #64748b;">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</div>
+        </div>
     </div>
     <!-- Decor -->
-    <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -15px; bottom: -25px; font-size: 9.5rem; color: rgba(99, 102, 241, 0.05);"></i>
+    <i class="fas fa-chart-line decor-icon" style="position: absolute; right: -15px; bottom: -25px; font-size: 9.5rem; color: rgba(99, 102, 241, 0.04);"></i>
 </div>
 
 {{-- PENGINGAT DEWAN MUNAQISY (KHUSUS AKUN PENGUJI) --}}
@@ -251,17 +474,20 @@
 
 @if(Auth::user()->role === 'teacher' && ($teacherRoleCount ?? 0) > 1)
 <!-- Duty Switcher Bar (Untuk Guru dengan Multi-Peran) -->
-<div style="background: #ffffff; border-radius: 16px; padding: 12px 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
+<div class="duty-switcher-container" style="background: #ffffff; border-radius: 18px; padding: 14px 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <div class="duty-switcher-header" style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 38px; height: 38px; border-radius: 11px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);">
             <i class="fas fa-layer-group"></i>
         </div>
         <div>
-            <strong style="color: #0f172a; font-size: 0.92rem; display: block;">Fokus Penugasan Anda ({{ $teacherRoleCount }} Peran Aktif)</strong>
-            <span style="color: #64748b; font-size: 0.78rem;">Saring tampilan data dasbor sesuai tugas yang ingin Anda kerjakan:</span>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <strong style="color: #0f172a; font-size: 0.95rem;">Fokus Penugasan Anda</strong>
+                <span style="background: #dbeafe; color: #1e40af; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px;">{{ $teacherRoleCount }} Peran Aktif</span>
+            </div>
+            <span class="duty-subtext" style="color: #64748b; font-size: 0.78rem;">Saring tampilan data dasbor sesuai tugas yang ingin Anda kerjakan:</span>
         </div>
     </div>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="duty-filter-buttons">
+    <div class="duty-switcher-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;" id="duty-filter-buttons">
         <button type="button" class="duty-switcher-btn active" onclick="filterDutyDashboard('all', this)" style="padding: 7px 15px; border-radius: 10px; border: 1px solid #3b82f6; background: #3b82f6; color: white; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
             <i class="fas fa-th-large"></i> Semua Tugas
         </button>
@@ -291,7 +517,7 @@
 
 <!-- Stats Grid (Dinamis Sesuai Peran) -->
 @if(!($isOnlyExaminer ?? false))
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
+<div class="stats-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 30px;">
     @if(Auth::user()->role === 'admin')
         <!-- Admin Stats: Global -->
         <!-- Students -->
@@ -533,7 +759,7 @@
                         <h3 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2px;">{{ $studentCount }}</h3>
                         <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Siswa Terdaftar ({{ Auth::user()->eskul->name }})</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                    <div class="stat-icon-wrapper" style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
                          <i class="fas fa-running" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
@@ -545,7 +771,7 @@
             </div>
 
             <!-- Pembina: Jadwal Latihan -->
-            <div class="card teacher-stat-card" data-duty="eskul" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.4);">
+            <div class="card teacher-stat-card card-schedule" data-duty="eskul" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; border: none; min-height: 140px; padding: 1.5rem; position: relative; overflow: hidden; margin-bottom: 0; box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.4);">
                 <div style="display: flex; justify-content: space-between; align-items: start; position: relative; z-index: 2;">
                     <div>
                         <h3 style="font-size: 1.3rem; font-weight: 800; margin-top: 5px; margin-bottom: 5px; word-break: break-word; line-height: 1.3;">
@@ -553,7 +779,7 @@
                         </h3>
                         <p style="opacity: 0.9; font-size: 0.9rem; font-weight: 600;">Jadwal Eskul Binaan</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
+                    <div class="stat-icon-wrapper" style="background: rgba(255,255,255,0.22); width: 44px; height: 44px; justify-content: center; align-items: center; display: flex; border-radius: 12px; backdrop-filter: blur(4px);">
                          <i class="far fa-calendar-alt" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
@@ -1336,7 +1562,7 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="eskul-action-btns" style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <a href="{{ route('eskuls.jurnal.index', $coachEskulDashboard->id) }}" class="btn" style="background: #059669; color: white; font-weight: 700; font-size: 0.85rem; padding: 9px 16px; border-radius: 9px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
                         <i class="fas fa-book-open"></i> Form Jurnal Harian
                     </a>
@@ -2317,7 +2543,12 @@
     setInterval(() => {
         const now = new Date();
         const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('clock').innerText = timeString;
+        const desktopClock = document.getElementById('clock');
+        if (desktopClock) desktopClock.innerText = timeString;
+        
+        document.querySelectorAll('.live-clock-text').forEach(el => {
+            el.innerText = timeString;
+        });
         
         const hour = now.getHours();
         let greeting = 'Selamat Datang';
