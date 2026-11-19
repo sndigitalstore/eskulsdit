@@ -32,14 +32,28 @@ class TahfidzAttendanceController extends Controller
             'almasad' => 30, 'alikhlas' => 30, 'alfalaq' => 30, 'annas' => 30,
             
             // Juz 29 (Surat ke-67 s.d 77)
-            'almulk' => 29, 'alqalam' => 29, 'alhaqqah' => 29, 'almaarij' => 29,
-            'nuh' => 29, 'aljinn' => 29, 'almuzzammil' => 29, 'almuzammil' => 29,
-            'almuddassir' => 29, 'alqiyamah' => 29, 'alinsan' => 29, 'almursalat' => 29,
+            'almulk' => 29, 'mulk' => 29, 'tabarok' => 29, 'tabarak' => 29,
+            'alqalam' => 29, 'qalam' => 29, 'nun' => 29,
+            'alhaqqah' => 29, 'haqqah' => 29,
+            'almaarij' => 29, 'maarij' => 29,
+            'nuh' => 29,
+            'aljinn' => 29, 'jinn' => 29, 'jin' => 29,
+            'almuzzammil' => 29, 'muzzammil' => 29, 'almuzammil' => 29, 'muzammil' => 29,
+            'almuddassir' => 29, 'muddassir' => 29, 'almuddatsir' => 29, 'muddatsir' => 29,
+            'alqiyamah' => 29, 'qiyamah' => 29,
+            'alinsan' => 29, 'insan' => 29, 'addahr' => 29, 'dahr' => 29,
+            'almursalat' => 29, 'mursalat' => 29,
             
             // Juz 28 (Surat ke-58 s.d 66)
-            'almujadilah' => 28, 'alhasyr' => 28, 'almumtahanah' => 28, 'assaff' => 28,
-            'aljumuah' => 28, 'almunafiqun' => 28, 'attaghabun' => 28, 'attalaq' => 28,
-            'attahrim' => 28,
+            'almujadilah' => 28, 'mujadilah' => 28, 'almujadalah' => 28, 'mujadalah' => 28,
+            'alhasyr' => 28, 'hasyr' => 28, 'alhasr' => 28, 'hasr' => 28, 'alhasyir' => 28, 'hasyir' => 28,
+            'almumtahanah' => 28, 'mumtahanah' => 28,
+            'assaff' => 28, 'saff' => 28, 'assaf' => 28,
+            'aljumuah' => 28, 'jumuah' => 28, 'aljumah' => 28, 'jumah' => 28, 'aljumat' => 28, 'jumat' => 28,
+            'almunafiqun' => 28, 'munafiqun' => 28, 'almunafiqin' => 28, 'munafiqin' => 28,
+            'attaghabun' => 28, 'taghabun' => 28,
+            'attalaq' => 28, 'talaq' => 28, 'thalaq' => 28,
+            'attahrim' => 28, 'tahrim' => 28,
             
             // Juz 27
             'azzariyat' => 27, 'attur' => 27, 'annajm' => 27, 'alqamar' => 27,
@@ -72,14 +86,85 @@ class TahfidzAttendanceController extends Controller
         $clean = strtolower(preg_replace('/[^a-z0-9]/', '', $surahName));
         $clean = preg_replace('/^(?:surat|surah|qs)/', '', $clean);
         
+        if (empty($clean)) {
+            return $defaultJuz ?? 30;
+        }
+
+        // Prioritas Cek Kata Kunci Juz 28 (Surat ke-58 s.d 66)
+        if (str_contains($clean, 'hasyr') || str_contains($clean, 'hasr') || str_contains($clean, 'hasyir')) {
+            return 28;
+        }
+        if (str_contains($clean, 'mujadil') || str_contains($clean, 'mujadalah')) {
+            return 28;
+        }
+        if (str_contains($clean, 'mumtahan')) {
+            return 28;
+        }
+        if (str_contains($clean, 'saff')) {
+            return 28;
+        }
+        if (str_contains($clean, 'jumu') || str_contains($clean, 'jumat')) {
+            return 28;
+        }
+        if (str_contains($clean, 'munafiq')) {
+            return 28;
+        }
+        if (str_contains($clean, 'taghabun')) {
+            return 28;
+        }
+        if (str_contains($clean, 'talaq') || str_contains($clean, 'thalaq')) {
+            return 28;
+        }
+        if (str_contains($clean, 'tahrim')) {
+            return 28;
+        }
+
+        // Prioritas Cek Kata Kunci Juz 29 (Surat ke-67 s.d 77)
+        if (str_contains($clean, 'mulk') || str_contains($clean, 'tabar')) {
+            return 29;
+        }
+        if (str_contains($clean, 'qalam') || str_contains($clean, 'nun')) {
+            return 29;
+        }
+        if (str_contains($clean, 'haqqah')) {
+            return 29;
+        }
+        if (str_contains($clean, 'maarij')) {
+            return 29;
+        }
+        if (str_contains($clean, 'nuh')) {
+            return 29;
+        }
+        if (str_contains($clean, 'jinn') || str_contains($clean, 'jin')) {
+            return 29;
+        }
+        if (str_contains($clean, 'muzzammil') || str_contains($clean, 'muzammil')) {
+            return 29;
+        }
+        if (str_contains($clean, 'muddassir') || str_contains($clean, 'muddatsir')) {
+            return 29;
+        }
+        if (str_contains($clean, 'qiyamah')) {
+            return 29;
+        }
+        if (str_contains($clean, 'insan') || str_contains($clean, 'addahr') || str_contains($clean, 'dahr')) {
+            return 29;
+        }
+        if (str_contains($clean, 'mursalat')) {
+            return 29;
+        }
+
         $map = self::getSurahJuzMap();
         if (isset($map[$clean])) {
             return $map[$clean];
         }
 
-        foreach ($map as $key => $juz) {
-            if (str_contains($clean, $key) || str_contains($key, $clean)) {
-                return $juz;
+        // Cek kemiripan string dengan kunci terpanjang lebih dahulu
+        $sortedKeys = array_keys($map);
+        usort($sortedKeys, fn($a, $b) => strlen($b) - strlen($a));
+        foreach ($sortedKeys as $key) {
+            if (strlen($key) >= 3 && (str_contains($clean, $key) || (strlen($clean) >= 4 && str_contains($key, $clean)))) {
+                return $map[$key];
             }
         }
 

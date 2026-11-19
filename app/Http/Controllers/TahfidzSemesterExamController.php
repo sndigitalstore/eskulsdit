@@ -86,11 +86,29 @@ class TahfidzSemesterExamController extends Controller
      */
     public static function getSurahToJuzMap(): array
     {
-        $allSurahs = TahfidzAttendanceController::getAllSurahNames();
+        $allSurahs = method_exists(TahfidzAttendanceController::class, 'getAllSurahNames')
+            ? TahfidzAttendanceController::getAllSurahNames()
+            : (method_exists(TahfidzAttendanceController::class, 'getAllSurahs') ? TahfidzAttendanceController::getAllSurahs() : []);
+
         $map = [];
         foreach ($allSurahs as $surah) {
             $map[$surah] = TahfidzAttendanceController::determineJuzForSurah($surah);
         }
+
+        // Pastikan alias / variasi ejaan penting juga eksplisit masuk ke map
+        $map['Al-Hasyr'] = 28;
+        $map['Al-Hasr'] = 28;
+        $map['Hasyr'] = 28;
+        $map['Al Hasyr'] = 28;
+        $map['Al-Mujadilah'] = 28;
+        $map['Al-Mumtahanah'] = 28;
+        $map['As-Saff'] = 28;
+        $map['Al-Jumu\'ah'] = 28;
+        $map['Al-Munafiqun'] = 28;
+        $map['At-Taghabun'] = 28;
+        $map['At-Talaq'] = 28;
+        $map['At-Tahrim'] = 28;
+
         return $map;
     }
 
@@ -193,9 +211,10 @@ class TahfidzSemesterExamController extends Controller
             if ($stdSem1Exam && $stdSem1Exam->items->isNotEmpty()) {
                 foreach ($stdSem1Exam->items as $s1It) {
                     $cleanSurah = self::cleanSurahName($s1It->surah_name);
+                    $canonicalJuz = TahfidzAttendanceController::determineJuzForSurah($cleanSurah ?: $s1It->surah_name);
                     $sem1ItemsList[] = [
                         'surah_name' => $cleanSurah ?: $s1It->surah_name,
-                        'juz'        => $s1It->juz ?? TahfidzAttendanceController::determineJuzForSurah($cleanSurah ?: $s1It->surah_name),
+                        'juz'        => $canonicalJuz,
                         'score'      => (float)$s1It->score,
                         'predicate'  => $s1It->predicate ?? TahfidzSemesterExam::resolvePredicate((float)$s1It->score),
                         'notes'      => $s1It->notes ?? '',
@@ -213,9 +232,10 @@ class TahfidzSemesterExamController extends Controller
                 }
                 foreach ($savedExam->items as $it) {
                     $cleanName = self::cleanSurahName($it->surah_name);
+                    $canonicalJuz = TahfidzAttendanceController::determineJuzForSurah($cleanName ?: $it->surah_name);
                     $itemsList[] = [
                         'surah_name' => $cleanName ?: $it->surah_name,
-                        'juz'        => $it->juz ?? TahfidzAttendanceController::determineJuzForSurah($cleanName ?: $it->surah_name),
+                        'juz'        => $canonicalJuz,
                         'score'      => (float)$it->score,
                         'predicate'  => $it->predicate ?? TahfidzSemesterExam::resolvePredicate((float)$it->score),
                         'notes'      => $it->notes ?? '',
@@ -249,9 +269,10 @@ class TahfidzSemesterExamController extends Controller
                     }
 
                     if (!isset($groupedSurahs[$cleanName])) {
+                        $canonicalJuz = TahfidzAttendanceController::determineJuzForSurah($cleanName);
                         $groupedSurahs[$cleanName] = [
                             'scores' => [],
-                            'juz'    => $rec->juz ?? TahfidzAttendanceController::determineJuzForSurah($cleanName),
+                            'juz'    => $canonicalJuz,
                         ];
                     }
                     if ($rec->nilai) {
@@ -261,9 +282,10 @@ class TahfidzSemesterExamController extends Controller
 
                 foreach ($groupedSurahs as $surahName => $sData) {
                     $avgScore = count($sData['scores']) > 0 ? round(array_sum($sData['scores']) / count($sData['scores'])) : 85;
+                    $canonicalJuz = TahfidzAttendanceController::determineJuzForSurah($surahName);
                     $itemsList[] = [
                         'surah_name' => $surahName,
-                        'juz'        => $sData['juz'] ?? TahfidzAttendanceController::determineJuzForSurah($surahName),
+                        'juz'        => $canonicalJuz,
                         'score'      => $avgScore,
                         'predicate'  => TahfidzSemesterExam::resolvePredicate((float)$avgScore),
                         'notes'      => '',
@@ -288,7 +310,9 @@ class TahfidzSemesterExamController extends Controller
             ];
         }
 
-        $allSurahs = TahfidzAttendanceController::getAllSurahNames();
+        $allSurahs = method_exists(TahfidzAttendanceController::class, 'getAllSurahNames')
+            ? TahfidzAttendanceController::getAllSurahNames()
+            : (method_exists(TahfidzAttendanceController::class, 'getAllSurahs') ? TahfidzAttendanceController::getAllSurahs() : []);
         $surahToJuzMap = self::getSurahToJuzMap();
         $groupAverage = count($totalScores) > 0 ? round(array_sum($totalScores) / count($totalScores), 2) : 0;
 
@@ -356,8 +380,12 @@ class TahfidzSemesterExamController extends Controller
                     $score = min(100, max(0, (float)($it['score'] ?? 0)));
                     $scores[] = $score;
                     
-                    // Otomatis tentukan nomor Juz jika kosong atau tidak diinputkan guru
-                    $juz = !empty($it['juz']) ? (int)$it['juz'] : TahfidzAttendanceController::determineJuzForSurah($surah);
+                    // Selalu sinkronkan nomor Juz secara kanonikal mengikuti surat
+                    $canonicalJuz = TahfidzAttendanceController::determineJuzForSurah($surah);
+                    $juz = $canonicalJuz;
+                    if ($canonicalJuz === 30 && !empty($it['juz']) && (int)$it['juz'] > 0 && (int)$it['juz'] <= 30) {
+                        $juz = (int)$it['juz'];
+                    }
 
                     $validItems[] = [
                         'surah_name' => $surah,

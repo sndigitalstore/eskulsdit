@@ -246,8 +246,11 @@
                         <td style="text-align: center;">{{ $std->class }}</td>
                         <td>
                             @forelse($items as $item)
+                                @php
+                                    $itemJuz = \App\Http\Controllers\TahfidzAttendanceController::determineJuzForSurah($item->surah_name, $item->juz);
+                                @endphp
                                 <span class="surah-item-chip">
-                                    {{ $item->surah_name }}@if($item->juz) (Juz {{ $item->juz }})@endif: <strong>{{ number_format($item->score, 0) }}</strong>
+                                    {{ $item->surah_name }}@if($itemJuz) (Juz {{ $itemJuz }})@endif: <strong>{{ number_format($item->score, 0) }}</strong>
                                 </span>
                             @empty
                                 <span style="color: #94a3b8; font-style: italic; font-size: 7.5pt;">Belum ada surat yang dinilai pada Semester {{ $semester }}</span>

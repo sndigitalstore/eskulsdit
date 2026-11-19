@@ -683,15 +683,17 @@
             border: 1px solid #e2e8f0 !important;
         }
         .student-body-area {
-            padding: 12px 14px !important;
+            padding: 12px 12px 115px 12px !important;
+            box-sizing: border-box !important;
         }
 
         .sem1-history-box {
-            margin: 10px 14px 0 14px !important;
+            margin: 10px 12px 0 12px !important;
             padding: 10px 12px !important;
+            box-sizing: border-box !important;
         }
 
-        /* 5. TOUCH-FRIENDLY SURAH CARDS (TRANSFORM TABLE INTO CLEAN CARDS ON MOBILE) */
+        /* 5. TOUCH-FRIENDLY SURAH CARDS (RESPONSIF KARTU FLEKSIBEL DI HP - TIDAK ADA KONTEN TERPOTONG) */
         .surah-table thead {
             display: none !important;
         }
@@ -699,34 +701,37 @@
         .surah-table tbody {
             display: block !important;
             width: 100% !important;
+            box-sizing: border-box !important;
         }
         .surah-row-card {
-            display: grid !important;
-            grid-template-columns: 32px 1fr 34px !important;
-            grid-template-areas:
-                "num surah del"
-                "middle middle middle"
-                "notes notes notes" !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
             gap: 8px !important;
             background: #ffffff !important;
             border: 1.5px solid #cbd5e1 !important;
             border-radius: 12px !important;
-            padding: 12px !important;
+            padding: 10px 12px !important;
             margin-bottom: 12px !important;
             box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
-            align-items: center !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
         .surah-row-card td {
             display: block !important;
             border: none !important;
             padding: 0 !important;
-            width: 100% !important;
+            box-sizing: border-box !important;
         }
+
+        /* Baris 1: Nomor, Input Nama Surat, Tombol Hapus */
         .col-num {
-            grid-area: num !important;
+            order: 1 !important;
+            flex: 0 0 28px !important;
+            width: 28px !important;
             height: 38px !important;
-            background: #e2e8f0 !important;
-            color: #334155 !important;
+            background: #f1f5f9 !important;
+            color: #475569 !important;
             font-weight: 800 !important;
             font-size: 0.85rem !important;
             border-radius: 8px !important;
@@ -735,52 +740,109 @@
             justify-content: center !important;
         }
         .col-surah {
-            grid-area: surah !important;
+            order: 2 !important;
+            flex: 1 1 calc(100% - 78px) !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
         }
         .col-surah input {
+            width: 100% !important;
             height: 38px !important;
-            font-size: 15px !important;
+            font-size: 14px !important;
             font-weight: 700 !important;
+            box-sizing: border-box !important;
+            padding: 6px 10px !important;
         }
         .col-action {
-            grid-area: del !important;
+            order: 3 !important;
+            flex: 0 0 32px !important;
+            width: 32px !important;
+            height: 38px !important;
             display: flex !important;
+            align-items: center !important;
             justify-content: flex-end !important;
         }
         .col-action button {
-            width: 34px !important;
+            width: 32px !important;
             height: 38px !important;
             border-radius: 8px !important;
         }
-        .col-middle-mobile {
-            grid-area: middle !important;
+
+        /* Baris 2: Badge Juz (Kiri), Input Nilai (Tengah), Predikat (Kanan) */
+        .col-juz {
+            order: 4 !important;
+            flex: 0 0 auto !important;
             display: flex !important;
             align-items: center !important;
-            justify-content: space-between !important;
-            background: #f8fafc !important;
+        }
+        .badge-auto-juz {
+            background: #dbeafe !important;
+            color: #1e40af !important;
+            border: 1.5px solid #93c5fd !important;
+            font-weight: 800 !important;
+            font-size: 0.8rem !important;
             padding: 6px 10px !important;
             border-radius: 8px !important;
-            border: 1px solid #e2e8f0 !important;
-            gap: 6px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            white-space: nowrap !important;
         }
-        .col-juz, .col-score, .col-pred {
-            display: contents !important;
+        .col-score {
+            order: 5 !important;
+            flex: 1 1 auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 5px !important;
+        }
+        .col-score::before {
+            content: "Nilai:";
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #475569;
         }
         .input-exam-score {
-            width: 76px !important;
-            height: 38px !important;
-            font-size: 1.25rem !important;
+            width: 72px !important;
+            height: 36px !important;
+            font-size: 1.15rem !important;
             font-weight: 900 !important;
             border: 2px solid #059669 !important;
             border-radius: 8px !important;
             background: white !important;
+            text-align: center !important;
+            box-sizing: border-box !important;
+            padding: 2px 4px !important;
         }
+        .col-pred {
+            order: 6 !important;
+            flex: 0 0 auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+        }
+        .col-pred .item-pred-badge {
+            font-size: 0.75rem !important;
+            font-weight: 800 !important;
+            padding: 6px 9px !important;
+            border-radius: 6px !important;
+            white-space: nowrap !important;
+        }
+
+        /* Baris 3: Catatan Singkat Full Width */
         .col-notes {
-            grid-area: notes !important;
+            order: 7 !important;
+            flex: 0 0 100% !important;
+            width: 100% !important;
+            margin-top: 2px !important;
+            box-sizing: border-box !important;
         }
         .col-notes input {
+            width: 100% !important;
             height: 36px !important;
-            font-size: 14px !important;
+            font-size: 13px !important;
+            box-sizing: border-box !important;
+            padding: 6px 10px !important;
         }
 
         /* 6. Mobile Add Surah & Notes */
@@ -1190,7 +1252,7 @@
                         <tbody id="tbodySurahs-{{ $std->id }}">
                             @forelse($items as $iIndex => $item)
                                 @php
-                                    $rowJuz = $item['juz'] ?? \App\Http\Controllers\TahfidzAttendanceController::determineJuzForSurah($item['surah_name']);
+                                    $rowJuz = \App\Http\Controllers\TahfidzAttendanceController::determineJuzForSurah($item['surah_name']);
                                 @endphp
                                 <tr id="row-{{ $std->id }}-{{ $iIndex }}" class="surah-row-card">
                                     <td class="col-num row-num" style="text-align: center; color: #64748b; font-weight: bold;">{{ $iIndex + 1 }}</td>
@@ -1327,18 +1389,43 @@
     function getJuzForSurah(surahName) {
         if (!surahName) return 30;
         const clean = surahName.trim().toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^(?:surat|surah|qs)/, '');
-        
-        // Exact / Normalized match
+        if (!clean) return 30;
+
+        // 1. Cek langsung kata kunci surat di Juz 28 (Surat ke-58 s.d 66)
+        if (clean.includes('hasyr') || clean.includes('hasr') || clean.includes('hasyir')) return 28;
+        if (clean.includes('mujadil') || clean.includes('mujadalah')) return 28;
+        if (clean.includes('mumtahan')) return 28;
+        if (clean.includes('saff')) return 28;
+        if (clean.includes('jumu') || clean.includes('jumat')) return 28;
+        if (clean.includes('munafiq')) return 28;
+        if (clean.includes('taghabun')) return 28;
+        if (clean.includes('talaq') || clean.includes('thalaq')) return 28;
+        if (clean.includes('tahrim')) return 28;
+
+        // 2. Cek langsung kata kunci surat di Juz 29 (Surat ke-67 s.d 77)
+        if (clean.includes('mulk') || clean.includes('tabar')) return 29;
+        if (clean.includes('qalam') || clean.includes('nun')) return 29;
+        if (clean.includes('haqqah')) return 29;
+        if (clean.includes('maarij')) return 29;
+        if (clean.includes('nuh')) return 29;
+        if (clean.includes('jinn') || clean.includes('jin')) return 29;
+        if (clean.includes('muzzammil') || clean.includes('muzammil')) return 29;
+        if (clean.includes('muddassir') || clean.includes('muddatsir')) return 29;
+        if (clean.includes('qiyamah')) return 29;
+        if (clean.includes('insan') || clean.includes('addahr') || clean.includes('dahr')) return 29;
+        if (clean.includes('mursalat')) return 29;
+
+        // 3. Exact / Normalized match
         for (const [sName, juz] of Object.entries(surahToJuzMap)) {
             const sClean = sName.trim().toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^(?:surat|surah|qs)/, '');
             if (sClean === clean) {
                 return juz;
             }
         }
-        // Substring match
+        // 4. Substring match
         for (const [sName, juz] of Object.entries(surahToJuzMap)) {
             const sClean = sName.trim().toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^(?:surat|surah|qs)/, '');
-            if (sClean.includes(clean) || clean.includes(sClean)) {
+            if (sClean.length >= 3 && clean.includes(sClean)) {
                 return juz;
             }
         }
@@ -1347,16 +1434,40 @@
 
     // Auto-update Juz badge & hidden input saat nama surat diketik / dipilih
     function onSurahNameChange(input, studentId, idx) {
-        const surah = input.value;
-        const juz = getJuzForSurah(surah);
+        const surah = input.value.trim();
         const badge = document.getElementById(`badgeJuz-${studentId}-${idx}`);
         const hidden = document.getElementById(`hiddenJuz-${studentId}-${idx}`);
+        if (!surah) {
+            if (badge) badge.innerHTML = `<i class="fas fa-bookmark"></i> -`;
+            if (hidden) hidden.value = '';
+            return;
+        }
+        const juz = getJuzForSurah(surah);
         if (badge) {
             badge.innerHTML = `<i class="fas fa-bookmark"></i> Juz ${juz}`;
         }
         if (hidden) {
             hidden.value = juz;
         }
+    }
+
+    // Sinkronisasi badge Juz mengikuti nama surat yang ada di tampilan
+    function syncAllJuzBadges(studentId = null) {
+        const selector = studentId ? `#tbodySurahs-${studentId} tr.surah-row-card` : 'tr.surah-row-card';
+        document.querySelectorAll(selector).forEach(row => {
+            const surahInp = row.querySelector('.surah-name-input');
+            const badge = row.querySelector('.badge-auto-juz');
+            const hidden = row.querySelector('input[type="hidden"]');
+            if (surahInp && surahInp.value.trim() !== '') {
+                const correctJuz = getJuzForSurah(surahInp.value);
+                if (badge) {
+                    badge.innerHTML = `<i class="fas fa-bookmark"></i> Juz ${correctJuz}`;
+                }
+                if (hidden) {
+                    hidden.value = correctJuz;
+                }
+            }
+        });
     }
 
     // Resolve Nilai ke Predikat Mutu
@@ -1415,7 +1526,7 @@
         }
     }
 
-    // Tambah Baris Surat Baru
+    // Tambah Baris Surat Baru (Form dikosongkan agar guru mengisi manual)
     function addSurahRow(studentId) {
         const tbody = document.getElementById('tbodySurahs-' + studentId);
         const emptyRow = document.getElementById('emptyRow-' + studentId);
@@ -1423,7 +1534,7 @@
 
         if (!surahCounters[studentId]) surahCounters[studentId] = 0;
         const idx = surahCounters[studentId]++;
-        const rowNum = tbody.querySelectorAll('tr').length + 1;
+        const rowNum = tbody.querySelectorAll('tr:not([id^="emptyRow"])').length + 1;
 
         const tr = document.createElement('tr');
         tr.id = `row-${studentId}-${idx}`;
@@ -1444,22 +1555,23 @@
             </td>
             <td class="col-juz">
                 <span class="badge-auto-juz" id="badgeJuz-${studentId}-${idx}">
-                    <i class="fas fa-bookmark"></i> Juz 30
+                    <i class="fas fa-bookmark"></i> -
                 </span>
-                <input type="hidden" id="hiddenJuz-${studentId}-${idx}" value="30">
+                <input type="hidden" id="hiddenJuz-${studentId}-${idx}" value="">
             </td>
             <td class="col-score" style="text-align: center;">
                 <input type="number" 
                        inputmode="decimal"
                        id="scoreInput-${studentId}-${idx}"
-                       value="85" 
+                       value="" 
                        min="0" max="100" step="0.5" 
                        class="input-exam-score score-input-${studentId}" 
+                       placeholder="0-100"
                        oninput="calculateStudentAvg(${studentId})" 
                        required>
             </td>
             <td class="col-pred" style="text-align: center;">
-                <span class="item-pred-badge badge-grade grade-B" id="predBadge-${studentId}-${idx}">Jayyid Jiddan (B)</span>
+                <span class="item-pred-badge badge-grade" id="predBadge-${studentId}-${idx}">-</span>
             </td>
             <td class="col-notes">
                 <input type="text" 
@@ -1470,7 +1582,7 @@
                        placeholder="Catatan singkat (opsional)">
             </td>
             <td class="col-action" style="text-align: center;">
-                <button type="button" onclick="removeSurahRow(${studentId}, ${idx})" style="background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" title="Hapus Surat">
+                <button type="button" onclick="removeSurahRow(${studentId}, ${idx})" style="background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" title="Hapus Baris">
                     <i class="fas fa-times"></i>
                 </button>
             </td>
@@ -1478,6 +1590,12 @@
 
         tbody.appendChild(tr);
         calculateStudentAvg(studentId);
+
+        // Langsung fokus ke kolom input nama surat
+        const newSurahInp = document.getElementById(`surahInput-${studentId}-${idx}`);
+        if (newSurahInp) {
+            newSurahInp.focus();
+        }
     }
 
     // Hapus Baris Surat
@@ -1594,6 +1712,7 @@
         const activeCard = document.getElementById('studentCard-' + studentId);
         if (activeCard) {
             activeCard.style.display = 'block';
+            syncAllJuzBadges(studentId);
             activeCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
@@ -1645,8 +1764,9 @@
             const notesInp = row.querySelector('input[placeholder*="Catatan"]');
 
             const surahVal = surahInp ? surahInp.value.trim() : '';
-            const juzVal = juzInp ? juzInp.value : getJuzForSurah(surahVal);
-            const scoreVal = scoreInp ? parseFloat(scoreInp.value) : 0;
+            const juzVal = getJuzForSurah(surahVal);
+            const rawScore = scoreInp ? scoreInp.value.trim() : '';
+            const scoreVal = rawScore !== '' ? parseFloat(rawScore) : NaN;
             const notesVal = notesInp ? notesInp.value.trim() : '';
 
             if (surahVal !== '') {
@@ -1655,7 +1775,7 @@
                 }
                 formData.append(`students[${studentId}][items][${itemIndex}][surah_name]`, surahVal);
                 formData.append(`students[${studentId}][items][${itemIndex}][juz]`, juzVal);
-                formData.append(`students[${studentId}][items][${itemIndex}][score]`, scoreVal);
+                formData.append(`students[${studentId}][items][${itemIndex}][score]`, isNaN(scoreVal) ? 0 : scoreVal);
                 formData.append(`students[${studentId}][items][${itemIndex}][notes]`, notesVal);
                 itemIndex++;
             }
@@ -1764,8 +1884,9 @@
         }
     });
 
-    // Inisialisasi: Pilih santri awal
+    // Inisialisasi: Pilih santri awal & Sinkronisasi Badge Juz
     document.addEventListener('DOMContentLoaded', function() {
+        syncAllJuzBadges();
         if (studentsList.length > 0) {
             const firstPending = studentsList.find(s => !s.isSaved);
             const initialId = firstPending ? firstPending.id : studentsList[0].id;
