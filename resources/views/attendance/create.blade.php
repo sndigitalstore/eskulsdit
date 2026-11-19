@@ -644,6 +644,43 @@
         </div>
     @endif
 
+    <!-- Notifikasi Data Sudah Pernah Tersimpan & Terkunci -->
+    @if(!empty($isAlreadySaved))
+        <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 18px; padding: 16px 20px; margin-bottom: 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08);">
+            <div style="width: 42px; height: 42px; border-radius: 12px; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 4px;">
+                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #065f46;">
+                        Data Presensi Siswa Sudah Tersimpan
+                    </h4>
+                    <span style="background: #d1fae5; color: #047857; font-size: 0.76rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; border: 1px solid #6ee7b7; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-lock"></i> Terkunci &bull; {{ $savedCount ?? $students->count() }} Siswa Tercatat
+                    </span>
+                </div>
+                <p style="margin: 0 0 6px; font-size: 0.86rem; color: #047857; line-height: 1.45;">
+                    Presensi untuk tanggal <strong>{{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</strong> pada kegiatan <strong>{{ $eskul->name }}</strong> sudah tersimpan di sistem@if(!empty($savedAt)) (Penyimpanan terakhir: <strong>{{ \Carbon\Carbon::parse($savedAt)->isoFormat('D MMMM Y, HH:mm') }} WIB</strong>)@endif.
+                </p>
+                @if(Auth::user()->role === 'teacher')
+                    <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid #a7f3d0; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #065f46; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                        <i class="fas fa-shield-alt" style="color: #10b981;"></i>
+                        <span>Untuk mencegah data ganda, guru/tutor tidak dapat melakukan pengisian 2 kali pada tanggal yang sama. Hubungi Administrator / Kesiswaan jika perlu perbaikan data.</span>
+                    </div>
+                @else
+                    <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid #bae6fd; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #0369a1; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                        <i class="fas fa-user-shield" style="color: #0284c7;"></i>
+                        <span>Mode Administrator: Anda dapat memperbarui data presensi jika diperlukan.</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    @php
+        $isLockedForTeacher = !empty($isAlreadySaved) && Auth::user()->role === 'teacher';
+    @endphp
+
     <!-- Form Simpan Presensi -->
     <form id="attendance-form" action="{{ route('attendance.store') }}" method="POST">
         @csrf
@@ -667,6 +704,12 @@
                                 <span><i class="far fa-calendar-alt" style="color: #059669;"></i> {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</span>
                                 <span>•</span>
                                 <span class="badge-year">Tahun {{ $contextYear->name }}</span>
+                                @if(!empty($isAlreadySaved))
+                                    <span>•</span>
+                                    <span style="background: #dcfce7; color: #15803d; font-size: 0.74rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; border: 1px solid #86efac;">
+                                        <i class="fas fa-check-circle"></i> Sudah Tersimpan
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -699,12 +742,18 @@
                     <i class="fas fa-bolt" style="color: #f59e0b;"></i> Set Kehadiran Sekaligus:
                 </span>
                 <div class="batch-action-grid">
-                    <button type="button" onclick="setAllAttendance('present')" class="batch-btn batch-btn-present">
-                        <i class="fas fa-check-double"></i> Set Semua Hadir
-                    </button>
-                    <button type="button" onclick="setAllAttendance('permission', 'Eskul Diliburkan')" class="batch-btn batch-btn-perm">
-                        <i class="fas fa-umbrella-beach"></i> Set Semua Libur
-                    </button>
+                    @if(!$isLockedForTeacher)
+                        <button type="button" onclick="setAllAttendance('present')" class="batch-btn batch-btn-present">
+                            <i class="fas fa-check-double"></i> Set Semua Hadir
+                        </button>
+                        <button type="button" onclick="setAllAttendance('permission', 'Eskul Diliburkan')" class="batch-btn batch-btn-perm">
+                            <i class="fas fa-umbrella-beach"></i> Set Semua Libur
+                        </button>
+                    @else
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-lock"></i> Aksi cepat dinonaktifkan (Data Terkunci)
+                        </span>
+                    @endif
                 </div>
             </div>
 
@@ -744,28 +793,28 @@
                         <td>
                             <div class="segmented-status-group">
                                 <label class="status-pill status-present" title="Hadir">
-                                    <input type="radio" name="attendance[{{ $student->id }}]" value="present" {{ $status == 'present' ? 'checked' : '' }}>
+                                    <input type="radio" name="attendance[{{ $student->id }}]" value="present" {{ $status == 'present' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}>
                                     <span class="pill-content">
                                         <i class="fas fa-check"></i>
                                         <span>Hadir</span>
                                     </span>
                                 </label>
                                 <label class="status-pill status-sick" title="Sakit">
-                                    <input type="radio" name="attendance[{{ $student->id }}]" value="sick" {{ $status == 'sick' ? 'checked' : '' }}>
+                                    <input type="radio" name="attendance[{{ $student->id }}]" value="sick" {{ $status == 'sick' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}>
                                     <span class="pill-content">
                                         <i class="fas fa-head-side-cough"></i>
                                         <span>Sakit</span>
                                     </span>
                                 </label>
                                 <label class="status-pill status-permission" title="Izin">
-                                    <input type="radio" name="attendance[{{ $student->id }}]" value="permission" {{ $status == 'permission' ? 'checked' : '' }}>
+                                    <input type="radio" name="attendance[{{ $student->id }}]" value="permission" {{ $status == 'permission' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}>
                                     <span class="pill-content">
                                         <i class="fas fa-envelope-open-text"></i>
                                         <span>Izin</span>
                                     </span>
                                 </label>
                                 <label class="status-pill status-absent" title="Alpa / Tanpa Keterangan">
-                                    <input type="radio" name="attendance[{{ $student->id }}]" value="absent" {{ $status == 'absent' ? 'checked' : '' }}>
+                                    <input type="radio" name="attendance[{{ $student->id }}]" value="absent" {{ $status == 'absent' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}>
                                     <span class="pill-content">
                                         <i class="fas fa-times"></i>
                                         <span>Alpa</span>
@@ -774,7 +823,7 @@
                             </div>
                         </td>
                         <td>
-                            <input type="text" name="notes[{{ $student->id }}]" class="note-input-field note-input" placeholder="Tulis catatan jika izin/sakit..." value="{{ $note }}">
+                            <input type="text" name="notes[{{ $student->id }}]" class="note-input-field note-input" placeholder="Tulis catatan jika izin/sakit..." value="{{ $note }}" {{ $isLockedForTeacher ? 'readonly' : '' }}>
                         </td>
                     </tr>
                     @empty
@@ -793,12 +842,23 @@
             @if($students->isNotEmpty())
             <div class="presensi-desktop-footer">
                 <span style="font-size: 0.85rem; color: #64748b;">
-                    Pastikan seluruh data kehadiran siswa sudah sesuai sebelum menyimpan.
+                    @if($isLockedForTeacher)
+                        Data presensi pada tanggal ini sudah tersimpan dan terkunci.
+                    @else
+                        Pastikan seluruh data kehadiran siswa sudah sesuai sebelum menyimpan.
+                    @endif
                 </span>
-                <button type="submit" class="btn-submit-main">
-                    <i class="fas fa-save"></i>
-                    <span>Simpan Presensi Pertemuan</span>
-                </button>
+                @if($isLockedForTeacher)
+                    <button type="button" class="btn-submit-main" disabled style="background: #94a3b8; border-color: #94a3b8; cursor: not-allowed; box-shadow: none;">
+                        <i class="fas fa-lock"></i>
+                        <span>Presensi Sudah Tersimpan (Terkunci)</span>
+                    </button>
+                @else
+                    <button type="submit" class="btn-submit-main">
+                        <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
+                        <span>{{ !empty($isAlreadySaved) ? 'Perbarui Presensi Pertemuan' : 'Simpan Presensi Pertemuan' }}</span>
+                    </button>
+                @endif
             </div>
             @endif
         </div>
@@ -806,10 +866,17 @@
         <!-- Sticky Dock Bar Khusus Layar HP -->
         @if($students->isNotEmpty())
         <div class="presensi-mobile-sticky-bar">
-            <button type="submit">
-                <i class="fas fa-save"></i>
-                <span>Simpan Presensi ({{ $students->count() }} Siswa)</span>
-            </button>
+            @if($isLockedForTeacher)
+                <button type="button" disabled style="background: #94a3b8; cursor: not-allowed; box-shadow: none;">
+                    <i class="fas fa-lock"></i>
+                    <span>Presensi Sudah Tersimpan (Terkunci)</span>
+                </button>
+            @else
+                <button type="submit">
+                    <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
+                    <span>{{ !empty($isAlreadySaved) ? 'Perbarui Presensi' : 'Simpan Presensi' }} ({{ $students->count() }} Siswa)</span>
+                </button>
+            @endif
         </div>
         @endif
     </form>
@@ -819,15 +886,26 @@
     function setAllAttendance(status, defaultNote = '') {
         const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
         radios.forEach(r => {
-            r.checked = true;
-            r.dispatchEvent(new Event('change'));
+            if (!r.disabled) {
+                r.checked = true;
+                r.dispatchEvent(new Event('change'));
+            }
         });
         if (defaultNote) {
             const noteInputs = document.querySelectorAll('.note-input');
             noteInputs.forEach(n => {
-                if (!n.value) n.value = defaultNote;
+                if (!n.readOnly && !n.value) n.value = defaultNote;
             });
         }
     }
+
+    // Proteksi anti double click saat form dikirim
+    document.getElementById('attendance-form')?.addEventListener('submit', function(e) {
+        const submitBtns = this.querySelectorAll('button[type="submit"]');
+        submitBtns.forEach(btn => {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        });
+    });
 </script>
 @endsection

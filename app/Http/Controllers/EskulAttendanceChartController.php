@@ -90,6 +90,9 @@ class EskulAttendanceChartController extends Controller
             ? $eskuls->where('id', $selectedEskulId)->first() 
             : null;
 
+        // Bersihkan sisa data duplikat jika ada agar grafik & statistik 100% akurat
+        AttendanceController::cleanupDuplicateAttendances($selectedEskul ? (int)$selectedEskul->id : null);
+
         // 4. Mode Waktu: 'date' (Rentang Tanggal), 'month' (Bulanan), 'semester' (Semester), 'year' (Tahunan)
         $periodMode = $request->input('mode', 'month');
         if (!in_array($periodMode, ['date', 'month', 'semester', 'year'])) {

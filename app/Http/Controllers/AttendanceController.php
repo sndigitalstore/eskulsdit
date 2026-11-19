@@ -9,6 +9,34 @@ use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
+    /**
+     * Bersihkan baris presensi ganda jika ada (Self-healing deduplication)
+     */
+    public static function cleanupDuplicateAttendances(?int $eskulId = null): void
+    {
+        try {
+            $duplicates = \DB::table('attendances')
+                ->select('student_id', 'eskul_id', 'date', 'academic_year_id', 'semester', \DB::raw('MIN(id) as keep_id'), \DB::raw('COUNT(*) as total'))
+                ->when($eskulId, fn($q) => $q->where('eskul_id', $eskulId))
+                ->groupBy('student_id', 'eskul_id', 'date', 'academic_year_id', 'semester')
+                ->having('total', '>', 1)
+                ->get();
+
+            foreach ($duplicates as $dup) {
+                \DB::table('attendances')
+                    ->where('student_id', $dup->student_id)
+                    ->where('eskul_id', $dup->eskul_id)
+                    ->where('date', $dup->date)
+                    ->where('academic_year_id', $dup->academic_year_id)
+                    ->where('semester', $dup->semester)
+                    ->where('id', '!=', $dup->keep_id)
+                    ->delete();
+            }
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
+    }
+
     private function getAllowedEskulIds($user)
     {
         $eskulIds = [];
@@ -91,6 +119,9 @@ class AttendanceController extends Controller
         $date = $request->date;
         $students = $eskul->students;
 
+        // Bersihkan sisa data duplikat jika ada
+        self::cleanupDuplicateAttendances($request->eskul_id);
+
         // Check if attendance already exists for this date and eskul
         $existingAttendance = Attendance::where('eskul_id', $eskul->id)
             ->where('date', $date)
@@ -99,7 +130,11 @@ class AttendanceController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        return view('attendance.create', compact('eskul', 'date', 'students', 'existingAttendance', 'yearId', 'semester', 'contextYear'));
+        $isAlreadySaved = $existingAttendance->isNotEmpty();
+        $savedAt = $isAlreadySaved ? ($existingAttendance->first()->updated_at ?? $existingAttendance->first()->created_at) : null;
+        $savedCount = $existingAttendance->count();
+
+        return view('attendance.create', compact('eskul', 'date', 'students', 'existingAttendance', 'yearId', 'semester', 'contextYear', 'isAlreadySaved', 'savedAt', 'savedCount'));
     }
 
     public function store(Request $request)
@@ -124,24 +159,6 @@ class AttendanceController extends Controller
         $attendanceData = $request->attendance;
         $notes = $request->notes ?? [];
 
-        // Enforce once-per-week student attendance check (Friday - Thursday cycle)
-        $carbonDate = \Carbon\Carbon::parse($date);
-        $startOfWeek = ($carbonDate->dayOfWeek === \Carbon\Carbon::FRIDAY)
-            ? $carbonDate->copy()
-            : $carbonDate->copy()->previous(\Carbon\Carbon::FRIDAY);
-        $endOfWeek = $startOfWeek->copy()->addDays(6);
-
-        $existingInWeek = Attendance::where('eskul_id', $eskulId)
-            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
-            ->where('date', '!=', $date)
-            ->first();
-
-        if ($existingInWeek) {
-            $formattedExistingDate = \Carbon\Carbon::parse($existingInWeek->date)->isoFormat('D MMMM Y');
-            return back()->with('error', "Absensi eskul ini sudah pernah diisi pada tanggal {$formattedExistingDate} di periode pekan berjalan (Jum'at - Kamis). Absensi siswa hanya diperbolehkan 1 kali per pekan.");
-        }
-
-        // Determine context (Use request input for history support)
         // Determine context (Use request input for history support)
         if ($request->filled('academic_year_id')) {
             $yearId = $request->academic_year_id;
@@ -158,21 +175,67 @@ class AttendanceController extends Controller
             $semester = $contextYear ? $contextYear->active_semester : '1';
         }
 
-        foreach ($attendanceData as $studentId => $status) {
-            Attendance::updateOrCreate(
-                [
-                    'student_id' => $studentId,
-                    'eskul_id' => $eskulId,
-                    'date' => $date,
-                    'academic_year_id' => $yearId,
-                    'semester' => $semester,
-                ],
-                [
-                    'status' => $status,
-                    'note' => $notes[$studentId] ?? null,
-                ]
-            );
+        // 1. CEK PENGISIAN GANDA: Jika presensi sudah tersimpan di tanggal ini, guru tidak boleh mengisi ulang (kunci 1x pengisian)
+        $alreadySaved = Attendance::where('eskul_id', $eskulId)
+            ->where('date', $date)
+            ->where('academic_year_id', $yearId)
+            ->where('semester', $semester)
+            ->exists();
+
+        if ($alreadySaved && auth()->user()->role === 'teacher') {
+            $formattedDate = \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y');
+            return redirect()->route('attendance.create', [
+                'eskul_id' => $eskulId,
+                'date' => $date,
+                'academic_year_id' => $yearId,
+                'semester' => $semester
+            ])->with('error', "Presensi eskul pada tanggal {$formattedDate} sudah tersimpan. Guru tidak dapat melakukan pengisian 2 kali pada tanggal yang sama untuk mencegah data ganda.");
         }
+
+        // 2. Enforce once-per-week student attendance check (Friday - Thursday cycle)
+        $carbonDate = \Carbon\Carbon::parse($date);
+        $startOfWeek = ($carbonDate->dayOfWeek === \Carbon\Carbon::FRIDAY)
+            ? $carbonDate->copy()
+            : $carbonDate->copy()->previous(\Carbon\Carbon::FRIDAY);
+        $endOfWeek = $startOfWeek->copy()->addDays(6);
+
+        $existingInWeek = Attendance::where('eskul_id', $eskulId)
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->where('date', '!=', $date)
+            ->first();
+
+        if ($existingInWeek) {
+            $formattedExistingDate = \Carbon\Carbon::parse($existingInWeek->date)->isoFormat('D MMMM Y');
+            return back()->with('error', "Absensi eskul ini sudah pernah diisi pada tanggal {$formattedExistingDate} di periode pekan berjalan (Jum'at - Kamis). Absensi siswa hanya diperbolehkan 1 kali per pekan.");
+        }
+
+        // 3. Simpan data presensi secara atomik dalam transaksi & bersihkan duplikasi
+        \Illuminate\Support\Facades\DB::transaction(function() use ($attendanceData, $eskulId, $date, $yearId, $semester, $notes) {
+            // Hapus data lama yang relevan jika ada (mencegah double record)
+            Attendance::where('eskul_id', $eskulId)
+                ->where('date', $date)
+                ->where('academic_year_id', $yearId)
+                ->where('semester', $semester)
+                ->whereIn('student_id', array_keys($attendanceData))
+                ->delete();
+
+            $now = now();
+            $records = [];
+            foreach ($attendanceData as $studentId => $status) {
+                $records[] = [
+                    'student_id'       => $studentId,
+                    'eskul_id'         => $eskulId,
+                    'date'             => $date,
+                    'status'           => $status,
+                    'note'             => $notes[$studentId] ?? null,
+                    'academic_year_id' => $yearId,
+                    'semester'         => $semester,
+                    'created_at'       => $now,
+                    'updated_at'       => $now,
+                ];
+            }
+            Attendance::insert($records);
+        });
 
         $eskul = Eskul::find($eskulId);
         $eskulName = $eskul ? $eskul->name : 'Unknown';
@@ -184,7 +247,7 @@ class AttendanceController extends Controller
                 'date' => $date,
                 'academic_year_id' => $yearId,
                 'semester' => $semester
-            ])->with('success', 'Presensi siswa berhasil disimpan!');
+            ])->with('success', 'Presensi siswa berhasil disimpan dan data telah terkunci!');
         }
 
         return redirect()->route('attendance.index')->with('success', 'Absensi berhasil disimpan!');
@@ -194,6 +257,10 @@ class AttendanceController extends Controller
     {
         $eskulId = $request->eskul_id;
         $yearId = $request->academic_year_id;
+
+        if ($eskulId) {
+            self::cleanupDuplicateAttendances((int)$eskulId);
+        }
 
         if (auth()->user()->role == 'teacher') {
             $allowedIds = $this->getAllowedEskulIds(auth()->user());

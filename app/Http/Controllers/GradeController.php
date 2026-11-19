@@ -10,6 +10,38 @@ use Illuminate\Http\Request;
 
 class GradeController extends Controller
 {
+    /**
+     * Bersihkan baris nilai ganda jika ada (Self-healing deduplication)
+     */
+    public static function cleanupDuplicateGrades(?int $eskulId = null): void
+    {
+        try {
+            $duplicates = \DB::table('grades')
+                ->select('student_id', 'eskul_id', 'type', 'date', 'academic_year_id', 'semester', \DB::raw('MIN(id) as keep_id'), \DB::raw('COUNT(*) as total'))
+                ->when($eskulId, fn($q) => $q->where('eskul_id', $eskulId))
+                ->groupBy('student_id', 'eskul_id', 'type', 'date', 'academic_year_id', 'semester')
+                ->having('total', '>', 1)
+                ->get();
+
+            foreach ($duplicates as $dup) {
+                $q = \DB::table('grades')
+                    ->where('student_id', $dup->student_id)
+                    ->where('eskul_id', $dup->eskul_id)
+                    ->where('type', $dup->type)
+                    ->where('academic_year_id', $dup->academic_year_id)
+                    ->where('semester', $dup->semester)
+                    ->where('id', '!=', $dup->keep_id);
+                if ($dup->date) {
+                    $q->where('date', $dup->date);
+                } else {
+                    $q->whereNull('date');
+                }
+                $q->delete();
+            }
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
+    }
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -73,6 +105,9 @@ class GradeController extends Controller
         $date = $request->date; if ($type == 'daily' && !$date) $date = date('Y-m-d');
         $students = $eskul->students;
 
+        // Bersihkan sisa data nilai ganda jika ada
+        self::cleanupDuplicateGrades($request->eskul_id);
+
         // Fetch existing grades
         $query = Grade::where('eskul_id', $eskul->id)
                       ->where('type', $type)
@@ -83,6 +118,9 @@ class GradeController extends Controller
             $query->where('date', $date);
         }
         $existingGrades = $query->get()->keyBy('student_id');
+        $isAlreadySaved = $existingGrades->isNotEmpty();
+        $savedAt = $isAlreadySaved ? ($existingGrades->first()->updated_at ?? $existingGrades->first()->created_at) : null;
+        $savedCount = $existingGrades->count();
 
         $isCalistung = $eskul->is_lockable;
 
@@ -96,7 +134,7 @@ class GradeController extends Controller
                 ->keyBy('student_id');
         }
 
-        return view('grades.create', compact('eskul', 'type', 'date', 'students', 'existingGrades', 'yearId', 'semester', 'contextYear', 'isCalistung', 'studentAttendance'));
+        return view('grades.create', compact('eskul', 'type', 'date', 'students', 'existingGrades', 'yearId', 'semester', 'contextYear', 'isCalistung', 'studentAttendance', 'isAlreadySaved', 'savedAt', 'savedCount'));
     }
 
     public function store(Request $request)
@@ -137,28 +175,59 @@ class GradeController extends Controller
             $semester = $contextYear ? $contextYear->active_semester : '1';
         }
 
-        foreach ($gradesData as $studentId => $score) {
-            $condition = [
-                'student_id' => $studentId,
+        // 1. CEK PENGISIAN GANDA: Jika nilai pada tanggal/tipe ini sudah ada, kunci pengisian untuk guru
+        $checkQuery = Grade::where('eskul_id', $eskulId)
+            ->where('type', $type)
+            ->where('academic_year_id', $yearId)
+            ->where('semester', $semester);
+        if ($type === 'daily') {
+            $checkQuery->where('date', $date);
+        }
+        $alreadySaved = $checkQuery->exists();
+
+        if ($alreadySaved && auth()->user()->role === 'teacher') {
+            $label = $type === 'daily' ? 'tanggal ' . \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') : strtoupper($type);
+            return redirect()->route('grades.create', [
                 'eskul_id' => $eskulId,
                 'type' => $type,
+                'date' => $date,
                 'academic_year_id' => $yearId,
-                'semester' => $semester,
-            ];
-            
-            if ($type == 'daily') {
-                 $condition['date'] = $date;
-            }
-
-            if (is_array($score)) {
-                $score = json_encode($score);
-            }
-
-            Grade::updateOrCreate(
-                $condition,
-                ['score' => $score]
-            );
+                'semester' => $semester
+            ])->with('error', "Penilaian eskul untuk {$label} sudah tersimpan. Guru tidak dapat melakukan pengisian 2 kali pada tanggal/periode yang sama untuk mencegah data ganda.");
         }
+
+        // 2. Simpan nilai secara atomik dalam transaksi database & bersihkan data ganda
+        \Illuminate\Support\Facades\DB::transaction(function() use ($gradesData, $eskulId, $type, $date, $yearId, $semester) {
+            $delQuery = Grade::where('eskul_id', $eskulId)
+                ->where('type', $type)
+                ->where('academic_year_id', $yearId)
+                ->where('semester', $semester)
+                ->whereIn('student_id', array_keys($gradesData));
+            if ($type === 'daily') {
+                $delQuery->where('date', $date);
+            }
+            $delQuery->delete();
+
+            $now = now();
+            $records = [];
+            foreach ($gradesData as $studentId => $score) {
+                if (is_array($score)) {
+                    $score = json_encode($score);
+                }
+                $records[] = [
+                    'student_id'       => $studentId,
+                    'eskul_id'         => $eskulId,
+                    'type'             => $type,
+                    'date'             => $type === 'daily' ? $date : null,
+                    'score'            => $score,
+                    'academic_year_id' => $yearId,
+                    'semester'         => $semester,
+                    'created_at'       => $now,
+                    'updated_at'       => $now,
+                ];
+            }
+            Grade::insert($records);
+        });
 
         $eskul = Eskul::find($eskulId);
         $eskulName = $eskul ? $eskul->name : 'Unknown';
@@ -172,7 +241,7 @@ class GradeController extends Controller
                 'date' => $date,
                 'academic_year_id' => $yearId,
                 'semester' => $semester
-            ])->with('success', 'Nilai siswa berhasil disimpan!');
+            ])->with('success', 'Nilai siswa berhasil disimpan dan data telah terkunci!');
         }
 
         return redirect()->route('grades.index')->with('success', 'Nilai berhasil disimpan!');
@@ -196,6 +265,10 @@ class GradeController extends Controller
         $selectedEskul = null;
         $students = [];
         $grades = [];
+
+        if ($eskulId) {
+            self::cleanupDuplicateGrades((int)$eskulId);
+        }
 
         // Contextual academic year & semester
         if ($request->filled('academic_year_id')) {

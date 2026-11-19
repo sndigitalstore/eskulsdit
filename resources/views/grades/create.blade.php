@@ -720,6 +720,43 @@
         </div>
     @endif
 
+    <!-- Notifikasi Data Nilai Sudah Pernah Tersimpan & Terkunci -->
+    @if(!empty($isAlreadySaved))
+        <div style="background: #f5f3ff; border: 1.5px solid #ddd6fe; border-radius: 18px; padding: 16px 20px; margin-bottom: 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.08);">
+            <div style="width: 42px; height: 42px; border-radius: 12px; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 4px;">
+                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #5b21b6;">
+                        Data Penilaian Siswa Sudah Tersimpan
+                    </h4>
+                    <span style="background: #ede9fe; color: #6d28d9; font-size: 0.76rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; border: 1px solid #c4b5fd; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-lock"></i> Terkunci &bull; {{ $savedCount ?? $students->count() }} Siswa Dinilai
+                    </span>
+                </div>
+                <p style="margin: 0 0 6px; font-size: 0.86rem; color: #5b21b6; line-height: 1.45;">
+                    Penilaian <strong>{{ $type == 'daily' ? 'Harian (' . \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') . ')' : strtoupper($type) }}</strong> pada kegiatan <strong>{{ $eskul->name }}</strong> sudah tersimpan di sistem@if(!empty($savedAt)) (Penyimpanan terakhir: <strong>{{ \Carbon\Carbon::parse($savedAt)->isoFormat('D MMMM Y, HH:mm') }} WIB</strong>)@endif.
+                </p>
+                @if(Auth::user()->role === 'teacher')
+                    <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid #ddd6fe; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #5b21b6; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                        <i class="fas fa-shield-alt" style="color: #7c3aed;"></i>
+                        <span>Untuk mencegah data ganda, guru/tutor tidak dapat melakukan pengisian 2 kali pada tanggal/kategori yang sama. Hubungi Administrator / Kesiswaan jika perlu perbaikan nilai.</span>
+                    </div>
+                @else
+                    <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid #bae6fd; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #0369a1; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                        <i class="fas fa-user-shield" style="color: #0284c7;"></i>
+                        <span>Mode Administrator: Anda dapat memperbarui data nilai jika diperlukan.</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    @php
+        $isLockedForTeacher = !empty($isAlreadySaved) && Auth::user()->role === 'teacher';
+    @endphp
+
     <!-- Form Simpan Nilai -->
     <form id="grade-form" action="{{ route('grades.store') }}" method="POST">
         @csrf
@@ -750,6 +787,12 @@
                                 @endif
                                 <span>•</span>
                                 <span class="badge-year">Tahun {{ $contextYear->name }}</span>
+                                @if(!empty($isAlreadySaved))
+                                    <span>•</span>
+                                    <span style="background: #ede9fe; color: #6d28d9; font-size: 0.74rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; border: 1px solid #c4b5fd;">
+                                        <i class="fas fa-check-circle"></i> Sudah Tersimpan
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -878,48 +921,48 @@
                                         <div class="calistung-row">
                                             <span class="calistung-label"><i class="fas fa-book-reader" style="color: #7c3aed;"></i> Membaca</span>
                                             <div class="calistung-radios">
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][reading]" value="A" {{ $valReading == 'A' ? 'checked' : '' }} required><span class="calistung-pill-inner">A</span></label>
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][reading]" value="B" {{ $valReading == 'B' ? 'checked' : '' }}><span class="calistung-pill-inner">B</span></label>
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][reading]" value="C" {{ $valReading == 'C' ? 'checked' : '' }}><span class="calistung-pill-inner">C</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][reading]" value="A" {{ $valReading == 'A' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }} required><span class="calistung-pill-inner">A</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][reading]" value="B" {{ $valReading == 'B' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}><span class="calistung-pill-inner">B</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][reading]" value="C" {{ $valReading == 'C' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}><span class="calistung-pill-inner">C</span></label>
                                             </div>
                                         </div>
                                         <!-- Menulis -->
                                         <div class="calistung-row">
                                             <span class="calistung-label"><i class="fas fa-pen-nib" style="color: #0284c7;"></i> Menulis</span>
                                             <div class="calistung-radios">
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][writing]" value="A" {{ $valWriting == 'A' ? 'checked' : '' }} required><span class="calistung-pill-inner">A</span></label>
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][writing]" value="B" {{ $valWriting == 'B' ? 'checked' : '' }}><span class="calistung-pill-inner">B</span></label>
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][writing]" value="C" {{ $valWriting == 'C' ? 'checked' : '' }}><span class="calistung-pill-inner">C</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][writing]" value="A" {{ $valWriting == 'A' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }} required><span class="calistung-pill-inner">A</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][writing]" value="B" {{ $valWriting == 'B' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}><span class="calistung-pill-inner">B</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][writing]" value="C" {{ $valWriting == 'C' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}><span class="calistung-pill-inner">C</span></label>
                                             </div>
                                         </div>
                                         <!-- Menghitung -->
                                         <div class="calistung-row">
                                             <span class="calistung-label"><i class="fas fa-calculator" style="color: #059669;"></i> Menghitung</span>
                                             <div class="calistung-radios">
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][counting]" value="A" {{ $valCounting == 'A' ? 'checked' : '' }} required><span class="calistung-pill-inner">A</span></label>
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][counting]" value="B" {{ $valCounting == 'B' ? 'checked' : '' }}><span class="calistung-pill-inner">B</span></label>
-                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][counting]" value="C" {{ $valCounting == 'C' ? 'checked' : '' }}><span class="calistung-pill-inner">C</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][counting]" value="A" {{ $valCounting == 'A' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }} required><span class="calistung-pill-inner">A</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][counting]" value="B" {{ $valCounting == 'B' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}><span class="calistung-pill-inner">B</span></label>
+                                                <label class="calistung-pill"><input type="radio" name="grades[{{ $student->id }}][counting]" value="C" {{ $valCounting == 'C' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}><span class="calistung-pill-inner">C</span></label>
                                             </div>
                                         </div>
                                     </div>
                                 @else
                                     <div class="segmented-grade-group">
                                         <label class="grade-pill grade-a" title="Predikat A (Sangat Baik)">
-                                            <input type="radio" name="grades[{{ $student->id }}]" value="A" {{ $score == 'A' ? 'checked' : '' }} required>
+                                            <input type="radio" name="grades[{{ $student->id }}]" value="A" {{ $score == 'A' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }} required>
                                             <span class="grade-pill-content">
                                                 <span class="main-letter">A</span>
                                                 <span class="sub-label">Sangat Baik</span>
                                             </span>
                                         </label>
                                         <label class="grade-pill grade-b" title="Predikat B (Baik)">
-                                            <input type="radio" name="grades[{{ $student->id }}]" value="B" {{ $score == 'B' ? 'checked' : '' }}>
+                                            <input type="radio" name="grades[{{ $student->id }}]" value="B" {{ $score == 'B' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}>
                                             <span class="grade-pill-content">
                                                 <span class="main-letter">B</span>
                                                 <span class="sub-label">Baik</span>
                                             </span>
                                         </label>
                                         <label class="grade-pill grade-c" title="Predikat C (Cukup)">
-                                            <input type="radio" name="grades[{{ $student->id }}]" value="C" {{ $score == 'C' ? 'checked' : '' }}>
+                                            <input type="radio" name="grades[{{ $student->id }}]" value="C" {{ $score == 'C' ? 'checked' : '' }} {{ $isLockedForTeacher ? 'disabled' : '' }}>
                                             <span class="grade-pill-content">
                                                 <span class="main-letter">C</span>
                                                 <span class="sub-label">Cukup</span>
@@ -946,12 +989,23 @@
             @if($students->isNotEmpty())
             <div class="penilaian-desktop-footer">
                 <span style="font-size: 0.85rem; color: #64748b;">
-                    Nilai yang tersimpan akan otomatis masuk ke dalam rekapitulasi raport eskul.
+                    @if($isLockedForTeacher)
+                        Data penilaian pada pertemuan ini sudah tersimpan dan terkunci.
+                    @else
+                        Nilai yang tersimpan akan otomatis masuk ke dalam rekapitulasi raport eskul.
+                    @endif
                 </span>
-                <button type="submit" class="btn-submit-main">
-                    <i class="fas fa-save"></i>
-                    <span>Simpan Penilaian Siswa</span>
-                </button>
+                @if($isLockedForTeacher)
+                    <button type="button" class="btn-submit-main" disabled style="background: #94a3b8; border-color: #94a3b8; cursor: not-allowed; box-shadow: none;">
+                        <i class="fas fa-lock"></i>
+                        <span>Penilaian Sudah Tersimpan (Terkunci)</span>
+                    </button>
+                @else
+                    <button type="submit" class="btn-submit-main">
+                        <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
+                        <span>{{ !empty($isAlreadySaved) ? 'Perbarui Penilaian Siswa' : 'Simpan Penilaian Siswa' }}</span>
+                    </button>
+                @endif
             </div>
             @endif
         </div>
@@ -959,12 +1013,30 @@
         <!-- Sticky Dock Bar Khusus Layar HP -->
         @if($students->isNotEmpty())
         <div class="penilaian-mobile-sticky-bar">
-            <button type="submit">
-                <i class="fas fa-save"></i>
-                <span>Simpan Penilaian ({{ $students->count() }} Siswa)</span>
-            </button>
+            @if($isLockedForTeacher)
+                <button type="button" disabled style="background: #94a3b8; cursor: not-allowed; box-shadow: none;">
+                    <i class="fas fa-lock"></i>
+                    <span>Penilaian Sudah Tersimpan (Terkunci)</span>
+                </button>
+            @else
+                <button type="submit">
+                    <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
+                    <span>{{ !empty($isAlreadySaved) ? 'Perbarui Penilaian' : 'Simpan Penilaian' }} ({{ $students->count() }} Siswa)</span>
+                </button>
+            @endif
         </div>
         @endif
     </form>
 </div>
+
+<script>
+    // Proteksi anti double click saat form penilaian dikirim
+    document.getElementById('grade-form')?.addEventListener('submit', function(e) {
+        const submitBtns = this.querySelectorAll('button[type="submit"]');
+        submitBtns.forEach(btn => {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        });
+    });
+</script>
 @endsection
