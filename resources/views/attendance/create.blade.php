@@ -660,7 +660,7 @@
                     </span>
                 </div>
                 <p style="margin: 0 0 6px; font-size: 0.86rem; color: #047857; line-height: 1.45;">
-                    Presensi untuk tanggal <strong>{{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</strong> pada kegiatan <strong>{{ $eskul->name }}</strong> sudah tersimpan di sistem@if(!empty($savedAt)) (Penyimpanan terakhir: <strong>{{ \Carbon\Carbon::parse($savedAt)->isoFormat('D MMMM Y, HH:mm') }} WIB</strong>)@endif.
+                    Presensi untuk tanggal <strong>{{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}</strong> pada kegiatan <strong>{{ $eskul->name }}</strong> sudah tersimpan di sistem @if(!empty($savedAt)) (Penyimpanan terakhir: <strong>{{ \Carbon\Carbon::parse($savedAt)->isoFormat('D MMMM Y, HH:mm') }} WIB</strong>)@endif.
                 </p>
                 @if(Auth::user()->role === 'teacher')
                     <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid #a7f3d0; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #065f46; display: flex; align-items: center; gap: 6px; font-weight: 600;">
