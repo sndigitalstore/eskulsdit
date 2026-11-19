@@ -4,12 +4,13 @@
 
 @section('content')
 <style>
+    /* DESKTOP BASE STYLES */
     .exam-header-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 50%, #0f766e 100%);
         border-radius: 18px;
-        padding: 24px 28px;
+        padding: 22px 26px;
         color: white;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
     }
     .semester-pill-nav {
@@ -37,30 +38,32 @@
         color: #065f46;
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
+
+    /* KPI STATS GRID */
     .kpi-exam-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        gap: 16px;
-        margin-bottom: 20px;
+        gap: 14px;
+        margin-bottom: 18px;
     }
     .kpi-exam-card {
         background: white;
         border-radius: 14px;
-        padding: 16px 18px;
+        padding: 14px 16px;
         border: 1px solid #e2e8f0;
         box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
     }
     .kpi-exam-icon {
-        width: 46px;
-        height: 46px;
+        width: 44px;
+        height: 44px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         flex-shrink: 0;
     }
 
@@ -69,8 +72,8 @@
         background: #ffffff;
         border: 1.5px solid #a7f3d0;
         border-radius: 16px;
-        padding: 18px 22px;
-        margin-bottom: 20px;
+        padding: 16px 20px;
+        margin-bottom: 18px;
         box-shadow: 0 4px 16px rgba(5, 150, 105, 0.06);
     }
     .search-selection-header {
@@ -79,7 +82,7 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
     }
     .search-selection-title-box {
         display: flex;
@@ -87,27 +90,27 @@
         gap: 12px;
     }
     .search-selection-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
         background: #ecfdf5;
         border: 1.5px solid #a7f3d0;
         color: #047857;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         flex-shrink: 0;
     }
     .search-selection-title {
         margin: 0 0 2px 0;
-        font-size: 1.05rem;
+        font-size: 1rem;
         font-weight: 800;
         color: #064e3b;
     }
     .search-selection-subtitle {
         margin: 0;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: #64748b;
     }
     .student-filter-pills {
@@ -120,9 +123,9 @@
     .filter-pill {
         border: none;
         background: transparent;
-        padding: 6px 14px;
+        padding: 5px 12px;
         border-radius: 20px;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 700;
         color: #64748b;
         cursor: pointer;
@@ -137,7 +140,7 @@
         box-shadow: 0 2px 6px rgba(4, 120, 87, 0.3);
     }
 
-    /* SEARCHABLE DROPDOWN / SELECTOR */
+    /* SEARCHABLE DROPDOWN TRIGGER */
     .custom-student-dropdown {
         position: relative;
     }
@@ -146,7 +149,7 @@
         background: #f8fafc;
         border: 2px solid #cbd5e1;
         border-radius: 12px;
-        padding: 12px 18px;
+        padding: 10px 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -158,45 +161,45 @@
     .student-dropdown-trigger.open {
         background: #ffffff;
         border-color: #059669;
-        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
     }
     .trigger-left {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         overflow: hidden;
     }
     .trigger-placeholder {
         font-weight: 700;
         color: #334155;
-        font-size: 0.95rem;
+        font-size: 0.92rem;
     }
     .trigger-right {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         flex-shrink: 0;
     }
     .badge-active-group {
         background: #d1fae5;
         color: #065f46;
-        padding: 3px 10px;
+        padding: 2px 8px;
         border-radius: 6px;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 800;
     }
 
-    /* MENU POPUP PENCARIAN */
+    /* POPUP DROPDOWN MENU */
     .student-dropdown-menu {
         position: absolute;
-        top: calc(100% + 8px);
+        top: calc(100% + 6px);
         left: 0;
         right: 0;
         background: white;
         border-radius: 14px;
         border: 1.5px solid #cbd5e1;
         box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-        z-index: 100;
+        z-index: 110;
         display: none;
         overflow: hidden;
     }
@@ -204,7 +207,7 @@
         display: block;
     }
     .dropdown-search-box {
-        padding: 12px 16px;
+        padding: 10px 14px;
         border-bottom: 1px solid #e2e8f0;
         position: relative;
         display: flex;
@@ -212,28 +215,23 @@
     }
     .dropdown-search-icon {
         position: absolute;
-        left: 28px;
+        left: 24px;
         color: #94a3b8;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
     .dropdown-search-input {
         width: 100%;
-        padding: 9px 36px 9px 38px;
+        padding: 8px 32px 8px 34px;
         border: 1.5px solid #cbd5e1;
-        border-radius: 10px;
-        font-size: 0.88rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
         font-weight: 600;
         color: #0f172a;
         outline: none;
-        transition: border-color 0.2s ease;
-    }
-    .dropdown-search-input:focus {
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
     }
     .clear-search-btn {
         position: absolute;
-        right: 28px;
+        right: 24px;
         background: none;
         border: none;
         color: #94a3b8;
@@ -242,18 +240,18 @@
         padding: 0;
     }
     .dropdown-options-list {
-        max-height: 320px;
+        max-height: 300px;
         overflow-y: auto;
     }
     .dropdown-student-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 16px;
+        padding: 9px 14px;
         border-bottom: 1px solid #f1f5f9;
         cursor: pointer;
         transition: background 0.15s ease;
-        gap: 12px;
+        gap: 10px;
     }
     .dropdown-student-item:hover {
         background: #f0fdf4;
@@ -263,16 +261,16 @@
         border-left: 4px solid #047857;
     }
     .item-avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         background: #e2e8f0;
         color: #475569;
         font-weight: 800;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         flex-shrink: 0;
     }
     .dropdown-student-item.is-saved .item-avatar {
@@ -286,21 +284,21 @@
     }
     .item-name {
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         color: #0f172a;
-        margin-bottom: 2px;
+        margin-bottom: 1px;
     }
     .item-meta {
-        font-size: 0.74rem;
+        font-size: 0.72rem;
         color: #64748b;
     }
     .badge-status-sudah {
         background: #dcfce7;
         color: #15803d;
         border: 1px solid #86efac;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 0.72rem;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 0.7rem;
         font-weight: 700;
         white-space: nowrap;
     }
@@ -308,9 +306,9 @@
         background: #fef3c7;
         color: #b45309;
         border: 1px solid #fde68a;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 0.72rem;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 0.7rem;
         font-weight: 700;
         white-space: nowrap;
     }
@@ -318,39 +316,39 @@
     /* ACTIVE FOCUSED STUDENT WORKSPACE CARD */
     .focused-student-card {
         background: white;
-        border-radius: 18px;
+        border-radius: 16px;
         border: 2px solid #059669;
-        box-shadow: 0 10px 30px rgba(5, 150, 105, 0.1);
-        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(5, 150, 105, 0.08);
+        margin-bottom: 20px;
         overflow: hidden;
     }
     .focused-student-header {
         background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-        padding: 18px 24px;
+        padding: 16px 20px;
         border-bottom: 1.5px solid #a7f3d0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 14px;
+        gap: 12px;
     }
     .focused-student-nav {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
     .btn-nav-student {
         background: white;
         border: 1.5px solid #cbd5e1;
         border-radius: 8px;
-        padding: 6px 12px;
-        font-size: 0.8rem;
+        padding: 5px 12px;
+        font-size: 0.78rem;
         font-weight: 700;
         color: #475569;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         transition: all 0.15s ease;
     }
     .btn-nav-student:hover:not(:disabled) {
@@ -363,36 +361,16 @@
         cursor: not-allowed;
     }
 
-    /* SEMESTER 1 COMPLETED BOX */
+    /* SEMESTER 1 COMPLETED ACCORDION */
     .sem1-history-box {
         background: #f0fdf4;
         border: 1.5px dashed #86efac;
-        border-radius: 14px;
-        padding: 14px 18px;
-        margin: 16px 22px 0 22px;
-    }
-    .sem1-history-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-    .sem1-chip-item {
-        background: white;
-        border: 1px solid #bbf7d0;
-        border-radius: 8px;
-        padding: 5px 10px;
-        font-size: 0.78rem;
-        color: #1e293b;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 14px 20px 0 20px;
     }
 
-    /* SURAH TABLE */
+    /* SURAH TABLE - DESKTOP DEFAULT */
     .surah-table {
         width: 100%;
         border-collapse: collapse;
@@ -400,23 +378,23 @@
     }
     .surah-table th {
         background: #f8fafc;
-        padding: 10px 14px;
+        padding: 10px 12px;
         font-weight: 700;
         color: #475569;
         text-align: left;
         border-bottom: 1.5px solid #e2e8f0;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     .surah-table td {
-        padding: 9px 14px;
+        padding: 9px 12px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
     }
     .input-exam-score {
-        width: 85px;
-        padding: 7px 10px;
+        width: 80px;
+        padding: 6px 8px;
         border: 1.5px solid #cbd5e1;
         border-radius: 8px;
         font-weight: 800;
@@ -435,21 +413,22 @@
         color: #1d4ed8;
         border: 1.5px solid #bfdbfe;
         font-weight: 800;
-        font-size: 0.82rem;
-        padding: 6px 12px;
-        border-radius: 8px;
+        font-size: 0.78rem;
+        padding: 5px 10px;
+        border-radius: 7px;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         white-space: nowrap;
     }
     .badge-grade {
-        padding: 4px 10px;
+        padding: 3px 9px;
         border-radius: 6px;
         font-weight: 800;
-        font-size: 0.76rem;
+        font-size: 0.74rem;
         display: inline-block;
         letter-spacing: 0.3px;
+        white-space: nowrap;
     }
     .grade-A { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .grade-B { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
@@ -478,146 +457,483 @@
     /* ACTION BAR FOCUSED STUDENT */
     .focused-action-bar {
         background: #f8fafc;
-        padding: 16px 24px;
+        padding: 14px 20px;
         border-top: 1.5px solid #e2e8f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 14px;
+        gap: 12px;
     }
     .btn-save-focused {
         background: #047857;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 9px 18px;
         border-radius: 10px;
         font-weight: 800;
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
         transition: all 0.2s ease;
     }
     .btn-save-focused:hover {
         background: #065f46;
-        transform: translateY(-1px);
     }
     .btn-save-next {
         background: #0284c7;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 9px 18px;
         border-radius: 10px;
         font-weight: 800;
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
         transition: all 0.2s ease;
     }
     .btn-save-next:hover {
         background: #0369a1;
-        transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       RESPONSIVE OPTIMIZATION FOR MOBILE / SMARTPHONES (MAX-WIDTH: 768px)
+       ========================================================================== */
+    @media (max-width: 768px) {
+        /* Prevents auto-zoom in mobile Safari / Chrome */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
+        /* 1. Header Card */
+        .exam-header-card {
+            padding: 14px 16px !important;
+            border-radius: 14px !important;
+            margin-bottom: 12px !important;
+        }
+        .exam-header-card h1 {
+            font-size: 1.2rem !important;
+            margin: 4px 0 2px 0 !important;
+        }
+        .exam-header-desc {
+            display: none !important;
+        }
+        .header-top-wrap {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+        .semester-pill-nav {
+            width: 100% !important;
+            display: flex !important;
+        }
+        .semester-pill-btn {
+            flex: 1 !important;
+            justify-content: center !important;
+            padding: 7px 4px !important;
+            font-size: 0.78rem !important;
+        }
+        .header-filter-bar {
+            margin-top: 10px !important;
+            padding-top: 10px !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 8px !important;
+        }
+        .header-filter-controls {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+            width: 100% !important;
+        }
+        .header-filter-controls select {
+            width: 100% !important;
+            padding: 8px 10px !important;
+            font-size: 14px !important;
+        }
+        .header-actions-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+
+        /* 2. Compact KPI Summary Bar on Mobile */
+        .kpi-exam-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+            margin-bottom: 12px !important;
+        }
+        .kpi-exam-card {
+            padding: 9px 10px !important;
+            gap: 8px !important;
+            border-radius: 10px !important;
+        }
+        .kpi-exam-icon {
+            width: 34px !important;
+            height: 34px !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+        }
+        .kpi-label {
+            font-size: 0.65rem !important;
+        }
+        .kpi-val {
+            font-size: 1.1rem !important;
+        }
+
+        /* 3. Search & Student Selector Card on Mobile */
+        .student-search-selection-card {
+            padding: 12px 14px !important;
+            margin-bottom: 12px !important;
+            border-radius: 14px !important;
+        }
+        .search-selection-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 8px !important;
+            margin-bottom: 10px !important;
+        }
+        .search-selection-icon {
+            display: none !important;
+        }
+        .search-selection-subtitle {
+            display: none !important;
+        }
+        .student-filter-pills {
+            width: 100% !important;
+            display: flex !important;
+        }
+        .filter-pill {
+            flex: 1 !important;
+            text-align: center !important;
+            justify-content: center !important;
+            padding: 6px 4px !important;
+            font-size: 0.74rem !important;
+        }
+        .student-dropdown-trigger {
+            padding: 10px 14px !important;
+        }
+        .trigger-placeholder {
+            font-size: 0.88rem !important;
+        }
+
+        /* 4. Active Student Workspace on Mobile */
+        .focused-student-card {
+            border-radius: 14px !important;
+            margin-bottom: 78px !important; /* Safety margin for sticky action bar */
+        }
+        .focused-student-header {
+            padding: 12px 14px !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+        .identity-header-left {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+        }
+        .identity-avatar-box {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 1.1rem !important;
+            border-radius: 10px !important;
+        }
+        .identity-title-name {
+            font-size: 1.05rem !important;
+        }
+        .focused-student-nav {
+            width: 100% !important;
+            justify-content: space-between !important;
+            border-top: 1px dashed #a7f3d0 !important;
+            padding-top: 8px !important;
+        }
+        .btn-nav-student {
+            padding: 6px 14px !important;
+            font-size: 0.78rem !important;
+        }
+
+        .student-subbar {
+            padding: 10px 14px !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 8px !important;
+        }
+        .subbar-date-group {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+        .subbar-avg-group {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+            background: #f8fafc !important;
+            padding: 6px 10px !important;
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        .student-body-area {
+            padding: 12px 14px !important;
+        }
+
+        .sem1-history-box {
+            margin: 10px 14px 0 14px !important;
+            padding: 10px 12px !important;
+        }
+
+        /* 5. TOUCH-FRIENDLY SURAH CARDS (TRANSFORM TABLE INTO CLEAN CARDS ON MOBILE) */
+        .surah-table thead {
+            display: none !important;
+        }
+        .surah-table, 
+        .surah-table tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+        .surah-row-card {
+            display: grid !important;
+            grid-template-columns: 32px 1fr 34px !important;
+            grid-template-areas:
+                "num surah del"
+                "middle middle middle"
+                "notes notes notes" !important;
+            gap: 8px !important;
+            background: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            padding: 12px !important;
+            margin-bottom: 12px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+            align-items: center !important;
+        }
+        .surah-row-card td {
+            display: block !important;
+            border: none !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .col-num {
+            grid-area: num !important;
+            height: 38px !important;
+            background: #e2e8f0 !important;
+            color: #334155 !important;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        .col-surah {
+            grid-area: surah !important;
+        }
+        .col-surah input {
+            height: 38px !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+        }
+        .col-action {
+            grid-area: del !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+        .col-action button {
+            width: 34px !important;
+            height: 38px !important;
+            border-radius: 8px !important;
+        }
+        .col-middle-mobile {
+            grid-area: middle !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            background: #f8fafc !important;
+            padding: 6px 10px !important;
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+            gap: 6px !important;
+        }
+        .col-juz, .col-score, .col-pred {
+            display: contents !important;
+        }
+        .input-exam-score {
+            width: 76px !important;
+            height: 38px !important;
+            font-size: 1.25rem !important;
+            font-weight: 900 !important;
+            border: 2px solid #059669 !important;
+            border-radius: 8px !important;
+            background: white !important;
+        }
+        .col-notes {
+            grid-area: notes !important;
+        }
+        .col-notes input {
+            height: 36px !important;
+            font-size: 14px !important;
+        }
+
+        /* 6. Mobile Add Surah & Notes */
+        .table-bottom-controls {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+        .btn-add-surah {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 10px !important;
+            font-size: 0.85rem !important;
+        }
+        .general-notes-wrap {
+            width: 100% !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        .general-notes-wrap input {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 8px 10px !important;
+        }
+
+        /* 7. Sticky Thumb-Friendly Bottom Bar on Mobile */
+        .focused-action-bar {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 999 !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(10px) !important;
+            border-top: 2px solid #10b981 !important;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.12) !important;
+            padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) 14px !important;
+            margin: 0 !important;
+            flex-direction: row !important;
+            gap: 8px !important;
+        }
+        .action-bar-info {
+            display: none !important;
+        }
+        .action-bar-buttons {
+            width: 100% !important;
+            display: flex !important;
+            gap: 8px !important;
+        }
+        .btn-save-focused {
+            flex: 1 !important;
+            justify-content: center !important;
+            padding: 12px 8px !important;
+            font-size: 0.84rem !important;
+        }
+        .btn-save-next {
+            flex: 1 !important;
+            justify-content: center !important;
+            padding: 12px 8px !important;
+            font-size: 0.84rem !important;
+        }
     }
 </style>
 
-<div class="container-fluid" style="padding: 0 15px; max-width: 1300px; margin: 0 auto;">
+<div class="container-fluid" style="padding: 0 12px; max-width: 1300px; margin: 0 auto;">
 
     {{-- ALERT MESSAGES --}}
     @if(session('success'))
-        <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 14px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-check-circle" style="font-size: 1.2rem; color: #10b981;"></i>
+        <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 0.88rem;">
+            <i class="fas fa-check-circle" style="font-size: 1.1rem; color: #10b981;"></i>
             {{ session('success') }}
         </div>
     @endif
     @if(session('error'))
-        <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 14px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-exclamation-circle" style="font-size: 1.2rem; color: #ef4444;"></i>
+        <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 0.88rem;">
+            <i class="fas fa-exclamation-circle" style="font-size: 1.1rem; color: #ef4444;"></i>
             {{ session('error') }}
         </div>
     @endif
 
     {{-- HEADER CARD --}}
     <div class="exam-header-card">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+        <div class="header-top-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
             <div>
-                <span style="background: rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                <span style="background: rgba(255, 255, 255, 0.2); padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
                     <i class="fas fa-quran"></i> Evaluasi Akhir Semester Halaqah
                 </span>
-                <h1 style="font-size: 1.65rem; font-weight: 900; margin: 8px 0 4px 0; color: white;">
-                    Ujian Hafalan Akhir Semester (Tahfidz)
+                <h1 style="font-weight: 900; margin: 6px 0 2px 0; color: white;">
+                    Ujian Hafalan Semester (Tahfidz)
                 </h1>
-                <p style="margin: 0; font-size: 0.88rem; opacity: 0.9; max-width: 720px; line-height: 1.5;">
-                    Penilaian hafalan surat santri per halaqah. Data surat otomatis terisi sesuai capaian tuntas santri pada semester ini. Nomor Juz otomatis terisi mengikuti nama surat. Guru dapat mengedit nilai dan materi kapan saja.
+                <p class="exam-header-desc" style="margin: 0; font-size: 0.84rem; opacity: 0.9; max-width: 720px; line-height: 1.4;">
+                    Data surat otomatis terisi sesuai capaian tuntas santri pada semester ini. Nomor Juz otomatis mengikuti surat.
                 </p>
             </div>
 
             {{-- TOMBOL FILTER SEMESTER & CETAK --}}
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                 <div class="semester-pill-nav">
                     <a href="{{ route('tahfidz.semester-exam.index', ['group_id' => $activeGroup->id, 'year_id' => $selectedYearId, 'semester' => '1']) }}" 
                        class="semester-pill-btn {{ $selectedSemester === '1' ? 'active' : '' }}">
-                        <i class="fas fa-calendar-alt"></i> Semester 1 (Ganjil)
+                        <i class="fas fa-calendar-alt"></i> Sem 1 (Ganjil)
                     </a>
                     <a href="{{ route('tahfidz.semester-exam.index', ['group_id' => $activeGroup->id, 'year_id' => $selectedYearId, 'semester' => '2']) }}" 
                        class="semester-pill-btn {{ $selectedSemester === '2' ? 'active' : '' }}">
-                        <i class="fas fa-calendar-check"></i> Semester 2 (Genap)
-                    </a>
-                </div>
-
-                <div style="display: flex; gap: 8px;">
-                    <a href="{{ route('tahfidz.semester-exam.print', ['group_id' => $activeGroup->id, 'year_id' => $selectedYearId, 'semester' => $selectedSemester]) }}" 
-                       target="_blank" 
-                       class="btn-action-header" 
-                       style="background: white; color: #065f46; font-weight: 800; padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <i class="fas fa-print"></i> Cetak Rekap Ujian (A4)
+                        <i class="fas fa-calendar-check"></i> Sem 2 (Genap)
                     </a>
                 </div>
             </div>
         </div>
 
-        {{-- FILTER BAR KELOMPOK & TAHUN AJARAN --}}
-        <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="font-weight: 700; font-size: 0.85rem;"><i class="fas fa-users"></i> Kelompok:</span>
-                <select onchange="window.location.href=this.value" style="padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); background: white; color: #1e293b; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+        {{-- FILTER BAR KELOMPOK, TAHUN AJARAN & CETAK --}}
+        <div class="header-filter-bar" style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div class="header-filter-controls" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <select onchange="window.location.href=this.value" style="padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); background: white; color: #1e293b; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
                     @foreach($myGroups as $grp)
                         <option value="{{ route('tahfidz.semester-exam.index', ['group_id' => $grp->id, 'year_id' => $selectedYearId, 'semester' => $selectedSemester]) }}" {{ $activeGroup->id === $grp->id ? 'selected' : '' }}>
-                            {{ $grp->name }} ({{ $grp->students->count() }} Santri)
+                            Kelompok: {{ $grp->name }} ({{ $grp->students->count() }} Santri)
                         </option>
                     @endforeach
                 </select>
 
-                <span style="font-weight: 700; font-size: 0.85rem; margin-left: 10px;"><i class="fas fa-clock"></i> Tahun Ajaran:</span>
-                <select onchange="window.location.href=this.value" style="padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); background: white; color: #1e293b; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                <select onchange="window.location.href=this.value" style="padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); background: white; color: #1e293b; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
                     @foreach($academicYears as $y)
                         <option value="{{ route('tahfidz.semester-exam.index', ['group_id' => $activeGroup->id, 'year_id' => $y->id, 'semester' => $selectedSemester]) }}" {{ $selectedYearId === $y->id ? 'selected' : '' }}>
-                            {{ $y->name }} {{ $y->is_active ? '(Aktif)' : '' }}
+                            TA {{ $y->name }} {{ $y->is_active ? '(Aktif)' : '' }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <div style="font-size: 0.82rem; opacity: 0.95;">
-                <i class="fas fa-user-tie"></i> Musyrif Pengampu: <strong>{{ $activeGroup->mentorUser?->name ?? $activeGroup->mentor_name ?? '-' }}</strong>
+            <div class="header-actions-row">
+                <span class="header-mentor-info" style="font-size: 0.8rem; opacity: 0.95;">
+                    <i class="fas fa-user-tie"></i> Musyrif: <strong>{{ $activeGroup->mentorUser?->name ?? $activeGroup->mentor_name ?? '-' }}</strong>
+                </span>
+
+                <a href="{{ route('tahfidz.semester-exam.print', ['group_id' => $activeGroup->id, 'year_id' => $selectedYearId, 'semester' => $selectedSemester]) }}" 
+                   target="_blank" 
+                   style="background: white; color: #065f46; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                    <i class="fas fa-print"></i> Cetak A4
+                </a>
             </div>
         </div>
     </div>
 
-    {{-- KPI STATS --}}
+    {{-- KPI STATS GRID (COMPACT ON MOBILE) --}}
     <div class="kpi-exam-grid">
         <div class="kpi-exam-card">
             <div class="kpi-exam-icon" style="background: #e0f2fe; color: #0284c7;">
                 <i class="fas fa-user-graduate"></i>
             </div>
             <div>
-                <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Santri</div>
-                <div style="font-size: 1.35rem; font-weight: 900; color: #0f172a;">{{ $students->count() }} <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Orang</span></div>
+                <div class="kpi-label" style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Santri</div>
+                <div class="kpi-val" style="font-size: 1.25rem; font-weight: 900; color: #0f172a;">{{ $students->count() }} <span style="font-size: 0.72rem; font-weight: 600; color: #64748b;">Orang</span></div>
             </div>
         </div>
 
@@ -626,9 +942,9 @@
                 <i class="fas fa-check-double"></i>
             </div>
             <div>
-                <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Sudah Dievaluasi</div>
-                <div style="font-size: 1.35rem; font-weight: 900; color: #059669;">
-                    <span id="kpiEvaluatedCount">{{ $totalEvaluated }}</span> <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">/ {{ $students->count() }} Santri</span>
+                <div class="kpi-label" style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Dievaluasi</div>
+                <div class="kpi-val" style="font-size: 1.25rem; font-weight: 900; color: #059669;">
+                    <span id="kpiEvaluatedCount">{{ $totalEvaluated }}</span> <span style="font-size: 0.72rem; font-weight: 600; color: #64748b;">/ {{ $students->count() }}</span>
                 </div>
             </div>
         </div>
@@ -638,8 +954,8 @@
                 <i class="fas fa-star"></i>
             </div>
             <div>
-                <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Rata-Rata Kelompok</div>
-                <div style="font-size: 1.35rem; font-weight: 900; color: #b45309;" id="kpiGroupAverage">
+                <div class="kpi-label" style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Rata Kelompok</div>
+                <div class="kpi-val" style="font-size: 1.25rem; font-weight: 900; color: #b45309;" id="kpiGroupAverage">
                     {{ $groupAverage > 0 ? number_format($groupAverage, 1) : '-' }}
                 </div>
             </div>
@@ -650,15 +966,15 @@
                 <i class="fas fa-calendar-check"></i>
             </div>
             <div>
-                <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Periode Evaluasi</div>
-                <div style="font-size: 0.95rem; font-weight: 800; color: #6d28d9; margin-top: 2px;">
-                    Semester {{ $selectedSemester }} ({{ $selectedSemester == '1' ? 'Ganjil' : 'Genap' }})
+                <div class="kpi-label" style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Periode</div>
+                <div class="kpi-val" style="font-size: 0.92rem; font-weight: 800; color: #6d28d9; margin-top: 1px;">
+                    Semester {{ $selectedSemester }}
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- 1. KOTAK PENCARIAN & PILIH NAMA SANTRI (ONE-BY-ONE FOCUSED SELECTOR) --}}
+    {{-- 1. KOTAK PENCARIAN & PILIH NAMA SANTRI --}}
     <div class="student-search-selection-card">
         <div class="search-selection-header">
             <div class="search-selection-title-box">
@@ -666,37 +982,37 @@
                     <i class="fas fa-search"></i>
                 </div>
                 <div>
-                    <h3 class="search-selection-title">Pencarian & Pilih Nama Santri Ujian</h3>
+                    <h3 class="search-selection-title">Pencarian & Pilih Nama Santri</h3>
                     <p class="search-selection-subtitle">
-                        Kelompok: <strong>{{ $activeGroup->name }}</strong> &bull; Input ujian hafalan santri satu per satu. Nomor Juz otomatis terisi mengikuti surat yang dipilih.
+                        Input ujian santri satu per satu. Nomor Juz otomatis terisi mengikuti surat yang dipilih.
                     </p>
                 </div>
             </div>
 
-            {{-- FILTER PILLS: SEMUA, BELUM DINILAI, SUDAH DINILAI --}}
+            {{-- FILTER PILLS --}}
             <div class="student-filter-pills">
                 <button type="button" class="filter-pill active" id="filter-pill-all" onclick="filterStudentList('all')">
                     Semua (<span id="count-pill-all">{{ $students->count() }}</span>)
                 </button>
                 <button type="button" class="filter-pill" id="filter-pill-belum" onclick="filterStudentList('belum')">
-                    Belum Dinilai (<span id="count-pill-belum">{{ max(0, $students->count() - $totalEvaluated) }}</span>)
+                    Belum (<span id="count-pill-belum">{{ max(0, $students->count() - $totalEvaluated) }}</span>)
                 </button>
                 <button type="button" class="filter-pill" id="filter-pill-sudah" onclick="filterStudentList('sudah')">
-                    Sudah Dinilai (<span id="count-pill-sudah">{{ $totalEvaluated }}</span>)
+                    Sudah (<span id="count-pill-sudah">{{ $totalEvaluated }}</span>)
                 </button>
             </div>
         </div>
 
-        {{-- SEARCHABLE DROPDOWN TRIGGER & PANEL --}}
+        {{-- SEARCHABLE DROPDOWN TRIGGER --}}
         <div class="custom-student-dropdown" id="studentSearchDropdownWrap">
             <button type="button" class="student-dropdown-trigger" id="studentDropdownTrigger" onclick="toggleStudentDropdown(event)">
                 <div class="trigger-left" id="triggerDisplayArea">
-                    <i class="fas fa-user-graduate" style="color: #059669; font-size: 1.15rem; flex-shrink: 0;"></i>
-                    <span class="trigger-placeholder" id="triggerPlaceholderText">-- Klik di sini untuk Cari / Pilih Nama Santri yang Diuji --</span>
+                    <i class="fas fa-user-graduate" style="color: #059669; font-size: 1.1rem; flex-shrink: 0;"></i>
+                    <span class="trigger-placeholder" id="triggerPlaceholderText">-- Cari / Pilih Nama Santri --</span>
                 </div>
                 <div class="trigger-right">
                     <span class="badge-active-group">{{ $activeGroup->name }}</span>
-                    <i class="fas fa-chevron-down" id="triggerChevron" style="color: #64748b;"></i>
+                    <i class="fas fa-chevron-down" id="triggerChevron" style="color: #64748b; font-size: 0.8rem;"></i>
                 </div>
             </button>
 
@@ -705,7 +1021,7 @@
                 <div class="dropdown-search-box">
                     <i class="fas fa-search dropdown-search-icon"></i>
                     <input type="text" id="studentSearchField" class="dropdown-search-input" 
-                           placeholder="Ketik nama santri atau kelas untuk mencari..." 
+                           placeholder="Ketik nama santri atau kelas..." 
                            oninput="handleStudentSearchInput(this.value)" autocomplete="off">
                     <button type="button" class="clear-search-btn" id="clearSearchBtn" onclick="clearStudentSearchInput()" style="display: none;">&times;</button>
                 </div>
@@ -733,17 +1049,17 @@
                             <div class="item-badge-status" id="dropdown-status-{{ $std->id }}">
                                 @if($hasSaved)
                                     <span class="badge-status-sudah">
-                                        <i class="fas fa-check-circle"></i> Sudah Dinilai: <strong>{{ number_format($exData['average_score'], 1) }}</strong> ({{ $exData['predicate'] }}) &bull; {{ $itemCount }} Surat
+                                        <i class="fas fa-check-circle"></i> Sudah: <strong>{{ number_format($exData['average_score'], 1) }}</strong> ({{ $exData['predicate'] }})
                                     </span>
                                 @else
                                     <span class="badge-status-belum">
-                                        <i class="far fa-clock"></i> Belum Dinilai &bull; Draft {{ $itemCount }} Surat
+                                        <i class="far fa-clock"></i> Belum Dinilai
                                     </span>
                                 @endif
                             </div>
                         </div>
                     @endforeach
-                    <div class="dropdown-empty-state" id="dropdownEmptyNotice" style="display: none; padding: 18px; text-align: center; color: #94a3b8; font-size: 0.85rem;">
+                    <div class="dropdown-empty-state" id="dropdownEmptyNotice" style="display: none; padding: 16px; text-align: center; color: #94a3b8; font-size: 0.85rem;">
                         <i class="fas fa-search"></i> Santri tidak ditemukan
                     </div>
                 </div>
@@ -767,25 +1083,22 @@
                 
                 {{-- HEADER KARTU FOKUS SANTRI & NAVIGASI --}}
                 <div class="focused-student-header">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <div style="width: 48px; height: 48px; border-radius: 12px; background: {{ $isSaved ? '#dcfce7; color: #15803d; border: 1.5px solid #86efac;' : '#e0f2fe; color: #0284c7; border: 1.5px solid #bae6fd;' }} display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.25rem;" id="cardAvatar-{{ $std->id }}">
+                    <div class="identity-header-left">
+                        <div class="identity-avatar-box" style="width: 44px; height: 44px; border-radius: 12px; background: {{ $isSaved ? '#dcfce7; color: #15803d; border: 1.5px solid #86efac;' : '#e0f2fe; color: #0284c7; border: 1.5px solid #bae6fd;' }} display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem;" id="cardAvatar-{{ $std->id }}">
                             {{ $index + 1 }}
                         </div>
                         <div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <h2 style="font-size: 1.25rem; font-weight: 900; margin: 0; color: #0f172a;">{{ $std->name }}</h2>
-                                <span style="background: #e2e8f0; color: #334155; padding: 3px 9px; border-radius: 6px; font-size: 0.74rem; font-weight: 800;">
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <h2 class="identity-title-name" style="font-size: 1.15rem; font-weight: 900; margin: 0; color: #0f172a;">{{ $std->name }}</h2>
+                                <span style="background: #e2e8f0; color: #334155; padding: 2px 7px; border-radius: 5px; font-size: 0.72rem; font-weight: 800;">
                                     Kelas {{ $std->class }}
                                 </span>
-                                @if($std->nis)
-                                    <span style="color: #64748b; font-size: 0.78rem;">NIS: {{ $std->nis }}</span>
-                                @endif
                             </div>
-                            <div style="font-size: 0.78rem; margin-top: 4px;" id="cardStatusBadge-{{ $std->id }}">
+                            <div style="font-size: 0.75rem; margin-top: 3px;" id="cardStatusBadge-{{ $std->id }}">
                                 @if($isSaved)
-                                    <span style="color: #059669; font-weight: 800;"><i class="fas fa-check-circle"></i> Nilai Ujian Semester Tersimpan (Dapat Diedit Kapan Saja)</span>
+                                    <span style="color: #059669; font-weight: 800;"><i class="fas fa-check-circle"></i> Tersimpan (Dapat Diedit Kapan Saja)</span>
                                 @else
-                                    <span style="color: #d97706; font-weight: 800;"><i class="fas fa-clock"></i> Belum Disimpan (Draft Auto-Populate Setoran Harian)</span>
+                                    <span style="color: #d97706; font-weight: 800;"><i class="fas fa-clock"></i> Draft Belum Disimpan</span>
                                 @endif
                             </div>
                         </div>
@@ -796,7 +1109,7 @@
                         <button type="button" class="btn-nav-student" onclick="navigateStudent(-1)" {{ $index === 0 ? 'disabled' : '' }} title="Santri Sebelumnya">
                             <i class="fas fa-chevron-left"></i> Sebelumnya
                         </button>
-                        <span style="font-size: 0.8rem; font-weight: 800; color: #475569; padding: 0 4px;">
+                        <span style="font-size: 0.78rem; font-weight: 800; color: #475569; padding: 0 4px;">
                             {{ $index + 1 }} / {{ $students->count() }}
                         </span>
                         <button type="button" class="btn-nav-student" onclick="navigateStudent(1)" {{ $index === $students->count() - 1 ? 'disabled' : '' }} title="Santri Berikutnya">
@@ -806,70 +1119,59 @@
                 </div>
 
                 {{-- SUB HEADER INFO: TANGGAL UJIAN & LIVE AVERAGE --}}
-                <div style="padding: 12px 24px; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <label style="font-size: 0.8rem; font-weight: 700; color: #475569;"><i class="fas fa-calendar-day" style="color: #059669;"></i> Tanggal Ujian:</label>
-                        <input type="date" id="examDate-{{ $std->id }}" value="{{ $examData['exam_date'] ?? date('Y-m-d') }}" style="padding: 6px 10px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-size: 0.82rem; font-weight: 700; color: #0f172a;">
+                <div class="student-subbar" style="padding: 10px 20px; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div class="subbar-date-group" style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #475569;"><i class="fas fa-calendar-day" style="color: #059669;"></i> Tgl Ujian:</label>
+                        <input type="date" id="examDate-{{ $std->id }}" value="{{ $examData['exam_date'] ?? date('Y-m-d') }}" style="padding: 5px 8px; border-radius: 6px; border: 1.5px solid #cbd5e1; font-size: 0.8rem; font-weight: 700; color: #0f172a;">
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">Rata-Rata Nilai:</span>
-                        <span id="avgScoreDisplay-{{ $std->id }}" style="font-size: 1.25rem; font-weight: 900; color: #047857;">{{ $avg > 0 ? number_format($avg, 1) : '-' }}</span>
+                    <div class="subbar-avg-group" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: #64748b;">Rata-Rata:</span>
+                        <span id="avgScoreDisplay-{{ $std->id }}" style="font-size: 1.15rem; font-weight: 900; color: #047857;">{{ $avg > 0 ? number_format($avg, 1) : '-' }}</span>
                         <span id="predBadgeDisplay-{{ $std->id }}" class="badge-grade grade-{{ $avg >= 90 ? 'A' : ($avg >= 80 ? 'B' : ($avg >= 70 ? 'C' : 'D')) }}">
                             {{ $pred }}
                         </span>
                     </div>
                 </div>
 
-                {{-- JIKA SEMESTER 2: BLOK RIWAYAT TUNTAS SEMESTER 1 (TETAP ADA & TIDAK HARUS DIUJI KEMBALI) --}}
+                {{-- JIKA SEMESTER 2: RIWAYAT TUNTAS SEMESTER 1 (COLLAPSIBLE DI HP AGAR TIDAK RIBET) --}}
                 @if($selectedSemester === '2')
                     @if(!empty($sem1Items))
-                        <div class="sem1-history-box">
-                            <div class="sem1-history-header">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="background: #10b981; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem;">
-                                        <i class="fas fa-check"></i>
-                                    </span>
-                                    <strong style="color: #065f46; font-size: 0.88rem;">
-                                        Riwayat Tuntas Ujian Semester 1 (Ganjil) &bull; {{ count($sem1Items) }} Surat Selesai
-                                    </strong>
-                                </div>
-                                <span style="font-size: 0.72rem; background: #dcfce7; color: #166534; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid #86efac;">
-                                    Tuntas &bull; Tidak Perlu Diuji Ulang
+                        <details class="sem1-history-box" style="cursor: pointer;">
+                            <summary style="font-weight: 800; font-size: 0.82rem; color: #065f46; display: flex; align-items: center; justify-content: space-between; outline: none; list-style: none;">
+                                <span><i class="fas fa-check-double text-emerald-600"></i> Riwayat Tuntas Semester 1 ({{ count($sem1Items) }} Surat)</span>
+                                <span style="font-size: 0.7rem; background: #dcfce7; color: #166534; font-weight: 800; padding: 2px 7px; border-radius: 4px; border: 1px solid #86efac;">
+                                    Tuntas &bull; Rincian ▾
                                 </span>
+                            </summary>
+                            <div style="font-size: 0.74rem; color: #047857; margin: 8px 0 6px 0; line-height: 1.4;">
+                                Surat di bawah telah lulus diujikan pada Semester 1 dan tersimpan permanen (tidak perlu diuji ulang):
                             </div>
-                            <div style="font-size: 0.76rem; color: #047857; margin-bottom: 8px; line-height: 1.4;">
-                                Surat di bawah ini telah lulus diujikan pada Semester 1 dan nilainya tersimpan permanen. Ujian Semester 2 berfokus pada surat baru yang disetorkan santri pada tabel di bawah.
-                            </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                                 @foreach($sem1Items as $s1)
-                                    <div class="sem1-chip-item">
-                                        <i class="fas fa-quran" style="color: #10b981;"></i>
+                                    <div style="background: white; border: 1px solid #bbf7d0; border-radius: 6px; padding: 4px 8px; font-size: 0.74rem; color: #1e293b; display: inline-flex; align-items: center; gap: 5px;">
+                                        <i class="fas fa-quran" style="color: #10b981; font-size: 0.7rem;"></i>
                                         <strong>{{ $s1['surah_name'] }}</strong>
                                         <span style="color: #64748b;">(Juz {{ $s1['juz'] }})</span>:
                                         <strong style="color: #047857;">{{ number_format($s1['score'], 0) }}</strong>
-                                        <span class="badge-grade grade-{{ $s1['score'] >= 90 ? 'A' : ($s1['score'] >= 80 ? 'B' : ($s1['score'] >= 70 ? 'C' : 'D')) }}" style="font-size: 0.68rem; padding: 1px 6px;">
+                                        <span class="badge-grade grade-{{ $s1['score'] >= 90 ? 'A' : ($s1['score'] >= 80 ? 'B' : ($s1['score'] >= 70 ? 'C' : 'D')) }}" style="font-size: 0.65rem; padding: 1px 5px;">
                                             {{ $s1['predicate'] }}
                                         </span>
                                     </div>
                                 @endforeach
                             </div>
-                        </div>
-                    @else
-                        <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 10px 16px; margin: 16px 22px 0 22px; font-size: 0.78rem; color: #64748b;">
-                            <i class="fas fa-info-circle" style="color: #0284c7;"></i> Tidak ada catatan ujian Semester 1 untuk ananda ini. Seluruh surat hafalan yang disetorkan dapat diujikan di bawah.
-                        </div>
+                        </details>
                     @endif
                 @endif
 
-                {{-- TABEL SURAT YANG DIUJIKAN SEMESTER INI --}}
-                <div style="padding: 18px 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-                        <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;">
-                            <i class="fas fa-list-check" style="color: #059669;"></i> Daftar Surat yang Diujikan (Semester {{ $selectedSemester }})
+                {{-- FORM DAFTAR SURAT DIUJI (RESPONSIF KARTU DI HP & TABEL DI DESKTOP) --}}
+                <div class="student-body-area" style="padding: 16px 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                        <h4 style="margin: 0; font-size: 0.92rem; font-weight: 800; color: #0f172a;">
+                            <i class="fas fa-list-check" style="color: #059669;"></i> Materi Surat Diuji (Semester {{ $selectedSemester }})
                         </h4>
-                        <span style="font-size: 0.76rem; color: #64748b;">
-                            * Nomor Juz otomatis mengikuti surat. Skor 0-100.
+                        <span style="font-size: 0.72rem; color: #64748b;">
+                            * Juz otomatis terisi mengikuti surat
                         </span>
                     </div>
 
@@ -890,9 +1192,9 @@
                                 @php
                                     $rowJuz = $item['juz'] ?? \App\Http\Controllers\TahfidzAttendanceController::determineJuzForSurah($item['surah_name']);
                                 @endphp
-                                <tr id="row-{{ $std->id }}-{{ $iIndex }}">
-                                    <td class="row-num" style="text-align: center; color: #64748b; font-weight: bold;">{{ $iIndex + 1 }}</td>
-                                    <td>
+                                <tr id="row-{{ $std->id }}-{{ $iIndex }}" class="surah-row-card">
+                                    <td class="col-num row-num" style="text-align: center; color: #64748b; font-weight: bold;">{{ $iIndex + 1 }}</td>
+                                    <td class="col-surah">
                                         <input type="text" 
                                                list="surahDatalist" 
                                                id="surahInput-{{ $std->id }}-{{ $iIndex }}"
@@ -904,14 +1206,17 @@
                                                oninput="onSurahNameChange(this, {{ $std->id }}, {{ $iIndex }})"
                                                onchange="onSurahNameChange(this, {{ $std->id }}, {{ $iIndex }})">
                                     </td>
-                                    <td>
+                                    
+                                    {{-- MIDDLE ZONE (JUZ, SCORE, PREDIKAT) --}}
+                                    <td class="col-juz">
                                         <span class="badge-auto-juz" id="badgeJuz-{{ $std->id }}-{{ $iIndex }}">
                                             <i class="fas fa-bookmark"></i> Juz {{ $rowJuz ?: 30 }}
                                         </span>
                                         <input type="hidden" id="hiddenJuz-{{ $std->id }}-{{ $iIndex }}" value="{{ $rowJuz ?: 30 }}">
                                     </td>
-                                    <td style="text-align: center;">
+                                    <td class="col-score" style="text-align: center;">
                                         <input type="number" 
+                                               inputmode="decimal"
                                                id="scoreInput-{{ $std->id }}-{{ $iIndex }}"
                                                value="{{ $item['score'] }}" 
                                                min="0" max="100" step="0.5" 
@@ -919,63 +1224,64 @@
                                                oninput="calculateStudentAvg({{ $std->id }})" 
                                                required>
                                     </td>
-                                    <td style="text-align: center;">
+                                    <td class="col-pred" style="text-align: center;">
                                         <span class="item-pred-badge badge-grade grade-{{ $item['score'] >= 90 ? 'A' : ($item['score'] >= 80 ? 'B' : ($item['score'] >= 70 ? 'C' : 'D')) }}" id="predBadge-{{ $std->id }}-{{ $iIndex }}">
                                             {{ $item['predicate'] ?? \App\Models\TahfidzSemesterExam::resolvePredicate((float)$item['score']) }}
                                         </span>
                                     </td>
-                                    <td>
+
+                                    <td class="col-notes">
                                         <input type="text" 
                                                id="notesInput-{{ $std->id }}-{{ $iIndex }}"
                                                value="{{ $item['notes'] }}" 
                                                class="form-control" 
                                                style="font-size: 0.82rem; padding: 6px 10px; border-radius: 8px; border: 1.5px solid #cbd5e1;" 
-                                               placeholder="Contoh: Lancar, tartil">
+                                               placeholder="Catatan singkat (opsional)">
                                     </td>
-                                    <td style="text-align: center;">
-                                        <button type="button" onclick="removeSurahRow({{ $std->id }}, {{ $iIndex }})" style="background: #fee2e2; color: #ef4444; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" title="Hapus Surat">
+                                    <td class="col-action" style="text-align: center;">
+                                        <button type="button" onclick="removeSurahRow({{ $std->id }}, {{ $iIndex }})" style="background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" title="Hapus Surat">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </td>
                                 </tr>
                             @empty
                                 <tr id="emptyRow-{{ $std->id }}">
-                                    <td colspan="7" style="text-align: center; padding: 20px; color: #94a3b8; font-style: italic;">
-                                        Belum ada surat baru yang disetor pada Semester {{ $selectedSemester }}. Klik tombol <strong>+ Tambah Surat Diuji</strong> di bawah untuk memasukkan materi ujian santri.
+                                    <td colspan="7" style="text-align: center; padding: 18px; color: #94a3b8; font-style: italic; font-size: 0.82rem;">
+                                        Belum ada surat baru yang terdeteksi disetor pada Semester {{ $selectedSemester }}. Klik tombol <strong>+ Tambah Surat Diuji</strong> di bawah untuk memasukkan materi ujian santri.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
 
-                    <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div class="table-bottom-controls" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <button type="button" onclick="addSurahRow({{ $std->id }})" class="btn-add-surah">
                             <i class="fas fa-plus-circle"></i> Tambah Surat Diuji
                         </button>
 
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <label style="font-size: 0.78rem; font-weight: 700; color: #64748b;">Catatan Umum Musyrif:</label>
-                            <input type="text" id="generalNotes-{{ $std->id }}" value="{{ $examData['notes'] ?? '' }}" placeholder="Evaluasi umum penguji (opsional)" class="form-control" style="font-size: 0.82rem; min-width: 300px; padding: 7px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                        <div class="general-notes-wrap" style="display: flex; align-items: center; gap: 8px;">
+                            <label style="font-size: 0.76rem; font-weight: 700; color: #64748b; white-space: nowrap;">Catatan Musyrif:</label>
+                            <input type="text" id="generalNotes-{{ $std->id }}" value="{{ $examData['notes'] ?? '' }}" placeholder="Catatan umum penguji (opsional)" class="form-control" style="font-size: 0.82rem; min-width: 260px; padding: 6px 10px; border-radius: 8px; border: 1.5px solid #cbd5e1;">
                         </div>
                     </div>
                 </div>
 
-                {{-- ACTION BAR BOTTOM UNTUK SANTRI FOKUS INI --}}
+                {{-- ACTION BAR BOTTOM UNTUK SANTRI FOKUS INI (STICKY DI HP) --}}
                 <div class="focused-action-bar">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-info-circle" style="color: #059669; font-size: 1.2rem;"></i>
-                        <span style="font-size: 0.82rem; color: #475569;">
-                            Nilai langsung tersimpan ke pangkalan data rapor halaqah. Guru memiliki akses edit penuh kapan saja.
+                    <div class="action-bar-info" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-info-circle" style="color: #059669; font-size: 1.1rem;"></i>
+                        <span style="font-size: 0.8rem; color: #475569;">
+                            Nilai tersimpan langsung ke rapor halaqah. Guru memiliki akses edit kapan saja.
                         </span>
                     </div>
 
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="action-bar-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button type="button" class="btn-save-focused" id="btnSaveSingle-{{ $std->id }}" onclick="saveStudentExam({{ $std->id }}, false)">
-                            <i class="fas fa-save"></i> Simpan Nilai Santri Ini
+                            <i class="fas fa-save"></i> Simpan Nilai
                         </button>
                         @if($index < $students->count() - 1)
                             <button type="button" class="btn-save-next" id="btnSaveNext-{{ $std->id }}" onclick="saveStudentExam({{ $std->id }}, true)">
-                                <i class="fas fa-arrow-right"></i> Simpan & Lanjut ke Santri Berikutnya
+                                <i class="fas fa-arrow-right"></i> Simpan & Lanjut
                             </button>
                         @endif
                     </div>
@@ -1119,14 +1425,12 @@
         const idx = surahCounters[studentId]++;
         const rowNum = tbody.querySelectorAll('tr').length + 1;
 
-        const defaultSurah = 'An-Naba';
-        const defaultJuz = getJuzForSurah(defaultSurah);
-
         const tr = document.createElement('tr');
         tr.id = `row-${studentId}-${idx}`;
+        tr.className = 'surah-row-card';
         tr.innerHTML = `
-            <td class="row-num" style="text-align: center; color: #64748b; font-weight: bold;">${rowNum}</td>
-            <td>
+            <td class="col-num row-num" style="text-align: center; color: #64748b; font-weight: bold;">${rowNum}</td>
+            <td class="col-surah">
                 <input type="text" 
                        list="surahDatalist" 
                        id="surahInput-${studentId}-${idx}"
@@ -1138,14 +1442,15 @@
                        oninput="onSurahNameChange(this, ${studentId}, ${idx})"
                        onchange="onSurahNameChange(this, ${studentId}, ${idx})">
             </td>
-            <td>
+            <td class="col-juz">
                 <span class="badge-auto-juz" id="badgeJuz-${studentId}-${idx}">
                     <i class="fas fa-bookmark"></i> Juz 30
                 </span>
                 <input type="hidden" id="hiddenJuz-${studentId}-${idx}" value="30">
             </td>
-            <td style="text-align: center;">
+            <td class="col-score" style="text-align: center;">
                 <input type="number" 
+                       inputmode="decimal"
                        id="scoreInput-${studentId}-${idx}"
                        value="85" 
                        min="0" max="100" step="0.5" 
@@ -1153,19 +1458,19 @@
                        oninput="calculateStudentAvg(${studentId})" 
                        required>
             </td>
-            <td style="text-align: center;">
+            <td class="col-pred" style="text-align: center;">
                 <span class="item-pred-badge badge-grade grade-B" id="predBadge-${studentId}-${idx}">Jayyid Jiddan (B)</span>
             </td>
-            <td>
+            <td class="col-notes">
                 <input type="text" 
                        id="notesInput-${studentId}-${idx}"
                        value="" 
                        class="form-control" 
                        style="font-size: 0.82rem; padding: 6px 10px; border-radius: 8px; border: 1.5px solid #cbd5e1;" 
-                       placeholder="Contoh: Lancar, tartil">
+                       placeholder="Catatan singkat (opsional)">
             </td>
-            <td style="text-align: center;">
-                <button type="button" onclick="removeSurahRow(${studentId}, ${idx})" style="background: #fee2e2; color: #ef4444; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" title="Hapus Surat">
+            <td class="col-action" style="text-align: center;">
+                <button type="button" onclick="removeSurahRow(${studentId}, ${idx})" style="background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" title="Hapus Surat">
                     <i class="fas fa-times"></i>
                 </button>
             </td>
@@ -1225,7 +1530,6 @@
             const cls = item.dataset.class || '';
             const match = name.includes(q) || cls.includes(q);
 
-            // Periksa juga kecocokan filter pill saat ini
             const activePill = document.querySelector('.filter-pill.active')?.id;
             let pillMatch = true;
             if (activePill === 'filter-pill-belum' && item.dataset.status !== 'belum') pillMatch = false;
@@ -1250,7 +1554,7 @@
         inp.focus();
     }
 
-    // Filter Dropdown by Pill (Semua, Belum Dinilai, Sudah Dinilai)
+    // Filter Dropdown by Pill
     function filterStudentList(filter) {
         document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
         document.getElementById(`filter-pill-${filter}`)?.classList.add('active');
@@ -1259,11 +1563,10 @@
         handleStudentSearchInput(query);
     }
 
-    // Pilih Santri Aktif untuk Ditampilkan
+    // Pilih Santri Aktif
     function selectStudent(studentId) {
         currentActiveStudentId = studentId;
 
-        // Tutup dropdown menu
         const menu = document.getElementById('studentDropdownMenu');
         const trigger = document.getElementById('studentDropdownTrigger');
         const chevron = document.getElementById('triggerChevron');
@@ -1271,7 +1574,6 @@
         trigger.classList.remove('open');
         chevron.className = 'fas fa-chevron-down';
 
-        // Update trigger display
         const item = document.getElementById('dropdown-item-' + studentId);
         if (item) {
             document.querySelectorAll('.dropdown-student-item').forEach(i => i.classList.remove('selected'));
@@ -1280,12 +1582,11 @@
             const name = item.querySelector('.item-name')?.textContent || '';
             const meta = item.querySelector('.item-meta')?.textContent || '';
             document.getElementById('triggerPlaceholderText').innerHTML = `
-                <strong style="color: #064e3b; font-size: 1rem;">${name}</strong>
-                <span style="color: #64748b; font-size: 0.8rem; margin-left: 8px;">(${meta.trim()})</span>
+                <strong style="color: #064e3b; font-size: 0.95rem;">${name}</strong>
+                <span style="color: #64748b; font-size: 0.76rem; margin-left: 6px;">(${meta.trim()})</span>
             `;
         }
 
-        // Tampilkan kartu santri yang dipilih, sembunyikan santri lainnya
         document.querySelectorAll('.focused-student-card').forEach(card => {
             card.style.display = 'none';
         });
@@ -1297,7 +1598,7 @@
         }
     }
 
-    // Navigasi Antar Santri (Sebelumnya / Berikutnya)
+    // Navigasi Antar Santri
     function navigateStudent(direction) {
         if (!currentActiveStudentId) return;
         const currentIdx = studentsList.findIndex(s => s.id === currentActiveStudentId);
@@ -1309,7 +1610,7 @@
         }
     }
 
-    // SIMPAN NILAI UJIAN SANTRI SECARA AJAX
+    // SIMPAN NILAI UJIAN SECARA AJAX
     function saveStudentExam(studentId, thenNext = false) {
         const card = document.getElementById('studentCard-' + studentId);
         if (!card) return;
@@ -1341,7 +1642,7 @@
             const surahInp = row.querySelector('.surah-name-input');
             const juzInp = row.querySelector('input[type="hidden"]');
             const scoreInp = row.querySelector('.input-exam-score');
-            const notesInp = row.querySelector('input[placeholder*="Lancar"]');
+            const notesInp = row.querySelector('input[placeholder*="Catatan"]');
 
             const surahVal = surahInp ? surahInp.value.trim() : '';
             const juzVal = juzInp ? juzInp.value : getJuzForSurah(surahVal);
@@ -1370,7 +1671,6 @@
             return;
         }
 
-        // Tampilkan loading button
         const btnSave = document.getElementById('btnSaveSingle-' + studentId);
         const btnNext = document.getElementById('btnSaveNext-' + studentId);
         const origSaveHtml = btnSave ? btnSave.innerHTML : '';
@@ -1390,10 +1690,10 @@
             if (btnNext) { btnNext.innerHTML = origNextHtml; btnNext.disabled = false; }
 
             if (data.success) {
-                // Update kartu fokus status
+                // Update badge status
                 const badge = document.getElementById('cardStatusBadge-' + studentId);
                 if (badge) {
-                    badge.innerHTML = '<span style="color: #059669; font-weight: 800;"><i class="fas fa-check-circle"></i> Nilai Ujian Semester Tersimpan (Dapat Diedit Kapan Saja)</span>';
+                    badge.innerHTML = '<span style="color: #059669; font-weight: 800;"><i class="fas fa-check-circle"></i> Tersimpan (Dapat Diedit Kapan Saja)</span>';
                 }
 
                 // Update dropdown item status
@@ -1413,13 +1713,13 @@
                     if (dropStatus && data.student) {
                         dropStatus.innerHTML = `
                             <span class="badge-status-sudah">
-                                <i class="fas fa-check-circle"></i> Sudah Dinilai: <strong>${data.student.average_score}</strong> (${data.student.predicate}) &bull; ${data.student.items_count} Surat
+                                <i class="fas fa-check-circle"></i> Sudah: <strong>${data.student.average_score}</strong> (${data.student.predicate})
                             </span>
                         `;
                     }
                 }
 
-                // Update counter pill
+                // Update counter pill & KPI
                 const stdObj = studentsList.find(s => s.id === studentId);
                 if (stdObj && !stdObj.isSaved) {
                     stdObj.isSaved = true;
@@ -1451,7 +1751,7 @@
         });
     }
 
-    // Klik di luar dropdown untuk menutup popup
+    // Tutup popup saat klik di luar
     document.addEventListener('click', function(e) {
         const wrap = document.getElementById('studentSearchDropdownWrap');
         const menu = document.getElementById('studentDropdownMenu');
@@ -1464,10 +1764,9 @@
         }
     });
 
-    // Inisialisasi: Pilih santri pertama secara otomatis saat halaman dibuka
+    // Inisialisasi: Pilih santri awal
     document.addEventListener('DOMContentLoaded', function() {
         if (studentsList.length > 0) {
-            // Prioritaskan pilih santri yang belum dinilai pertama kali, atau santri pertama jika semua sudah
             const firstPending = studentsList.find(s => !s.isSaved);
             const initialId = firstPending ? firstPending.id : studentsList[0].id;
             selectStudent(initialId);
