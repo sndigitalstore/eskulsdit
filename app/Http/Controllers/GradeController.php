@@ -56,13 +56,129 @@ class GradeController extends Controller
             $eskuls = $user->eskul_id 
                 ? Eskul::activeYear()->has('students')->where('id', $user->eskul_id)->get()
                 : collect();
-        } else {
-            $eskuls = Eskul::activeYear()->has('students')->get();
+            $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
+            $activeYear = $academicYears->where('is_active', true)->first();
+            return view('grades.index', compact('eskuls', 'academicYears', 'activeYear'));
         }
 
+        // ==========================================
+        // DATA KHUSUS ADMIN / SUPERVISOR KESISWAAN
+        // ==========================================
         $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
         $activeYear = $academicYears->where('is_active', true)->first();
-        return view('grades.index', compact('eskuls', 'academicYears', 'activeYear'));
+
+        $yearId = $request->get('academic_year_id', $activeYear ? $activeYear->id : null);
+        $selectedYear = $academicYears->firstWhere('id', $yearId) ?? $activeYear;
+        $selectedSemester = $request->get('semester', $selectedYear ? $selectedYear->active_semester : '1');
+
+        $eskuls = Eskul::forYear($yearId)->with(['students' => function($q) use ($yearId) {
+            $q->wherePivot('academic_year_id', $yearId)
+              ->where('status', '!=', 'graduated');
+        }])->get();
+
+        // 1 Query cepat untuk ringkasan penilaian semua eskul
+        $gradesSummary = Grade::where('academic_year_id', $yearId)
+            ->select(
+                'eskul_id',
+                'type',
+                'date',
+                \Illuminate\Support\Facades\DB::raw('count(distinct student_id) as student_count'),
+                \Illuminate\Support\Facades\DB::raw('max(updated_at) as last_updated')
+            )
+            ->groupBy('eskul_id', 'type', 'date')
+            ->get();
+
+        // Susun data monitoring per eskul
+        $eskulProgress = $eskuls->map(function($eskul) use ($gradesSummary, $selectedSemester) {
+            $studentCount = $eskul->students->count();
+            
+            // Sesi nilai harian
+            $dailySessions = $gradesSummary
+                ->where('eskul_id', $eskul->id)
+                ->where('type', 'daily')
+                ->whereNotNull('date');
+            $dailySessionCount = $dailySessions->count();
+
+            // Nilai SAS 1
+            $sas1Data = $gradesSummary
+                ->where('eskul_id', $eskul->id)
+                ->where('type', 'sas1');
+            $sas1Count = $sas1Data->sum('student_count');
+            $sas1Status = 'empty';
+            if ($studentCount > 0 && $sas1Count >= $studentCount) {
+                $sas1Status = 'complete';
+            } elseif ($sas1Count > 0) {
+                $sas1Status = 'partial';
+            }
+
+            // Nilai SAS 2
+            $sas2Data = $gradesSummary
+                ->where('eskul_id', $eskul->id)
+                ->where('type', 'sas2');
+            $sas2Count = $sas2Data->sum('student_count');
+            $sas2Status = 'empty';
+            if ($studentCount > 0 && $sas2Count >= $studentCount) {
+                $sas2Status = 'complete';
+            } elseif ($sas2Count > 0) {
+                $sas2Status = 'partial';
+            }
+
+            // Aktivitas terakhir
+            $lastUpdated = $gradesSummary->where('eskul_id', $eskul->id)->max('last_updated');
+
+            return (object) [
+                'id'                 => $eskul->id,
+                'name'               => $eskul->name,
+                'instructor_name'    => $eskul->instructor_name,
+                'schedule'           => $eskul->schedule,
+                'is_lockable'        => $eskul->is_lockable,
+                'student_count'      => $studentCount,
+                'daily_session_count'=> $dailySessionCount,
+                'sas1_count'         => $sas1Count,
+                'sas1_status'        => $sas1Status,
+                'sas2_count'         => $sas2Count,
+                'sas2_status'        => $sas2Status,
+                'last_updated'       => $lastUpdated,
+            ];
+        });
+
+        // KPI Ringkasan
+        $kpi = (object) [
+            'total_eskul'         => $eskuls->count(),
+            'daily_active_count'  => $eskulProgress->where('daily_session_count', '>', 0)->count(),
+            'sas1_complete_count' => $eskulProgress->where('sas1_status', 'complete')->count(),
+            'sas2_complete_count' => $eskulProgress->where('sas2_status', 'complete')->count(),
+            'total_grades_count'  => Grade::where('academic_year_id', $yearId)->count(),
+        ];
+
+        // 8 Riwayat input penilaian terbaru
+        $recentGradingSessions = Grade::where('academic_year_id', $yearId)
+            ->select(
+                'eskul_id',
+                'type',
+                'date',
+                'academic_year_id',
+                'semester',
+                \Illuminate\Support\Facades\DB::raw('count(distinct student_id) as student_count'),
+                \Illuminate\Support\Facades\DB::raw('max(updated_at) as last_updated')
+            )
+            ->groupBy('eskul_id', 'type', 'date', 'academic_year_id', 'semester')
+            ->orderByDesc('last_updated')
+            ->take(8)
+            ->with('eskul')
+            ->get();
+
+        return view('grades.index', compact(
+            'eskuls',
+            'academicYears',
+            'activeYear',
+            'selectedYear',
+            'selectedSemester',
+            'yearId',
+            'eskulProgress',
+            'kpi',
+            'recentGradingSessions'
+        ));
     }
 
     public function create(Request $request)
