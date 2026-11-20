@@ -70,13 +70,108 @@ class AttendanceController extends Controller
             }
             $allowedIds = $this->getAllowedEskulIds($user);
             $eskuls = Eskul::activeYear()->has('students')->whereIn('id', $allowedIds)->get();
-        } else {
-            $eskuls = Eskul::activeYear()->has('students')->get();
+            $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
+            $activeYear = $academicYears->where('is_active', true)->first();
+            return view('attendance.index', compact('eskuls', 'academicYears', 'activeYear'));
         }
-        
+
+        // ==========================================
+        // DATA KHUSUS ADMIN / SUPERVISOR KESISWAAN
+        // ==========================================
         $academicYears = \App\Models\AcademicYear::orderBy('name', 'desc')->get();
         $activeYear = $academicYears->where('is_active', true)->first();
-        return view('attendance.index', compact('eskuls', 'academicYears', 'activeYear'));
+
+        $yearId = $request->get('academic_year_id', $activeYear ? $activeYear->id : null);
+        $selectedYear = $academicYears->firstWhere('id', $yearId) ?? $activeYear;
+        $selectedSemester = $request->get('semester', $selectedYear ? $selectedYear->active_semester : '1');
+
+        $eskuls = Eskul::forYear($yearId)->with(['students' => function($q) use ($yearId) {
+            $q->wherePivot('academic_year_id', $yearId)
+              ->where('status', '!=', 'graduated');
+        }])->get();
+
+        // 1 Query cepat untuk ringkasan absensi semua eskul pada tahun & semester ini
+        $attendanceSummary = Attendance::where('academic_year_id', $yearId)
+            ->when($selectedSemester, function($q) use ($selectedSemester) {
+                $q->where(function($sq) use ($selectedSemester) {
+                    $sq->where('semester', $selectedSemester)->orWhereNull('semester');
+                });
+            })
+            ->select(
+                'eskul_id',
+                'date',
+                \Illuminate\Support\Facades\DB::raw('count(distinct student_id) as student_count'),
+                \Illuminate\Support\Facades\DB::raw('sum(case when status = "present" then 1 else 0 end) as present_count'),
+                \Illuminate\Support\Facades\DB::raw('max(updated_at) as last_updated')
+            )
+            ->groupBy('eskul_id', 'date')
+            ->get();
+
+        // Susun data monitoring per eskul
+        $eskulProgress = $eskuls->map(function($eskul) use ($attendanceSummary) {
+            $studentCount = $eskul->students->count();
+            
+            $sessions = $attendanceSummary->where('eskul_id', $eskul->id)->whereNotNull('date');
+            $sessionCount = $sessions->count();
+            $totalPresent = $sessions->sum('present_count');
+            $lastUpdated = $sessions->max('last_updated');
+            $latestDate = $sessions->sortByDesc('date')->first() ? $sessions->sortByDesc('date')->first()->date : null;
+
+            return (object) [
+                'id'                 => $eskul->id,
+                'name'               => $eskul->name,
+                'instructor_name'    => $eskul->instructor_name,
+                'schedule'           => $eskul->schedule,
+                'is_lockable'        => $eskul->is_lockable,
+                'student_count'      => $studentCount,
+                'session_count'      => $sessionCount,
+                'total_present'      => $totalPresent,
+                'latest_date'        => $latestDate,
+                'last_updated'       => $lastUpdated,
+            ];
+        });
+
+        // KPI Ringkasan
+        $kpi = (object) [
+            'total_eskul'             => $eskuls->count(),
+            'active_attendance_count' => $eskulProgress->where('session_count', '>', 0)->count(),
+            'total_sessions_count'    => $attendanceSummary->count(),
+            'total_attendances_count' => Attendance::where('academic_year_id', $yearId)
+                ->when($selectedSemester, function($q) use ($selectedSemester) {
+                    $q->where(function($sq) use ($selectedSemester) {
+                        $sq->where('semester', $selectedSemester)->orWhereNull('semester');
+                    });
+                })->count(),
+        ];
+
+        // 8 Riwayat input presensi terbaru
+        $recentAttendanceSessions = Attendance::where('academic_year_id', $yearId)
+            ->select(
+                'eskul_id',
+                'date',
+                'academic_year_id',
+                'semester',
+                \Illuminate\Support\Facades\DB::raw('count(distinct student_id) as student_count'),
+                \Illuminate\Support\Facades\DB::raw('sum(case when status = "present" then 1 else 0 end) as present_count'),
+                \Illuminate\Support\Facades\DB::raw('max(updated_at) as last_updated')
+            )
+            ->groupBy('eskul_id', 'date', 'academic_year_id', 'semester')
+            ->orderByDesc('last_updated')
+            ->take(8)
+            ->with('eskul')
+            ->get();
+
+        return view('attendance.index', compact(
+            'eskuls',
+            'academicYears',
+            'activeYear',
+            'selectedYear',
+            'selectedSemester',
+            'yearId',
+            'eskulProgress',
+            'kpi',
+            'recentAttendanceSessions'
+        ));
     }
 
     public function create(Request $request)
