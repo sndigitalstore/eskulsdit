@@ -744,9 +744,15 @@
                         <span>Untuk mencegah data ganda, guru/tutor tidak dapat melakukan pengisian 2 kali pada tanggal/kategori yang sama. Hubungi Administrator / Kesiswaan jika perlu perbaikan nilai.</span>
                     </div>
                 @else
-                    <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid #bae6fd; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #0369a1; display: flex; align-items: center; gap: 6px; font-weight: 600;">
-                        <i class="fas fa-user-shield" style="color: #0284c7;"></i>
-                        <span>Mode Administrator: Anda dapat memperbarui data nilai jika diperlukan.</span>
+                    <div style="background: rgba(255, 255, 255, 0.9); border: 1px solid #bae6fd; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #0369a1; font-weight: 600;">
+                            <i class="fas fa-user-shield" style="color: #0284c7; font-size: 1rem;"></i>
+                            <span>Mode Administrator: Anda dapat memperbarui nilai atau mengosongkan/mereset inputan tanggal ini jika guru perlu revisi.</span>
+                        </div>
+                        <button type="button" onclick="confirmResetGrades()" style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; font-size: 0.78rem; font-weight: 800; padding: 6px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <i class="fas fa-trash-alt"></i>
+                            <span>Kosongkan / Reset Nilai</span>
+                        </button>
                     </div>
                 @endif
             </div>
@@ -1001,10 +1007,18 @@
                         <span>Penilaian Sudah Tersimpan (Terkunci)</span>
                     </button>
                 @else
-                    <button type="submit" class="btn-submit-main">
-                        <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
-                        <span>{{ !empty($isAlreadySaved) ? 'Perbarui Penilaian Siswa' : 'Simpan Penilaian Siswa' }}</span>
-                    </button>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        @if(!empty($isAlreadySaved) && Auth::user()->role === 'admin')
+                            <button type="button" onclick="confirmResetGrades()" style="padding: 10px 18px; border-radius: 12px; background: #fff1f2; border: 1.5px solid #fecdd3; color: #e11d48; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Reset / Kosongkan Nilai</span>
+                            </button>
+                        @endif
+                        <button type="submit" class="btn-submit-main">
+                            <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
+                            <span>{{ !empty($isAlreadySaved) ? 'Perbarui Penilaian Siswa' : 'Simpan Penilaian Siswa' }}</span>
+                        </button>
+                    </div>
                 @endif
             </div>
             @endif
@@ -1019,17 +1033,47 @@
                     <span>Penilaian Sudah Tersimpan (Terkunci)</span>
                 </button>
             @else
-                <button type="submit">
-                    <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
-                    <span>{{ !empty($isAlreadySaved) ? 'Perbarui Penilaian' : 'Simpan Penilaian' }} ({{ $students->count() }} Siswa)</span>
-                </button>
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    @if(!empty($isAlreadySaved) && Auth::user()->role === 'admin')
+                        <button type="button" onclick="confirmResetGrades()" style="flex: 0 0 auto; background: #fff1f2; border: 1.5px solid #fecdd3; color: #e11d48; padding: 0 14px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-trash-alt"></i>
+                            <span>Reset</span>
+                        </button>
+                    @endif
+                    <button type="submit" style="flex: 1;">
+                        <i class="fas fa-{{ !empty($isAlreadySaved) ? 'sync-alt' : 'save' }}"></i>
+                        <span>{{ !empty($isAlreadySaved) ? 'Perbarui Nilai' : 'Simpan Nilai' }} ({{ $students->count() }})</span>
+                    </button>
+                </div>
             @endif
         </div>
         @endif
     </form>
 </div>
 
+@if(!empty($isAlreadySaved) && Auth::user()->role === 'admin')
+    <form id="form-reset-grades" action="{{ route('grades.destroy-date') }}" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+        <input type="hidden" name="eskul_id" value="{{ $eskul->id }}">
+        <input type="hidden" name="type" value="{{ $type }}">
+        <input type="hidden" name="date" value="{{ $date }}">
+        <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
+        <input type="hidden" name="semester" value="{{ $semester }}">
+    </form>
+@endif
+
 <script>
+    function confirmResetGrades() {
+        const targetText = "{{ $type === 'daily' ? 'tanggal ' . \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') : 'periode ' . strtoupper($type) }}";
+        if (confirm(`Apakah Anda yakin ingin mengosongkan / mereset seluruh data nilai siswa pada ${targetText}?\n\nSetelah dikosongkan, inputan nilai akan bersih dan guru/tutor dapat melakukan pengisian ulang dari awal.`)) {
+            const form = document.getElementById('form-reset-grades');
+            if (form) {
+                form.submit();
+            }
+        }
+    }
+
     // Proteksi anti double click saat form penilaian dikirim
     document.getElementById('grade-form')?.addEventListener('submit', function(e) {
         const submitBtns = this.querySelectorAll('button[type="submit"]');

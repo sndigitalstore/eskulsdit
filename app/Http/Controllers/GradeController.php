@@ -265,6 +265,7 @@ class GradeController extends Controller
         $selectedEskul = null;
         $students = [];
         $grades = [];
+        $recordedDates = collect();
 
         if ($eskulId) {
             self::cleanupDuplicateGrades((int)$eskulId);
@@ -306,9 +307,92 @@ class GradeController extends Controller
                     $gradesQuery->where('semester', $semester);
                 }
                 $grades = $gradesQuery->get()->groupBy('student_id');
+
+                $recordedDates = Grade::where('eskul_id', $eskulId)
+                    ->where('type', 'daily')
+                    ->whereNotNull('date')
+                    ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
+                    ->when($semester, fn($q) => $q->where('semester', $semester))
+                    ->select('date', \Illuminate\Support\Facades\DB::raw('count(distinct student_id) as student_count'))
+                    ->groupBy('date')
+                    ->orderBy('date', 'desc')
+                    ->get();
             }
         }
 
-        return view('grades.report', compact('selectedEskul', 'students', 'grades'));
+        return view('grades.report', compact('selectedEskul', 'students', 'grades', 'recordedDates', 'yearId', 'semester'));
+    }
+
+    public function destroyDate(Request $request)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya Kesiswaan / Administrator yang dapat mereset atau mengosongkan data nilai.');
+        }
+
+        $request->validate([
+            'eskul_id' => 'required|exists:eskuls,id',
+            'type'     => 'required|in:daily,sas1,sas2',
+            'date'     => 'nullable|date',
+        ]);
+
+        $eskul = Eskul::findOrFail($request->eskul_id);
+        $type = $request->type;
+        $date = $request->date;
+
+        if ($request->filled('academic_year_id')) {
+            $yearId = $request->academic_year_id;
+        } else {
+            $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+            $yearId = $activeYear ? $activeYear->id : null;
+        }
+
+        if ($request->filled('semester')) {
+            $semester = $request->semester;
+        } else {
+            $contextYear = \App\Models\AcademicYear::find($yearId);
+            $semester = $contextYear ? $contextYear->active_semester : '1';
+        }
+
+        $query = Grade::where('eskul_id', $eskul->id)
+            ->where('type', $type);
+
+        if ($yearId) {
+            $query->where('academic_year_id', $yearId);
+        }
+        if ($semester) {
+            $query->where('semester', $semester);
+        }
+        if ($type === 'daily' && $date) {
+            $query->where('date', $date);
+        }
+
+        $deletedCount = $query->delete();
+
+        $typeLabel = $type === 'daily' ? 'Harian' : strtoupper($type);
+        $dateLabel = ($type === 'daily' && $date)
+            ? 'tanggal ' . \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y')
+            : "periode {$typeLabel}";
+
+        \App\Models\ActivityLog::log(
+            'Grades',
+            'Reset',
+            "Mereset / mengosongkan {$deletedCount} data nilai eskul {$eskul->name} ({$typeLabel}) pada {$dateLabel} agar dapat diinput ulang."
+        );
+
+        if ($request->header('referer') && str_contains($request->header('referer'), 'grades/report')) {
+            return redirect()->route('grades.report', [
+                'eskul_id'         => $eskul->id,
+                'academic_year_id' => $yearId,
+                'semester'         => $semester
+            ])->with('success', "Data nilai eskul {$eskul->name} ({$typeLabel}) pada {$dateLabel} berhasil dikosongkan ({$deletedCount} siswa di-reset).");
+        }
+
+        return redirect()->route('grades.create', [
+            'eskul_id'         => $eskul->id,
+            'type'             => $type,
+            'date'             => $date,
+            'academic_year_id' => $yearId,
+            'semester'         => $semester
+        ])->with('success', "Data nilai eskul {$eskul->name} ({$typeLabel}) pada {$dateLabel} berhasil dikosongkan ({$deletedCount} data nilai di-reset). Guru/tutor kini dapat menginput kembali nilai yang telah direvisi.");
     }
 }

@@ -196,6 +196,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/grades', [\App\Http\Controllers\GradeController::class, 'index'])->name('grades.index');
         Route::get('/grades/create', [\App\Http\Controllers\GradeController::class, 'create'])->name('grades.create');
         Route::post('/grades', [\App\Http\Controllers\GradeController::class, 'store'])->name('grades.store');
+        Route::delete('/grades/delete-date', [\App\Http\Controllers\GradeController::class, 'destroyDate'])->name('grades.destroy-date');
         Route::get('/grades/report', [\App\Http\Controllers\GradeController::class, 'report'])->name('grades.report');
 
         Route::get('/compliance', [\App\Http\Controllers\ComplianceController::class, 'index'])->name('compliance.index');

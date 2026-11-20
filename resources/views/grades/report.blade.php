@@ -241,6 +241,45 @@
         margin: 0;
     }
 
+    .session-chip {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    .session-chip:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+    }
+    .session-chip strong {
+        color: #0f172a;
+        font-weight: 750;
+    }
+    .session-chip .btn-del-date {
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 0;
+    }
+    .session-chip .btn-del-date:hover {
+        background: #ef4444;
+        color: #ffffff;
+    }
+
     /* Desktop Table */
     .grades-desktop-table {
         width: 100%;
@@ -722,6 +761,47 @@
             </div>
         </div>
     </div>
+
+    <!-- Recorded Daily Grading Sessions List (Chips) -->
+    @if(isset($recordedDates) && $recordedDates->isNotEmpty())
+    <div class="card" style="margin-bottom: 24px; padding: 18px 24px; border-radius: 16px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <h4 style="margin: 0; color: #0f172a; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <i class="far fa-calendar-check" style="color: #7c3aed;"></i>
+                <span>Sesi Penilaian Harian yang Telah Tercatat ({{ $recordedDates->count() }} Pertemuan)</span>
+            </h4>
+            <span style="font-size: 0.8rem; color: #64748b;">
+                Klik tanggal untuk melihat lembar nilai atau klik ikon tempat sampah untuk mereset jika guru salah input
+            </span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            @foreach($recordedDates as $rd)
+                <div class="session-chip">
+                    <a href="{{ route('grades.create', ['eskul_id' => $selectedEskul->id, 'type' => 'daily', 'date' => $rd->date, 'academic_year_id' => $yearId, 'semester' => $semester]) }}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-check-circle" style="color: #7c3aed; font-size: 0.75rem;"></i>
+                        <strong>{{ \Carbon\Carbon::parse($rd->date)->isoFormat('D MMMM Y') }}</strong>
+                        <span style="color: #64748b; font-size: 0.75rem;">({{ $rd->student_count }} siswa)</span>
+                    </a>
+                    
+                    @if(Auth::user()->role === 'admin')
+                        <form action="{{ route('grades.destroy-date') }}" method="POST" class="confirm-delete" data-confirm="Apakah Anda yakin ingin mengosongkan / mereset seluruh data nilai siswa tanggal {{ \Carbon\Carbon::parse($rd->date)->isoFormat('D MMMM Y') }}? Data nilai pada tanggal tersebut akan dihapus bersih sehingga guru dapat menginput ulang dari awal." style="margin: 0;">
+                            @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="eskul_id" value="{{ $selectedEskul->id }}">
+                            <input type="hidden" name="type" value="daily">
+                            <input type="hidden" name="date" value="{{ $rd->date }}">
+                            <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
+                            <input type="hidden" name="semester" value="{{ $semester }}">
+                            <button type="submit" class="btn-del-date" title="Kosongkan / Reset Nilai Tanggal Ini">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <!-- 4. Content Card (Desktop Table + Mobile Symmetrical Cards) -->
     <div class="recap-content-card">
