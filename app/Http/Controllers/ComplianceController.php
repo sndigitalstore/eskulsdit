@@ -97,6 +97,19 @@ class ComplianceController extends Controller
         $completeCount = 0;
         $actionNeededCount = 0;
 
+        // Pre-fetch Data Nilai & Absensi untuk efisiensi query
+        $allGradesInYear = Grade::where('academic_year_id', $activeYear->id)->get();
+        $attendanceSessions = Attendance::where('academic_year_id', $activeYear->id)
+            ->select('eskul_id', 'date')
+            ->distinct()
+            ->get();
+
+        $totalEskulsWithDailyToday = 0;
+        $totalEskulsSas1Complete = 0;
+        $totalEskulsSas1InProcess = 0;
+        $totalEskulsSas2Complete = 0;
+        $totalEskulsSas2InProcess = 0;
+
         $activeSemester = (string)($activeYear->active_semester ?? '1');
 
         foreach ($allEskuls as $eskul) {
@@ -128,14 +141,54 @@ class ComplianceController extends Controller
                 ->wherePivot('semester', $activeSemester)
                 ->count();
 
+            // Data Nilai Khusus Eskul Ini
+            $eskulGrades = $allGradesInYear->where('eskul_id', $eskul->id);
+
+            // a. Nilai Harian Hari Ini (Hari H)
+            $dailyGradeTodayRecords = $eskulGrades->where('type', 'daily')->where('date', $selectedDate);
+            $isDailyGradeFilledToday = $dailyGradeTodayRecords->isNotEmpty();
+            $dailyGradeCountToday = $dailyGradeTodayRecords->count();
+            if ($isDailyGradeFilledToday) {
+                $totalEskulsWithDailyToday++;
+            }
+
+            // b. Nilai Harian Akumulatif
+            $dailyGrades = $eskulGrades->where('type', 'daily');
+            $dailyDatesCount = $dailyGrades->pluck('date')->filter()->unique()->count();
+            $dailyGradesTotalCount = $dailyGrades->count();
+            $totalAttendanceSessions = $attendanceSessions->where('eskul_id', $eskul->id)->pluck('date')->filter()->unique()->count();
+            $isDailyGradeComplete = ($totalAttendanceSessions === 0) || ($dailyDatesCount >= $totalAttendanceSessions);
+
+            // c. Nilai SAS 1 (Kondisional Semester 1)
+            $sas1Grades = $eskulGrades->where('type', 'sas1');
+            $sas1GradedCount = $sas1Grades->pluck('student_id')->unique()->count();
+            $sas1Complete = ($enrolledStudentsCount > 0 && $sas1GradedCount >= $enrolledStudentsCount);
+            $sas1InProcess = ($sas1GradedCount > 0 && $sas1GradedCount < $enrolledStudentsCount);
+            if ($sas1Complete) {
+                $totalEskulsSas1Complete++;
+            } elseif ($sas1InProcess) {
+                $totalEskulsSas1InProcess++;
+            }
+
+            // d. Nilai SAS 2 (Kondisional Semester 2)
+            $sas2Grades = $eskulGrades->where('type', 'sas2');
+            $sas2GradedCount = $sas2Grades->pluck('student_id')->unique()->count();
+            $sas2Complete = ($enrolledStudentsCount > 0 && $sas2GradedCount >= $enrolledStudentsCount);
+            $sas2InProcess = ($sas2GradedCount > 0 && $sas2GradedCount < $enrolledStudentsCount);
+            if ($sas2Complete) {
+                $totalEskulsSas2Complete++;
+            } elseif ($sas2InProcess) {
+                $totalEskulsSas2InProcess++;
+            }
+
             // 2. Evaluasi Berdasarkan Mode
             $actionReasons = [];
             $missingStudentDates = [];
             $studentAttendanceComplete = false;
             $missingTeacherAttendance = false;
             $teacherAttendanceCount = 0;
-            $gradedStudentsCount = 0;
-            $gradesComplete = true;
+            $gradedStudentsCount = $eskulGrades->pluck('student_id')->unique()->count();
+            $gradesComplete = ($enrolledStudentsCount === 0) || ($gradedStudentsCount >= $enrolledStudentsCount);
 
             if ($viewMode === 'today') {
                 // --- MODE TODAY (Live Hari H Pelaksanaan) ---
@@ -192,24 +245,12 @@ class ComplianceController extends Controller
                         ->where('academic_year_id', $activeYear->id)
                         ->count();
 
-                    $studentAttendanceRecordsCount = Attendance::where('eskul_id', $eskul->id)
-                        ->where('academic_year_id', $activeYear->id)
-                        ->distinct('date')
-                        ->count('date');
+                    $studentAttendanceRecordsCount = $attendanceSessions->where('eskul_id', $eskul->id)->count();
 
                     if ($studentAttendanceRecordsCount > 0 && $teacherAttendanceCount === 0) {
                         $missingTeacherAttendance = true;
                     }
                 }
-
-                if ($enrolledStudentsCount > 0) {
-                    $gradedStudentsCount = Grade::where('eskul_id', $eskul->id)
-                        ->where('academic_year_id', $activeYear->id)
-                        ->where('semester', $activeSemester)
-                        ->distinct('student_id')
-                        ->count('student_id');
-                }
-                $gradesComplete = ($enrolledStudentsCount === 0) || ($gradedStudentsCount >= $enrolledStudentsCount);
 
                 if (!$studentAttendanceComplete) {
                     $actionReasons[] = 'Absensi Siswa terlewat (' . count($missingStudentDates) . ' pertemuan)';
@@ -217,12 +258,8 @@ class ComplianceController extends Controller
                 if ($missingTeacherAttendance) {
                     $actionReasons[] = 'Absensi Guru Pembina belum diisi';
                 }
-                if (!$gradesComplete) {
-                    $ungradedCount = max(0, $enrolledStudentsCount - $gradedStudentsCount);
-                    $actionReasons[] = 'Nilai Siswa belum lengkap (' . $ungradedCount . ' dari ' . $enrolledStudentsCount . ' siswa)';
-                }
 
-                $needsAction = (!$studentAttendanceComplete) || ($missingTeacherAttendance) || (!$gradesComplete);
+                $needsAction = (!$studentAttendanceComplete) || ($missingTeacherAttendance);
 
                 if ($needsAction) {
                     $actionNeededCount++;
@@ -269,6 +306,23 @@ class ComplianceController extends Controller
                 'enrolled_students_count' => $enrolledStudentsCount,
                 'graded_students_count' => $gradedStudentsCount,
                 'grades_complete' => $gradesComplete,
+
+                // Kontrol Nilai Harian
+                'is_daily_grade_filled_today' => $isDailyGradeFilledToday,
+                'daily_grades_count_today' => $dailyGradeCountToday,
+                'daily_dates_count' => $dailyDatesCount,
+                'daily_grades_total_count' => $dailyGradesTotalCount,
+                'total_attendance_sessions' => $totalAttendanceSessions,
+                'is_daily_grade_complete' => $isDailyGradeComplete,
+
+                // Kontrol Nilai SAS 1 & SAS 2 (Kondisional)
+                'sas1_graded_count' => $sas1GradedCount,
+                'sas1_complete' => $sas1Complete,
+                'sas1_in_process' => $sas1InProcess,
+                'sas2_graded_count' => $sas2GradedCount,
+                'sas2_complete' => $sas2Complete,
+                'sas2_in_process' => $sas2InProcess,
+
                 'needs_action' => $needsAction,
                 'action_reasons' => $actionReasons,
                 'wa_message' => $waMessage,
@@ -340,6 +394,11 @@ class ComplianceController extends Controller
             'totalEskuls',
             'completeCount',
             'actionNeededCount',
+            'totalEskulsWithDailyToday',
+            'totalEskulsSas1Complete',
+            'totalEskulsSas1InProcess',
+            'totalEskulsSas2Complete',
+            'totalEskulsSas2InProcess',
             'statusFilter',
             'searchKeyword',
             'activeYear',

@@ -455,6 +455,20 @@
         white-space: nowrap;
     }
 
+    .pill-status-neutral {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        font-size: 0.76rem;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
     .badge-compliance-tag {
         display: inline-flex;
         align-items: center;
@@ -844,6 +858,16 @@
             gap: 6px;
         }
 
+        .mobile-stat-boxes.five-cols {
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+        @media (max-width: 480px) {
+            .mobile-stat-boxes.five-cols {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         .mini-stat-tile {
             background: #f8fafc;
             border: 1px solid #f1f5f9;
@@ -1049,6 +1073,90 @@
         </div>
     </div>
 
+    <!-- 3b. Bar Kontrol Kepatuhan Penilaian (Nilai Harian, SAS 1, SAS 2) -->
+    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 32px; height: 32px; border-radius: 8px; background: #f5f3ff; color: #7c3aed; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem;">
+                    <i class="fas fa-clipboard-check"></i>
+                </span>
+                <div>
+                    <strong style="font-size: 0.92rem; color: #0f172a; display: block;">Pengawasan Pengisian Nilai Eskul</strong>
+                    <span style="font-size: 0.76rem; color: #64748b;">Pantau keterisian Nilai Harian serta kesiapan penilaian berkala SAS 1 & SAS 2</span>
+                </div>
+            </div>
+            <span style="font-size: 0.72rem; font-weight: 750; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fas fa-info-circle"></i> SAS 1 & SAS 2 Kondisional (Sesuai Jadwal Penilaian)
+            </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+            <!-- Tile Harian -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.70rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Nilai Harian</span>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #0f172a; line-height: 1.2;">
+                        @if($viewMode === 'today')
+                            {{ $totalEskulsWithDailyToday }} <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">/ {{ $totalEskuls }} Eskul Hari Ini</span>
+                        @else
+                            {{ $complianceData->where('daily_dates_count', '>', 0)->count() }} <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">/ {{ $totalEskuls }} Eskul Terisi</span>
+                        @endif
+                    </div>
+                    <div style="font-size: 0.68rem; color: #8b5cf6; margin-top: 2px; font-weight: 600;">
+                        @if($viewMode === 'today')
+                            {{ $totalEskulsWithDailyToday }} pembina sudah input harian
+                        @else
+                            Akumulasi sesi berjalan
+                        @endif
+                    </div>
+                </div>
+                <div style="font-size: 1.3rem; color: #8b5cf6; opacity: 0.9;">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+
+            <!-- Tile SAS 1 -->
+            <div style="background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.70rem; font-weight: 800; color: #0f766e; text-transform: uppercase; letter-spacing: 0.02em;">SAS 1 (Ganjil)</span>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #0f766e; line-height: 1.2;">
+                        {{ $totalEskulsSas1Complete }} <span style="font-size: 0.75rem; font-weight: 700; color: #0d9488;">/ {{ $totalEskuls }} Lengkap</span>
+                    </div>
+                    <div style="font-size: 0.68rem; color: #0d9488; margin-top: 2px; font-weight: 600;">
+                        @if($totalEskulsSas1InProcess > 0)
+                            <i class="fas fa-edit"></i> {{ $totalEskulsSas1InProcess }} eskul sedang mengisi
+                        @else
+                            <i class="fas fa-info-circle"></i> {{ $totalEskuls - $totalEskulsSas1Complete }} belum mengisi
+                        @endif
+                    </div>
+                </div>
+                <div style="font-size: 1.3rem; color: #0d9488; opacity: 0.9;">
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+
+            <!-- Tile SAS 2 -->
+            <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.70rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.02em;">SAS 2 (Genap)</span>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #b45309; line-height: 1.2;">
+                        {{ $totalEskulsSas2Complete }} <span style="font-size: 0.75rem; font-weight: 700; color: #d97706;">/ {{ $totalEskuls }} Lengkap</span>
+                    </div>
+                    <div style="font-size: 0.68rem; color: #d97706; margin-top: 2px; font-weight: 600;">
+                        @if($totalEskulsSas2InProcess > 0)
+                            <i class="fas fa-edit"></i> {{ $totalEskulsSas2InProcess }} eskul sedang mengisi
+                        @else
+                            <i class="fas fa-info-circle"></i> {{ $totalEskuls - $totalEskulsSas2Complete }} belum mengisi
+                        @endif
+                    </div>
+                </div>
+                <div style="font-size: 1.3rem; color: #f59e0b; opacity: 0.9;">
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 4. Filter & Search Toolbar Section -->
     <div class="toolbar-filter-card">
         <form method="GET" action="{{ route('compliance.index') }}" id="complianceFilterForm">
@@ -1116,18 +1224,18 @@
             <table class="compliance-table">
                 <thead>
                     <tr>
-                        <th style="width: 30%;">Ekstrakurikuler & Pembina</th>
-                        <th style="width: 16%; text-align: center;">
-                            {{ $viewMode === 'today' ? 'Absensi Siswa' : 'Absen Siswa (30 Hari)' }}
+                        <th style="width: 25%;">Ekstrakurikuler & Pembina</th>
+                        <th style="width: 10%; text-align: center;">
+                            {{ $viewMode === 'today' ? 'Absensi Siswa' : 'Absen Siswa' }}
                         </th>
-                        <th style="width: 16%; text-align: center;">
-                            {{ $viewMode === 'today' ? 'Presensi Pembina' : 'Presensi Guru' }}
+                        <th style="width: 10%; text-align: center;">
+                            {{ $viewMode === 'today' ? 'Presensi Guru' : 'Presensi Guru' }}
                         </th>
-                        @if($viewMode === 'cumulative')
-                        <th style="width: 14%; text-align: center;">Nilai Siswa</th>
-                        @endif
+                        <th style="width: 11%; text-align: center;">Nilai Harian</th>
+                        <th style="width: 11%; text-align: center;">SAS 1 (Ganjil)</th>
+                        <th style="width: 11%; text-align: center;">SAS 2 (Genap)</th>
                         <th style="width: 14%;">Status Kepatuhan</th>
-                        <th style="width: 10%; text-align: center;">Tindakan</th>
+                        <th style="width: 8%; text-align: center;">Tindakan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1196,8 +1304,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Tampilan Khusus Mobile: Kotak Mini Stat Presensi Simetris -->
-                                <div class="mobile-stat-boxes {{ $viewMode === 'cumulative' ? 'three-cols' : '' }}" style="margin-top: 10px;">
+                                <!-- Tampilan Khusus Mobile: Kotak Mini Stat Presensi & Penilaian Simetris (5 Kolom) -->
+                                <div class="mobile-stat-boxes five-cols" style="margin-top: 10px;">
                                     <!-- Mini Tile: Absensi Siswa -->
                                     <div class="mini-stat-tile">
                                         <span class="mini-tile-label">Siswa</span>
@@ -1218,18 +1326,47 @@
                                         @endif
                                     </div>
 
-                                    <!-- Mini Tile: Nilai (Khusus Akumulatif) -->
-                                    @if($viewMode === 'cumulative')
+                                    <!-- Mini Tile: Nilai Harian -->
                                     <div class="mini-stat-tile">
-                                        <span class="mini-tile-label">Nilai</span>
-                                        @if($item['grades_complete'])
-                                            <span class="pill-status-done"><i class="fas fa-star"></i> Lengkap</span>
+                                        <span class="mini-tile-label">Harian</span>
+                                        @if($viewMode === 'today')
+                                            @if($item['is_daily_grade_filled_today'])
+                                                <span class="pill-status-done"><i class="fas fa-check"></i> {{ $item['daily_grades_count_today'] }}</span>
+                                            @else
+                                                <span class="pill-status-neutral"><i class="far fa-clock"></i> 0</span>
+                                            @endif
                                         @else
-                                            @php $ungraded = max(0, $item['enrolled_students_count'] - $item['graded_students_count']); @endphp
-                                            <span class="pill-status-info"><i class="fas fa-edit"></i> {{ $ungraded }}</span>
+                                            @if($item['daily_dates_count'] > 0)
+                                                <span class="pill-status-done"><i class="fas fa-check"></i> {{ $item['daily_dates_count'] }} sesi</span>
+                                            @else
+                                                <span class="pill-status-neutral"><i class="far fa-clock"></i> 0 sesi</span>
+                                            @endif
                                         @endif
                                     </div>
-                                    @endif
+
+                                    <!-- Mini Tile: SAS 1 -->
+                                    <div class="mini-stat-tile">
+                                        <span class="mini-tile-label">SAS 1</span>
+                                        @if($item['sas1_complete'])
+                                            <span class="pill-status-done"><i class="fas fa-star"></i> Pas</span>
+                                        @elseif($item['sas1_in_process'])
+                                            <span class="pill-status-info"><i class="fas fa-pen"></i> {{ $item['sas1_graded_count'] }}</span>
+                                        @else
+                                            <span class="pill-status-neutral"><i class="far fa-clock"></i> -</span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Mini Tile: SAS 2 -->
+                                    <div class="mini-stat-tile">
+                                        <span class="mini-tile-label">SAS 2</span>
+                                        @if($item['sas2_complete'])
+                                            <span class="pill-status-done"><i class="fas fa-star"></i> Pas</span>
+                                        @elseif($item['sas2_in_process'])
+                                            <span class="pill-status-info"><i class="fas fa-pen"></i> {{ $item['sas2_graded_count'] }}</span>
+                                        @else
+                                            <span class="pill-status-neutral"><i class="far fa-clock"></i> -</span>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 <!-- Catatan Kekurangan di Mobile jika butuh tindakan -->
@@ -1291,23 +1428,81 @@
                                 @endif
                             </td>
 
-                            @if($viewMode === 'cumulative')
-                            <!-- Kolom 4: Nilai Siswa (Mode Akumulatif - Desktop Only) -->
+                            <!-- Kolom 4: Nilai Harian (Desktop Only) -->
                             <td class="desktop-cell-hide" style="text-align: center;">
-                                @if($item['grades_complete'])
-                                    <span class="pill-status-done">
-                                        <i class="fas fa-star"></i> Lengkap
-                                    </span>
+                                @if($viewMode === 'today')
+                                    @if($item['is_daily_grade_filled_today'])
+                                        <span class="pill-status-done" title="{{ $item['daily_grades_count_today'] }} siswa sudah dinilai hari ini">
+                                            <i class="fas fa-check-circle"></i> Sudah ({{ $item['daily_grades_count_today'] }})
+                                        </span>
+                                    @else
+                                        <span class="pill-status-neutral" title="Belum ada inputan nilai harian pada tanggal ini">
+                                            <i class="far fa-clock"></i> Belum
+                                        </span>
+                                    @endif
                                 @else
-                                    @php $ungraded = max(0, $item['enrolled_students_count'] - $item['graded_students_count']); @endphp
-                                    <span class="pill-status-info">
-                                        <i class="fas fa-edit"></i> {{ $ungraded }} Belum
-                                    </span>
+                                    @if($item['daily_dates_count'] > 0)
+                                        <span class="pill-status-done" title="{{ $item['daily_grades_total_count'] }} total nilai diinput">
+                                            <i class="fas fa-calendar-check"></i> {{ $item['daily_dates_count'] }} Sesi
+                                        </span>
+                                        <div style="font-size: 0.70rem; color: #64748b; margin-top: 2px;">
+                                            {{ $item['daily_grades_total_count'] }} nilai
+                                        </div>
+                                    @else
+                                        <span class="pill-status-neutral">
+                                            <i class="far fa-clock"></i> 0 Sesi
+                                        </span>
+                                    @endif
                                 @endif
                             </td>
-                            @endif
 
-                            <!-- Kolom 5: Status Kepatuhan & Rincian (Desktop Only) -->
+                            <!-- Kolom 5: SAS 1 (Ganjil) - Kondisional (Desktop Only) -->
+                            <td class="desktop-cell-hide" style="text-align: center;">
+                                @if($item['sas1_complete'])
+                                    <span class="pill-status-done" title="Semua siswa sudah dinilai SAS 1">
+                                        <i class="fas fa-check-circle"></i> Lengkap ({{ $item['sas1_graded_count'] }})
+                                    </span>
+                                @elseif($item['sas1_in_process'])
+                                    <span class="pill-status-info" title="{{ $item['sas1_graded_count'] }} dari {{ $item['enrolled_students_count'] }} siswa sudah dinilai">
+                                        <i class="fas fa-edit"></i> {{ $item['sas1_graded_count'] }}/{{ $item['enrolled_students_count'] }}
+                                    </span>
+                                    <div style="font-size: 0.70rem; color: #0284c7; margin-top: 2px; font-weight: 600;">
+                                        Sedang diisi
+                                    </div>
+                                @else
+                                    <span class="pill-status-neutral" title="Belum diisi (Kondisional saat periode SAS 1)">
+                                        <i class="far fa-clock"></i> Belum
+                                    </span>
+                                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">
+                                        Kondisional
+                                    </div>
+                                @endif
+                            </td>
+
+                            <!-- Kolom 6: SAS 2 (Genap) - Kondisional (Desktop Only) -->
+                            <td class="desktop-cell-hide" style="text-align: center;">
+                                @if($item['sas2_complete'])
+                                    <span class="pill-status-done" title="Semua siswa sudah dinilai SAS 2">
+                                        <i class="fas fa-check-circle"></i> Lengkap ({{ $item['sas2_graded_count'] }})
+                                    </span>
+                                @elseif($item['sas2_in_process'])
+                                    <span class="pill-status-info" title="{{ $item['sas2_graded_count'] }} dari {{ $item['enrolled_students_count'] }} siswa sudah dinilai">
+                                        <i class="fas fa-edit"></i> {{ $item['sas2_graded_count'] }}/{{ $item['enrolled_students_count'] }}
+                                    </span>
+                                    <div style="font-size: 0.70rem; color: #0284c7; margin-top: 2px; font-weight: 600;">
+                                        Sedang diisi
+                                    </div>
+                                @else
+                                    <span class="pill-status-neutral" title="Belum diisi (Kondisional saat periode SAS 2)">
+                                        <i class="far fa-clock"></i> Belum
+                                    </span>
+                                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">
+                                        Kondisional
+                                    </div>
+                                @endif
+                            </td>
+
+                            <!-- Kolom 7: Status Kepatuhan & Rincian (Desktop Only) -->
                             <td class="desktop-cell-hide">
                                 @if($viewMode === 'today')
                                     @if(!$item['missing_teacher_attendance'])
@@ -1355,7 +1550,7 @@
                                 @endif
                             </td>
 
-                            <!-- Kolom 6: Tindakan Kontak Pembina (Desktop Only) -->
+                            <!-- Kolom 8: Tindakan Kontak Pembina (Desktop Only) -->
                             <td class="desktop-cell-hide" style="text-align: center;">
                                 @if($waUrl)
                                     <a href="{{ $waUrl }}" target="_blank" class="btn-contact-wa" title="Hubungi Pembina via WhatsApp">
@@ -1374,7 +1569,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $viewMode === 'cumulative' ? 6 : 5 }}" style="padding: 40px 20px; text-align: center; color: #94a3b8;">
+                            <td colspan="8" style="padding: 40px 20px; text-align: center; color: #94a3b8;">
                                 <i class="fas fa-calendar-check" style="font-size: 2.5rem; margin-bottom: 12px; color: #cbd5e1; display: block;"></i>
                                 <span style="font-weight: 700; font-size: 1rem; color: #475569; display: block; margin-bottom: 4px;">
                                     Tidak ada data yang cocok dengan kriteria filter.
