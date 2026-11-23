@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Eskul;
 use App\Models\Attendance;
 use App\Models\TeacherAttendance;
+use App\Models\Grade;
 use App\Models\AcademicYear;
 use App\Models\User;
 use Carbon\Carbon;
@@ -116,14 +117,17 @@ class EskulAttendanceChartController extends Controller
         // 5. Build Base Filter Queries
         $studentQuery = Attendance::query();
         $coachQuery = TeacherAttendance::query()->with(['user.eskul', 'substituteUser']);
+        $gradeQuery = Grade::query();
 
         if ($periodMode !== 'year' && $selectedYearId) {
             $studentQuery->where('academic_year_id', $selectedYearId);
             $coachQuery->where('academic_year_id', $selectedYearId);
+            $gradeQuery->where('academic_year_id', $selectedYearId);
         }
 
         if ($selectedEskulId !== 'all' && $selectedEskulId !== 'none') {
             $studentQuery->where('eskul_id', $selectedEskulId);
+            $gradeQuery->where('eskul_id', $selectedEskulId);
             $coachQuery->where(function($q) use ($selectedEskulId, $selectedEskul) {
                 $q->whereHas('user', function($uq) use ($selectedEskulId, $selectedEskul) {
                     $uq->where('eskul_id', $selectedEskulId);
@@ -140,6 +144,7 @@ class EskulAttendanceChartController extends Controller
         } elseif ($isTeacherOnly) {
             if (!empty($teacherEskulIds)) {
                 $studentQuery->whereIn('eskul_id', $teacherEskulIds);
+                $gradeQuery->whereIn('eskul_id', $teacherEskulIds);
                 $coachQuery->where(function($q) use ($teacherEskulIds, $eskuls, $user) {
                     $instructors = $eskuls->pluck('instructor_name')->filter()->unique()->toArray();
                     $q->where('user_id', $user->id)
@@ -155,6 +160,7 @@ class EskulAttendanceChartController extends Controller
             } else {
                 $studentQuery->whereRaw('1 = 0');
                 $coachQuery->whereRaw('1 = 0');
+                $gradeQuery->whereRaw('1 = 0');
             }
         } else {
             // Coach query for all eskuls: restrict to teachers with eskul
@@ -224,10 +230,125 @@ class EskulAttendanceChartController extends Controller
         $sessionDates = $studentRecords->pluck('date')->concat($coachRecords->pluck('date'))->filter()->unique();
         $totalSessions = $sessionDates->count();
 
+        // ========================================================
+        // 6b. ANALISIS & REKAPITULASI PENILAIAN (HARIAN, SAS 1, SAS 2)
+        // ========================================================
+        $parsePredicates = function($records) {
+            $countA = 0;
+            $countB = 0;
+            $countC = 0;
+            $total = 0;
+
+            foreach ($records as $r) {
+                $val = $r->score;
+                if (empty($val) || $val === '-') continue;
+
+                $json = json_decode($val, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($json)) {
+                    foreach (['reading', 'writing', 'counting'] as $field) {
+                        if (!empty($json[$field])) {
+                            $letter = strtoupper(trim($json[$field]));
+                            if ($letter === 'A') $countA++;
+                            elseif ($letter === 'B') $countB++;
+                            elseif ($letter === 'C') $countC++;
+                            $total++;
+                        }
+                    }
+                } else {
+                    $letter = strtoupper(trim($val));
+                    if ($letter === 'A') $countA++;
+                    elseif ($letter === 'B') $countB++;
+                    elseif ($letter === 'C') $countC++;
+                    $total++;
+                }
+            }
+
+            $pctA = $total > 0 ? round(($countA / $total) * 100, 1) : 0;
+            $pctB = $total > 0 ? round(($countB / $total) * 100, 1) : 0;
+            $pctC = $total > 0 ? round(($countC / $total) * 100, 1) : 0;
+            $pctGood = $total > 0 ? round((($countA + $countB) / $total) * 100, 1) : 0;
+
+            $dominant = '-';
+            if ($total > 0) {
+                if ($countA >= $countB && $countA >= $countC) {
+                    $dominant = 'A (Sangat Baik)';
+                } elseif ($countB >= $countA && $countB >= $countC) {
+                    $dominant = 'B (Baik)';
+                } else {
+                    $dominant = 'C (Cukup)';
+                }
+            }
+
+            return [
+                'total'         => $total,
+                'records_count' => $records->count(),
+                'count_a'       => $countA,
+                'count_b'       => $countB,
+                'count_c'       => $countC,
+                'pct_a'         => $pctA,
+                'pct_b'         => $pctB,
+                'pct_c'         => $pctC,
+                'pct_good'      => $pctGood,
+                'dominant'      => $dominant,
+            ];
+        };
+
+        // Ambil semua data nilai pada konteks tahun ajaran & eskul
+        $allGrades = $gradeQuery->get();
+
+        // 1. Nilai Harian (dengan filter waktu aktif)
+        $dailyRecords = $allGrades->where('type', 'daily')->filter(function($item) use ($periodMode, $startDate, $endDate, $selectedMonth, $selectedSemester) {
+            if (empty($item->date)) {
+                if ($periodMode === 'semester' && $selectedSemester !== 'all') {
+                    return (string)$item->semester === (string)$selectedSemester;
+                }
+                return true;
+            }
+            $d = Carbon::parse($item->date);
+            if ($periodMode === 'date') {
+                return $item->date >= $startDate && $item->date <= $endDate;
+            } elseif ($periodMode === 'month') {
+                $mParts = explode('-', $selectedMonth);
+                if (count($mParts) === 2) {
+                    return $d->year === (int)$mParts[0] && $d->month === (int)$mParts[1];
+                }
+            } elseif ($periodMode === 'semester') {
+                if ($selectedSemester === '1') {
+                    return ((string)$item->semester === '1') || ($d->month >= 7 && $d->month <= 12);
+                } elseif ($selectedSemester === '2') {
+                    return ((string)$item->semester === '2') || ($d->month >= 1 && $d->month <= 6);
+                }
+            }
+            return true;
+        });
+
+        // 2. Nilai SAS 1 (Sumatif Akhir Semester 1)
+        $sas1Records = $allGrades->where('type', 'sas1');
+
+        // 3. Nilai SAS 2 (Sumatif Akhir Semester 2)
+        $sas2Records = $allGrades->where('type', 'sas2');
+
+        // Ringkasan Statistik Predikat
+        $dailyGradeStats = $parsePredicates($dailyRecords);
+        $sas1GradeStats  = $parsePredicates($sas1Records);
+        $sas2GradeStats  = $parsePredicates($sas2Records);
+        $totalGradesCount = $dailyRecords->count() + $sas1Records->count() + $sas2Records->count();
+
+        // Datasets untuk Grouped Bar Chart Distribusi Predikat (Harian vs SAS 1 vs SAS 2)
+        $gradeComparisonLabels = ['Nilai Harian', 'SAS 1 (Ganjil)', 'SAS 2 (Genap)'];
+        $gradeCompPctA   = [$dailyGradeStats['pct_a'], $sas1GradeStats['pct_a'], $sas2GradeStats['pct_a']];
+        $gradeCompPctB   = [$dailyGradeStats['pct_b'], $sas1GradeStats['pct_b'], $sas2GradeStats['pct_b']];
+        $gradeCompPctC   = [$dailyGradeStats['pct_c'], $sas1GradeStats['pct_c'], $sas2GradeStats['pct_c']];
+        $gradeCompCountA = [$dailyGradeStats['count_a'], $sas1GradeStats['count_a'], $sas2GradeStats['count_a']];
+        $gradeCompCountB = [$dailyGradeStats['count_b'], $sas1GradeStats['count_b'], $sas2GradeStats['count_b']];
+        $gradeCompCountC = [$dailyGradeStats['count_c'], $sas1GradeStats['count_c'], $sas2GradeStats['count_c']];
+        $gradeCompTotals = [$dailyGradeStats['total'], $sas1GradeStats['total'], $sas2GradeStats['total']];
+
         // 7. Generate Datasets for Charts Based on Period Mode
         $mainChartLabels = [];
         $mainChartCoachRate = [];
         $mainChartStudentRate = [];
+        $mainChartDailyGradeRate = [];
         $mainChartStudentPresentCount = [];
 
         if ($periodMode === 'date') {
@@ -261,6 +382,11 @@ class EskulAttendanceChartController extends Controller
                 $sDayPresent = $sDayRecords->where('status', 'present')->count();
                 $mainChartStudentRate[] = ($sDayTotal > 0) ? round(($sDayPresent / $sDayTotal) * 100, 1) : 0;
                 $mainChartStudentPresentCount[] = $sDayPresent;
+
+                // Daily Grades on this date
+                $sDayDaily = $allGrades->where('type', 'daily')->where('date', $dt);
+                $sDayDailyStats = $parsePredicates($sDayDaily);
+                $mainChartDailyGradeRate[] = ($sDayDailyStats['total'] > 0) ? $sDayDailyStats['pct_good'] : null;
             }
         } elseif ($periodMode === 'month') {
             // 12 Months of Academic Year (Jul - Jun)
@@ -282,6 +408,7 @@ class EskulAttendanceChartController extends Controller
             // Use unfiltered base queries to populate full academic year monthly trend
             $fullYearStudentRecords = (clone $studentQuery)->get();
             $fullYearCoachRecords = (clone $coachQuery)->get();
+            $fullYearDailyGrades = $allGrades->where('type', 'daily');
 
             foreach ($academicMonths as $m) {
                 $mainChartLabels[] = $m['name'];
@@ -306,6 +433,15 @@ class EskulAttendanceChartController extends Controller
                 $mStudentPresent = $mStudent->where('status', 'present')->count();
                 $mainChartStudentRate[] = ($mStudentTotal > 0) ? round(($mStudentPresent / $mStudentTotal) * 100, 1) : null;
                 $mainChartStudentPresentCount[] = $mStudentPresent;
+
+                // Filter daily grade for this month & year
+                $mDaily = $fullYearDailyGrades->filter(function($item) use ($m) {
+                    if (empty($item->date)) return false;
+                    $d = Carbon::parse($item->date);
+                    return $d->month === $m['num'] && $d->year === $m['year'];
+                });
+                $mDailyStats = $parsePredicates($mDaily);
+                $mainChartDailyGradeRate[] = ($mDailyStats['total'] > 0) ? $mDailyStats['pct_good'] : null;
             }
         } elseif ($periodMode === 'semester') {
             // Semester 1 vs Semester 2
@@ -343,6 +479,16 @@ class EskulAttendanceChartController extends Controller
                 $sStudentPresent = $sStudent->where('status', 'present')->count();
                 $mainChartStudentRate[] = ($sStudentTotal > 0) ? round(($sStudentPresent / $sStudentTotal) * 100, 1) : 0;
                 $mainChartStudentPresentCount[] = $sStudentPresent;
+
+                // Daily grade in semester
+                $sDailySem = $allGrades->where('type', 'daily')->filter(function($item) use ($sem) {
+                    if (!empty($item->semester)) return (string)$item->semester === (string)$sem['key'];
+                    if (empty($item->date)) return false;
+                    $d = Carbon::parse($item->date);
+                    return ($sem['key'] === '1') ? ($d->month >= 7 && $d->month <= 12) : ($d->month >= 1 && $d->month <= 6);
+                });
+                $sDailySemStats = $parsePredicates($sDailySem);
+                $mainChartDailyGradeRate[] = ($sDailySemStats['total'] > 0) ? $sDailySemStats['pct_good'] : null;
             }
         } elseif ($periodMode === 'year') {
             // Multi-Year Comparison
@@ -393,6 +539,16 @@ class EskulAttendanceChartController extends Controller
                 $yStudentPresent = $yStudentRecords->where('status', 'present')->count();
                 $mainChartStudentRate[] = ($yStudentTotal > 0) ? round(($yStudentPresent / $yStudentTotal) * 100, 1) : 0;
                 $mainChartStudentPresentCount[] = $yStudentPresent;
+
+                // Grade for year
+                $yDaily = Grade::where('academic_year_id', $yr->id)->where('type', 'daily');
+                if ($selectedEskulId !== 'all' && $selectedEskulId !== 'none') {
+                    $yDaily->where('eskul_id', $selectedEskulId);
+                } elseif ($isTeacherOnly && !empty($teacherEskulIds)) {
+                    $yDaily->whereIn('eskul_id', $teacherEskulIds);
+                }
+                $yDailyStats = $parsePredicates($yDaily->get());
+                $mainChartDailyGradeRate[] = ($yDailyStats['total'] > 0) ? $yDailyStats['pct_good'] : null;
             }
         }
 
@@ -401,6 +557,11 @@ class EskulAttendanceChartController extends Controller
         $eskulComparisonLabels = [];
         $eskulComparisonStudentRate = [];
         $eskulComparisonCoachRate = [];
+
+        $eskulGradeCompLabels = [];
+        $eskulGradeCompDailyRate = [];
+        $eskulGradeCompSas1Rate = [];
+        $eskulGradeCompSas2Rate = [];
 
         foreach ($eskuls as $eskulItem) {
             // Student stats for this eskul within the active time filter
@@ -462,6 +623,20 @@ class EskulAttendanceChartController extends Controller
                 $badgeColor = '#f59e0b'; // Amber
             }
 
+            // Grade Stats per Eskul
+            $eDailyGrades = $dailyRecords->where('eskul_id', $eskulItem->id);
+            $eSas1Grades  = $sas1Records->where('eskul_id', $eskulItem->id);
+            $eSas2Grades  = $sas2Records->where('eskul_id', $eskulItem->id);
+
+            $eDailyStats = $parsePredicates($eDailyGrades);
+            $eSas1Stats  = $parsePredicates($eSas1Grades);
+            $eSas2Stats  = $parsePredicates($eSas2Grades);
+
+            $eskulGradeCompLabels[] = $eskulItem->name;
+            $eskulGradeCompDailyRate[] = $eDailyStats['pct_good'];
+            $eskulGradeCompSas1Rate[]  = $eSas1Stats['pct_good'];
+            $eskulGradeCompSas2Rate[]  = $eSas2Stats['pct_good'];
+
             $eskulBreakdown->push((object)[
                 'id' => $eskulItem->id,
                 'name' => $eskulItem->name,
@@ -483,6 +658,9 @@ class EskulAttendanceChartController extends Controller
                 'composite_score' => $compositeScore,
                 'predikat' => $predikat,
                 'badge_color' => $badgeColor,
+                'daily_stats' => (object)$eDailyStats,
+                'sas1_stats'  => (object)$eSas1Stats,
+                'sas2_stats'  => (object)$eSas2Stats,
             ]);
 
             $eskulComparisonLabels[] = $eskulItem->name;
@@ -533,7 +711,24 @@ class EskulAttendanceChartController extends Controller
             'mainChartLabels',
             'mainChartCoachRate',
             'mainChartStudentRate',
+            'mainChartDailyGradeRate',
             'mainChartStudentPresentCount',
+            'dailyGradeStats',
+            'sas1GradeStats',
+            'sas2GradeStats',
+            'totalGradesCount',
+            'gradeComparisonLabels',
+            'gradeCompPctA',
+            'gradeCompPctB',
+            'gradeCompPctC',
+            'gradeCompCountA',
+            'gradeCompCountB',
+            'gradeCompCountC',
+            'gradeCompTotals',
+            'eskulGradeCompLabels',
+            'eskulGradeCompDailyRate',
+            'eskulGradeCompSas1Rate',
+            'eskulGradeCompSas2Rate',
             'eskulBreakdown',
             'eskulComparisonLabels',
             'eskulComparisonStudentRate',

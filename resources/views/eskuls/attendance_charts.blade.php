@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Grafik & Rekap Presensi Eskul')
-@section('page-title', 'Grafik & Rekapitulasi Presensi Ekstrakurikuler')
+@section('title', 'Grafik & Rekap Presensi & Nilai Eskul')
+@section('page-title', 'Grafik & Rekapitulasi Presensi & Nilai Ekstrakurikuler')
 
 @push('styles')
 <style>
@@ -414,6 +414,160 @@
         gap: 16px;
     }
 
+    /* 5b. SECTION DIVIDER & GRADE CHARTS */
+    .section-divider-banner {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1.5px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 16px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+    .section-divider-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .section-divider-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        flex-shrink: 0;
+    }
+    .section-divider-left h2 {
+        font-size: 1.18rem;
+        font-weight: 850;
+        color: #0f172a;
+        margin: 0 0 3px 0;
+        letter-spacing: -0.2px;
+    }
+    .section-divider-left p {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin: 0;
+    }
+    .badge-pill-purple {
+        background: #f5f3ff;
+        color: #7c3aed;
+        border: 1px solid #ddd6fe;
+        font-size: 0.78rem;
+        font-weight: 800;
+        padding: 6px 14px;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .grade-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 16px;
+    }
+    .grade-card {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 20px 22px;
+        border: 1px solid #eef2f7;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        transition: all 0.2s ease;
+    }
+    .grade-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+    }
+    .grade-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .grade-badge-tag {
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 8px;
+        letter-spacing: 0.03em;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .grade-donut-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    .grade-donut-canvas-box {
+        position: relative;
+        width: 105px;
+        height: 105px;
+        flex-shrink: 0;
+    }
+    .grade-donut-center-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: #0f172a;
+        pointer-events: none;
+        text-align: center;
+        line-height: 1;
+    }
+    .grade-donut-center-sub {
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: #64748b;
+        display: block;
+        margin-top: 2px;
+    }
+    .grade-predikat-bars {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .grade-pred-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.76rem;
+        font-weight: 750;
+    }
+    .grade-pred-bar-bg {
+        width: 100%;
+        height: 5px;
+        background: #f1f5f9;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 2px;
+    }
+    .grade-pred-bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.3s ease;
+    }
+    .grade-charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
     /* 6. TABLE CARD */
     .table-card {
         background: #ffffff;
@@ -687,6 +841,22 @@
             break-inside: avoid !important;
         }
 
+        .grade-kpi-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 10px !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .grade-charts-row {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
         .sig-col {
             text-align: center;
             width: 250px;
@@ -718,6 +888,16 @@
         .filter-grid {
             grid-template-columns: 1fr;
         }
+        .grade-charts-row {
+            grid-template-columns: 1fr;
+        }
+        .grade-kpi-grid {
+            grid-template-columns: 1fr;
+        }
+        .section-divider-banner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 </style>
 @endpush
@@ -730,7 +910,7 @@
         @include('partials.official_kop')
 
         <div class="print-doc-header">
-            <h2>LAPORAN REKAPITULASI & GRAFIK PRESENSI EKSTRAKURIKULER</h2>
+            <h2>LAPORAN REKAPITULASI & GRAFIK PRESENSI & PENILAIAN EKSTRAKURIKULER</h2>
             <p>
                 Tahun Ajaran: <strong>{{ $contextYear ? $contextYear->name : '-' }}</strong> &bull;
                 Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : ($isTeacherOnly ? ($eskuls->count() > 0 ? 'Kelompok Binaan' : 'Belum Ada Eskul') : 'Seluruh Ekstrakurikuler (' . $eskuls->count() . ' Cabang)') }}</strong>
@@ -755,9 +935,9 @@
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="charts-hero-text">
-                <h1>Grafik & Rekap Presensi Ekstrakurikuler</h1>
+                <h1>Grafik & Rekap Presensi & Nilai Ekstrakurikuler</h1>
                 <p>
-                    Visualisasi analitik kehadiran pembina & siswa eskul berbasis tanggal, bulanan, semester, dan tahunan.<br>
+                    Visualisasi analitik kehadiran pembina & siswa serta persentase capaian nilai harian, SAS 1, dan SAS 2 ekstrakurikuler.<br>
                     Tahun Ajaran: <strong>{{ $contextYear ? $contextYear->name : '-' }}</strong> &bull; 
                     Ekstrakurikuler: <strong>{{ $selectedEskul ? $selectedEskul->name : ($isTeacherOnly ? ($eskuls->count() > 0 ? 'Kelompok Binaan Anda' : 'Belum Ada Eskul') : 'Seluruh Eskul') }}</strong>
                 </p>
@@ -1119,12 +1299,250 @@
     </div>
     @endif
 
-    {{-- 7. TABEL REKAPITULASI DETAIL PER ESKUL --}}
+    {{-- 7. SECTION ANALISIS & GRAFIK CAPAIAN NILAI EKSTRAKURIKULER --}}
+    <div class="section-divider-banner">
+        <div class="section-divider-left">
+            <div class="section-divider-icon">
+                <i class="fas fa-award"></i>
+            </div>
+            <div>
+                <h2>Analisis & Capaian Nilai Ekstrakurikuler</h2>
+                <p>Distribusi persentase predikat siswa pada Nilai Harian (Per Pertemuan), SAS 1 (Ganjil), dan SAS 2 (Genap)</p>
+            </div>
+        </div>
+        <div class="section-divider-badges">
+            <span class="badge-pill-purple">
+                <i class="fas fa-layer-group"></i> Total {{ number_format($totalGradesCount) }} Data Nilai Tercatat
+            </span>
+        </div>
+    </div>
+
+    {{-- 8. 3 KARTU RINGKASAN DISTRIBUSI PREDIKAT NILAI --}}
+    <div class="grade-kpi-grid">
+        {{-- Card 1: Nilai Harian --}}
+        <div class="grade-card" style="border-top: 4px solid #8b5cf6;">
+            <div class="grade-card-top">
+                <span class="grade-badge-tag" style="background: #f5f3ff; color: #6d28d9;">
+                    <i class="fas fa-calendar-day"></i> Nilai Harian
+                </span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #64748b;">
+                    {{ number_format($dailyGradeStats['records_count']) }} input
+                </span>
+            </div>
+
+            <div class="grade-donut-row">
+                <div class="grade-donut-canvas-box">
+                    <canvas id="dailyGradeDoughnutChart"></canvas>
+                    <div class="grade-donut-center-text">
+                        {{ $dailyGradeStats['pct_good'] }}%
+                        <span class="grade-donut-center-sub">TUNTAS</span>
+                    </div>
+                </div>
+
+                <div class="grade-predikat-bars">
+                    {{-- Predikat A --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #059669;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat A (Sangat Baik)</span>
+                            <span>{{ $dailyGradeStats['pct_a'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $dailyGradeStats['count_a'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $dailyGradeStats['pct_a'] }}%; background: #10b981;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Predikat B --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #0284c7;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat B (Baik)</span>
+                            <span>{{ $dailyGradeStats['pct_b'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $dailyGradeStats['count_b'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $dailyGradeStats['pct_b'] }}%; background: #0284c7;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Predikat C --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #d97706;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat C (Cukup)</span>
+                            <span>{{ $dailyGradeStats['pct_c'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $dailyGradeStats['count_c'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $dailyGradeStats['pct_c'] }}%; background: #f59e0b;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="font-size: 0.78rem; color: #64748b; padding-top: 8px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <span>Predikat Dominan:</span>
+                <strong style="color: #0f172a;">{{ $dailyGradeStats['dominant'] }}</strong>
+            </div>
+        </div>
+
+        {{-- Card 2: Nilai SAS 1 --}}
+        <div class="grade-card" style="border-top: 4px solid #0d9488;">
+            <div class="grade-card-top">
+                <span class="grade-badge-tag" style="background: #f0fdfa; color: #0f766e;">
+                    <i class="fas fa-clipboard-check"></i> SAS 1 (Ganjil)
+                </span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #64748b;">
+                    {{ number_format($sas1GradeStats['records_count']) }} siswa
+                </span>
+            </div>
+
+            <div class="grade-donut-row">
+                <div class="grade-donut-canvas-box">
+                    <canvas id="sas1GradeDoughnutChart"></canvas>
+                    <div class="grade-donut-center-text">
+                        {{ $sas1GradeStats['pct_good'] }}%
+                        <span class="grade-donut-center-sub">TUNTAS</span>
+                    </div>
+                </div>
+
+                <div class="grade-predikat-bars">
+                    {{-- Predikat A --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #059669;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat A (Sangat Baik)</span>
+                            <span>{{ $sas1GradeStats['pct_a'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $sas1GradeStats['count_a'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $sas1GradeStats['pct_a'] }}%; background: #10b981;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Predikat B --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #0284c7;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat B (Baik)</span>
+                            <span>{{ $sas1GradeStats['pct_b'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $sas1GradeStats['count_b'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $sas1GradeStats['pct_b'] }}%; background: #0284c7;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Predikat C --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #d97706;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat C (Cukup)</span>
+                            <span>{{ $sas1GradeStats['pct_c'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $sas1GradeStats['count_c'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $sas1GradeStats['pct_c'] }}%; background: #f59e0b;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="font-size: 0.78rem; color: #64748b; padding-top: 8px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <span>Predikat Dominan:</span>
+                <strong style="color: #0f172a;">{{ $sas1GradeStats['dominant'] }}</strong>
+            </div>
+        </div>
+
+        {{-- Card 3: Nilai SAS 2 --}}
+        <div class="grade-card" style="border-top: 4px solid #f59e0b;">
+            <div class="grade-card-top">
+                <span class="grade-badge-tag" style="background: #fffbeb; color: #b45309;">
+                    <i class="fas fa-clipboard-list"></i> SAS 2 (Genap)
+                </span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: #64748b;">
+                    {{ number_format($sas2GradeStats['records_count']) }} siswa
+                </span>
+            </div>
+
+            <div class="grade-donut-row">
+                <div class="grade-donut-canvas-box">
+                    <canvas id="sas2GradeDoughnutChart"></canvas>
+                    <div class="grade-donut-center-text">
+                        {{ $sas2GradeStats['pct_good'] }}%
+                        <span class="grade-donut-center-sub">TUNTAS</span>
+                    </div>
+                </div>
+
+                <div class="grade-predikat-bars">
+                    {{-- Predikat A --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #059669;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat A (Sangat Baik)</span>
+                            <span>{{ $sas2GradeStats['pct_a'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $sas2GradeStats['count_a'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $sas2GradeStats['pct_a'] }}%; background: #10b981;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Predikat B --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #0284c7;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat B (Baik)</span>
+                            <span>{{ $sas2GradeStats['pct_b'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $sas2GradeStats['count_b'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $sas2GradeStats['pct_b'] }}%; background: #0284c7;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Predikat C --}}
+                    <div>
+                        <div class="grade-pred-item" style="color: #d97706;">
+                            <span><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Predikat C (Cukup)</span>
+                            <span>{{ $sas2GradeStats['pct_c'] }}% <span style="font-weight: 600; color: #94a3b8;">({{ $sas2GradeStats['count_c'] }})</span></span>
+                        </div>
+                        <div class="grade-pred-bar-bg">
+                            <div class="grade-pred-bar-fill" style="width: {{ $sas2GradeStats['pct_c'] }}%; background: #f59e0b;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="font-size: 0.78rem; color: #64748b; padding-top: 8px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <span>Predikat Dominan:</span>
+                <strong style="color: #0f172a;">{{ $sas2GradeStats['dominant'] }}</strong>
+            </div>
+        </div>
+    </div>
+
+    {{-- 9. DUAL CHARTS: KOMPARASI PREDIKAT & KOMPARASI NILAI PER ESKUL --}}
+    <div class="grade-charts-row">
+        {{-- Chart Left: Grouped Bar Chart Harian vs SAS 1 vs SAS 2 --}}
+        <div class="chart-box">
+            <div class="chart-header">
+                <h3>
+                    <i class="fas fa-chart-bar" style="color: #8b5cf6;"></i>
+                    Komparasi Distribusi Predikat (Harian vs SAS 1 vs SAS 2)
+                </h3>
+                <span class="chart-badge">Predikat A, B, C (%)</span>
+            </div>
+            <div class="chart-canvas-wrap" style="min-height: 290px;">
+                <canvas id="gradeComparisonBarChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Chart Right: Horizontal Bar Chart Capaian Nilai per Eskul --}}
+        <div class="chart-box">
+            <div class="chart-header">
+                <h3>
+                    <i class="fas fa-tasks" style="color: #059669;"></i>
+                    Komparasi Mutu Capaian Nilai per Cabang Eskul
+                </h3>
+                <span class="chart-badge">% Tuntas (A & B)</span>
+            </div>
+            <div class="chart-canvas-wrap" style="min-height: {{ max(290, $eskuls->count() * 42) }}px;">
+                <canvas id="eskulGradeComparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- 10. TABEL REKAPITULASI DETAIL PRESENSI & PENILAIAN PER ESKUL --}}
     <div class="table-card">
         <div class="table-card-header">
             <h3>
                 <i class="fas fa-table" style="color: #059669;"></i>
-                {{ $isTeacherOnly ? 'Tabel Rekapitulasi Presensi Kelompok Anda' : 'Tabel Rekapitulasi Presensi Ekstrakurikuler' }}
+                {{ $isTeacherOnly ? 'Tabel Rekapitulasi Presensi & Nilai Kelompok Anda' : 'Tabel Rekapitulasi Presensi & Nilai Ekstrakurikuler' }}
             </h3>
             <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
                 Menampilkan {{ $eskulBreakdown->count() }} Ekstrakurikuler
@@ -1135,13 +1553,16 @@
             <table class="recap-table">
                 <thead>
                     <tr>
-                        <th width="4%">No</th>
-                        <th width="22%">Ekstrakurikuler & Jadwal</th>
-                        <th width="16%">Pembina</th>
-                        <th width="8%" style="text-align: center;">Sesi</th>
-                        <th width="18%">Presensi Pembina</th>
-                        <th width="20%">Presensi Siswa</th>
-                        <th width="12%" style="text-align: center;">Predikat</th>
+                        <th width="3%">No</th>
+                        <th width="17%">Ekstrakurikuler & Jadwal</th>
+                        <th width="12%">Pembina</th>
+                        <th width="5%" style="text-align: center;">Sesi</th>
+                        <th width="13%">Presensi Pembina</th>
+                        <th width="14%">Presensi Siswa</th>
+                        <th width="13%">Nilai Harian</th>
+                        <th width="10%">SAS 1</th>
+                        <th width="10%">SAS 2</th>
+                        <th width="3%" style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1149,15 +1570,15 @@
                     <tr>
                         <td align="center" style="font-weight: 700; color: #94a3b8;">{{ $idx + 1 }}</td>
                         <td>
-                            <div style="font-weight: 800; color: #0f172a; font-size: 0.92rem;">
+                            <div style="font-weight: 800; color: #0f172a; font-size: 0.90rem;">
                                 {{ $item->name }}
                             </div>
-                            <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
+                            <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">
                                 <i class="far fa-clock"></i> {{ $item->schedule }}
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: 700; color: #1e293b;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 0.85rem;">
                                 {{ $item->coach_name }}
                             </div>
                         </td>
@@ -1165,54 +1586,117 @@
                             <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">
                                 {{ $item->sessions_count }}
                             </span>
-                            <div style="font-size: 0.72rem; color: #94a3b8;">pertemuan</div>
+                            <div style="font-size: 0.70rem; color: #94a3b8;">sesi</div>
                         </td>
                         <td>
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.82rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.80rem;">
                                 <span style="font-weight: 800; color: {{ $item->coach_rate >= 80 ? '#047857' : ($item->coach_rate >= 60 ? '#d97706' : '#dc2626') }};">
                                     {{ $item->coach_rate }}%
                                 </span>
-                                <span style="font-size: 0.74rem; color: #64748b;">
-                                    H: {{ $item->coach_present + $item->coach_substituted }}/{{ $item->coach_total }}
+                                <span style="font-size: 0.72rem; color: #64748b;">
+                                    {{ $item->coach_present + $item->coach_substituted }}/{{ $item->coach_total }}
                                 </span>
                             </div>
                             <div class="rate-bar-bg">
                                 <div class="rate-bar-fill" style="width: {{ $item->coach_rate }}%; background: linear-gradient(90deg, #10b981 0%, #059669 100%);"></div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">
-                                Hadir: {{ $item->coach_present }} &bull; Pengganti: {{ $item->coach_substituted }} &bull; I/S: {{ $item->coach_permission + $item->coach_sick }}
+                            <div style="font-size: 0.70rem; color: #94a3b8; margin-top: 2px;">
+                                H: {{ $item->coach_present }} &bull; Ganti: {{ $item->coach_substituted }}
                             </div>
                         </td>
                         <td>
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.82rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.80rem;">
                                 <span style="font-weight: 800; color: {{ $item->student_rate >= 80 ? '#0369a1' : ($item->student_rate >= 60 ? '#d97706' : '#dc2626') }};">
                                     {{ $item->student_rate }}%
                                 </span>
-                                <span style="font-size: 0.74rem; color: #64748b;">
+                                <span style="font-size: 0.72rem; color: #64748b;">
                                     {{ $item->student_present }}/{{ $item->student_total }}
                                 </span>
                             </div>
                             <div class="rate-bar-bg">
                                 <div class="rate-bar-fill" style="width: {{ $item->student_rate }}%; background: linear-gradient(90deg, #0284c7 0%, #0369a1 100%);"></div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">
+                            <div style="font-size: 0.70rem; color: #94a3b8; margin-top: 2px;">
                                 H: {{ $item->student_present }} &bull; S: {{ $item->student_sick }} &bull; I: {{ $item->student_permission }} &bull; A: {{ $item->student_absent }}
                             </div>
                         </td>
+                        {{-- Nilai Harian --}}
+                        <td>
+                            @if(isset($item->daily_stats) && $item->daily_stats->total > 0)
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.80rem;">
+                                    <span style="font-weight: 800; color: {{ $item->daily_stats->pct_good >= 80 ? '#047857' : ($item->daily_stats->pct_good >= 60 ? '#d97706' : '#dc2626') }};">
+                                        {{ $item->daily_stats->pct_good }}% Tuntas
+                                    </span>
+                                    <span style="font-size: 0.70rem; color: #64748b;">
+                                        {{ $item->daily_stats->records_count }} data
+                                    </span>
+                                </div>
+                                <div class="rate-bar-bg">
+                                    <div class="rate-bar-fill" style="width: {{ $item->daily_stats->pct_good }}%; background: linear-gradient(90deg, #8b5cf6 0%, #6d28d9 100%);"></div>
+                                </div>
+                                <div style="font-size: 0.70rem; color: #94a3b8; margin-top: 2px;">
+                                    A: {{ $item->daily_stats->pct_a }}% &bull; B: {{ $item->daily_stats->pct_b }}% &bull; C: {{ $item->daily_stats->pct_c }}%
+                                </div>
+                            @else
+                                <span style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">Belum ada nilai</span>
+                            @endif
+                        </td>
+                        {{-- Nilai SAS 1 --}}
+                        <td>
+                            @if(isset($item->sas1_stats) && $item->sas1_stats->total > 0)
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.80rem;">
+                                    <span style="font-weight: 800; color: {{ $item->sas1_stats->pct_good >= 80 ? '#047857' : ($item->sas1_stats->pct_good >= 60 ? '#d97706' : '#dc2626') }};">
+                                        {{ $item->sas1_stats->pct_good }}%
+                                    </span>
+                                    <span style="font-size: 0.70rem; color: #64748b;">
+                                        {{ $item->sas1_stats->records_count }} siswa
+                                    </span>
+                                </div>
+                                <div class="rate-bar-bg">
+                                    <div class="rate-bar-fill" style="width: {{ $item->sas1_stats->pct_good }}%; background: linear-gradient(90deg, #0d9488 0%, #059669 100%);"></div>
+                                </div>
+                                <div style="font-size: 0.70rem; color: #94a3b8; margin-top: 2px;">
+                                    A: {{ $item->sas1_stats->pct_a }}% &bull; B: {{ $item->sas1_stats->pct_b }}%
+                                </div>
+                            @else
+                                <span style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">Belum diinput</span>
+                            @endif
+                        </td>
+                        {{-- Nilai SAS 2 --}}
+                        <td>
+                            @if(isset($item->sas2_stats) && $item->sas2_stats->total > 0)
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.80rem;">
+                                    <span style="font-weight: 800; color: {{ $item->sas2_stats->pct_good >= 80 ? '#047857' : ($item->sas2_stats->pct_good >= 60 ? '#d97706' : '#dc2626') }};">
+                                        {{ $item->sas2_stats->pct_good }}%
+                                    </span>
+                                    <span style="font-size: 0.70rem; color: #64748b;">
+                                        {{ $item->sas2_stats->records_count }} siswa
+                                    </span>
+                                </div>
+                                <div class="rate-bar-bg">
+                                    <div class="rate-bar-fill" style="width: {{ $item->sas2_stats->pct_good }}%; background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);"></div>
+                                </div>
+                                <div style="font-size: 0.70rem; color: #94a3b8; margin-top: 2px;">
+                                    A: {{ $item->sas2_stats->pct_a }}% &bull; B: {{ $item->sas2_stats->pct_b }}%
+                                </div>
+                            @else
+                                <span style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">Belum diinput</span>
+                            @endif
+                        </td>
                         <td align="center">
-                            <span class="badge-predikat" style="background: {{ $item->badge_color }}15; color: {{ $item->badge_color }}; border: 1px solid {{ $item->badge_color }}35;">
-                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i> {{ $item->predikat }}
+                            <span class="badge-predikat" style="background: {{ $item->badge_color }}15; color: {{ $item->badge_color }}; border: 1px solid {{ $item->badge_color }}35;" title="{{ $item->predikat }}">
+                                <i class="fas fa-circle" style="font-size: 0.45rem;"></i>
                             </span>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" align="center" style="padding: 30px; color: #94a3b8;">
+                        <td colspan="10" align="center" style="padding: 30px; color: #94a3b8;">
                             <i class="fas fa-info-circle" style="font-size: 1.5rem; margin-bottom: 6px; display: block;"></i>
                             @if($isTeacherOnly)
-                                Belum ada catatan presensi untuk kelompok ekstrakurikuler binaan Anda pada filter & periode waktu ini.
+                                Belum ada catatan presensi atau nilai untuk kelompok ekstrakurikuler binaan Anda pada filter & periode waktu ini.
                             @else
-                                Belum ada catatan presensi pada filter ekstrakurikuler & periode waktu ini.
+                                Belum ada catatan presensi atau nilai pada filter ekstrakurikuler & periode waktu ini.
                             @endif
                         </td>
                     </tr>
@@ -1294,6 +1778,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         pointHoverRadius: 6,
                         tension: 0.35,
                         fill: true
+                    },
+                    {
+                        label: '% Capaian Nilai Harian (A & B)',
+                        data: {!! json_encode($mainChartDailyGradeRate) !!},
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.35,
+                        fill: false,
+                        spanGaps: true
                     }
                 ]
             },
@@ -1438,6 +1937,284 @@ document.addEventListener('DOMContentLoaded', function () {
                         label: '% Kehadiran Pembina',
                         data: compCoachData,
                         backgroundColor: '#10b981',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(val) { return val + '%'; },
+                            font: { family: 'Nunito', weight: '700' }
+                        },
+                        grid: { color: '#f1f5f9' }
+                    },
+                    y: {
+                        ticks: { font: { family: 'Nunito', weight: '700', size: 12 } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: 'Nunito', weight: '700' },
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ' ' + ctx.dataset.label + ': ' + ctx.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- CHART 5: DOUGHNUT NILAI HARIAN ---
+    const ctxDailyGrade = document.getElementById('dailyGradeDoughnutChart');
+    if (ctxDailyGrade) {
+        new Chart(ctxDailyGrade.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Predikat A', 'Predikat B', 'Predikat C'],
+                datasets: [{
+                    data: [
+                        {{ $dailyGradeStats['count_a'] }},
+                        {{ $dailyGradeStats['count_b'] }},
+                        {{ $dailyGradeStats['count_c'] }}
+                    ],
+                    backgroundColor: ['#10b981', '#0284c7', '#f59e0b'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const total = {{ $dailyGradeStats['total'] }};
+                                const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                                return ' ' + ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- CHART 6: DOUGHNUT NILAI SAS 1 ---
+    const ctxSas1Grade = document.getElementById('sas1GradeDoughnutChart');
+    if (ctxSas1Grade) {
+        new Chart(ctxSas1Grade.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Predikat A', 'Predikat B', 'Predikat C'],
+                datasets: [{
+                    data: [
+                        {{ $sas1GradeStats['count_a'] }},
+                        {{ $sas1GradeStats['count_b'] }},
+                        {{ $sas1GradeStats['count_c'] }}
+                    ],
+                    backgroundColor: ['#10b981', '#0284c7', '#f59e0b'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const total = {{ $sas1GradeStats['total'] }};
+                                const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                                return ' ' + ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- CHART 7: DOUGHNUT NILAI SAS 2 ---
+    const ctxSas2Grade = document.getElementById('sas2GradeDoughnutChart');
+    if (ctxSas2Grade) {
+        new Chart(ctxSas2Grade.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Predikat A', 'Predikat B', 'Predikat C'],
+                datasets: [{
+                    data: [
+                        {{ $sas2GradeStats['count_a'] }},
+                        {{ $sas2GradeStats['count_b'] }},
+                        {{ $sas2GradeStats['count_c'] }}
+                    ],
+                    backgroundColor: ['#10b981', '#0284c7', '#f59e0b'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const total = {{ $sas2GradeStats['total'] }};
+                                const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                                return ' ' + ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- CHART 8: GROUPED BAR KOMPARASI PREDIKAT (HARIAN vs SAS 1 vs SAS 2) ---
+    const ctxGradeComp = document.getElementById('gradeComparisonBarChart');
+    if (ctxGradeComp) {
+        const gradeLabels = {!! json_encode($gradeComparisonLabels) !!};
+        const pctA = {!! json_encode($gradeCompPctA) !!};
+        const pctB = {!! json_encode($gradeCompPctB) !!};
+        const pctC = {!! json_encode($gradeCompPctC) !!};
+        const countA = {!! json_encode($gradeCompCountA) !!};
+        const countB = {!! json_encode($gradeCompCountB) !!};
+        const countC = {!! json_encode($gradeCompCountC) !!};
+
+        new Chart(ctxGradeComp.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: gradeLabels,
+                datasets: [
+                    {
+                        label: '% Predikat A (Sangat Baik)',
+                        data: pctA,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6,
+                        barPercentage: 0.75,
+                        categoryPercentage: 0.75
+                    },
+                    {
+                        label: '% Predikat B (Baik)',
+                        data: pctB,
+                        backgroundColor: '#0284c7',
+                        borderRadius: 6,
+                        barPercentage: 0.75,
+                        categoryPercentage: 0.75
+                    },
+                    {
+                        label: '% Predikat C (Cukup)',
+                        data: pctC,
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 6,
+                        barPercentage: 0.75,
+                        categoryPercentage: 0.75
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(val) { return val + '%'; },
+                            font: { family: 'Nunito', weight: '700' }
+                        },
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Nunito', weight: '750', size: 12 } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: 'Nunito', weight: '700', size: 11 },
+                            usePointStyle: true,
+                            padding: 12
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const idx = ctx.dataIndex;
+                                let cnt = 0;
+                                if (ctx.datasetIndex === 0) cnt = countA[idx];
+                                else if (ctx.datasetIndex === 1) cnt = countB[idx];
+                                else if (ctx.datasetIndex === 2) cnt = countC[idx];
+                                return ' ' + ctx.dataset.label + ': ' + ctx.raw + '% (' + cnt + ' data)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- CHART 9: KOMPARASI MUTU NILAI PER ESKUL ---
+    const ctxEskulGradeComp = document.getElementById('eskulGradeComparisonChart');
+    if (ctxEskulGradeComp) {
+        const eskulGradeLabels = {!! json_encode($eskulGradeCompLabels) !!};
+        const dailyRate = {!! json_encode($eskulGradeCompDailyRate) !!};
+        const sas1Rate = {!! json_encode($eskulGradeCompSas1Rate) !!};
+        const sas2Rate = {!! json_encode($eskulGradeCompSas2Rate) !!};
+
+        new Chart(ctxEskulGradeComp.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: eskulGradeLabels,
+                datasets: [
+                    {
+                        label: '% Harian Tuntas (A & B)',
+                        data: dailyRate,
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: '% SAS 1 Tuntas (A & B)',
+                        data: sas1Rate,
+                        backgroundColor: '#0d9488',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: '% SAS 2 Tuntas (A & B)',
+                        data: sas2Rate,
+                        backgroundColor: '#f59e0b',
                         borderRadius: 6,
                         barPercentage: 0.7,
                         categoryPercentage: 0.8

@@ -1163,11 +1163,11 @@
                         </a>
                     </li>
                     @endif
-                    {{-- Grafik & Rekap Presensi Eskul --}}
+                    {{-- Grafik & Rekap Presensi & Nilai Eskul --}}
                     <li class="nav-subitem">
                         <a href="{{ ($isTeacher && $firstCoachEskul) ? route('eskul.attendance-charts', ['eskul_id' => $firstCoachEskul->id]) : route('eskul.attendance-charts') }}" class="nav-sublink {{ request()->is('eskuls/attendance-charts*') ? 'active' : '' }}">
                             <i class="fas fa-chart-line"></i>
-                            <span>Grafik Presensi</span>
+                            <span>Grafik Presensi & Nilai</span>
                         </a>
                     </li>
 
