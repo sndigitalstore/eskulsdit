@@ -917,13 +917,25 @@
         <!-- Special Feature: Calistung Export -->
         @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']))
         <div class="card no-print" style="margin-bottom: 20px; border-left: 5px solid #2ecc71;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
                     <h4 style="margin-bottom: 5px;"><i class="fas fa-graduation-cap" style="color: #2ecc71;"></i> Lulusan Calistung</h4>
                     <p style="font-size: 0.9rem; color: #666; margin: 0;">Unduh data siswa yang mendapatkan nilai A pada Calistung (Membaca/Menulis/Berhitung).</p>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <a href="{{ route('reports.print-calistung-graduates') }}" target="_blank" class="btn-action-header btn-orange">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <!-- Filter Kelas untuk Calistung -->
+                    <div style="display: flex; align-items: center; gap: 7px;">
+                        <label for="calistungClassFilter" style="font-size: 0.85rem; font-weight: 600; color: #374151; white-space: nowrap;">
+                            <i class="fas fa-filter" style="color: #2ecc71;"></i> Filter Kelas:
+                        </label>
+                        <select id="calistungClassFilter" style="padding: 7px 11px; border: 1.5px solid #d1d5db; border-radius: 7px; font-size: 0.85rem; background: #f8fafc; color: #0f172a; cursor: pointer;">
+                            <option value="ALL">Semua Kelas</option>
+                            @foreach($classes as $cls)
+                                <option value="{{ $cls }}">Kelas {{ $cls }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <a id="calistungPrintBtn" href="{{ route('reports.print-calistung-graduates') }}" target="_blank" class="btn-action-header btn-orange">
                         <i class="fas fa-print"></i> Cetak Laporan
                     </a>
                     <a href="{{ route('reports.calistung-graduates') }}" class="btn-action-header btn-green">
@@ -932,6 +944,19 @@
                 </div>
             </div>
         </div>
+        <script>
+            (function() {
+                var sel = document.getElementById('calistungClassFilter');
+                var btn = document.getElementById('calistungPrintBtn');
+                var baseUrl = "{{ route('reports.print-calistung-graduates') }}";
+                function updateLink() {
+                    var val = sel.value;
+                    btn.href = val === 'ALL' ? baseUrl : baseUrl + '?class=' + encodeURIComponent(val);
+                }
+                sel.addEventListener('change', updateLink);
+                updateLink();
+            })();
+        </script>
         @endif
 
         @if($selectedClass === 'ALL' && Auth::user()->role !== 'teacher')

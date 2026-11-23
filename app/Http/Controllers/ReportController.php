@@ -800,7 +800,7 @@ class ReportController extends Controller
         return view('reports.print_full', compact('students', 'class', 'yearName', 'yearId', 'period', 'homeroomTeacherName'));
     }
 
-    public function printCalistungGraduates()
+    public function printCalistungGraduates(Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
@@ -810,8 +810,23 @@ class ReportController extends Controller
         $yearName = $activeYear ? $activeYear->name : '-';
         if (!$activeYear) return back()->with('error', 'Tidak ada tahun ajaran aktif.');
 
-        // Logic from Export class to find graduates
+        // Filter Kelas
+        $selectedClass = $request->query('class', 'ALL');
+
+        // Ambil daftar semua kelas yang ada di Calistung Eskul untuk dropdown filter
         $calistungEskuls = \App\Models\Eskul::where('name', 'like', '%Calistung%')->pluck('id');
+        $availableClasses = collect([]);
+        if ($calistungEskuls->isNotEmpty()) {
+            $availableClasses = \App\Models\Grade::with('student')
+                ->whereIn('eskul_id', $calistungEskuls)
+                ->where('academic_year_id', $activeYear->id)
+                ->get()
+                ->pluck('student.class')
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
+        }
 
         $graduates = [];
         if ($calistungEskuls->isNotEmpty()) {
@@ -823,7 +838,13 @@ class ReportController extends Controller
             foreach ($grades as $grade) {
                 $studentId = $grade->student_id;
                 $scoreStr = $grade->score;
-                
+                $studentClass = $grade->student->class ?? '-';
+
+                // Apply class filter
+                if ($selectedClass !== 'ALL' && $studentClass !== $selectedClass) {
+                    continue;
+                }
+
                 $score = json_decode($scoreStr, true);
                 $parsed = [];
 
@@ -852,7 +873,7 @@ class ReportController extends Controller
                           if (preg_match('/Berhitung\s*[:=]\s*(.*?)(?=$)/ui', $scoreStr, $m)) $parsed['counting'] = trim($m[1]);
                      }
                 }
-                
+
                 $achievements = [];
                 if (isset($parsed['reading']) && strtoupper(trim($parsed['reading'])) === 'A') $achievements[] = 'Membaca';
                 if (isset($parsed['writing']) && strtoupper(trim($parsed['writing'])) === 'A') $achievements[] = 'Menulis';
@@ -861,9 +882,9 @@ class ReportController extends Controller
                 if (count($achievements) === 3) {
                     if (!isset($graduates[$studentId])) {
                          $graduates[$studentId] = [
-                            'name' => $grade->student->name ?? 'Unknown',
-                            'class' => $grade->student->class ?? '-',
-                            'eskul' => $grade->eskul->name ?? 'Calistung',
+                            'name'         => $grade->student->name ?? 'Unknown',
+                            'class'        => $studentClass,
+                            'eskul'        => $grade->eskul->name ?? 'Calistung',
                             'achievements' => [],
                          ];
                     }
@@ -871,11 +892,12 @@ class ReportController extends Controller
                 }
             }
         }
-        
-        // Sort by Name
-        $graduates = collect(array_values($graduates))->sortBy('name');
 
-        return view('reports.print_calistung', compact('graduates', 'yearName'));
+        // Sort by Class then Name
+        $graduates = collect(array_values($graduates))
+            ->sortBy(['class', 'name']);
+
+        return view('reports.print_calistung', compact('graduates', 'yearName', 'selectedClass', 'availableClasses'));
     }
 
     public function printAll(Request $request)
