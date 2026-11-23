@@ -319,9 +319,10 @@ class CharacterCaseController extends Controller
             'reported_by'        => 'nullable|string|max:150',
             'counseling_date'    => 'nullable|date',
             'notes'              => 'nullable|string',
+            'verification_status'=> 'nullable|string|max:50',
         ]);
 
-        $character_case->update([
+        $updateData = [
             'date'               => $request->date,
             'category'           => $request->category,
             'tppk_category'      => $request->tppk_category ?? 'non_tppk',
@@ -339,7 +340,13 @@ class CharacterCaseController extends Controller
             'parent_notified'    => $request->has('parent_notified'),
             'counseling_date'    => $request->counseling_date,
             'notes'              => $request->notes,
-        ]);
+        ];
+
+        if ($request->filled('verification_status')) {
+            $updateData['verification_status'] = $request->verification_status;
+        }
+
+        $character_case->update($updateData);
 
         ActivityLog::log('Karakter', 'Update Kasus', "Memperbarui kasus ID: {$character_case->id} ({$character_case->title})");
         \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();

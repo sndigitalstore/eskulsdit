@@ -261,19 +261,20 @@ class CharacterAppreciationController extends Controller
     public function update(Request $request, CharacterAppreciation $character_appreciation)
     {
         $request->validate([
-            'date'           => 'required|date',
-            'category'       => 'required|string|max:100',
-            'dimension_p5'   => 'nullable|string|max:100',
-            'title'          => 'required|string|max:255',
-            'point'          => 'required|integer|min:1|max:100',
-            'reward'         => 'nullable|string|max:150',
-            'certificate_no' => 'nullable|string|max:100',
-            'description'    => 'nullable|string',
-            'given_by'       => 'nullable|string|max:150',
-            'notes'          => 'nullable|string',
+            'date'               => 'required|date',
+            'category'           => 'required|string|max:100',
+            'dimension_p5'       => 'nullable|string|max:100',
+            'title'              => 'required|string|max:255',
+            'point'              => 'required|integer|min:0|max:100',
+            'reward'             => 'nullable|string|max:150',
+            'certificate_no'     => 'nullable|string|max:100',
+            'description'        => 'nullable|string',
+            'given_by'           => 'nullable|string|max:150',
+            'notes'              => 'nullable|string',
+            'verification_status'=> 'nullable|string|max:50',
         ]);
 
-        $character_appreciation->update([
+        $updateData = [
             'date'           => $request->date,
             'category'       => $request->category,
             'dimension_p5'   => $request->dimension_p5 ?? 'Adab Islami SIT',
@@ -284,7 +285,13 @@ class CharacterAppreciationController extends Controller
             'description'    => $request->description,
             'given_by'       => $request->given_by,
             'notes'          => $request->notes,
-        ]);
+        ];
+
+        if ($request->filled('verification_status')) {
+            $updateData['verification_status'] = $request->verification_status;
+        }
+
+        $character_appreciation->update($updateData);
 
         ActivityLog::log('Karakter', 'Update Apresiasi', "Memperbarui apresiasi ID: {$character_appreciation->id} ({$character_appreciation->title})");
         \App\Http\Controllers\CharacterDashboardController::invalidateAnalyticsCache();

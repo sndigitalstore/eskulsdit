@@ -231,13 +231,27 @@
                                 </div>
                             </td>
                             <td style="padding: 12px 10px;">
-                                @if($case->tppk_category && $case->tppk_category !== 'non_tppk')
-                                    <div style="margin-bottom: 4px;">
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px;">
+                                    @if($case->is_public_report)
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;">
+                                            <i class="fas fa-bullhorn"></i> Laporan Publik
+                                        </span>
+                                        @if($case->verification_status === 'menunggu_verifikasi')
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">
+                                                <i class="fas fa-clock"></i> Perlu Verifikasi
+                                            </span>
+                                        @elseif($case->verification_status === 'terverifikasi')
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+                                                <i class="fas fa-check-circle"></i> Terverifikasi
+                                            </span>
+                                        @endif
+                                    @endif
+                                    @if($case->tppk_category && $case->tppk_category !== 'non_tppk')
                                         <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: {{ $case->tppk_badge['bg'] }}; color: {{ $case->tppk_badge['color'] }}; border: 1px solid {{ $case->tppk_badge['border'] }};">
                                             <i class="fas fa-shield-alt"></i> {{ $case->tppk_badge['label'] }}
                                         </span>
-                                    </div>
-                                @endif
+                                    @endif
+                                </div>
                                 <div style="font-size: 0.75rem; font-weight: 700; color: #b45309; text-transform: uppercase;">
                                     {{ $case->category }}
                                 </div>
@@ -252,6 +266,20 @@
                                 @if($case->reported_by)
                                     <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">
                                         Pelapor: {{ $case->reported_by }}
+                                    </div>
+                                @endif
+                                @if($case->reporter_contact)
+                                    <div style="font-size: 0.72rem; color: #059669; margin-top: 2px;">
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $case->reporter_contact) }}" target="_blank" style="color: #059669; text-decoration: none; font-weight: 600;">
+                                            <i class="fab fa-whatsapp"></i> Kontak: {{ $case->reporter_contact }}
+                                        </a>
+                                    </div>
+                                @endif
+                                @if($case->evidence_file)
+                                    <div style="margin-top: 4px;">
+                                        <a href="{{ asset('storage/' . $case->evidence_file) }}" target="_blank" style="font-size: 0.72rem; color: #0284c7; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">
+                                            <i class="fas fa-paperclip"></i> Bukti Lampiran
+                                        </a>
                                     </div>
                                 @endif
                             </td>

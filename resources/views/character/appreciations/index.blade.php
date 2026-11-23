@@ -183,6 +183,22 @@
                                 @endif
                             </td>
                             <td style="padding: 12px 10px;">
+                                @if($appr->is_public_report)
+                                    <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+                                            <i class="fas fa-heart"></i> Publik
+                                        </span>
+                                        @if($appr->verification_status === 'menunggu_verifikasi')
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">
+                                                <i class="fas fa-clock"></i> Perlu Verifikasi
+                                            </span>
+                                        @elseif($appr->verification_status === 'terverifikasi')
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; background: #dcfce7; color: #15803d; border: 1px solid #86efac;">
+                                                <i class="fas fa-check-circle"></i> Terverifikasi
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
                                 <div style="font-weight: 700; color: #1e293b;">
                                     {{ $appr->title }}
                                 </div>
@@ -194,6 +210,13 @@
                                 @if($appr->certificate_no)
                                     <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">
                                         <i class="fas fa-certificate" style="color: #f59e0b;"></i> No. Piagam: <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-size: 0.72rem;">{{ $appr->certificate_no }}</code>
+                                    </div>
+                                @endif
+                                @if($appr->evidence_file)
+                                    <div style="margin-top: 4px;">
+                                        <a href="{{ asset('storage/' . $appr->evidence_file) }}" target="_blank" style="font-size: 0.72rem; color: #0284c7; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">
+                                            <i class="fas fa-paperclip"></i> Bukti Foto/Piagam
+                                        </a>
                                     </div>
                                 @endif
                             </td>

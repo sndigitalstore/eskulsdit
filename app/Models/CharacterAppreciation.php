@@ -19,11 +19,19 @@ class CharacterAppreciation extends Model
         'certificate_no',
         'given_by',
         'notes',
+        'is_public_report',
+        'reporter_type',
+        'reporter_contact',
+        'is_anonymous',
+        'evidence_file',
+        'verification_status',
     ];
 
     protected $casts = [
         'date' => 'date',
         'point' => 'integer',
+        'is_public_report' => 'boolean',
+        'is_anonymous' => 'boolean',
     ];
 
     /**

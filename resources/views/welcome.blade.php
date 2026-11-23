@@ -361,6 +361,136 @@
             transform: translateY(-2px);
         }
 
+        /* Hero Character Public Service Box */
+        .hero-character-box {
+            margin-top: 24px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 16px 20px;
+            max-width: 620px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .hero-char-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hero-char-badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #be123c;
+            background: #ffe4e6;
+            padding: 4px 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .hero-char-subtitle {
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .hero-char-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-char-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            border: 1.5px solid transparent;
+        }
+
+        .btn-char-report {
+            background: #fff1f2;
+            border-color: #fecdd3;
+        }
+        .btn-char-report:hover {
+            background: #ffe4e6;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(225, 29, 72, 0.15);
+        }
+        .btn-char-report .char-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #fee2e2;
+            color: #e11d48;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .btn-char-report .char-text strong {
+            display: block;
+            font-size: 0.85rem;
+            color: #9f1239;
+            line-height: 1.25;
+            font-weight: 800;
+        }
+        .btn-char-report .char-text span {
+            display: block;
+            font-size: 0.72rem;
+            color: #be123c;
+            opacity: 0.88;
+            margin-top: 2px;
+        }
+
+        .btn-char-praise {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+        }
+        .btn-char-praise:hover {
+            background: #d1fae5;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.15);
+        }
+        .btn-char-praise .char-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #dcfce7;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .btn-char-praise .char-text strong {
+            display: block;
+            font-size: 0.85rem;
+            color: #065f46;
+            line-height: 1.25;
+            font-weight: 800;
+        }
+        .btn-char-praise .char-text span {
+            display: block;
+            font-size: 0.72rem;
+            color: #047857;
+            opacity: 0.88;
+            margin-top: 2px;
+        }
+
         /* Hero UI Glass Mockup */
         .hero-mockup-wrapper {
             position: relative;
@@ -1262,6 +1392,22 @@
                 text-align: center;
             }
 
+            .hero-character-box {
+                width: 100%;
+                max-width: 360px;
+                margin: 18px auto 0;
+                padding: 14px 14px;
+            }
+
+            .hero-char-actions {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .btn-char-item {
+                padding: 10px 12px;
+            }
+
             /* Mockup Card on Mobile - 100% Symmetrical, Zero Cutoff */
             .hero-mockup-wrapper {
                 width: 100%;
@@ -1650,6 +1796,9 @@
             <a href="{{ route('student-status.index') }}" class="nav-link" style="color: #047857; font-weight: 700;">
                 <i class="fas fa-search" style="font-size: 0.8rem; color: #059669;"></i> Portal Ayah Bunda
             </a>
+            <a href="{{ route('public.character.index') }}" class="nav-link" style="color: #be123c; font-weight: 700;">
+                <i class="fas fa-shield-alt" style="font-size: 0.85rem; color: #e11d48;"></i> Layanan TPPK & Apresiasi
+            </a>
             @auth
                 <a href="{{ url('/dashboard') }}" class="btn-nav-portal">
                     <i class="fas fa-th-large"></i> Buka Dashboard
@@ -1663,6 +1812,10 @@
 
         <!-- Mobile Navigation Actions -->
         <div class="mobile-nav-actions">
+            <a href="{{ route('public.character.index') }}" class="mobile-quick-btn" title="Layanan TPPK & Apresiasi" style="color: #be123c; background: #fff1f2; border-color: #fecdd3;">
+                <i class="fas fa-shield-alt"></i>
+                <span>TPPK</span>
+            </a>
             <a href="{{ route('student-status.index') }}" class="mobile-quick-btn" title="Portal Ayah Bunda">
                 <i class="fas fa-search"></i>
                 <span>Cek Ananda</span>
@@ -1709,6 +1862,13 @@
                     </div>
                     <span class="m-badge-pill">Mandiri</span>
                 </a>
+                <a href="{{ route('public.character.index') }}" class="m-nav-link" style="background: #fff1f2; border: 1px solid #fecdd3; color: #be123c;" onclick="closeMobileMenu()">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-shield-alt" style="color: #e11d48;"></i>
+                        <span>Layanan TPPK & Apresiasi</span>
+                    </div>
+                    <span class="m-badge-pill" style="background: #e11d48; color: #fff;">Publik</span>
+                </a>
             </div>
 
             <div class="mobile-drawer-footer">
@@ -1750,6 +1910,30 @@
                 <a href="{{ route('student-status.index') }}" class="btn-hero-secondary">
                     <i class="fas fa-search" style="color: #0284c7;"></i> Cek Perkembangan Ananda
                 </a>
+            </div>
+
+            <!-- Quick Access Public Character Service Box -->
+            <div class="hero-character-box">
+                <div class="hero-char-header">
+                    <span class="hero-char-badge"><i class="fas fa-shield-alt"></i> Akses Terbuka Tanpa Login</span>
+                    <span class="hero-char-subtitle">Layanan Komunikasi & Perlindungan Warga Sekolah</span>
+                </div>
+                <div class="hero-char-actions">
+                    <a href="{{ route('public.character.index', ['tab' => 'pengaduan']) }}" class="btn-char-item btn-char-report">
+                        <div class="char-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="char-text">
+                            <strong>Pengaduan Insiden (TPPK)</strong>
+                            <span>Bullying, kekerasan & tata tertib</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('public.character.index', ['tab' => 'apresiasi']) }}" class="btn-char-item btn-char-praise">
+                        <div class="char-icon"><i class="fas fa-award"></i></div>
+                        <div class="char-text">
+                            <strong>Apresiasi Kebaikan</strong>
+                            <span>Kejujuran, adab & prestasi siswa</span>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -1878,6 +2062,11 @@
                     <li><i class="fas fa-check"></i> Neraca Poin Karakter Siswa</li>
                     <li><i class="fas fa-check"></i> Lembar Evaluasi Karakter per Kelas</li>
                 </ul>
+                <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #fde68a;">
+                    <a href="{{ route('public.character.index') }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 14px; border-radius: 10px; background: #fffbeb; border: 1.5px solid #fef3c7; color: #b45309; font-size: 0.82rem; font-weight: 800; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#fef3c7'; this.style.borderColor='#fde68a';" onmouseout="this.style.background='#fffbeb'; this.style.borderColor='#fef3c7';">
+                        <i class="fas fa-bullhorn" style="color: #d97706;"></i> Buka Kanal Pengaduan & Apresiasi &rarr;
+                    </a>
+                </div>
             </div>
 
             <!-- Pilar 3: SMILE Kurikulum -->

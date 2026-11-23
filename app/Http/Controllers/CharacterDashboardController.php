@@ -36,7 +36,7 @@ class CharacterDashboardController extends Controller
 
     protected function ensureTablesExist()
     {
-        if (!Schema::hasTable('character_cases') || !Schema::hasTable('character_appreciations') || !Schema::hasColumn('character_cases', 'tppk_category')) {
+        if (!Schema::hasTable('character_cases') || !Schema::hasTable('character_appreciations') || !Schema::hasColumn('character_cases', 'tppk_category') || !Schema::hasColumn('character_cases', 'is_public_report')) {
             try {
                 Artisan::call('migrate', ['--force' => true]);
             } catch (\Throwable $e) {

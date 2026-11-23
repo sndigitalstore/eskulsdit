@@ -36,6 +36,37 @@
             @csrf
             @method('PUT')
 
+            @if($case->is_public_report)
+                <div style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <strong style="color: #9f1239; font-size: 0.92rem;"><i class="fas fa-bullhorn"></i> Laporan Masuk dari Kanal Publik (TPPK)</strong>
+                            <div style="font-size: 0.8rem; color: #be123c; margin-top: 2px;">
+                                Pelapor: <strong>{{ $case->reported_by }}</strong>
+                                @if($case->reporter_contact)
+                                    &bull; Kontak: <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $case->reporter_contact) }}" target="_blank" style="color: #059669; font-weight: 700;"><i class="fab fa-whatsapp"></i> {{ $case->reporter_contact }}</a>
+                                @endif
+                            </div>
+                        </div>
+                        <div style="min-width: 220px;">
+                            <label style="display: block; font-size: 0.78rem; font-weight: 800; color: #9f1239; margin-bottom: 4px;">Status Verifikasi Laporan:</label>
+                            <select name="verification_status" class="form-control" style="font-size: 0.85rem; height: 38px; border-color: #fca5a5; font-weight: 700;">
+                                <option value="menunggu_verifikasi" {{ old('verification_status', $case->verification_status) == 'menunggu_verifikasi' ? 'selected' : '' }}>⏳ Menunggu Verifikasi</option>
+                                <option value="terverifikasi" {{ old('verification_status', $case->verification_status) == 'terverifikasi' ? 'selected' : '' }}>✅ Terverifikasi (Sah & Diterima)</option>
+                                <option value="ditolak" {{ old('verification_status', $case->verification_status) == 'ditolak' ? 'selected' : '' }}>❌ Ditolak / Tidak Terbukti / Spam</option>
+                            </select>
+                        </div>
+                    </div>
+                    @if($case->evidence_file)
+                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #fecdd3;">
+                            <a href="{{ asset('storage/' . $case->evidence_file) }}" target="_blank" style="color: #0284c7; font-weight: 700; font-size: 0.82rem; text-decoration: none;">
+                                <i class="fas fa-paperclip"></i> Buka Berkas Bukti Lampiran Pelapor
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             <!-- Section 1: Siswa Info & Waktu -->
             <div style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 800; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">

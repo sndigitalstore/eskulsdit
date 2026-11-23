@@ -128,6 +128,12 @@ Route::middleware(['throttle:30,1'])->group(function () {
     Route::get('/daftar-munaqosah', [\App\Http\Controllers\MunaqosahController::class, 'publicRegisterForm'])->name('munaqosah.public-register');
     Route::post('/daftar-munaqosah', [\App\Http\Controllers\MunaqosahController::class, 'publicRegisterStore'])->name('munaqosah.public-register.store');
     Route::get('/daftar-munaqosah/sukses/{id}', [\App\Http\Controllers\MunaqosahController::class, 'publicRegisterSuccess'])->name('munaqosah.public-register.success');
+
+    // Public Routes for Character & Incident Reporting (TPPK & Apresiasi Karakter)
+    Route::get('/layanan-karakter', [\App\Http\Controllers\PublicCharacterReportController::class, 'index'])->name('public.character.index');
+    Route::post('/layanan-karakter/kasus', [\App\Http\Controllers\PublicCharacterReportController::class, 'storeCase'])->name('public.character.store-case');
+    Route::post('/layanan-karakter/apresiasi', [\App\Http\Controllers\PublicCharacterReportController::class, 'storeAppreciation'])->name('public.character.store-appreciation');
+    Route::get('/layanan-karakter/sukses', [\App\Http\Controllers\PublicCharacterReportController::class, 'success'])->name('public.character.success');
 });
 
 Route::middleware(['auth'])->group(function () {

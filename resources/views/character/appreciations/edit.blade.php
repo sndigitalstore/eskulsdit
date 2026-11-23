@@ -36,6 +36,37 @@
             @csrf
             @method('PUT')
 
+            @if($appreciation->is_public_report)
+                <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <strong style="color: #065f46; font-size: 0.92rem;"><i class="fas fa-heart"></i> Apresiasi Masuk dari Kanal Publik</strong>
+                            <div style="font-size: 0.8rem; color: #047857; margin-top: 2px;">
+                                Pengirim: <strong>{{ $appreciation->given_by }}</strong>
+                                @if($appreciation->reporter_contact)
+                                    &bull; Kontak: <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $appreciation->reporter_contact) }}" target="_blank" style="color: #059669; font-weight: 700;"><i class="fab fa-whatsapp"></i> {{ $appreciation->reporter_contact }}</a>
+                                @endif
+                            </div>
+                        </div>
+                        <div style="min-width: 220px;">
+                            <label style="display: block; font-size: 0.78rem; font-weight: 800; color: #065f46; margin-bottom: 4px;">Status Verifikasi Apresiasi:</label>
+                            <select name="verification_status" class="form-control" style="font-size: 0.85rem; height: 38px; border-color: #86efac; font-weight: 700;">
+                                <option value="menunggu_verifikasi" {{ old('verification_status', $appreciation->verification_status) == 'menunggu_verifikasi' ? 'selected' : '' }}>⏳ Menunggu Verifikasi</option>
+                                <option value="terverifikasi" {{ old('verification_status', $appreciation->verification_status) == 'terverifikasi' ? 'selected' : '' }}>✅ Terverifikasi (Diberi Poin & Reward)</option>
+                                <option value="ditolak" {{ old('verification_status', $appreciation->verification_status) == 'ditolak' ? 'selected' : '' }}>❌ Ditolak / Tidak Valid</option>
+                            </select>
+                        </div>
+                    </div>
+                    @if($appreciation->evidence_file)
+                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #a7f3d0;">
+                            <a href="{{ asset('storage/' . $appreciation->evidence_file) }}" target="_blank" style="color: #0284c7; font-weight: 700; font-size: 0.82rem; text-decoration: none;">
+                                <i class="fas fa-paperclip"></i> Buka Lampiran Bukti / Sertifikat Pelapor
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             <!-- Section 1: Identitas Siswa & Waktu -->
             <div style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; font-size: 0.95rem; font-weight: 800; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
