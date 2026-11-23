@@ -166,7 +166,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/eskuls/{eskul}/quick-update', [\App\Http\Controllers\EskulController::class, 'quickUpdate'])->name('eskuls.quick-update');
         Route::get('/eskuls/{eskul}/export', [\App\Http\Controllers\EskulController::class, 'export'])->name('eskuls.export');
 
-        // Program Kerja Eskul (Akreditasi)
+        // Program Kerja Eskul & Monitoring (Akreditasi & Supervisi)
+        Route::get('/eskuls/program-monitor', [\App\Http\Controllers\EskulAdminController::class, 'programMonitor'])->name('eskuls.program.monitor');
         Route::get('/eskuls/{eskul}/program', [\App\Http\Controllers\EskulAdminController::class, 'programIndex'])->name('eskuls.program.index');
         Route::post('/eskuls/{eskul}/program', [\App\Http\Controllers\EskulAdminController::class, 'programStore'])->name('eskuls.program.store');
         Route::post('/eskuls/{eskul}/program/generate-template', [\App\Http\Controllers\EskulAdminController::class, 'programGenerateTemplate'])->name('eskuls.program.generate-template');
@@ -174,7 +175,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/eskuls/{eskul}/program/items/{item}', [\App\Http\Controllers\EskulAdminController::class, 'programItemDestroy'])->name('eskuls.program.item.destroy');
         Route::get('/eskuls/{eskul}/program/print', [\App\Http\Controllers\EskulAdminController::class, 'programPrint'])->name('eskuls.program.print');
 
-        // Jurnal Kegiatan Eskul (Akreditasi)
+        // Jurnal Kegiatan Eskul & Monitoring (Akreditasi & Supervisi)
+        Route::get('/eskuls/jurnal-monitor', [\App\Http\Controllers\EskulAdminController::class, 'jurnalMonitor'])->name('eskuls.jurnal.monitor');
         Route::get('/eskuls/{eskul}/jurnal', [\App\Http\Controllers\EskulAdminController::class, 'jurnalIndex'])->name('eskuls.jurnal.index');
         Route::post('/eskuls/{eskul}/jurnal', [\App\Http\Controllers\EskulAdminController::class, 'jurnalStore'])->name('eskuls.jurnal.store');
         Route::delete('/eskuls/{eskul}/jurnal/{journal}', [\App\Http\Controllers\EskulAdminController::class, 'jurnalDestroy'])->name('eskuls.jurnal.destroy');

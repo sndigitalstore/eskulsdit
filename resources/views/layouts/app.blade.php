@@ -1086,47 +1086,59 @@
                             <span>Absensi Pembina</span>
                         </a>
                     </li>
-                    @endif
-
-                    {{-- MENU KHUSUS PEMBINA ESKUL: JURNAL & PROGRAM KERJA --}}
-                    @if($coachEskuls->isNotEmpty())
-                        @if($coachEskuls->count() === 1)
-                            <li class="nav-subitem">
-                                <a href="{{ route('eskuls.jurnal.index', $firstCoachEskul->id) }}" class="nav-sublink {{ request()->is('eskuls/*/jurnal*') ? 'active' : '' }}">
-                                    <i class="fas fa-book-open" style="color: #10b981;"></i>
-                                    <span>Jurnal Kegiatan</span>
-                                </a>
-                            </li>
-                            <li class="nav-subitem">
-                                <a href="{{ route('eskuls.program.index', $firstCoachEskul->id) }}" class="nav-sublink {{ request()->is('eskuls/*/program*') ? 'active' : '' }}">
-                                    <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
-                                    <span>Program Kerja</span>
-                                </a>
-                            </li>
-                        @else
-                            @foreach($coachEskuls as $cEsk)
+                    <li class="nav-subitem">
+                        <a href="{{ route('eskuls.jurnal.monitor') }}" class="nav-sublink {{ request()->is('eskuls/jurnal-monitor*', 'eskuls/*/jurnal*') ? 'active' : '' }}">
+                            <i class="fas fa-book-open" style="color: #10b981;"></i>
+                            <span>Jurnal Kegiatan</span>
+                        </a>
+                    </li>
+                    <li class="nav-subitem">
+                        <a href="{{ route('eskuls.program.monitor') }}" class="nav-sublink {{ request()->is('eskuls/program-monitor*', 'eskuls/*/program*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
+                            <span>Program Kerja</span>
+                        </a>
+                    </li>
+                    @else
+                        {{-- MENU KHUSUS PEMBINA ESKUL (GURU): JURNAL & PROGRAM KERJA --}}
+                        @if($coachEskuls->isNotEmpty())
+                            @if($coachEskuls->count() === 1)
                                 <li class="nav-subitem">
-                                    <a href="{{ route('eskuls.jurnal.index', $cEsk->id) }}" class="nav-sublink {{ request()->is('eskuls/' . $cEsk->id . '/jurnal*') ? 'active' : '' }}">
+                                    <a href="{{ route('eskuls.jurnal.index', $firstCoachEskul->id) }}" class="nav-sublink {{ request()->is('eskuls/*/jurnal*') ? 'active' : '' }}">
                                         <i class="fas fa-book-open" style="color: #10b981;"></i>
-                                        <span>Jurnal {{ $cEsk->name }}</span>
+                                        <span>Jurnal Kegiatan</span>
                                     </a>
                                 </li>
                                 <li class="nav-subitem">
-                                    <a href="{{ route('eskuls.program.index', $cEsk->id) }}" class="nav-sublink {{ request()->is('eskuls/' . $cEsk->id . '/program*') ? 'active' : '' }}">
+                                    <a href="{{ route('eskuls.program.index', $firstCoachEskul->id) }}" class="nav-sublink {{ request()->is('eskuls/*/program*') ? 'active' : '' }}">
                                         <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
-                                        <span>Progker {{ $cEsk->name }}</span>
+                                        <span>Program Kerja</span>
                                     </a>
                                 </li>
-                            @endforeach
-                        @endif
+                            @else
+                                @foreach($coachEskuls as $cEsk)
+                                    <li class="nav-subitem">
+                                        <a href="{{ route('eskuls.jurnal.index', $cEsk->id) }}" class="nav-sublink {{ request()->is('eskuls/' . $cEsk->id . '/jurnal*') ? 'active' : '' }}">
+                                            <i class="fas fa-book-open" style="color: #10b981;"></i>
+                                            <span>Jurnal {{ $cEsk->name }}</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-subitem">
+                                        <a href="{{ route('eskuls.program.index', $cEsk->id) }}" class="nav-sublink {{ request()->is('eskuls/' . $cEsk->id . '/program*') ? 'active' : '' }}">
+                                            <i class="fas fa-clipboard-list" style="color: #3b82f6;"></i>
+                                            <span>Progker {{ $cEsk->name }}</span>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            @endif
 
-                        @if($isTeacher)
-                        <li class="nav-subitem">
-                            <a href="/eskuls" class="nav-sublink {{ (request()->is('eskuls') && !request()->is('eskuls/*')) ? 'active' : '' }}">
-                                <i class="fas fa-users-cog" style="color: #8b5cf6;"></i>
-                                <span>Kelompok Eskul Saya</span>
-                            </a>
-                        </li>
+                            @if($isTeacher)
+                            <li class="nav-subitem">
+                                <a href="/eskuls" class="nav-sublink {{ (request()->is('eskuls') && !request()->is('eskuls/*')) ? 'active' : '' }}">
+                                    <i class="fas fa-users-cog" style="color: #8b5cf6;"></i>
+                                    <span>Kelompok Eskul Saya</span>
+                                </a>
+                            </li>
+                            @endif
                         @endif
                     @endif
 

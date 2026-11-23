@@ -9,9 +9,123 @@ use App\Models\EskulProgramItem;
 use App\Models\EskulJournal;
 use App\Models\AcademicYear;
 use App\Models\Setting;
+use App\Models\User;
 
 class EskulAdminController extends Controller
 {
+    /**
+     * Monitoring Program Kerja Semua Ekstrakurikuler (Khusus Admin / Kepala Sekolah / Kurikulum)
+     */
+    public function programMonitor(Request $request)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            $userEskul = $user->eskul;
+            if (!$userEskul && !empty($user->name)) {
+                $userEskul = Eskul::where('instructor_name', $user->name)->activeYear()->first();
+            }
+            if ($userEskul) {
+                return redirect()->route('eskuls.program.index', $userEskul->id);
+            }
+            abort(403, 'Akses ditolak: Hanya Administrator dan Pimpinan yang dapat mengakses monitoring program kerja.');
+        }
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->with('error', 'Tidak ada tahun ajaran aktif.');
+        }
+
+        $semester = $activeYear->active_semester;
+        $statusFilter = $request->query('status', 'all');
+        $searchKeyword = trim($request->query('search', ''));
+
+        $allEskuls = Eskul::where('academic_year_id', $activeYear->id)
+            ->orderBy('name')
+            ->get();
+
+        $allPrograms = EskulProgram::where('academic_year_id', $activeYear->id)->get();
+        $allItems = EskulProgramItem::where('academic_year_id', $activeYear->id)->get();
+        $teachers = User::where('role', 'teacher')->get();
+
+        $monitorData = collect();
+
+        foreach ($allEskuls as $esk) {
+            $prog = $allPrograms->firstWhere('eskul_id', $esk->id);
+            $items = $allItems->where('eskul_id', $esk->id);
+            $itemCount = $items->count();
+
+            $pembina = $teachers->first(function($t) use ($esk) {
+                return (!empty($t->name) && strtolower(trim($t->name)) === strtolower(trim($esk->instructor_name ?? '')))
+                    || ($t->eskul_id == $esk->id);
+            });
+
+            $hasVisi = $prog && !empty(trim($prog->visi ?? ''));
+            $hasMisi = $prog && !empty(trim($prog->misi ?? ''));
+            $hasTujuan = $prog && !empty(trim($prog->tujuan ?? ''));
+            $isComplete = $hasVisi && $hasMisi && ($itemCount >= 6);
+            $isDraft = ($hasVisi || $hasMisi || $itemCount > 0) && !$isComplete;
+            $isMissing = !$hasVisi && !$hasMisi && ($itemCount === 0);
+
+            // Filter status
+            if ($statusFilter === 'complete' && !$isComplete) continue;
+            if ($statusFilter === 'draft' && !$isDraft) continue;
+            if ($statusFilter === 'empty' && !$isMissing) continue;
+
+            // Search
+            if (!empty($searchKeyword)) {
+                $kw = strtolower($searchKeyword);
+                $matchEskul = str_contains(strtolower($esk->name), $kw);
+                $matchPembina = str_contains(strtolower($esk->instructor_name ?? ''), $kw);
+                if (!$matchEskul && !$matchPembina) continue;
+            }
+
+            $phoneClean = $pembina && $pembina->phone ? preg_replace('/[^0-9]/', '', $pembina->phone) : null;
+            if ($phoneClean && str_starts_with($phoneClean, '0')) {
+                $phoneClean = '62' . substr($phoneClean, 1);
+            }
+            $waUrl = null;
+            if ($phoneClean && ($isDraft || $isMissing)) {
+                $waText = rawurlencode("Assalamualaikum Wr. Wb. Yth. Ust/Ustazah *{$esk->instructor_name}*,\n\nMohon bantuannya untuk melengkapi penyusunan *Program Kerja Ekstrakurikuler {$esk->name}* di aplikasi SIMUTQIN untuk keperluan arsip administrasi dan supervisi.\n\nTerima kasih. 🙏");
+                $waUrl = "https://api.whatsapp.com/send?phone={$phoneClean}&text={$waText}";
+            }
+
+            $monitorData->push([
+                'eskul'         => $esk,
+                'pembina'       => $pembina,
+                'program'       => $prog,
+                'item_count'    => $itemCount,
+                'has_visi'      => $hasVisi,
+                'has_misi'      => $hasMisi,
+                'has_tujuan'    => $hasTujuan,
+                'is_complete'   => $isComplete,
+                'is_draft'      => $isDraft,
+                'is_missing'    => $isMissing,
+                'updated_at'    => $prog ? $prog->updated_at : null,
+                'wa_url'        => $waUrl,
+            ]);
+        }
+
+        $totalEskuls = $allEskuls->count();
+        $completeCount = $allEskuls->filter(function($esk) use ($allPrograms, $allItems) {
+            $p = $allPrograms->firstWhere('eskul_id', $esk->id);
+            $c = $allItems->where('eskul_id', $esk->id)->count();
+            return $p && !empty(trim($p->visi ?? '')) && !empty(trim($p->misi ?? '')) && $c >= 6;
+        })->count();
+        $draftCount = $allEskuls->filter(function($esk) use ($allPrograms, $allItems) {
+            $p = $allPrograms->firstWhere('eskul_id', $esk->id);
+            $c = $allItems->where('eskul_id', $esk->id)->count();
+            $complete = $p && !empty(trim($p->visi ?? '')) && !empty(trim($p->misi ?? '')) && $c >= 6;
+            $hasAny = ($p && (!empty(trim($p->visi ?? '')) || !empty(trim($p->misi ?? '')))) || $c > 0;
+            return $hasAny && !$complete;
+        })->count();
+        $emptyCount = $totalEskuls - ($completeCount + $draftCount);
+
+        return view('eskuls.program_monitor', compact(
+            'monitorData', 'activeYear', 'semester', 'totalEskuls',
+            'completeCount', 'draftCount', 'emptyCount', 'statusFilter', 'searchKeyword'
+        ));
+    }
+
     /**
      * Halaman Program Kerja: form isi & kelola kegiatan (Mendukung 1 Tahun Pelajaran & Per Semester)
      */
@@ -269,6 +383,108 @@ class EskulAdminController extends Controller
     /* ========================
      *  JURNAL KEGIATAN
      * ======================== */
+
+    /**
+     * Monitoring Jurnal Kegiatan Semua Ekstrakurikuler (Khusus Admin / Kepala Sekolah / Kurikulum)
+     */
+    public function jurnalMonitor(Request $request)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            $userEskul = $user->eskul;
+            if (!$userEskul && !empty($user->name)) {
+                $userEskul = Eskul::where('instructor_name', $user->name)->activeYear()->first();
+            }
+            if ($userEskul) {
+                return redirect()->route('eskuls.jurnal.index', $userEskul->id);
+            }
+            abort(403, 'Akses ditolak: Hanya Administrator dan Pimpinan yang dapat mengakses monitoring jurnal.');
+        }
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->with('error', 'Tidak ada tahun ajaran aktif.');
+        }
+
+        $semester = $activeYear->active_semester;
+        $statusFilter = $request->query('status', 'all');
+        $searchKeyword = trim($request->query('search', ''));
+
+        $allEskuls = Eskul::where('academic_year_id', $activeYear->id)
+            ->orderBy('name')
+            ->get();
+
+        $allJournals = EskulJournal::where('academic_year_id', $activeYear->id)
+            ->where('semester', $semester)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        $teachers = User::where('role', 'teacher')->get();
+
+        $monitorData = collect();
+
+        foreach ($allEskuls as $esk) {
+            $eskJournals = $allJournals->where('eskul_id', $esk->id);
+            $totalMeetings = $eskJournals->count();
+            $latestJournal = $eskJournals->first(); // latest by date
+            $totalHadir = $eskJournals->sum('hadir');
+            $totalTidakHadir = $eskJournals->sum('tidak_hadir');
+            $totalIzin = $eskJournals->sum('izin');
+
+            $pembina = $teachers->first(function($t) use ($esk) {
+                return (!empty($t->name) && strtolower(trim($t->name)) === strtolower(trim($esk->instructor_name ?? '')))
+                    || ($t->eskul_id == $esk->id);
+            });
+
+            $isFilled = $totalMeetings > 0;
+
+            // Filter status
+            if ($statusFilter === 'filled' && !$isFilled) continue;
+            if ($statusFilter === 'empty' && $isFilled) continue;
+
+            // Search
+            if (!empty($searchKeyword)) {
+                $kw = strtolower($searchKeyword);
+                $matchEskul = str_contains(strtolower($esk->name), $kw);
+                $matchPembina = str_contains(strtolower($esk->instructor_name ?? ''), $kw);
+                if (!$matchEskul && !$matchPembina) continue;
+            }
+
+            $phoneClean = $pembina && $pembina->phone ? preg_replace('/[^0-9]/', '', $pembina->phone) : null;
+            if ($phoneClean && str_starts_with($phoneClean, '0')) {
+                $phoneClean = '62' . substr($phoneClean, 1);
+            }
+            $waUrl = null;
+            if ($phoneClean && !$isFilled) {
+                $waText = rawurlencode("Assalamualaikum Wr. Wb. Yth. Ust/Ustazah *{$esk->instructor_name}*,\n\nMohon bantuannya untuk menginput *Jurnal Kegiatan Ekstrakurikuler {$esk->name}* di aplikasi SIMUTQIN untuk pertemuan yang telah dilaksanakan.\n\nTerima kasih. 🙏");
+                $waUrl = "https://api.whatsapp.com/send?phone={$phoneClean}&text={$waText}";
+            }
+
+            $monitorData->push([
+                'eskul'              => $esk,
+                'pembina'            => $pembina,
+                'total_meetings'     => $totalMeetings,
+                'latest_journal'     => $latestJournal,
+                'total_hadir'        => $totalHadir,
+                'total_tidak_hadir'  => $totalTidakHadir,
+                'total_izin'         => $totalIzin,
+                'is_filled'          => $isFilled,
+                'wa_url'             => $waUrl,
+            ]);
+        }
+
+        $totalEskuls = $allEskuls->count();
+        $filledCount = $allEskuls->filter(function($esk) use ($allJournals) {
+            return $allJournals->where('eskul_id', $esk->id)->count() > 0;
+        })->count();
+        $emptyCount = $totalEskuls - $filledCount;
+        $totalAllMeetings = $allJournals->count();
+
+        return view('eskuls.jurnal_monitor', compact(
+            'monitorData', 'activeYear', 'semester', 'totalEskuls',
+            'filledCount', 'emptyCount', 'totalAllMeetings', 'statusFilter', 'searchKeyword'
+        ));
+    }
 
     /**
      * Index Jurnal Kegiatan

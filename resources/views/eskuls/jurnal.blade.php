@@ -141,6 +141,28 @@
     <div class="success-flash">✅ {{ session('success') }}</div>
     @endif
 
+    @php
+        $isAdminRole = in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']);
+    @endphp
+
+    {{-- Banner Mode Supervisi Admin --}}
+    @if($isAdminRole)
+    <div style="background: #f0fdf4; border: 1.5px solid #a7f3d0; border-radius: 14px; padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 32px; height: 32px; border-radius: 8px; background: #ecfdf5; color: #059669; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;">
+                <i class="fas fa-shield-alt"></i>
+            </span>
+            <div>
+                <strong style="color: #065f46; font-size: 0.9rem;">Mode Pengawasan & Kontrol Admin</strong>
+                <p style="color: #047857; font-size: 0.78rem; margin: 0;">Anda sedang meninjau jurnal kegiatan eskul ini. Pembina eskul bertugas menginput dan memperbarui jurnal pertemuan.</p>
+            </div>
+        </div>
+        <a href="{{ route('eskuls.jurnal.monitor') }}" class="btn-outline" style="font-size: 0.8rem; padding: 6px 14px; background: white;">
+            <i class="fas fa-arrow-left"></i> Kembali ke Monitoring Jurnal
+        </a>
+    </div>
+    @endif
+
     {{-- Header --}}
     <div class="jk-header">
         <div>
@@ -153,7 +175,11 @@
                 🖨️ Cetak Jurnal
             </a>
             <a href="{{ route('eskuls.program.index', $eskul) }}" class="btn-outline">📋 Program Kerja</a>
-            <a href="{{ route('eskuls.index') }}" class="btn-outline">← Kembali</a>
+            @if($isAdminRole)
+                <a href="{{ route('eskuls.jurnal.monitor') }}" class="btn-outline">← Kembali ke Monitoring</a>
+            @else
+                <a href="{{ route('eskuls.index') }}" class="btn-outline">← Kembali</a>
+            @endif
         </div>
     </div>
 
@@ -230,14 +256,22 @@
         @else
         <div class="empty-state">
             <div class="empty-icon">📔</div>
-            <p>Belum ada entri jurnal kegiatan. Tambahkan pertemuan pertama di bawah ini.</p>
+            @if($isAdminRole)
+                <p><strong>Belum ada entri jurnal kegiatan untuk eskul ini.</strong><br>Guru pembina belum menginput pertemuan pada semester ini.</p>
+            @else
+                <p>Belum ada entri jurnal kegiatan. Tambahkan pertemuan pertama di bawah ini.</p>
+            @endif
         </div>
         @endif
 
-        {{-- FORM Tambah Jurnal --}}
-        <details style="margin-top:6px;" @if($journals->isEmpty()) open @endif>
+        {{-- FORM Tambah Jurnal (Khusus Pembina, atau Opsional/Manual untuk Admin) --}}
+        <details style="margin-top:6px;" @if(!$isAdminRole && $journals->isEmpty()) open @endif>
             <summary style="cursor:pointer; font-weight:700; font-size:0.9rem; color:#059669; padding:8px 0; user-select:none;">
-                ➕ Tambah Entri Jurnal Pertemuan Baru
+                @if($isAdminRole)
+                    <span style="color: #64748b; font-size: 0.85rem;"><i class="fas fa-plus-circle"></i> Input Jurnal Manual (Opsional / Mewakili Pembina)</span>
+                @else
+                    ➕ Tambah Entri Jurnal Pertemuan Baru
+                @endif
             </summary>
             <div style="padding-top:14px;">
                 <form method="POST" action="{{ route('eskuls.jurnal.store', $eskul) }}">

@@ -1169,6 +1169,14 @@
 
         @if(Auth::user()->role == 'admin')
         <div class="hero-right">
+            <a href="{{ route('eskuls.jurnal.monitor') }}" class="btn-solid" style="background: #059669; color: white; text-decoration: none;" title="Monitoring Jurnal Kegiatan Pembina">
+                <i class="fas fa-book-open"></i>
+                <span>Monitoring Jurnal</span>
+            </a>
+            <a href="{{ route('eskuls.program.monitor') }}" class="btn-solid" style="background: #2563eb; color: white; text-decoration: none;" title="Monitoring Program Kerja Pembina">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Monitoring Progker</span>
+            </a>
             <button type="button" onclick="openModal('create-eskul-modal')" class="btn-solid btn-solid-blue" title="Tambah Ekstrakurikuler Baru">
                 <i class="fas fa-plus"></i>
                 <span>Tambah Eskul</span>

@@ -185,6 +185,28 @@
     </div>
     @endif
 
+    @php
+        $isAdminRole = in_array(Auth::user()->role, ['admin', 'headmaster', 'curriculum']);
+    @endphp
+
+    {{-- Banner Mode Supervisi Admin --}}
+    @if($isAdminRole)
+    <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 14px; padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 32px; height: 32px; border-radius: 8px; background: #dbeafe; color: #2563eb; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;">
+                <i class="fas fa-shield-alt"></i>
+            </span>
+            <div>
+                <strong style="color: #1e40af; font-size: 0.9rem;">Mode Pengawasan & Kontrol Admin</strong>
+                <p style="color: #1d4ed8; font-size: 0.78rem; margin: 0;">Anda sedang meninjau dokumen Program Kerja eskul ini. Guru pembina bertugas menyusun visi, misi, dan rencana kegiatan tahunan.</p>
+            </div>
+        </div>
+        <a href="{{ route('eskuls.program.monitor') }}" class="btn-outline" style="font-size: 0.8rem; padding: 6px 14px; background: white;">
+            <i class="fas fa-arrow-left"></i> Kembali ke Monitoring Program
+        </a>
+    </div>
+    @endif
+
     {{-- Top Hero Header --}}
     <div class="pk-header">
         <div>
@@ -205,9 +227,15 @@
             <a href="{{ route('eskuls.jurnal.index', $eskul) }}" class="btn-outline">
                 📔 Jurnal Kegiatan
             </a>
-            <a href="{{ route('eskuls.index') }}" class="btn-outline">
-                ← Kembali
-            </a>
+            @if($isAdminRole)
+                <a href="{{ route('eskuls.program.monitor') }}" class="btn-outline">
+                    ← Kembali ke Monitoring
+                </a>
+            @else
+                <a href="{{ route('eskuls.index') }}" class="btn-outline">
+                    ← Kembali
+                </a>
+            @endif
         </div>
     </div>
 
