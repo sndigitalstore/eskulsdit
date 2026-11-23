@@ -915,8 +915,8 @@
                 // 2. Ekstrakurikuler: Admin, Headmaster, atau Guru Pembina Eskul
                 $showEskulMenu = $isAdminOrHeadmaster || $isEskulCoach;
 
-                // 3. SMILE Karakter: Admin, Headmaster, Guru Pembina Eskul, atau Wali Kelas
-                $showCharacterMenu = $isAdminOrHeadmaster || $isEskulCoach || $isHomeroom;
+                // 3. SMILE Karakter: Admin, Headmaster, atau Seluruh Guru (Wali Kelas, Guru Mapel, Pembina)
+                $showCharacterMenu = $isAdminOrHeadmaster || $isTeacher;
 
                 // 4. SMILE Kurikulum: Admin, Headmaster, Tim Kurikulum, Wali Kelas, atau Guru Mapel
                 $showKurikulumMenu = $isAdminOrCurriculumOrHeadmaster || $isHomeroom || $isSubjectTeacher;
@@ -1215,42 +1215,79 @@
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </div>
                 <ul class="nav-submenu">
-                    <li class="nav-subitem">
-                        <a href="{{ route('character.dashboard') }}" class="nav-sublink {{ (request()->is('character') && !request()->is('character/*')) ? 'active' : '' }}">
-                            <i class="fas fa-chart-pie" style="color: #6366f1;"></i>
-                            <span>Pantauan Karakter</span>
-                        </a>
-                    </li>
-                    <li class="nav-subitem">
-                        <a href="{{ route('character.analytics') }}" class="nav-sublink {{ request()->is('character/analytics*') ? 'active' : '' }}">
-                            <i class="fas fa-chart-line" style="color: #ec4899;"></i>
-                            <span>Grafik Capaian Karakter</span>
-                        </a>
-                    </li>
-                    <li class="nav-subitem">
-                        <a href="{{ route('character-cases.index') }}" class="nav-sublink {{ request()->is('character-cases*') ? 'active' : '' }}">
-                            <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
-                            <span>Data Kasus</span>
-                        </a>
-                    </li>
-                    <li class="nav-subitem">
-                        <a href="{{ route('character-appreciations.index') }}" class="nav-sublink {{ request()->is('character-appreciations*') ? 'active' : '' }}">
-                            <i class="fas fa-award" style="color: #10b981;"></i>
-                            <span>Data Apresiasi</span>
-                        </a>
-                    </li>
-                    <li class="nav-subitem">
-                        <a href="{{ route('character.report') }}" class="nav-sublink {{ request()->is('character/report*') ? 'active' : '' }}">
-                            <i class="fas fa-file-signature" style="color: #0284c7;"></i>
-                            <span>Laporan & Rekap</span>
-                        </a>
-                    </li>
-                    <li class="nav-subitem">
-                        <a href="{{ route('academic-reports.index', ['tab' => 'recap']) }}" class="nav-sublink {{ request()->is('curriculum/academic-reports*') ? 'active' : '' }}">
-                            <i class="fas fa-certificate" style="color: #059669;"></i>
-                            <span>Rapor Kekhasan (SMILE)</span>
-                        </a>
-                    </li>
+                    @if($isAdminOrHeadmaster)
+                        {{-- MENU LENGKAP KHUSUS ADMIN & KEPALA SEKOLAH (SUPERVISI & ANALITIK) --}}
+                        <li class="nav-subitem">
+                            <a href="{{ route('character.dashboard') }}" class="nav-sublink {{ (request()->is('character') && !request()->is('character/*')) ? 'active' : '' }}">
+                                <i class="fas fa-chart-pie" style="color: #6366f1;"></i>
+                                <span>Pantauan Karakter</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('character.analytics') }}" class="nav-sublink {{ request()->is('character/analytics*') ? 'active' : '' }}">
+                                <i class="fas fa-chart-line" style="color: #ec4899;"></i>
+                                <span>Grafik Capaian Karakter</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('character-cases.index') }}" class="nav-sublink {{ request()->is('character-cases*') ? 'active' : '' }}">
+                                <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+                                <span>Data Kasus</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('character-appreciations.index') }}" class="nav-sublink {{ request()->is('character-appreciations*') ? 'active' : '' }}">
+                                <i class="fas fa-award" style="color: #10b981;"></i>
+                                <span>Data Apresiasi</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('character.report') }}" class="nav-sublink {{ request()->is('character/report*') ? 'active' : '' }}">
+                                <i class="fas fa-file-signature" style="color: #0284c7;"></i>
+                                <span>Laporan & Rekap</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('academic-reports.index', ['tab' => 'recap']) }}" class="nav-sublink {{ request()->is('curriculum/academic-reports*') ? 'active' : '' }}">
+                                <i class="fas fa-certificate" style="color: #059669;"></i>
+                                <span>Rapor Kekhasan (SMILE)</span>
+                            </a>
+                        </li>
+                    @elseif($isHomeroom)
+                        {{-- MENU KHUSUS WALI KELAS: KASUS, APRESIASI & RAPOR KELAS BINAAN --}}
+                        <li class="nav-subitem">
+                            <a href="{{ route('character-cases.index') }}" class="nav-sublink {{ request()->is('character-cases*') ? 'active' : '' }}">
+                                <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+                                <span>Kasus Siswa (Kelas {{ $loggedUser->homeroom_class }})</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('character-appreciations.index') }}" class="nav-sublink {{ request()->is('character-appreciations*') ? 'active' : '' }}">
+                                <i class="fas fa-award" style="color: #10b981;"></i>
+                                <span>Apresiasi Siswa (Kelas {{ $loggedUser->homeroom_class }})</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('academic-reports.index', ['tab' => 'recap']) }}" class="nav-sublink {{ request()->is('curriculum/academic-reports*') ? 'active' : '' }}">
+                                <i class="fas fa-certificate" style="color: #059669;"></i>
+                                <span>Rapor Kekhasan (SMILE)</span>
+                            </a>
+                        </li>
+                    @else
+                        {{-- MENU GURU BIASA / MAPEL / ESKUL: HANYA CATAT KASUS & APRESIASI --}}
+                        <li class="nav-subitem">
+                            <a href="{{ route('character-cases.index') }}" class="nav-sublink {{ request()->is('character-cases*') ? 'active' : '' }}">
+                                <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+                                <span>Catat Kasus / Pembinaan</span>
+                            </a>
+                        </li>
+                        <li class="nav-subitem">
+                            <a href="{{ route('character-appreciations.index') }}" class="nav-sublink {{ request()->is('character-appreciations*') ? 'active' : '' }}">
+                                <i class="fas fa-award" style="color: #10b981;"></i>
+                                <span>Catat Apresiasi Siswa</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
             @endif
