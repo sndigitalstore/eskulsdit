@@ -244,11 +244,16 @@ class EskulAdminController extends Controller
     }
 
     /**
-     * Simpan / update Program Kerja (identitas & teks)
+     * Simpan / update Program Kerja (identitas & teks) - Khusus Admin / Kepala Sekolah / Kurikulum
      */
     public function programStore(Request $request, Eskul $eskul)
     {
         $this->authorizeEskul($eskul);
+
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'headmaster', 'curriculum'])) {
+            abort(403, 'Akses ditolak: Pengisian Visi, Misi, dan data Kepala Sekolah/NIY dikelola terpusat oleh Administrator.');
+        }
 
         $validated = $request->validate([
             'visi'         => 'nullable|string|max:500',

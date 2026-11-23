@@ -239,17 +239,44 @@
         </div>
     </div>
 
-    {{-- Identitas & Landasan Program (Visi, Misi, Tujuan, Sasaran, Pengesahan) --}}
+    {{-- ========================================================================= --}}
+    {{-- JIKA GURU: FOKUS LANGSUNG PADA MATRIKS RENCANA KEGIATAN ESKUL BINAANNYA     --}}
+    {{-- ========================================================================= --}}
+    @if(!$isAdminRole)
+    <div style="background: #f0fdf4; border: 1.5px solid #a7f3d0; border-radius: 14px; padding: 14px 20px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 36px; height: 36px; border-radius: 10px; background: #ecfdf5; color: #059669; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                <i class="fas fa-clipboard-check"></i>
+            </span>
+            <div>
+                <strong style="color: #065f46; font-size: 0.92rem; display: block;">Lembar Kerja Pembina Ekstrakurikuler</strong>
+                <span style="color: #047857; font-size: 0.8rem;">Fokus Anda adalah menyusun rencana materi & kegiatan eskul pada tabel di bawah. Visi, misi, dan pengesahan sekolah dikelola oleh Admin.</span>
+            </div>
+        </div>
+        <a href="{{ route('eskuls.program.print', [$eskul, 'semester' => $filterSemester]) }}" target="_blank" class="btn-success" style="font-size: 0.82rem; padding: 7px 15px;">
+            <i class="fas fa-print"></i> Cetak Pratinjau
+        </a>
+    </div>
+    @endif
+
+    {{-- ========================================================================= --}}
+    {{-- JIKA ADMIN: FORM PENGATURAN LANDASAN, VISI, MISI, KEPALA SEKOLAH & NIY    --}}
+    {{-- ========================================================================= --}}
+    @if($isAdminRole)
     <div class="pk-card">
         <h2>
             <div class="title-left">
                 <span class="section-icon"><i class="fas fa-bullseye"></i></span>
-                <span>Landasan & Kebijakan Program Kerja</span>
+                <span>Pengaturan Landasan & Kebijakan Program Kerja (Admin)</span>
             </div>
-            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">
-                Tahun Pelajaran: {{ $activeYear->name }}
+            <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 20px;">
+                <i class="fas fa-user-shield"></i> Khusus Administrator
             </span>
         </h2>
+
+        <div style="font-size: 0.82rem; color: #64748b; margin-bottom: 16px;">
+            <i class="fas fa-info-circle text-primary"></i> Visi, Misi, Tujuan, serta data Kepala Sekolah & NIY diisi oleh Admin agar pembina dapat fokus mengelola matriks rencana kegiatan.
+        </div>
 
         <form method="POST" action="{{ route('eskuls.program.store', $eskul) }}">
             @csrf
@@ -289,7 +316,7 @@
             <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 18px 0;">
 
             <p style="font-size:0.85rem; color:#1e293b; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                <i class="fas fa-file-signature" style="color: #2563eb;"></i> Data Pengesahan Dokumen Resmi (Akreditasi & PKKS)
+                <i class="fas fa-file-signature" style="color: #2563eb;"></i> Data Pengesahan Dokumen Resmi (Kepala Sekolah & NIY)
             </p>
 
             <div class="grid-2">
@@ -304,12 +331,15 @@
             </div>
 
             <button type="submit" class="btn-primary">
-                💾 Simpan Landasan Program
+                <i class="fas fa-save"></i> Simpan Landasan & Pengesahan
             </button>
         </form>
     </div>
+    @endif
 
-    {{-- Rencana Kegiatan (Matriks 1 Tahun / 12 Bulan) --}}
+    {{-- ========================================================================= --}}
+    {{-- MATRIKS RENCANA KEGIATAN (FOKUS UTAMA PEMBINA & DAPAT DITINJAU ADMIN)      --}}
+    {{-- ========================================================================= --}}
     <div class="pk-card">
         <h2>
             <div class="title-left">
@@ -462,6 +492,56 @@
             </div>
         </details>
     </div>
+
+    {{-- ========================================================================= --}}
+    {{-- INFORMASI LANDASAN PROGRAM (VISI, MISI, PENGESAHAN) UNTUK GURU (READONLY)  --}}
+    {{-- ========================================================================= --}}
+    @if(!$isAdminRole)
+    <div class="pk-card" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 style="font-size: 0.95rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-landmark" style="color: #2563eb;"></i> Landasan Kebijakan & Pengesahan Sekolah
+            </h3>
+            <span style="font-size: 0.75rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 3px 10px; border-radius: 999px; font-weight: 700;">
+                <i class="fas fa-lock"></i> Ditetapkan & Dikelola Admin
+            </span>
+        </div>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top: 0; margin-bottom: 16px;">
+            Visi, misi, dan data pengesahan Kepala Sekolah ditetapkan secara terpusat oleh pihak sekolah. Anda sebagai pembina cukup berfokus mengisi dan menjalankan matriks kegiatan di atas.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 14px;">
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                <div style="font-size: 0.72rem; font-weight: 800; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px;">Visi Ekstrakurikuler</div>
+                <div style="font-size: 0.85rem; color: #334155; margin-top: 6px; line-height: 1.5;">
+                    {{ $program->visi ?: '-' }}
+                </div>
+            </div>
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                <div style="font-size: 0.72rem; font-weight: 800; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px;">Misi Ekstrakurikuler</div>
+                <div style="font-size: 0.82rem; color: #334155; margin-top: 6px; line-height: 1.5; white-space: pre-line;">{{ $program->misi ?: '-' }}</div>
+            </div>
+        </div>
+
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="width: 32px; height: 32px; border-radius: 8px; background: #ecfdf5; color: #059669; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;">
+                    <i class="fas fa-user-check"></i>
+                </span>
+                <div>
+                    <span style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Disahkan Oleh:</span>
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #0f172a;">{{ $program->kepsek_name ?: $headmasterName }}</div>
+                </div>
+            </div>
+            <div>
+                <span style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase;">NIP / NIY:</span>
+                <div style="font-size: 0.88rem; font-weight: 700; color: #0f172a;">
+                    {{ (!empty($program->nip_kepsek) && $program->nip_kepsek !== '-') ? $program->nip_kepsek : ((!empty($headmasterNip) && $headmasterNip !== '-') ? $headmasterNip : '141502002') }}
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
 </div>
 @endsection
