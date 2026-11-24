@@ -491,6 +491,25 @@
             margin-top: 2px;
         }
 
+        .btn-char-item .char-text {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .btn-char-item .char-arrow {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-left: auto;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-char-item:hover .char-arrow {
+            transform: translateX(3px);
+            color: #334155;
+        }
+
         /* Hero UI Glass Mockup */
         .hero-mockup-wrapper {
             position: relative;
@@ -1394,18 +1413,27 @@
 
             .hero-character-box {
                 width: 100%;
-                max-width: 360px;
-                margin: 18px auto 0;
-                padding: 14px 14px;
+                max-width: 380px;
+                margin: 20px auto 0;
+                padding: 16px 14px;
+                box-sizing: border-box;
+            }
+
+            .hero-char-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+                margin-bottom: 12px;
             }
 
             .hero-char-actions {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 10px;
             }
 
             .btn-char-item {
-                padding: 10px 12px;
+                padding: 12px 14px;
+                box-sizing: border-box;
             }
 
             /* Mockup Card on Mobile - 100% Symmetrical, Zero Cutoff */
@@ -1715,14 +1743,6 @@
                 font-size: 0.6rem;
             }
 
-            .mobile-quick-btn span {
-                display: none;
-            }
-
-            .mobile-quick-btn {
-                padding: 6px 9px;
-            }
-
             .hero-title {
                 font-size: 1.65rem;
             }
@@ -1812,15 +1832,7 @@
 
         <!-- Mobile Navigation Actions -->
         <div class="mobile-nav-actions">
-            <a href="{{ route('public.character.index') }}" class="mobile-quick-btn" title="Layanan TPPK & Apresiasi" style="color: #be123c; background: #fff1f2; border-color: #fecdd3;">
-                <i class="fas fa-shield-alt"></i>
-                <span>TPPK</span>
-            </a>
-            <a href="{{ route('student-status.index') }}" class="mobile-quick-btn" title="Portal Ayah Bunda">
-                <i class="fas fa-search"></i>
-                <span>Cek Ananda</span>
-            </a>
-            <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Buka Menu" onclick="toggleMobileMenu()">
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Buka Menu Navigasi" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars" id="menuIcon"></i>
             </button>
         </div>
@@ -1842,6 +1854,41 @@
             </button>
         </div>
         <div class="mobile-drawer-body">
+            <!-- Layanan Publik & Mandiri Section -->
+            <div style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-left: 4px;">
+                Layanan Publik & Mandiri
+            </div>
+            <div class="mobile-nav-links" style="margin-bottom: 20px;">
+                <a href="{{ route('student-status.index') }}" class="m-nav-link m-nav-highlight" onclick="closeMobileMenu()" style="border-radius: 14px; padding: 12px 14px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 34px; height: 34px; border-radius: 10px; background: #ecfdf5; color: #047857; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.88rem; color: #064e3b; line-height: 1.2;">Portal Ayah Bunda</div>
+                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: 2px;">Cek Perkembangan Ananda</div>
+                        </div>
+                    </div>
+                    <span class="m-badge-pill" style="background: #d1fae5; color: #065f46;">Mandiri</span>
+                </a>
+                <a href="{{ route('public.character.index') }}" class="m-nav-link" style="background: #fff1f2; border: 1.5px solid #fecdd3; color: #be123c; border-radius: 14px; padding: 12px 14px;" onclick="closeMobileMenu()">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 34px; height: 34px; border-radius: 10px; background: #fee2e2; color: #e11d48; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.88rem; color: #9f1239; line-height: 1.2;">Layanan TPPK & Apresiasi</div>
+                            <div style="font-size: 0.72rem; color: #be123c; font-weight: 600; margin-top: 2px;">Pengaduan Insiden & Kebaikan</div>
+                        </div>
+                    </div>
+                    <span class="m-badge-pill" style="background: #e11d48; color: #fff;">Publik</span>
+                </a>
+            </div>
+
+            <!-- Informasi Profil Sekolah -->
+            <div style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-left: 4px; border-top: 1px solid #f1f5f9; padding-top: 14px;">
+                Informasi & Profil
+            </div>
             <div class="mobile-nav-links">
                 <a href="#pilar" class="m-nav-link" onclick="closeMobileMenu()">
                     <i class="fas fa-cubes"></i>
@@ -1854,20 +1901,6 @@
                 <a href="#statistik" class="m-nav-link" onclick="closeMobileMenu()">
                     <i class="fas fa-chart-pie"></i>
                     <span>Statistik Sekolah</span>
-                </a>
-                <a href="{{ route('student-status.index') }}" class="m-nav-link m-nav-highlight" onclick="closeMobileMenu()">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-search"></i>
-                        <span>Portal Ayah Bunda</span>
-                    </div>
-                    <span class="m-badge-pill">Mandiri</span>
-                </a>
-                <a href="{{ route('public.character.index') }}" class="m-nav-link" style="background: #fff1f2; border: 1px solid #fecdd3; color: #be123c;" onclick="closeMobileMenu()">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-shield-alt" style="color: #e11d48;"></i>
-                        <span>Layanan TPPK & Apresiasi</span>
-                    </div>
-                    <span class="m-badge-pill" style="background: #e11d48; color: #fff;">Publik</span>
                 </a>
             </div>
 
@@ -1925,6 +1958,7 @@
                             <strong>Pengaduan Insiden (TPPK)</strong>
                             <span>Bullying, kekerasan & tata tertib</span>
                         </div>
+                        <div class="char-arrow"><i class="fas fa-chevron-right"></i></div>
                     </a>
                     <a href="{{ route('public.character.index', ['tab' => 'apresiasi']) }}" class="btn-char-item btn-char-praise">
                         <div class="char-icon"><i class="fas fa-award"></i></div>
@@ -1932,6 +1966,7 @@
                             <strong>Apresiasi Kebaikan</strong>
                             <span>Kejujuran, adab & prestasi siswa</span>
                         </div>
+                        <div class="char-arrow"><i class="fas fa-chevron-right"></i></div>
                     </a>
                 </div>
             </div>
