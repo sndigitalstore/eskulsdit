@@ -40,15 +40,18 @@ class CharacterAppreciationController extends Controller
 
         $user = Auth::user();
         $isTeacher = $user->role === 'teacher';
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
         $isHomeroom = $isTeacher && !empty($user->homeroom_class);
 
-        if ($isHomeroom && !$selectedClass) {
+        if ($isHomeroom && !$isAdmin) {
             $selectedClass = $user->homeroom_class;
+            $classes = collect([$user->homeroom_class]);
+        } else {
+            $classes = Student::forYear($selectedYearId)
+                ->select('class')->distinct()->orderBy('class')->pluck('class');
         }
 
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
-        $classes = Student::forYear($selectedYearId)
-            ->select('class')->distinct()->orderBy('class')->pluck('class');
 
         $query = CharacterAppreciation::with(['student', 'academicYear'])
             ->when($selectedYearId, fn($q) => $q->where('academic_year_id', $selectedYearId))
@@ -305,6 +308,23 @@ class CharacterAppreciationController extends Controller
      */
     public function certificate(CharacterAppreciation $character_appreciation)
     {
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isHomeroom = $user->role === 'teacher' && !empty($user->homeroom_class);
+
+        // Hanya Admin dan Wali Kelas siswa terkait yang berwenang mencetak
+        if (!$isAdmin && !$isHomeroom) {
+            abort(403, 'Akses ditolak. Piagam karakter hanya dapat dicetak oleh Administrator atau Wali Kelas binaan.');
+        }
+
+        if ($isHomeroom && !$isAdmin) {
+            $userCleanClass = trim(str_ireplace('kelas', '', (string)$user->homeroom_class));
+            $studentClass = trim(str_ireplace('kelas', '', (string)($character_appreciation->student->class ?? '')));
+            if (empty($userCleanClass) || strcasecmp($userCleanClass, $studentClass) !== 0) {
+                abort(403, 'Akses ditolak. Anda hanya berwenang mencetak piagam untuk siswa kelas binaan Anda (Kelas ' . $user->homeroom_class . ').');
+            }
+        }
+
         $appreciation = $character_appreciation->load(['student', 'academicYear']);
         $headmasterSetting = \App\Models\Setting::where('key', 'headmaster_name')->value('value');
         $headmasterUser = \App\Models\User::where('role', 'headmaster')->first();
@@ -330,10 +350,29 @@ class CharacterAppreciationController extends Controller
     {
         $this->ensureTableExists();
 
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isHomeroom = $user->role === 'teacher' && !empty($user->homeroom_class);
+
+        // Hanya Admin dan Wali Kelas yang bisa mencetak. Guru mapel/lainnya tidak bisa.
+        if (!$isAdmin && !$isHomeroom) {
+            abort(403, 'Akses ditolak. Fitur cetak rekapitulasi apresiasi karakter hanya dapat diakses oleh Administrator dan Wali Kelas binaan.');
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
         $selectedClass = $request->class;
         $selectedCategory = $request->category;
+
+        // Wali kelas hanya bisa mencetak rekapan sesuai kelas binaannya
+        if ($isHomeroom && !$isAdmin) {
+            $userCleanClass = trim(str_ireplace('kelas', '', (string)$user->homeroom_class));
+            $targetCleanClass = trim(str_ireplace('kelas', '', (string)$selectedClass));
+            if (!empty($targetCleanClass) && strcasecmp($userCleanClass, $targetCleanClass) !== 0) {
+                abort(403, 'Akses ditolak. Anda hanya berwenang mencetak rekap apresiasi untuk kelas binaan Anda (Kelas ' . $user->homeroom_class . ').');
+            }
+            $selectedClass = $user->homeroom_class;
+        }
 
         $year = AcademicYear::find($selectedYearId);
 

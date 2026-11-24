@@ -228,9 +228,19 @@ class CharacterDashboardController extends Controller
         $selectedClass = $request->class;
 
         $user = Auth::user();
-        if ($user->role === 'teacher') {
-            if (empty($user->homeroom_class) || ($selectedClass && $selectedClass !== $user->homeroom_class)) {
-                abort(403, 'Akses ditolak. Anda hanya dapat mencetak laporan karakter untuk kelas binaan Anda.');
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isHomeroom = $user->role === 'teacher' && !empty($user->homeroom_class);
+
+        // Hanya Admin dan Wali Kelas yang bisa mencetak. Guru mapel/lainnya tidak bisa.
+        if (!$isAdmin && !$isHomeroom) {
+            abort(403, 'Akses ditolak. Fitur cetak laporan karakter hanya dapat diakses oleh Administrator dan Wali Kelas binaan.');
+        }
+
+        if ($isHomeroom && !$isAdmin) {
+            $userCleanClass = trim(str_ireplace('kelas', '', (string)$user->homeroom_class));
+            $targetCleanClass = trim(str_ireplace('kelas', '', (string)$selectedClass));
+            if (!empty($targetCleanClass) && strcasecmp($userCleanClass, $targetCleanClass) !== 0) {
+                abort(403, 'Akses ditolak. Anda hanya berwenang mencetak laporan karakter untuk kelas binaan Anda (Kelas ' . $user->homeroom_class . ').');
             }
             $selectedClass = $user->homeroom_class;
         }
@@ -286,6 +296,23 @@ class CharacterDashboardController extends Controller
     public function studentPortfolio(Request $request, Student $student)
     {
         $this->ensureTablesExist();
+
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'headmaster']);
+        $isHomeroom = $user->role === 'teacher' && !empty($user->homeroom_class);
+
+        // Hanya Admin dan Wali Kelas siswa terkait yang berwenang mengakses & mencetak portofolio
+        if (!$isAdmin && !$isHomeroom) {
+            abort(403, 'Akses ditolak. Portofolio karakter siswa hanya dapat diakses dan dicetak oleh Administrator dan Wali Kelas binaan.');
+        }
+
+        if ($isHomeroom && !$isAdmin) {
+            $userCleanClass = trim(str_ireplace('kelas', '', (string)$user->homeroom_class));
+            $studentClass = trim(str_ireplace('kelas', '', (string)$student->class));
+            if (empty($userCleanClass) || strcasecmp($userCleanClass, $studentClass) !== 0) {
+                abort(403, 'Akses ditolak. Anda hanya berwenang mengakses portofolio siswa kelas binaan Anda (Kelas ' . $user->homeroom_class . ').');
+            }
+        }
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         $selectedYearId = $request->year_id ?? ($activeYear ? $activeYear->id : null);
@@ -732,12 +759,22 @@ class CharacterDashboardController extends Controller
 
     public function analytics(Request $request)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            abort(403, 'Akses ditolak. Halaman analitik karakter hanya dapat diakses oleh Administrator.');
+        }
+
         $data = $this->buildAnalyticsData($request);
         return view('character.analytics', $data);
     }
 
     public function printAnalytics(Request $request)
     {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'headmaster'])) {
+            abort(403, 'Akses ditolak. Rekapitulasi analitik karakter hanya dapat dicetak oleh Administrator.');
+        }
+
         $data = $this->buildAnalyticsData($request);
         return view('character.analytics_print', $data);
     }

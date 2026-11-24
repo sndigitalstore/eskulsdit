@@ -7,6 +7,12 @@
 <div style="max-width: 1400px; margin: 0 auto;">
 
     <!-- Top Action Bar -->
+    @php
+        $loggedUser = Auth::user();
+        $isAdmin = in_array($loggedUser->role, ['admin', 'headmaster']);
+        $isHomeroom = $loggedUser->role === 'teacher' && !empty($loggedUser->homeroom_class);
+        $canPrintCaseRecap = $isAdmin || $isHomeroom;
+    @endphp
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
@@ -16,10 +22,17 @@
                 Dokumentasi kasus indisipliner, pelanggaran adab, dan tindak lanjut pembinaan akhlak siswa.
             </p>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{{ route('character-cases.print', request()->query()) }}" target="_blank" class="btn-action-header btn-dark" style="text-decoration: none; padding: 10px 18px; font-weight: 700;">
-                <i class="fas fa-print"></i> Cetak Rekap (A4)
-            </a>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            @if(!$canPrintCaseRecap)
+                <span style="font-size: 0.78rem; font-weight: 700; color: #0369a1; background: #e0f2fe; padding: 7px 12px; border-radius: 8px; border: 1px solid #bae6fd;">
+                    <i class="fas fa-pen-alt"></i> Mode Eksekutor Pelapor
+                </span>
+            @endif
+            @if($canPrintCaseRecap)
+                <a href="{{ route('character-cases.print', $isHomeroom && !$isAdmin ? array_merge(request()->query(), ['class' => $loggedUser->homeroom_class]) : request()->query()) }}" target="_blank" class="btn-action-header btn-dark" style="text-decoration: none; padding: 10px 18px; font-weight: 700;">
+                    <i class="fas fa-print"></i> Cetak Rekap {{ $isHomeroom && !$isAdmin ? '(Kelas ' . $loggedUser->homeroom_class . ')' : '(A4)' }}
+                </a>
+            @endif
             <a href="{{ route('character-cases.create') }}" class="btn-action-header btn-red" style="text-decoration: none; padding: 10px 18px; font-weight: 700; background: #ef4444;">
                 <i class="fas fa-plus-circle"></i> Catat Kasus Baru
             </a>
@@ -117,12 +130,18 @@
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Kelas</label>
-                    <select name="class" class="form-control" style="height: 40px; font-size: 0.88rem;">
-                        <option value="">-- Semua Kelas --</option>
-                        @foreach($classes as $c)
-                            <option value="{{ $c }}" {{ $selectedClass == $c ? 'selected' : '' }}>Kelas {{ $c }}</option>
-                        @endforeach
-                    </select>
+                    @if($isHomeroom && !$isAdmin)
+                        <select name="class" class="form-control" style="height: 40px; font-size: 0.88rem; background: #f8fafc; font-weight: 700;">
+                            <option value="{{ $loggedUser->homeroom_class }}">Kelas {{ $loggedUser->homeroom_class }} (Kelas Binaan)</option>
+                        </select>
+                    @else
+                        <select name="class" class="form-control" style="height: 40px; font-size: 0.88rem;">
+                            <option value="">-- Semua Kelas --</option>
+                            @foreach($classes as $c)
+                                <option value="{{ $c }}" {{ $selectedClass == $c ? 'selected' : '' }}>Kelas {{ $c }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.82rem;">Tingkat Keparahan</label>
@@ -334,9 +353,11 @@
                                     <a href="{{ $case->getWaUrl() }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #25D366; color: #fff; text-decoration: none;" title="Kirim Pemberitahuan ke WhatsApp Ortu">
                                         <i class="fab fa-whatsapp"></i>
                                     </a>
-                                    <a href="{{ route('character-cases.parent-notice', $case->id) }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #6366f1; color: #fff; text-decoration: none;" title="Cetak Berita Acara & Pemanggilan Ortu (PKKS/Akreditasi)">
-                                        <i class="fas fa-print"></i>
-                                    </a>
+                                    @if($canPrintCaseRecap && ($isAdmin || ($case->student && $case->student->class === $loggedUser->homeroom_class)))
+                                        <a href="{{ route('character-cases.parent-notice', $case->id) }}" target="_blank" class="btn-action-header" style="padding: 4px 8px; font-size: 0.75rem; background: #6366f1; color: #fff; text-decoration: none;" title="Cetak Berita Acara & Pemanggilan Ortu (PKKS/Akreditasi)">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                    @endif
                                     <a href="{{ route('character-cases.edit', $case->id) }}" class="btn-action-header btn-orange" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" title="Edit Catatan">
                                         <i class="fas fa-edit"></i>
                                     </a>

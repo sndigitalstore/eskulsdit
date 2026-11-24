@@ -48,6 +48,12 @@
     </div>
 
     <!-- Top Action Bar -->
+    @php
+        $loggedUser = Auth::user();
+        $isAdmin = in_array($loggedUser->role, ['admin', 'headmaster']);
+        $isHomeroom = $loggedUser->role === 'teacher' && !empty($loggedUser->homeroom_class);
+        $canPrintClassReport = $isAdmin || ($isHomeroom && $selectedClass === $loggedUser->homeroom_class);
+    @endphp
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
@@ -57,7 +63,7 @@
                 Evaluasi komprehensif perkembangan akhlak siswa: akumulasi apresiasi, catatan kasus pembinaan, dan predikat karakter.
             </p>
         </div>
-        @if($selectedClass && $students->count() > 0)
+        @if($selectedClass && $students->count() > 0 && $canPrintClassReport)
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <a href="{{ route('academic-reports.print-all-kekhasan', ['year_id' => $selectedYearId, 'class' => $selectedClass]) }}" target="_blank" class="btn-action-header" style="text-decoration: none; padding: 10px 18px; font-weight: 700; background: #065f46; color: white; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(6,95,70,0.3);">
                     <i class="fas fa-certificate"></i> Cetak Rapor Kekhasan (A4)
@@ -183,9 +189,11 @@
                                     </td>
                                     <td style="padding: 12px 10px; text-align: center;">
                                         <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
-                                            <a href="{{ route('character.student.portfolio', $st->id) }}" target="_blank" class="btn-action-header btn-blue" style="padding: 3px 8px; font-size: 0.72rem; text-decoration: none;" title="Cetak Portofolio Karakter (PKKS/Akreditasi)">
-                                                <i class="fas fa-file-alt"></i> Portofolio
-                                            </a>
+                                            @if($canPrintClassReport)
+                                                <a href="{{ route('character.student.portfolio', $st->id) }}" target="_blank" class="btn-action-header btn-blue" style="padding: 3px 8px; font-size: 0.72rem; text-decoration: none;" title="Cetak Portofolio Karakter (PKKS/Akreditasi)">
+                                                    <i class="fas fa-file-alt"></i> Portofolio
+                                                </a>
+                                            @endif
                                             <a href="{{ route('character-appreciations.create', ['student_id' => $st->id]) }}" class="btn-action-header btn-green" style="padding: 3px 6px; font-size: 0.72rem; text-decoration: none; background: #10b981;" title="Beri Apresiasi">
                                                 <i class="fas fa-plus"></i> <i class="fas fa-award"></i>
                                             </a>
