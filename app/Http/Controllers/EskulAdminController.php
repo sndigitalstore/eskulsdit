@@ -633,7 +633,7 @@ class EskulAdminController extends Controller
         return [
             'settings'       => $settings,
             'schoolName'     => Setting::get('school_name', 'SDIT AN NADZIR'),
-            'yayasanName'    => Setting::get('yayasan_name', 'YAYASAN AN NADZIR ISLAMIC SCHOOL'),
+            'yayasanName'    => Setting::get('yayasan_name', 'AN NADZIR ISLAMIC SCHOOL'),
             'schoolAddress'  => Setting::get('school_address', 'Bendungan Karet Cisirih KP. Cukang RT. 09 RW. 02 Desa Kamasan Kecamatan Cinangka Kabupaten Serang - Banten 42167'),
             'schoolCity'     => Setting::get('school_city', 'Serang'),
             'npsn'           => Setting::get('npsn', '20616174'),

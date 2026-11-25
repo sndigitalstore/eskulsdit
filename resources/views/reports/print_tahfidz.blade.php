@@ -173,7 +173,7 @@
         <div class="kop-surat">
             <img src="{{ asset('logo.png') }}" class="kop-logo" alt="Logo">
             <div class="kop-text">
-                <p style="font-weight: 700; margin: 0; font-size: 9.5pt; letter-spacing: 1px; color: #065f46; text-transform: uppercase;">YAYASAN AN NADZIR ISLAMIC SCHOOL</p>
+                <p style="font-weight: 700; margin: 0; font-size: 9.5pt; letter-spacing: 1px; color: #065f46; text-transform: uppercase;">AN NADZIR ISLAMIC SCHOOL</p>
                 <h1 style="margin: 2px 0 0 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: #000;">SDIT AN NADZIR</h1>
                 <h2 style="margin: 2px 0 0 0; font-size: 9.5pt; font-weight: bold; color: #0369a1;">SISTEM INFORMASI MUTABA'AH, TAHFIDZ, KARAKTER & INTEGRASI NILAI (SIMUTQIN)</h2>
                 <p style="font-size: 8.5pt; color: #475569; margin: 2px 0;">NNS: 101280432037 · NPSN: 20616174 · Akreditasi: A (Amat Baik)</p>
@@ -190,7 +190,7 @@
         <!-- INFORMASI / METADATA -->
         <div class="info-grid">
             <div>
-                <strong>Satuan Pendidikan:</strong> SDIT AN NADZIR (Yayasan An Nadzir Islamic School)<br>
+                <strong>Satuan Pendidikan:</strong> SDIT AN NADZIR (An Nadzir Islamic School)<br>
                 <strong>Tahun Pelajaran:</strong> {{ $yearName }}<br>
                 <strong>Periode Laporan:</strong> {{ $periodLabel ?? '1 Tahun Penuh' }}<br>
                 <strong>Kelas / Rombel:</strong> {{ $class ? ($class === 'ALL' ? 'Semua Kelas' : 'Kelas ' . $class) : ($groupObj ? 'Kelompok ' . $groupObj->name : 'Semua') }}<br>

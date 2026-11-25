@@ -845,7 +845,7 @@
                                id="yayasan_name" 
                                name="yayasan_name" 
                                class="form-control-modern" 
-                               value="{{ $settings['yayasan_name'] ?? 'YAYASAN AN NADZIR ISLAMIC SCHOOL' }}">
+                               value="{{ $settings['yayasan_name'] ?? 'AN NADZIR ISLAMIC SCHOOL' }}">
                         <span class="input-hint-text">Nama yayasan yang tercetak di baris paling atas kop surat.</span>
                     </div>
 

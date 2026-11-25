@@ -29,6 +29,16 @@ class Setting extends Model
             return '141502002';
         }
 
+        if ($key === 'yayasan_name') {
+            if ($val !== null && $val !== '') {
+                if (strcasecmp(trim($val), 'YAYASAN AN NADZIR ISLAMIC SCHOOL') === 0) {
+                    return 'AN NADZIR ISLAMIC SCHOOL';
+                }
+                return $val;
+            }
+            return $default ?? 'AN NADZIR ISLAMIC SCHOOL';
+        }
+
         if ($val !== null && $val !== '') {
             return $val;
         }
@@ -43,7 +53,7 @@ class Setting extends Model
         }
 
         if ($key === 'yayasan_name') {
-            return $default ?? 'YAYASAN AN NADZIR ISLAMIC SCHOOL';
+            return $default ?? 'AN NADZIR ISLAMIC SCHOOL';
         }
 
         if ($key === 'school_address') {
