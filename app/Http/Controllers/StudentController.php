@@ -315,6 +315,7 @@ class StudentController extends Controller
 
         $request->validate([
             'file' => 'required|file',
+            'update_mode' => 'nullable|in:fill_empty,overwrite',
         ]);
 
         $file = $request->file('file');
@@ -324,33 +325,65 @@ class StudentController extends Controller
         }
 
         try {
+            $sheetNames = [];
+            try {
+                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($file->getRealPath());
+                if (method_exists($reader, 'listWorksheetNames')) {
+                    $sheetNames = $reader->listWorksheetNames($file->getRealPath());
+                }
+            } catch (\Throwable $t) {
+                $sheetNames = [];
+            }
+
             // Read all sheets as array
             $data = Excel::toArray(new \stdClass, $file);
             
-            // Process the data (returns array of counts)
-            $counts = \App\Imports\StudentsImport::processArrays($data);
+            $updateMode = $request->input('update_mode', 'fill_empty');
+            $counts = \App\Imports\StudentsImport::processArrays($data, $sheetNames, [
+                'update_mode' => $updateMode,
+            ]);
             
-            \App\Models\ActivityLog::log('System', 'Import', "Melakukan Mega Import dari Excel. Dipulihkan: {$counts['students']} siswa, {$counts['attendance']} absensi, {$counts['grades']} nilai.");
+            \App\Models\ActivityLog::log(
+                'Students',
+                'Import',
+                "Import Masal Data Siswa (Excel): {$counts['students_created']} baru, {$counts['students_updated']} dilengkapi/diperbarui, {$counts['students_unchanged']} sudah lengkap."
+            );
             
-            $msg = "Import Berhasil! Semuanya dipulihkan: <br>";
-            $msg .= "- {$counts['students']} Siswa Baru/Update <br>";
-            $msg .= "- {$counts['attendance']} Rekap Absensi Siswa <br>";
-            $msg .= "- {$counts['grades']} Data Nilai <br>";
-            $msg .= "- {$counts['achievements']} Data Prestasi <br>";
-            $msg .= "- {$counts['teacher_attendance']} Absensi Guru";
+            $parts = [];
+            $parts[] = "<strong>{$counts['students_created']}</strong> Siswa Baru ditambahkan";
+            $parts[] = "<strong>{$counts['students_updated']}</strong> Biodata Siswa dilengkapi / diperbarui";
+            if (!empty($counts['students_unchanged'])) {
+                $parts[] = "<strong>{$counts['students_unchanged']}</strong> Siswa sudah lengkap (tidak berubah)";
+            }
+            if (!empty($counts['attendance'])) $parts[] = "{$counts['attendance']} Rekap Absensi Siswa";
+            if (!empty($counts['grades'])) $parts[] = "{$counts['grades']} Data Nilai";
+            if (!empty($counts['achievements'])) $parts[] = "{$counts['achievements']} Data Prestasi";
+            if (!empty($counts['teacher_attendance'])) $parts[] = "{$counts['teacher_attendance']} Absensi Guru";
+
+            $msg = "Import Data Siswa Berhasil!<br>- " . implode('<br>- ', $parts);
+
+            $redirect = $request->input('redirect_to') === 'dashboard'
+                ? redirect()->route('dashboard')
+                : redirect()->route('students.index');
 
             $warnings = \App\Imports\StudentsImport::$warnings;
             if (!empty($warnings)) {
                 $warningMsg = implode("<br>", array_map(function($w) { return "• " . htmlspecialchars($w); }, $warnings));
-                return redirect()->route('students.index')
+                return $redirect
                     ->with('success', $msg)
                     ->with('warning_html', $warningMsg);
             }
 
-            return redirect()->route('students.index')->with('success', $msg);
+            return $redirect->with('success', $msg);
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
+    }
+
+    public function downloadTemplate()
+    {
+        $this->checkManagerRole();
+        return Excel::download(new \App\Exports\ImportTemplateExport(), 'template-import-siswa.xlsx');
     }
 
     public function edit(\App\Models\Student $student)

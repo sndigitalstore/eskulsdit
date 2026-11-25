@@ -1378,6 +1378,14 @@
                             <span>Manajemen & Ploting Kelas</span>
                         </a>
                     </li>
+                    @if($isTU)
+                    <li class="nav-subitem">
+                        <a href="{{ route('students.index', ['open_import' => 1]) }}" class="nav-sublink">
+                            <i class="fas fa-file-import"></i>
+                            <span>Import Masal Siswa</span>
+                        </a>
+                    </li>
+                    @endif
                     @if(!$isTU)
                     <li class="nav-subitem">
                         <a href="/promotions" class="nav-sublink {{ request()->is('promotions*') ? 'active' : '' }}">

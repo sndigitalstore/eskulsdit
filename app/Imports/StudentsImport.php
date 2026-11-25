@@ -13,14 +13,19 @@ class StudentsImport
 
     /**
      * Process the array data from Excel::toArray()
+     *
+     * @param array $sheets
+     * @param array $sheetNames Optional list of worksheet names indexed by $sheetIndex
+     * @param array $options ['update_mode' => 'fill_empty'|'overwrite']
      */
-    public static function processArrays($sheets)
+    public static function processArrays($sheets, array $sheetNames = [], array $options = [])
     {
         self::$warnings = [];
         $skippedSheets = [];
         $unregisteredTeachers = [];
         $missingEskuls = [];
         $skippedRowsCount = 0;
+        $updateMode = $options['update_mode'] ?? 'fill_empty';
 
         $activeYear = AcademicYear::where('is_active', true)->first();
         if (!$activeYear) {
@@ -31,19 +36,23 @@ class StudentsImport
         $existingStudents = Student::where('academic_year_id', $activeYear->id)->get();
         $mapNis = [];
         $mapNameClass = [];
+        $mapNameOnly = [];
         
         foreach ($existingStudents as $stu) {
             if ($stu->nis) {
-                $mapNis[$stu->nis] = $stu;
+                $mapNis[trim((string)$stu->nis)] = $stu;
             }
-            $key = strtoupper(trim($stu->name)) . '|' . strtoupper(trim($stu->class));
-            $mapNameClass[$key] = $stu;
+            $normName = strtoupper(preg_replace('/\s+/', ' ', trim($stu->name)));
+            $normClass = strtoupper(trim((string)$stu->class));
+            $mapNameClass[$normName . '|' . $normClass] = $stu;
+            $mapNameOnly[$normName][] = $stu;
         }
 
         $counts = [
             'students'           => 0,
             'students_created'   => 0,
             'students_updated'   => 0,
+            'students_unchanged' => 0,
             'attendance'         => 0,
             'grades'             => 0,
             'achievements'       => 0,
@@ -116,14 +125,54 @@ class StudentsImport
                     }
                 }
                 if ($hasData) {
-                    $sheetName = is_numeric($sheetIndex) ? "Lembar ke-" . ($sheetIndex + 1) : "Sheet '{$sheetIndex}'";
+                    $sheetName = isset($sheetNames[$sheetIndex]) ? "Sheet '{$sheetNames[$sheetIndex]}'" : (is_numeric($sheetIndex) ? "Lembar ke-" . ($sheetIndex + 1) : "Sheet '{$sheetIndex}'");
                     $skippedSheets[] = $sheetName;
                 }
                 continue;
-            } 
+            }
+
+            // Fallback class detection from Excel sheet tab name (e.g. "kls IA", "1A", "Kelas 2B")
+            if (!$class && isset($sheetNames[$sheetIndex])) {
+                $sName = trim((string)$sheetNames[$sheetIndex]);
+                if (preg_match('/^(?:kelas|kls|class|rombel)?\s*([VI]+[A-Z]?|[1-6][A-Z]?)$/i', $sName, $m)) {
+                    $class = self::normalizeClass($m[1]);
+                }
+            }
             
-            // 2. Process Data Rows
-            $headers = array_map(function($h) { return strtolower(trim($h ?? '')); }, $rows[$headerRowIndex]);
+            // 2. Process Data Rows & Detect 2-Row Merged Sub-Header (e.g. Nama Orang Tua -> Ayah | Ibu)
+            $headers = array_map(function($h) { return strtolower(trim((string)($h ?? ''))); }, $rows[$headerRowIndex]);
+            $dataStartIndex = $headerRowIndex + 1;
+
+            if (isset($rows[$headerRowIndex + 1])) {
+                $subRow = $rows[$headerRowIndex + 1];
+                $hasSubHeaderKeywords = false;
+                foreach ($subRow as $subCell) {
+                    $sc = strtolower(trim((string)($subCell ?? '')));
+                    if (in_array($sc, ['ayah', 'ibu', 'bapak', 'wali'])) {
+                        $hasSubHeaderKeywords = true;
+                        break;
+                    }
+                }
+                if ($hasSubHeaderKeywords) {
+                    $maxCols = max(count($headers), count($subRow));
+                    $lastParent = '';
+                    for ($c = 0; $c < $maxCols; $c++) {
+                        $parent = $headers[$c] ?? '';
+                        $sub = strtolower(trim((string)($subRow[$c] ?? '')));
+                        if ($parent !== '') {
+                            $lastParent = $parent;
+                        } elseif ($sub !== '' && $lastParent !== '') {
+                            $parent = $lastParent;
+                        }
+                        if ($sub !== '') {
+                            $headers[$c] = trim($parent . ' ' . $sub);
+                        } else {
+                            $headers[$c] = $parent;
+                        }
+                    }
+                    $dataStartIndex = $headerRowIndex + 2;
+                }
+            }
 
             // --- TEACHER LIST PROCESSING (Sheet: Data Guru) ---
             $isTeacherList = false;
@@ -357,7 +406,7 @@ class StudentsImport
                     $colNisn = $k;
                 } elseif ($h === 'jk' || $h === 'l/p' || str_contains($h, 'jenis kelamin') || str_contains($h, 'kelamin') || str_contains($h, 'gender')) {
                     $colGender = $k;
-                } elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat & tgl lahir')) {
+                } elseif ($h === 'ttl' || str_contains($h, 'tempat tanggal lahir') || str_contains($h, 'tempat, tanggal lahir') || str_contains($h, 'tempat & tgl lahir') || str_contains($h, 'tempat dan tanggal lahir') || str_contains($h, 'tempat & tanggal lahir') || str_contains($h, 'tempat dan tgl lahir')) {
                     $colBirthPlaceDate = $k;
                 } elseif (str_contains($h, 'tempat lahir') || str_contains($h, 'tempat kelahiran') || $h === 'tempat_lahir' || $h === 'tmplahir') {
                     $colBirthPlace = $k;
@@ -367,13 +416,13 @@ class StudentsImport
                     $colAddress = $k;
                 } elseif (str_contains($h, 'asal sekolah') || str_contains($h, 'asal tk') || str_contains($h, 'sekolah asal') || str_contains($h, 'tk asal') || str_contains($h, 'paud')) {
                     $colPreviousSchool = $k;
-                } elseif (str_contains($h, 'pekerjaan ayah') || str_contains($h, 'pekerjaan bapak') || str_contains($h, 'kerja ayah')) {
+                } elseif ((str_contains($h, 'pekerjaan') || str_contains($h, 'kerja')) && (str_contains($h, 'ayah') || str_contains($h, 'bapak'))) {
                     $colFatherJob = $k;
-                } elseif (str_contains($h, 'pekerjaan ibu') || str_contains($h, 'kerja ibu')) {
+                } elseif ((str_contains($h, 'pekerjaan') || str_contains($h, 'kerja')) && str_contains($h, 'ibu')) {
                     $colMotherJob = $k;
-                } elseif (str_contains($h, 'hp ayah') || str_contains($h, 'wa ayah') || str_contains($h, 'telepon ayah') || str_contains($h, 'kontak ayah') || str_contains($h, 'nomor ayah')) {
+                } elseif ((str_contains($h, 'hp') || str_contains($h, 'wa') || str_contains($h, 'telp') || str_contains($h, 'telepon') || str_contains($h, 'kontak') || str_contains($h, 'nomor')) && (str_contains($h, 'ayah') || str_contains($h, 'bapak'))) {
                     $colFatherPhone = $k;
-                } elseif (str_contains($h, 'hp ibu') || str_contains($h, 'wa ibu') || str_contains($h, 'telepon ibu') || str_contains($h, 'kontak ibu') || str_contains($h, 'nomor ibu')) {
+                } elseif ((str_contains($h, 'hp') || str_contains($h, 'wa') || str_contains($h, 'telp') || str_contains($h, 'telepon') || str_contains($h, 'kontak') || str_contains($h, 'nomor')) && str_contains($h, 'ibu')) {
                     $colMotherPhone = $k;
                 } elseif (str_contains($h, 'ayah') || str_contains($h, 'bapak')) {
                     $colFatherName = $k;
@@ -383,7 +432,7 @@ class StudentsImport
                     $colAdmissionDate = $k;
                 } elseif (str_contains($h, 'program') || str_contains($h, 'boarding') || str_contains($h, 'full day') || str_contains($h, 'fullday') || str_contains($h, 'status masuk') || str_contains($h, 'jalur')) {
                     $colSchoolProgram = $k;
-                } elseif (str_contains($h, 'hp ortu') || str_contains($h, 'wa ortu') || str_contains($h, 'telepon ortu') || str_contains($h, 'kontak ortu') || str_contains($h, 'no hp') || str_contains($h, 'telepon') || str_contains($h, 'wa') || str_contains($h, 'whatsapp')) {
+                } elseif (str_contains($h, 'hp ortu') || str_contains($h, 'wa ortu') || str_contains($h, 'telepon ortu') || str_contains($h, 'kontak ortu') || str_contains($h, 'no hp') || str_contains($h, 'telepon') || str_contains($h, 'telp') || str_contains($h, 'wa') || str_contains($h, 'whatsapp')) {
                     $colParentPhone = $k;
                 }
             }
@@ -418,14 +467,22 @@ class StudentsImport
             $cleanPhone = function($v) {
                 if (!$v) return null;
                 $v = trim((string)$v);
+                if ($v === '' || $v === '-') return null;
                 if (stripos($v, 'E+') !== false && is_numeric($v)) {
                     $v = number_format((float)$v, 0, '', '');
                 }
-                $digits = preg_replace('/[^0-9]/', '', $v);
-                if (str_starts_with($digits, '628')) {
-                    $digits = '08' . substr($digits, 3);
+                // Handle multiple phone numbers separated by /, comma, semicolon, or newline
+                $parts = preg_split('/[\/,;\r\n]+/', $v);
+                $cleanedParts = [];
+                foreach ($parts as $part) {
+                    $digits = preg_replace('/[^0-9]/', '', trim($part));
+                    if ($digits === '') continue;
+                    if (str_starts_with($digits, '628')) {
+                        $digits = '08' . substr($digits, 3);
+                    }
+                    $cleanedParts[] = $digits;
                 }
-                return !empty($digits) ? $digits : $v;
+                return !empty($cleanedParts) ? implode(' / ', $cleanedParts) : null;
             };
 
             $cleanDate = function($v) {
@@ -452,7 +509,7 @@ class StudentsImport
             };
 
             // Scan rows
-            for ($i = $headerRowIndex + 1; $i < count($rows); $i++) {
+            for ($i = $dataStartIndex; $i < count($rows); $i++) {
                 $row = $rows[$i];
                 if (!isset($row[$colName])) continue;
                 
@@ -483,21 +540,28 @@ class StudentsImport
                 
                 // Lookup Student (Priority Strategy)
                 $student = null;
+                $normName = strtoupper(preg_replace('/\s+/', ' ', trim($name)));
+                $normClass = strtoupper(trim($rowClass));
                 
                 // 1. Try NIS Match (Highest Precision)
                 if ($nis && isset($mapNis[$nis])) {
                     $student = $mapNis[$nis];
                 }
                 
-                // 2. Try Name + Class Match (Exact)
+                // 2. Try Name + Class Match (Exact normalized)
                 if (!$student) {
-                    $key = strtoupper($name) . '|' . strtoupper($rowClass);
+                    $key = $normName . '|' . $normClass;
                     if (isset($mapNameClass[$key])) {
                         $student = $mapNameClass[$key];
                     }
                 }
                 
-                // 3. Try Loose Name Match (Same class, similar name) - for small typos, scoped to active year
+                // 3. Try Unique Exact Name Match across Active Year (if class differed or wasn't set)
+                if (!$student && isset($mapNameOnly[$normName]) && count($mapNameOnly[$normName]) === 1) {
+                    $student = $mapNameOnly[$normName][0];
+                }
+
+                // 4. Try Loose Name Match (Same class, similar name) - for small typos, scoped to active year
                 if (!$student) {
                     $student = \App\Models\Student::where('academic_year_id', $activeYear->id)
                         ->where('class', $rowClass)
@@ -586,15 +650,28 @@ class StudentsImport
                 
                 // Create or Update Student
                 if ($student) {
-                    // Update existing student with any newly supplied biodata fields
-                    if (!empty($studentData)) {
-                        $student->update($studentData);
+                    $fieldsToSave = $studentData;
+                    if ($updateMode === 'fill_empty') {
+                        // Only fill columns that are currently empty/null/'-' on the existing student
+                        $fieldsToSave = array_filter($studentData, function ($val, $field) use ($student) {
+                            if ($val === null || $val === '') return false;
+                            $existingVal = trim((string)($student->$field ?? ''));
+                            return $existingVal === '' || $existingVal === '-';
+                        }, ARRAY_FILTER_USE_BOTH);
                     }
-                    $counts['students_updated']++;
-                    $counts['students']++;
-                    if ($student->nis) $mapNis[$student->nis] = $student;
-                    $key = strtoupper(trim($student->name)) . '|' . strtoupper(trim($student->class));
-                    $mapNameClass[$key] = $student;
+
+                    if (!empty($fieldsToSave)) {
+                        $student->update($fieldsToSave);
+                        $counts['students_updated']++;
+                        $counts['students']++;
+                    } else {
+                        $counts['students_unchanged']++;
+                    }
+
+                    if ($student->nis) $mapNis[trim((string)$student->nis)] = $student;
+                    $sNormName = strtoupper(preg_replace('/\s+/', ' ', trim($student->name)));
+                    $sNormClass = strtoupper(trim((string)$student->class));
+                    $mapNameClass[$sNormName . '|' . $sNormClass] = $student;
                 } else {
                     $student = Student::create(array_merge([
                         'academic_year_id' => $activeYear->id,
@@ -604,9 +681,11 @@ class StudentsImport
                     ], $studentData));
                     $counts['students_created']++;
                     $counts['students']++;
-                    if ($student->nis) $mapNis[$student->nis] = $student;
-                    $key = strtoupper(trim($student->name)) . '|' . strtoupper(trim($student->class));
-                    $mapNameClass[$key] = $student;
+                    if ($student->nis) $mapNis[trim((string)$student->nis)] = $student;
+                    $sNormName = strtoupper(preg_replace('/\s+/', ' ', trim($student->name)));
+                    $sNormClass = strtoupper(trim((string)$student->class));
+                    $mapNameClass[$sNormName . '|' . $sNormClass] = $student;
+                    $mapNameOnly[$sNormName][] = $student;
                 }
                 
                 // --- PROCESS ATTENDANCE ---

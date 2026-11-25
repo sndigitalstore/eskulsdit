@@ -1906,14 +1906,24 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
                      ondrop="handleDrop(event)">
                     <i class="fas fa-file-excel"></i>
                     <p>Klik atau seret file Excel ke sini</p>
-                    <small>Format: .xlsx, .xls, .csv | Header: Nama, Kelas, Eskul, Pembina</small>
+                    <small>Format: .xlsx, .xls, .csv | Mendukung multi-sheet per kelas (kls IA, kls IB, dst.)</small>
                     <input type="file" id="fileInput" name="file"
                            accept=".xlsx,.xls,.csv" required
                            style="display:none;" onchange="updateFileName(this)">
                     <p id="fileNameDisplay"></p>
                 </div>
+                <div style="margin: 12px 0; text-align: left;">
+                    <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.82rem; color:#334155; cursor:pointer; margin-bottom:6px;">
+                        <input type="radio" name="update_mode" value="fill_empty" checked style="margin-top:3px;">
+                        <span><strong>Lengkapi data yang kosong</strong> (jika nama/NIS anak sudah ada, hanya kolom yang kosong yang dilengkapi)</span>
+                    </label>
+                    <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.82rem; color:#334155; cursor:pointer;">
+                        <input type="radio" name="update_mode" value="overwrite" style="margin-top:3px;">
+                        <span><strong>Perbarui semua kolom</strong> (timpa seluruh kolom biodata yang terisi di Excel)</span>
+                    </label>
+                </div>
                 <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
-                    <a href="{{ route('import-portal.template') }}" class="btn-cancel" style="text-decoration:none; color:#7367f0; border:1.5px solid #7367f0; display:inline-flex; align-items:center; gap:6px;">
+                    <a href="{{ route('students.import_template') }}" class="btn-cancel" style="text-decoration:none; color:#7367f0; border:1.5px solid #7367f0; display:inline-flex; align-items:center; gap:6px;">
                         <i class="fas fa-download"></i> Unduh Template Excel
                     </a>
                     <div>
@@ -2044,6 +2054,12 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
     // ===== IMPORT MODAL =====
     function openImportModal()  { document.getElementById('importModal').classList.add('show'); }
     function closeImportModal() { document.getElementById('importModal').classList.remove('show'); }
+    @if(request('open_import'))
+    document.addEventListener('DOMContentLoaded', function() {
+        openImportModal();
+        if (typeof switchTab === 'function') switchTab('file');
+    });
+    @endif
 
     function switchTab(tab) {
         document.getElementById('panelPaste').style.display = tab === 'paste' ? 'block' : 'none';

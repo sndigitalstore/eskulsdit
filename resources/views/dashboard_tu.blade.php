@@ -226,6 +226,9 @@
     <a href="{{ route('students.create') }}" class="tu-action-btn btn-tu-primary">
         <i class="fas fa-user-plus"></i> + Tambah Siswa Baru
     </a>
+    <button type="button" onclick="openTuImportModal()" class="tu-action-btn btn-tu-purple" style="border: none; cursor: pointer;">
+        <i class="fas fa-file-import"></i> Import Masal Siswa (Excel)
+    </button>
     <a href="{{ route('students.index') }}" class="tu-action-btn btn-tu-info">
         <i class="fas fa-users"></i> Kelola Semua Siswa
     </a>
@@ -493,8 +496,110 @@
     </div>
 </div>
 
+{{-- MODAL IMPORT MASAL DATA SISWA (TU) --}}
+<div id="tuImportModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.55); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; border-radius:20px; width:100%; max-width:580px; box-shadow:0 24px 48px rgba(15,23,42,0.22); overflow:hidden; animation:fadeInScale .2s ease;">
+        <div style="background:linear-gradient(135deg,#6d28d9,#7c3aed); color:#fff; padding:20px 24px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                    <i class="fas fa-file-import"></i>
+                </div>
+                <div>
+                    <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Import Masal Data Siswa (Excel)</h3>
+                    <p style="margin:2px 0 0; font-size:0.78rem; color:#ede9fe;">Mendukung multi-sheet per kelas (kls IA, kls IB, dst.)</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeTuImportModal()" style="background:rgba(255,255,255,0.18); border:none; color:#fff; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:1rem;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form action="{{ route('students.import_excel') }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
+            @csrf
+            <input type="hidden" name="redirect_to" value="dashboard">
+
+            <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:0.82rem; color:#4c1d95; line-height:1.5;">
+                <strong><i class="fas fa-magic"></i> Deteksi Otomatis Format Sekolah:</strong><br>
+                File Excel format sekolah (kolom <em>NIS, NISN, Nama Lengkap Siswa, L/P, Tempat dan Tanggal Lahir, Alamat, Asal Sekolah, Nama Orang Tua [Ayah/Ibu], Pekerjaan [Ayah/Ibu], No. Telp/HP [Ayah/Ibu], Tgl diterima, Full Day/Boarding</em>) langsung terbaca otomatis termasuk seluruh tab sheet kelas.
+            </div>
+
+            <div id="tuDropZone" onclick="document.getElementById('tuImportFile').click()"
+                 ondragover="event.preventDefault(); this.style.borderColor='#7c3aed'; this.style.background='#f5f3ff';"
+                 ondragleave="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';"
+                 ondrop="handleTuDrop(event)"
+                 style="border:2px dashed #cbd5e1; background:#f8fafc; border-radius:14px; padding:26px 16px; text-align:center; cursor:pointer; transition:all .2s; margin-bottom:16px;">
+                <i class="fas fa-cloud-upload-alt" style="font-size:2.2rem; color:#7c3aed; margin-bottom:8px;"></i>
+                <div style="font-weight:700; color:#1e293b; font-size:0.95rem;">Klik atau seret file Excel ke sini</div>
+                <div style="font-size:0.78rem; color:#64748b; margin-top:4px;">Format didukung: .xlsx, .xls, .csv</div>
+                <div id="tuFileNameLabel" style="margin-top:10px; font-size:0.85rem; font-weight:700; color:#059669; display:none;"></div>
+                <input type="file" id="tuImportFile" name="file" accept=".xlsx,.xls,.csv" required style="display:none;" onchange="updateTuFileName(this)">
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <div style="font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:8px;">Mode Sinkronisasi Jika Nama / NIS Anak Sudah Ada:</div>
+                <label style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1.5px solid #c4b5fd; background:#faf5ff; border-radius:10px; cursor:pointer; margin-bottom:8px;">
+                    <input type="radio" name="update_mode" value="fill_empty" checked style="margin-top:3px; accent-color:#7c3aed;">
+                    <div>
+                        <div style="font-size:0.84rem; font-weight:700; color:#4c1d95;">Lengkapi Data yang Belum Terisi (Rekomendasi)</div>
+                        <div style="font-size:0.76rem; color:#6b7280;">Otomatis melengkapi kolom kosong (misal: Jenis Kelamin, Nama Orang Tua, Alamat, NISN, Full Day/Boarding) tanpa menimpa data yang sudah terisi.</div>
+                    </div>
+                </label>
+                <label style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid #e2e8f0; background:#fff; border-radius:10px; cursor:pointer;">
+                    <input type="radio" name="update_mode" value="overwrite" style="margin-top:3px; accent-color:#7c3aed;">
+                    <div>
+                        <div style="font-size:0.84rem; font-weight:700; color:#334155;">Perbarui / Timpa Semua Kolom dari Excel</div>
+                        <div style="font-size:0.76rem; color:#6b7280;">Seluruh kolom biodata yang terisi di file Excel akan menimpa data lama siswa yang cocok.</div>
+                    </div>
+                </label>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; border-top:1px solid #f1f5f9; padding-top:16px;">
+                <a href="{{ route('students.import_template') }}" style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:10px; border:1.5px solid #7c3aed; color:#7c3aed; text-decoration:none; font-size:0.82rem; font-weight:600;">
+                    <i class="fas fa-download"></i> Unduh Template Excel
+                </a>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" onclick="closeTuImportModal()" style="padding:9px 16px; border-radius:10px; border:1px solid #cbd5e1; background:#fff; color:#475569; font-weight:600; font-size:0.85rem; cursor:pointer;">Batal</button>
+                    <button type="submit" style="padding:9px 18px; border-radius:10px; border:none; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer;">
+                        <i class="fas fa-upload"></i> Upload &amp; Proses Import
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
+function openTuImportModal() {
+    document.getElementById('tuImportModal').style.display = 'flex';
+}
+function closeTuImportModal() {
+    document.getElementById('tuImportModal').style.display = 'none';
+}
+function updateTuFileName(input) {
+    const label = document.getElementById('tuFileNameLabel');
+    if (input.files && input.files.length > 0) {
+        label.textContent = 'File dipilih: ' + input.files[0].name;
+        label.style.display = 'block';
+    } else {
+        label.style.display = 'none';
+    }
+}
+function handleTuDrop(e) {
+    e.preventDefault();
+    const zone = document.getElementById('tuDropZone');
+    zone.style.borderColor = '#cbd5e1';
+    zone.style.background = '#f8fafc';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        const input = document.getElementById('tuImportFile');
+        input.files = files;
+        updateTuFileName(input);
+    }
+}
+document.getElementById('tuImportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeTuImportModal();
+});
 function filterQuickTable() {
     var input = document.getElementById("quickSearchInput");
     var filter = input.value.toUpperCase();
