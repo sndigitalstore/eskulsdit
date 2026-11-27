@@ -59,15 +59,17 @@
 
 @section('content')
 <div style="margin-bottom: 16px;">
-    @if(request('from') === 'dashboard')
-    <a href="{{ route('dashboard') }}" style="color: #065f46; font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
-        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+    @php
+        $backUrl = request('from') === 'dashboard' || (Auth::check() && Auth::user()->role === 'tu')
+            ? route('dashboard')
+            : route('students.index');
+        $backLabel = request('from') === 'dashboard' || (Auth::check() && Auth::user()->role === 'tu')
+            ? 'Kembali ke Dashboard'
+            : 'Kembali ke Data Siswa';
+    @endphp
+    <a href="{{ $backUrl }}" style="color: #065f46; font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="fas fa-arrow-left"></i> {{ $backLabel }}
     </a>
-    @else
-    <a href="{{ route('students.index') }}" style="color: #666; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
-        <i class="fas fa-arrow-left"></i> Kembali ke Data Siswa
-    </a>
-    @endif
 </div>
 
 <div class="card" style="max-width: 720px; margin: 0 auto;">

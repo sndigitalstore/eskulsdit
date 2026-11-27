@@ -337,8 +337,16 @@
 
 {{-- ACTION BAR --}}
 <div class="action-bar">
-    <a href="{{ route('students.index') }}" class="btn btn-back">
-        <i class="fas fa-arrow-left"></i> Kembali
+    @php
+        $backUrl = request('from') === 'dashboard' || (Auth::check() && Auth::user()->role === 'tu')
+            ? route('dashboard')
+            : route('students.index');
+        $backText = request('from') === 'dashboard' || (Auth::check() && Auth::user()->role === 'tu')
+            ? 'Kembali ke Dashboard'
+            : 'Kembali';
+    @endphp
+    <a href="{{ $backUrl }}" class="btn btn-back">
+        <i class="fas fa-arrow-left"></i> {{ $backText }}
     </a>
     <button onclick="window.print()" class="btn btn-print">
         <i class="fas fa-print"></i> Cetak Portofolio

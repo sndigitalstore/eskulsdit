@@ -215,7 +215,9 @@ class StudentController extends Controller
 
         \App\Models\ActivityLog::log('Students', 'Create', "Menambahkan siswa: {$student->name} (Kelas {$student->class})");
 
-        $redirectUrl = $request->input('from') === 'dashboard' ? route('dashboard') : route('students.index');
+        $redirectUrl = ($request->input('from') === 'dashboard' || (Auth::check() && Auth::user()->role === 'tu'))
+            ? route('dashboard')
+            : route('students.index');
         return redirect($redirectUrl)->with('success', 'Data siswa berhasil ditambahkan!');
     }
 
@@ -511,7 +513,9 @@ class StudentController extends Controller
         
         \App\Models\ActivityLog::log('Students', 'Update', "Memperbarui data siswa: {$student->name} (Kelas {$student->class})");
 
-        $redirectUrl = $request->input('from') === 'dashboard' ? route('dashboard') : route('students.index');
+        $redirectUrl = ($request->input('from') === 'dashboard' || (Auth::check() && Auth::user()->role === 'tu'))
+            ? route('dashboard')
+            : route('students.index');
         return redirect($redirectUrl)->with('success', 'Data siswa dan pilihan eskul berhasil diperbarui!');
     }
 

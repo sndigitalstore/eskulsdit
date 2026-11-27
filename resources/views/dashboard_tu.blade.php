@@ -542,19 +542,19 @@
                     <td style="padding: 10px 12px; text-align: center;">
                         <div class="student-row-actions" style="justify-content: center;">
                             {{-- Cetak Portofolio --}}
-                            <a href="{{ route('students.portfolio', $s->id) }}" target="_blank" class="btn-mini" style="background: #8b5cf6;" title="Cetak Portofolio Lengkap Siap Cetak">
+                            <a href="{{ route('students.portfolio', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #8b5cf6;" title="Cetak Portofolio Lengkap Siap Cetak">
                                 <i class="fas fa-id-card-alt"></i>
                             </a>
                             {{-- Cetak Kartu --}}
-                            <a href="{{ route('students.card', $s->id) }}" target="_blank" class="btn-mini" style="background: #0284c7;" title="Cetak Kartu Siswa">
+                            <a href="{{ route('students.card', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #0284c7;" title="Cetak Kartu Siswa">
                                 <i class="fas fa-id-card"></i>
                             </a>
                             {{-- Lihat Biodata --}}
-                            <a href="{{ route('students.show', [$s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #64748b;" title="Lihat Detail Biodata">
+                            <a href="{{ route('students.show', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #64748b;" title="Lihat Detail Biodata">
                                 <i class="fas fa-eye"></i>
                             </a>
                             {{-- Edit --}}
-                            <a href="{{ route('students.edit', [$s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #f59e0b;" title="Edit Data Siswa">
+                            <a href="{{ route('students.edit', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #f59e0b;" title="Edit Data Siswa">
                                 <i class="fas fa-pen"></i>
                             </a>
                         </div>
