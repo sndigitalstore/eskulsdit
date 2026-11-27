@@ -35,13 +35,19 @@
                 <i class="fas fa-id-card"></i> Cetak Kartu
             </a>
             @if(in_array(Auth::user()->role, ['admin', 'tu']))
-            <a href="{{ route('students.edit', $student->id) }}" class="btn" style="background: #f59e0b; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="{{ route('students.edit', array_merge(['student' => $student->id], request('from') ? ['from' => request('from')] : [])) }}" class="btn" style="background: #f59e0b; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fas fa-pen"></i> Edit
             </a>
             @endif
+            @if(request('from') === 'dashboard')
+            <a href="{{ route('dashboard') }}" class="btn-filter" style="background: #065f46; padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            @else
             <a href="{{ route('students.index', ['status' => $student->status == 'graduated' ? 'graduated' : 'active']) }}" class="btn-filter" style="background: #95a5a6; padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
+            @endif
         </div>
     </div>
 

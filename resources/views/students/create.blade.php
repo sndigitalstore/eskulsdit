@@ -58,7 +58,11 @@
 @endpush
 
 @section('content')
+@if(request('from') === 'dashboard')
+<a href="{{ route('dashboard') }}" style="display: inline-flex; align-items: center; gap: 6px; margin-bottom: 1rem; color: #065f46; font-weight: 700; text-decoration: none;"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+@else
 <a href="{{ route('students.index') }}" style="display: inline-block; margin-bottom: 1rem; color: #888; text-decoration: none;"><i class="fas fa-arrow-left"></i> Kembali</a>
+@endif
 
 <div class="card" style="max-width: 720px; margin: 0 auto;">
     <h3 style="margin-bottom: 20px; font-size: 1.2rem; color: #1e293b;"><i class="fas fa-user-plus" style="color: #3b82f6; margin-right: 8px;"></i>Formulir Tambah Siswa</h3>
@@ -75,6 +79,9 @@
 
     <form action="{{ route('students.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @if(request('from'))
+            <input type="hidden" name="from" value="{{ request('from') }}">
+        @endif
 
         {{-- ===== IDENTITAS SISWA ===== --}}
         <div class="form-section">

@@ -215,7 +215,8 @@ class StudentController extends Controller
 
         \App\Models\ActivityLog::log('Students', 'Create', "Menambahkan siswa: {$student->name} (Kelas {$student->class})");
 
-        return redirect()->route('students.index')->with('success', 'Data siswa berhasil ditambahkan!');
+        $redirectUrl = $request->input('from') === 'dashboard' ? route('dashboard') : route('students.index');
+        return redirect($redirectUrl)->with('success', 'Data siswa berhasil ditambahkan!');
     }
 
     public function store_bulk(Request $request)
@@ -510,7 +511,8 @@ class StudentController extends Controller
         
         \App\Models\ActivityLog::log('Students', 'Update', "Memperbarui data siswa: {$student->name} (Kelas {$student->class})");
 
-        return redirect()->route('students.index')->with('success', 'Data siswa dan pilihan eskul berhasil diperbarui!');
+        $redirectUrl = $request->input('from') === 'dashboard' ? route('dashboard') : route('students.index');
+        return redirect($redirectUrl)->with('success', 'Data siswa dan pilihan eskul berhasil diperbarui!');
     }
 
     public function destroy(\App\Models\Student $student)

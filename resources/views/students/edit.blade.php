@@ -59,9 +59,15 @@
 
 @section('content')
 <div style="margin-bottom: 16px;">
-    <a href="{{ route('students.index') }}" style="color: #666; text-decoration: none; font-size: 0.9rem;">
+    @if(request('from') === 'dashboard')
+    <a href="{{ route('dashboard') }}" style="color: #065f46; font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+    </a>
+    @else
+    <a href="{{ route('students.index') }}" style="color: #666; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;">
         <i class="fas fa-arrow-left"></i> Kembali ke Data Siswa
     </a>
+    @endif
 </div>
 
 <div class="card" style="max-width: 720px; margin: 0 auto;">
@@ -80,6 +86,9 @@
     <form action="{{ route('students.update', $student->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
+        @if(request('from'))
+            <input type="hidden" name="from" value="{{ request('from') }}">
+        @endif
         <input type="hidden" name="last_sync" value="{{ $student->updated_at->format('Y-m-d H:i:s') }}">
 
         {{-- ===== IDENTITAS SISWA ===== --}}

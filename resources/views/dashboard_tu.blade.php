@@ -223,7 +223,7 @@
 
 {{-- QUICK ACTION BAR --}}
 <div class="tu-quick-actions">
-    <a href="{{ route('students.create') }}" class="tu-action-btn btn-tu-primary">
+    <a href="{{ route('students.create', ['from' => 'dashboard']) }}" class="tu-action-btn btn-tu-primary">
         <i class="fas fa-user-plus"></i> + Tambah Siswa Baru
     </a>
     <button type="button" onclick="openTuImportModal()" class="tu-action-btn btn-tu-purple" style="border: none; cursor: pointer;">
@@ -550,11 +550,11 @@
                                 <i class="fas fa-id-card"></i>
                             </a>
                             {{-- Lihat Biodata --}}
-                            <a href="{{ route('students.show', $s->id) }}" class="btn-mini" style="background: #64748b;" title="Lihat Detail Biodata">
+                            <a href="{{ route('students.show', [$s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #64748b;" title="Lihat Detail Biodata">
                                 <i class="fas fa-eye"></i>
                             </a>
                             {{-- Edit --}}
-                            <a href="{{ route('students.edit', $s->id) }}" class="btn-mini" style="background: #f59e0b;" title="Edit Data Siswa">
+                            <a href="{{ route('students.edit', [$s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #f59e0b;" title="Edit Data Siswa">
                                 <i class="fas fa-pen"></i>
                             </a>
                         </div>
