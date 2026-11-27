@@ -799,17 +799,17 @@ class DashboardController extends Controller
         $totalAlumni = Student::activeYear()->whereIn('status', ['graduated', 'lulus'])->count();
 
         // Gender breakdown
-        $maleStudents = Student::activeYear()->active()->where('gender', 'L')->count();
+        $maleStudents   = Student::activeYear()->active()->where('gender', 'L')->count();
         $femaleStudents = Student::activeYear()->active()->where('gender', 'P')->count();
-        $otherGender = max(0, $totalStudents - ($maleStudents + $femaleStudents));
+        $otherGender    = max(0, $totalStudents - ($maleStudents + $femaleStudents));
 
         // School Program
-        $fullDayStudents = Student::activeYear()->active()->where('school_program', 'Full Day')->count();
+        $fullDayStudents  = Student::activeYear()->active()->where('school_program', 'Full Day')->count();
         $boardingStudents = Student::activeYear()->active()->where('school_program', 'Boarding')->count();
 
         // NISN Completeness
         $completeNisn = Student::activeYear()->active()->whereNotNull('nisn')->where('nisn', '!=', '')->count();
-        $missingNisn = max(0, $totalStudents - $completeNisn);
+        $missingNisn  = max(0, $totalStudents - $completeNisn);
 
         // Data Ortu Completeness
         $withParentData = Student::activeYear()->active()
@@ -820,6 +820,58 @@ class DashboardController extends Controller
                     $sq->whereNotNull('mother_name')->where('mother_name', '!=', '');
                 });
             })->count();
+
+        // ─── BIODATA COMPLETENESS DETAIL ───────────────────────────────────
+        $isNotEmpty = function($col) {
+            return function($q) use ($col) {
+                $q->whereNotNull($col)->where($col, '!=', '');
+            };
+        };
+
+        $bioFields = [
+            ['key' => 'nisn',             'label' => 'NISN',               'icon' => 'fas fa-id-badge',         'color' => '#7c3aed', 'filter' => 'missing_nisn'],
+            ['key' => 'gender',           'label' => 'Jenis Kelamin',       'icon' => 'fas fa-venus-mars',       'color' => '#0284c7', 'filter' => 'missing_gender'],
+            ['key' => 'birth_place_date', 'label' => 'Tempat / Tgl Lahir', 'icon' => 'fas fa-birthday-cake',   'color' => '#ea580c', 'filter' => 'missing_birth'],
+            ['key' => 'address',          'label' => 'Alamat',             'icon' => 'fas fa-map-marker-alt',  'color' => '#059669', 'filter' => 'missing_address'],
+            ['key' => 'parent_ortu',      'label' => 'Nama Orang Tua',     'icon' => 'fas fa-users',            'color' => '#db2777', 'filter' => 'missing_parent'],
+            ['key' => 'parent_phone',     'label' => 'No. HP Orang Tua',   'icon' => 'fas fa-phone',            'color' => '#0891b2', 'filter' => 'missing_phone'],
+            ['key' => 'school_program',   'label' => 'Full Day / Boarding','icon' => 'fas fa-building',         'color' => '#d97706', 'filter' => 'missing_program'],
+            ['key' => 'previous_school',  'label' => 'Asal Sekolah',       'icon' => 'fas fa-school',           'color' => '#64748b', 'filter' => 'missing_prev_school'],
+        ];
+
+        $biodataStats = [];
+        foreach ($bioFields as $f) {
+            if ($f['key'] === 'parent_ortu') {
+                $filled = Student::activeYear()->active()
+                    ->where(function($q) {
+                        $q->where(function($sq) { $sq->whereNotNull('father_name')->where('father_name','!=',''); })
+                          ->orWhere(function($sq) { $sq->whereNotNull('mother_name')->where('mother_name','!=',''); });
+                    })->count();
+            } elseif ($f['key'] === 'parent_phone') {
+                $filled = Student::activeYear()->active()
+                    ->where(function($q) {
+                        $q->where(function($sq) { $sq->whereNotNull('father_phone')->where('father_phone','!=',''); })
+                          ->orWhere(function($sq) { $sq->whereNotNull('mother_phone')->where('mother_phone','!=',''); })
+                          ->orWhere(function($sq) { $sq->whereNotNull('parent_phone')->where('parent_phone','!=',''); });
+                    })->count();
+            } else {
+                $filled = Student::activeYear()->active()
+                    ->whereNotNull($f['key'])->where($f['key'], '!=', '')->count();
+            }
+            $pct    = $totalStudents > 0 ? round(($filled / $totalStudents) * 100) : 0;
+            $missing = max(0, $totalStudents - $filled);
+            $biodataStats[] = array_merge($f, [
+                'filled'  => $filled,
+                'missing' => $missing,
+                'pct'     => $pct,
+            ]);
+        }
+
+        // Overall completeness score
+        $overallPct = $totalStudents > 0
+            ? round(collect($biodataStats)->avg('pct'))
+            : 0;
+        // ───────────────────────────────────────────────────────────────────
 
         // Rekap Per Tingkat Kelas (1 s/d 6)
         $classes = Student::activeYear()->active()
@@ -838,22 +890,16 @@ class DashboardController extends Controller
             preg_match('/^\d+/', $c->class, $matches);
             $grade = $matches[0] ?? 'Lainnya';
             if (!isset($gradeStatistics[$grade])) {
-                $gradeStatistics[$grade] = [
-                    'grade' => $grade,
-                    'total' => 0,
-                    'male' => 0,
-                    'female' => 0,
-                    'classes' => []
-                ];
+                $gradeStatistics[$grade] = ['grade' => $grade, 'total' => 0, 'male' => 0, 'female' => 0, 'classes' => []];
             }
-            $gradeStatistics[$grade]['total'] += (int)$c->count;
-            $gradeStatistics[$grade]['male'] += (int)$c->male_count;
-            $gradeStatistics[$grade]['female'] += (int)$c->female_count;
+            $gradeStatistics[$grade]['total']   += (int)$c->count;
+            $gradeStatistics[$grade]['male']    += (int)$c->male_count;
+            $gradeStatistics[$grade]['female']  += (int)$c->female_count;
             $gradeStatistics[$grade]['classes'][] = [
-                'name' => $c->class,
-                'count' => (int)$c->count,
-                'male' => (int)$c->male_count,
-                'female' => (int)$c->female_count
+                'name'   => $c->class,
+                'count'  => (int)$c->count,
+                'male'   => (int)$c->male_count,
+                'female' => (int)$c->female_count,
             ];
         }
         ksort($gradeStatistics);
@@ -888,7 +934,9 @@ class DashboardController extends Controller
             'withParentData',
             'gradeStatistics',
             'recentStudents',
-            'studentLogs'
+            'studentLogs',
+            'biodataStats',
+            'overallPct'
         ));
     }
 }

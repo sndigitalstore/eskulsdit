@@ -327,6 +327,82 @@
     </div>
 </div>
 
+{{-- ===== SECTION: KELENGKAPAN BIODATA SISWA ===== --}}
+<div class="card" style="margin-bottom: 25px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <div>
+            <h3 style="font-size:1.05rem; font-weight:700; color:#1e293b; margin:0 0 2px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-clipboard-check" style="color:#7c3aed;"></i> Kelengkapan Biodata Siswa
+            </h3>
+            <p style="margin:0; font-size:0.78rem; color:#64748b;">
+                Klik <strong>Ekspor</strong> pada setiap baris untuk mengunduh daftar siswa yang belum terisi.
+            </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div style="font-size:1.6rem; font-weight:800; color:{{ $overallPct >= 80 ? '#059669' : ($overallPct >= 50 ? '#d97706' : '#dc2626') }};">
+                    {{ $overallPct }}%
+                </div>
+                <div style="font-size:0.72rem; color:#64748b; font-weight:600;">Rata-rata kelengkapan</div>
+            </div>
+            <a href="{{ route('students.export_incomplete', ['filter' => 'all_incomplete']) }}"
+               style="display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:10px; background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff; text-decoration:none; font-size:0.82rem; font-weight:700; white-space:nowrap;">
+                <i class="fas fa-file-excel"></i> Export Semua Tidak Lengkap
+            </a>
+        </div>
+    </div>
+
+    <div style="display:grid; gap:10px;">
+        @foreach($biodataStats as $stat)
+        @php
+            $pct = $stat['pct'];
+            $barColor = $pct >= 80 ? '#10b981' : ($pct >= 50 ? '#f59e0b' : '#ef4444');
+            $bgBar    = $pct >= 80 ? '#ecfdf5' : ($pct >= 50 ? '#fffbeb' : '#fef2f2');
+        @endphp
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+            {{-- Icon --}}
+            <div style="width:38px; height:38px; border-radius:10px; background:{{ $bgBar }}; color:{{ $stat['color'] }}; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0;">
+                <i class="{{ $stat['icon'] }}"></i>
+            </div>
+            {{-- Label & Count --}}
+            <div style="flex:1; min-width:140px;">
+                <div style="font-size:0.85rem; font-weight:700; color:#1e293b;">{{ $stat['label'] }}</div>
+                <div style="font-size:0.76rem; color:#64748b;">
+                    <span style="color:#059669; font-weight:600;">{{ $stat['filled'] }} terisi</span>
+                    @if($stat['missing'] > 0)
+                        &nbsp;•&nbsp; <span style="color:#dc2626; font-weight:600;">{{ $stat['missing'] }} belum diisi</span>
+                    @else
+                        &nbsp;•&nbsp; <span style="color:#059669; font-weight:600;"><i class="fas fa-check-circle"></i> Semua lengkap!</span>
+                    @endif
+                </div>
+            </div>
+            {{-- Progress Bar --}}
+            <div style="flex:2; min-width:160px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-size:0.72rem; color:#64748b;">Kelengkapan</span>
+                    <span style="font-size:0.78rem; font-weight:800; color:{{ $barColor }};">{{ $pct }}%</span>
+                </div>
+                <div style="background:#e2e8f0; border-radius:99px; height:8px; overflow:hidden;">
+                    <div style="width:{{ $pct }}%; height:100%; background:{{ $barColor }}; border-radius:99px; transition:width .6s ease;"></div>
+                </div>
+            </div>
+            {{-- Export Button --}}
+            @if($stat['missing'] > 0)
+            <a href="{{ route('students.export_incomplete', ['filter' => $stat['filter']]) }}"
+               title="Ekspor daftar {{ $stat['missing'] }} siswa yang belum terisi {{ $stat['label'] }}"
+               style="display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:8px; border:1.5px solid {{ $stat['color'] }}; color:{{ $stat['color'] }}; text-decoration:none; font-size:0.76rem; font-weight:700; white-space:nowrap; flex-shrink:0; background:#fff;">
+                <i class="fas fa-download"></i> Ekspor ({{ $stat['missing'] }})
+            </a>
+            @else
+            <div style="padding:7px 12px; border-radius:8px; background:#ecfdf5; color:#059669; font-size:0.76rem; font-weight:700; white-space:nowrap; flex-shrink:0;">
+                <i class="fas fa-check"></i> Lengkap
+            </div>
+            @endif
+        </div>
+        @endforeach
+    </div>
+</div>
+
 {{-- BREAKDOWN SISWA PER TINGKAT KELAS --}}
 <div class="card" style="margin-bottom: 25px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">

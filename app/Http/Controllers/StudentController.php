@@ -754,4 +754,83 @@ class StudentController extends Controller
 
         return back()->with('success', "Berhasil mem-plotting {$enrolledCount} siswa Kelas 6 ke Kelompok Tahfidz untuk Semester 2!");
     }
+
+    /**
+     * Export siswa dengan biodata tidak lengkap ke Excel.
+     * ?filter=missing_nisn|missing_gender|missing_parent|missing_phone|missing_birth|missing_address|missing_program|missing_prev_school|all_incomplete
+     */
+    public function exportIncomplete(Request $request)
+    {
+        $this->checkManagerRole();
+
+        $filter = $request->input('filter', 'all_incomplete');
+        $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->with('error', 'Tidak ada tahun ajaran aktif.');
+        }
+
+        $query = \App\Models\Student::activeYear()->active()->orderBy('class')->orderBy('name');
+
+        switch ($filter) {
+            case 'missing_nisn':
+                $query->where(function($q) { $q->whereNull('nisn')->orWhere('nisn',''); });
+                $title = 'Siswa Belum Ada NISN';
+                break;
+            case 'missing_gender':
+                $query->where(function($q) { $q->whereNull('gender')->orWhere('gender',''); });
+                $title = 'Siswa Belum Ada Jenis Kelamin';
+                break;
+            case 'missing_parent':
+                $query->where(function($q) {
+                    $q->where(function($q2) { $q2->whereNull('father_name')->orWhere('father_name',''); })
+                      ->where(function($q2) { $q2->whereNull('mother_name')->orWhere('mother_name',''); });
+                });
+                $title = 'Siswa Belum Ada Data Orang Tua';
+                break;
+            case 'missing_phone':
+                $query->where(function($q) {
+                    $q->where(function($q2) { $q2->whereNull('father_phone')->orWhere('father_phone',''); })
+                      ->where(function($q2) { $q2->whereNull('mother_phone')->orWhere('mother_phone',''); })
+                      ->where(function($q2) { $q2->whereNull('parent_phone')->orWhere('parent_phone',''); });
+                });
+                $title = 'Siswa Belum Ada No. HP Orang Tua';
+                break;
+            case 'missing_birth':
+                $query->where(function($q) { $q->whereNull('birth_place_date')->orWhere('birth_place_date',''); });
+                $title = 'Siswa Belum Ada Tempat/Tgl Lahir';
+                break;
+            case 'missing_address':
+                $query->where(function($q) { $q->whereNull('address')->orWhere('address',''); });
+                $title = 'Siswa Belum Ada Alamat';
+                break;
+            case 'missing_program':
+                $query->where(function($q) { $q->whereNull('school_program')->orWhere('school_program',''); });
+                $title = 'Siswa Belum Ada Program (Full Day/Boarding)';
+                break;
+            case 'missing_prev_school':
+                $query->where(function($q) { $q->whereNull('previous_school')->orWhere('previous_school',''); });
+                $title = 'Siswa Belum Ada Asal Sekolah';
+                break;
+            default: // all_incomplete
+                $query->where(function($q) {
+                    $q->where(function($q2) { $q2->whereNull('nisn')->orWhere('nisn',''); })
+                      ->orWhere(function($q2) { $q2->whereNull('gender')->orWhere('gender',''); })
+                      ->orWhere(function($q2) { $q2->whereNull('birth_place_date')->orWhere('birth_place_date',''); })
+                      ->orWhere(function($q2) { $q2->whereNull('father_name')->orWhere('father_name',''); })
+                      ->orWhere(function($q2) { $q2->whereNull('mother_name')->orWhere('mother_name',''); });
+                });
+                $title = 'Semua Siswa Biodata Tidak Lengkap';
+                break;
+        }
+
+        $students = $query->get();
+
+        $year = $activeYear->name;
+        $filename = str_replace(' ', '_', $title) . '_' . str_replace(['/', ' '], '_', $year) . '_' . date('Ymd') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\IncompleteStudentsExport($students, $title, $year),
+            $filename
+        );
+    }
 }
