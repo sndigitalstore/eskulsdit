@@ -1627,7 +1627,7 @@
                                 </div>
                                 @if($student->admission_date)
                                 <div style="color:#94a3b8; font-size:0.72rem; margin-top:3px;">
-                                    Masuk: {{ \Carbon\Carbon::parse($student->admission_date)->translatedFormat('d M Y') }}
+                                    Masuk: {{ $student->admission_date }}
                                 </div>
                                 @endif
                             </td>
