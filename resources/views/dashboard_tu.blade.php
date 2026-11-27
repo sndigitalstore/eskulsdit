@@ -447,8 +447,8 @@
 </div>
 
 {{-- DATA SISWA TERBARU & PENCARIAN CEPAT DENGAN CETAK PORTOFOLIO --}}
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+<div class="card" id="section-students">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
         <div>
             <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin: 0 0 4px; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-id-card-alt" style="color: #8b5cf6;"></i> Data Siswa & Cetak Portofolio
@@ -469,6 +469,42 @@
                 Semua Siswa &rarr;
             </a>
         </div>
+    </div>
+
+    {{-- Filter Kelas Bar --}}
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; background: #f8fafc; padding: 10px 14px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 6px; overflow-x: auto; max-width: 100%; padding-bottom: 2px; -webkit-overflow-scrolling: touch;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: #475569; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin-right: 4px;">
+                <i class="fas fa-filter" style="color: #7c3aed;"></i> Filter Kelas:
+            </span>
+            <a href="{{ route('dashboard') }}#section-students"
+               style="padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none; white-space: nowrap; transition: all 0.15s; {{ empty($selectedClass) ? 'background:#7c3aed; color:#fff; box-shadow:0 2px 4px rgba(124,58,237,0.25);' : 'background:#fff; color:#475569; border:1px solid #cbd5e1;' }}">
+                Semua
+            </a>
+            @if(isset($availableClasses))
+                @foreach($availableClasses as $cls)
+                <a href="{{ route('dashboard', ['class' => $cls]) }}#section-students"
+                   style="padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none; white-space: nowrap; transition: all 0.15s; {{ $selectedClass == $cls ? 'background:#7c3aed; color:#fff; box-shadow:0 2px 4px rgba(124,58,237,0.25);' : 'background:#fff; color:#475569; border:1px solid #cbd5e1;' }}">
+                    Kelas {{ $cls }}
+                </a>
+                @endforeach
+            @endif
+        </div>
+
+        @if(!empty($selectedClass))
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+            <span style="font-size: 0.78rem; color: #7c3aed; font-weight: 700; background: #ede9fe; padding: 3px 10px; border-radius: 6px;">
+                Kelas {{ $selectedClass }} &bull; {{ count($recentStudents) }} siswa
+            </span>
+            <a href="{{ route('dashboard') }}#section-students" style="color: #ef4444; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Reset filter">
+                <i class="fas fa-times-circle"></i> Reset
+            </a>
+        </div>
+        @else
+        <div style="font-size: 0.75rem; color: #64748b; flex-shrink: 0;">
+            Menampilkan {{ count($recentStudents) }} siswa terbaru
+        </div>
+        @endif
     </div>
 
     <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
@@ -578,7 +614,11 @@
                 @empty
                 <tr>
                     <td colspan="8" style="text-align: center; padding: 2rem; color: #94a3b8;">
-                        Belum ada data siswa terdaftar di tahun ajaran ini.
+                        @if(!empty($selectedClass))
+                            Tidak ada siswa aktif di Kelas {{ $selectedClass }}.
+                        @else
+                            Belum ada data siswa terdaftar di tahun ajaran ini.
+                        @endif
                     </td>
                 </tr>
                 @endforelse

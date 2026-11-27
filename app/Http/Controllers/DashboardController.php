@@ -904,12 +904,31 @@ class DashboardController extends Controller
         }
         ksort($gradeStatistics);
 
-        // Siswa Terbaru (15 siswa)
-        $recentStudents = Student::activeYear()->active()
-            ->with('eskuls')
-            ->orderBy('created_at', 'desc')
-            ->take(15)
-            ->get();
+        // Filter Kelas & Daftar Kelas Tersedia
+        $availableClasses = Student::activeYear()->active()
+            ->select('class')
+            ->whereNotNull('class')
+            ->where('class', '!=', '')
+            ->distinct()
+            ->orderBy('class')
+            ->pluck('class');
+
+        $selectedClass = request('class');
+
+        $studentsQuery = Student::activeYear()->active()
+            ->with('eskuls');
+
+        if (!empty($selectedClass)) {
+            $recentStudents = $studentsQuery->where('class', $selectedClass)
+                ->orderBy('name', 'asc')
+                ->get();
+        } else {
+            // Siswa Terbaru (30 siswa)
+            $recentStudents = $studentsQuery
+                ->orderBy('created_at', 'desc')
+                ->take(30)
+                ->get();
+        }
 
         // Aktivitas log siswa terbaru (jika ada)
         $studentLogs = [];
@@ -961,7 +980,9 @@ class DashboardController extends Controller
             'biodataStats',
             'overallPct',
             'lastImportBatch',
-            'lastImportedStudents'
+            'lastImportedStudents',
+            'availableClasses',
+            'selectedClass'
         ));
     }
 }
