@@ -802,6 +802,10 @@
     /* ===== VIEW SWITCHING ===== */
     .desktop-table-view {
         display: block;
+        width: 100%;
+    }
+    .wide-table-view {
+        display: none;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-x pan-y !important;
@@ -1034,8 +1038,9 @@
             background: #e2e8f0;
         }
 
-        /* Hide desktop table & show mobile cards */
-        .desktop-table-view {
+        /* Hide desktop tables & show mobile cards */
+        .desktop-table-view,
+        .wide-table-view {
             display: none !important;
         }
 
@@ -1434,15 +1439,19 @@
             @endif
         </div>
 
-        {{-- Switch View Mode (HP vs Desktop) --}}
+        {{-- Switch View Mode (HP vs 1 Layar vs Kolom Lebar) --}}
         <div style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:10px; gap:4px; flex-shrink:0;">
             <button type="button" id="btnViewCard" onclick="switchStudentView('card')"
-                    style="padding:6px 12px; border-radius:7px; border:none; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:#fff; color:#7367f0; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    style="padding:6px 12px; border-radius:7px; border:none; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:transparent; color:#64748b;">
                 <i class="fas fa-th-large"></i> <span>Kartu (HP)</span>
             </button>
-            <button type="button" id="btnViewTable" onclick="switchStudentView('table')"
+            <button type="button" id="btnViewCompact" onclick="switchStudentView('compact')"
+                    style="padding:6px 12px; border-radius:7px; border:none; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:#fff; color:#7367f0; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                <i class="fas fa-columns"></i> <span>1 Layar Penuh</span>
+            </button>
+            <button type="button" id="btnViewWide" onclick="switchStudentView('wide')"
                     style="padding:6px 12px; border-radius:7px; border:none; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:transparent; color:#64748b;">
-                <i class="fas fa-table"></i> <span>Tabel</span>
+                <i class="fas fa-table"></i> <span>Kolom Lebar</span>
             </button>
         </div>
     </div>
@@ -1540,14 +1549,213 @@
             @csrf
             @method('DELETE')
 
-            {{-- 1. DESKTOP TABLE VIEW (>= 769px) --}}
-            <div class="desktop-table-view" style="overflow-x: auto;">
+            {{-- 1. DESKTOP COMPACT TABLE VIEW (1 Layar Penuh - Tanpa Geser Horizontal) --}}
+            <div class="desktop-table-view">
+                <table class="students-table" style="width: 100%; table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th style="width:48px; text-align:center;">
+                                @if(Auth::user()->role == 'admin')
+                                    <input type="checkbox" id="checkAll" class="custom-check" onchange="toggleAll(this)">
+                                @else
+                                    #
+                                @endif
+                            </th>
+                            <th style="min-width:220px;">Identitas Siswa</th>
+                            <th style="min-width:115px;">Kelas & Program</th>
+                            <th style="min-width:180px;">Kelahiran & Alamat</th>
+                            <th style="min-width:210px;">Orang Tua & Kontak</th>
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
+                            <th style="text-align:center; min-width:170px;">Aksi</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($students as $i => $student)
+                        <tr>
+                            {{-- Checkbox & No --}}
+                            <td style="text-align:center; vertical-align:middle;">
+                                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                                    @if(Auth::user()->role == 'admin')
+                                        <input type="checkbox" name="ids[]" value="{{ $student->id }}"
+                                               class="check-item custom-check" onchange="onStudentCheck('{{ $student->id }}', this.checked)">
+                                    @endif
+                                    <span style="font-size:0.75rem; color:#94a3b8; font-weight:600;">{{ $students->firstItem() + $i }}</span>
+                                </div>
+                            </td>
+
+                            {{-- Identitas Siswa --}}
+                            <td>
+                                <div class="student-name-cell">
+                                    <div class="student-avatar" style="flex-shrink:0;">
+                                        @if($student->photo)
+                                            <img src="{{ asset('storage/'.$student->photo) }}" alt="{{ $student->name }}">
+                                        @else
+                                            {{ strtoupper(substr($student->name, 0, 1)) }}
+                                        @endif
+                                    </div>
+                                    <div class="student-name-text">
+                                        <div style="font-weight:700; color:#1e293b; font-size:0.9rem; line-height:1.25;">
+                                            {{ $student->name }}
+                                        </div>
+                                        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-top:3px;">
+                                            @if($student->nis)
+                                                <span class="nis-badge" style="font-size:0.72rem; padding:1px 6px;">NIS: {{ $student->nis }}</span>
+                                            @endif
+                                            @if($student->nisn)
+                                                <span style="background:#f1f5f9; color:#475569; font-size:0.72rem; font-weight:600; padding:1px 6px; border-radius:4px; border:1px solid #e2e8f0;">NISN: {{ $student->nisn }}</span>
+                                            @endif
+                                            @if($student->gender == 'L')
+                                                <span style="background:#e0f2fe; color:#0369a1; padding:1px 6px; border-radius:4px; font-weight:700; font-size:0.72rem;">L</span>
+                                            @elseif($student->gender == 'P')
+                                                <span style="background:#fce7f3; color:#db2777; padding:1px 6px; border-radius:4px; font-weight:700; font-size:0.72rem;">P</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- Kelas & Program --}}
+                            <td>
+                                <div>
+                                    <span class="class-badge" style="font-weight:700; font-size:0.82rem;">{{ $student->class ?? '-' }}</span>
+                                </div>
+                                <div style="margin-top:4px;">
+                                    <span style="font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:5px; background:{{ $student->school_program == 'Boarding' ? '#ede9fe; color:#7c3aed' : '#ecfdf5; color:#059669' }}; display:inline-block;">
+                                        {{ $student->school_program ?: 'Reguler' }}
+                                    </span>
+                                </div>
+                                @if($student->admission_date)
+                                <div style="color:#94a3b8; font-size:0.72rem; margin-top:3px;">
+                                    Masuk: {{ \Carbon\Carbon::parse($student->admission_date)->translatedFormat('d M Y') }}
+                                </div>
+                                @endif
+                            </td>
+
+                            {{-- Kelahiran & Alamat --}}
+                            <td>
+                                <div style="font-size:0.8rem; color:#334155; line-height:1.3;">
+                                    <i class="far fa-calendar-alt" style="color:#94a3b8; width:14px;"></i> {{ $student->birth_place_date ?: '—' }}
+                                </div>
+                                <div style="font-size:0.76rem; color:#64748b; margin-top:3px; line-height:1.3;" title="{{ $student->address }}">
+                                    <i class="fas fa-map-marker-alt" style="color:#cbd5e1; width:14px;"></i> {{ $student->address ? \Illuminate\Support\Str::limit($student->address, 38) : '—' }}
+                                </div>
+                                @if($student->previous_school)
+                                <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px; line-height:1.2;">
+                                    <i class="fas fa-school" style="color:#cbd5e1; width:14px;"></i> Asal: {{ $student->previous_school }}
+                                </div>
+                                @endif
+                            </td>
+
+                            {{-- Orang Tua & Kontak --}}
+                            <td>
+                                <div style="font-size:0.8rem; line-height:1.35; color:#334155;">
+                                    <div>
+                                        <span style="color:#94a3b8; font-size:0.72rem;">Ayah:</span>
+                                        <strong>{{ $student->father_name ?: '—' }}</strong>
+                                        @if($student->father_job)
+                                            <span style="color:#64748b; font-size:0.72rem;">({{ $student->father_job }})</span>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <span style="color:#94a3b8; font-size:0.72rem;">Ibu:</span>
+                                        <strong>{{ $student->mother_name ?: '—' }}</strong>
+                                        @if($student->mother_job)
+                                            <span style="color:#64748b; font-size:0.72rem;">({{ $student->mother_job }})</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">
+                                    @if($student->father_phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->father_phone) }}" target="_blank"
+                                           style="display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:5px; background:#dcfce7; color:#15803d; font-size:0.72rem; font-weight:600; text-decoration:none;"
+                                           title="Chat WA Ayah">
+                                            <i class="fab fa-whatsapp"></i> {{ $student->father_phone }} <small style="color:#166534;">(A)</small>
+                                        </a>
+                                    @endif
+                                    @if($student->mother_phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->mother_phone) }}" target="_blank"
+                                           style="display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:5px; background:#dcfce7; color:#15803d; font-size:0.72rem; font-weight:600; text-decoration:none;"
+                                           title="Chat WA Ibu">
+                                            <i class="fab fa-whatsapp"></i> {{ $student->mother_phone }} <small style="color:#166534;">(I)</small>
+                                        </a>
+                                    @endif
+                                    @if(!$student->father_phone && !$student->mother_phone && $student->parent_phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $student->parent_phone) }}" target="_blank"
+                                           style="display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:5px; background:#f1f5f9; color:#475569; font-size:0.72rem; font-weight:600; text-decoration:none;">
+                                            <i class="fab fa-whatsapp" style="color:#16a34a;"></i> {{ $student->parent_phone }}
+                                        </a>
+                                    @endif
+                                </div>
+                            </td>
+
+                            {{-- Aksi --}}
+                            @if(in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']))
+                            <td style="text-align:center; vertical-align:middle;">
+                                <div class="row-actions" style="justify-content:center; gap:4px;">
+                                    <a href="{{ route('students.show', $student->id) }}"
+                                       class="row-btn row-btn-view" title="Lihat Biodata Lengkap">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('students.portfolio', $student->id) }}"
+                                       target="_blank"
+                                       class="row-btn" style="background: #8b5cf6; color: white;" title="Portofolio Siswa (Siap Cetak)">
+                                        <i class="fas fa-id-card-alt"></i>
+                                    </a>
+                                    <a href="{{ route('students.card', $student->id) }}"
+                                       target="_blank"
+                                       class="row-btn" style="background: #0284c7; color: white;" title="Cetak Kartu Siswa">
+                                        <i class="fas fa-id-card"></i>
+                                    </a>
+                                    <a href="{{ route('students.certificate', $student->id) }}"
+                                       target="_blank"
+                                       class="row-btn" style="background: #f59e0b; color: white;" title="Cetak Piagam Digital">
+                                        <i class="fas fa-certificate"></i>
+                                    </a>
+                                    @if(in_array(Auth::user()->role, ['admin', 'tu']))
+                                    <a href="{{ route('students.edit', array_merge(['student' => $student->id], request()->all())) }}"
+                                       class="row-btn row-btn-edit" title="Edit Data Siswa">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <button type="button"
+                                             onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')"
+                                             class="row-btn row-btn-delete" title="Hapus Data">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    @endif
+                                </div>
+                            </td>
+                            @endif
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="{{ in_array(Auth::user()->role, ['admin', 'headmaster', 'tu']) ? 6 : 5 }}">
+                                <div class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
+                                    <h4>Tidak ada data siswa</h4>
+                                    <p>
+                                        @if(request('search'))
+                                            Hasil pencarian "{{ request('search') }}" tidak ditemukan.
+                                        @else
+                                            Belum ada siswa yang terdaftar.
+                                        @endif
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- 2. WIDE TABLE VIEW (Kolom Lebar Lengkap dengan Scroll Horizontal) --}}
+            <div class="wide-table-view" style="display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;">
                 <table class="students-table" style="min-width: 1400px;">
                     <thead>
                         <tr>
                             <th style="width:40px; text-align:center;">
                                 @if(Auth::user()->role == 'admin')
-                                    <input type="checkbox" id="checkAll" class="custom-check" onchange="toggleAll(this)">
+                                    <input type="checkbox" id="checkAllWide" class="custom-check" onchange="toggleAll(this)">
                                 @else
                                     #
                                 @endif
@@ -2018,8 +2226,10 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
     function toggleAll(source) {
         const isChecked = source.checked;
         const checkAllDesk = document.getElementById('checkAll');
+        const checkAllWide = document.getElementById('checkAllWide');
         const checkAllMob  = document.getElementById('checkAllMobile');
         if (checkAllDesk) checkAllDesk.checked = isChecked;
+        if (checkAllWide) checkAllWide.checked = isChecked;
         if (checkAllMob)  checkAllMob.checked  = isChecked;
 
         document.querySelectorAll('input[name="ids[]"]').forEach(cb => {
@@ -2153,50 +2363,62 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
         if (e.target === importModal)  closeImportModal();
     });
 
-    // ===== TOGGLE VIEW MODE (KARTU HP VS TABEL) =====
+    // ===== TOGGLE VIEW MODE (KARTU HP VS 1 LAYAR VS KOLOM LEBAR) =====
     function switchStudentView(mode) {
         try { localStorage.setItem('student_view_mode', mode); } catch(e){}
         applyStudentView(mode);
     }
     function applyStudentView(mode) {
         const desktopView = document.querySelector('.desktop-table-view');
-        const mobileView = document.querySelector('.mobile-students-view');
-        const btnCard = document.getElementById('btnViewCard');
-        const btnTable = document.getElementById('btnViewTable');
+        const wideView    = document.querySelector('.wide-table-view');
+        const mobileView  = document.querySelector('.mobile-students-view');
+        const btnCard     = document.getElementById('btnViewCard');
+        const btnCompact  = document.getElementById('btnViewCompact');
+        const btnWide     = document.getElementById('btnViewWide');
+
+        // Hide all views first
+        if (desktopView) desktopView.style.setProperty('display', 'none', 'important');
+        if (wideView)    wideView.style.setProperty('display', 'none', 'important');
+        if (mobileView)  mobileView.style.setProperty('display', 'none', 'important');
+
+        // Reset all button styles
+        [btnCard, btnCompact, btnWide].forEach(btn => {
+            if (btn) {
+                btn.style.background = 'transparent';
+                btn.style.color = '#64748b';
+                btn.style.boxShadow = 'none';
+            }
+        });
 
         if (mode === 'card') {
-            if (desktopView) desktopView.style.setProperty('display', 'none', 'important');
             if (mobileView) mobileView.style.setProperty('display', 'flex', 'important');
             if (btnCard) {
                 btnCard.style.background = '#fff';
                 btnCard.style.color = '#7367f0';
                 btnCard.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
             }
-            if (btnTable) {
-                btnTable.style.background = 'transparent';
-                btnTable.style.color = '#64748b';
-                btnTable.style.boxShadow = 'none';
+        } else if (mode === 'wide') {
+            if (wideView) wideView.style.setProperty('display', 'block', 'important');
+            if (btnWide) {
+                btnWide.style.background = '#fff';
+                btnWide.style.color = '#7367f0';
+                btnWide.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
             }
         } else {
+            // default: compact (1 layar penuh tanpa scroll horizontal)
             if (desktopView) desktopView.style.setProperty('display', 'block', 'important');
-            if (mobileView) mobileView.style.setProperty('display', 'none', 'important');
-            if (btnCard) {
-                btnCard.style.background = 'transparent';
-                btnCard.style.color = '#64748b';
-                btnCard.style.boxShadow = 'none';
-            }
-            if (btnTable) {
-                btnTable.style.background = '#fff';
-                btnTable.style.color = '#7367f0';
-                btnTable.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+            if (btnCompact) {
+                btnCompact.style.background = '#fff';
+                btnCompact.style.color = '#7367f0';
+                btnCompact.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
             }
         }
     }
     document.addEventListener('DOMContentLoaded', function() {
         let saved = null;
         try { saved = localStorage.getItem('student_view_mode'); } catch(e){}
-        if (!saved) {
-            saved = window.innerWidth <= 768 ? 'card' : 'table';
+        if (!saved || saved === 'table') {
+            saved = window.innerWidth <= 768 ? 'card' : 'compact';
         }
         applyStudentView(saved);
     });
