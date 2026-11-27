@@ -27,9 +27,9 @@ class StudentsImport
         $skippedRowsCount = 0;
         $updateMode = $options['update_mode'] ?? 'fill_empty';
 
-        $activeYear = AcademicYear::where('is_active', true)->first();
+        $activeYear = AcademicYear::where('is_active', true)->first() ?? AcademicYear::latest()->first();
         if (!$activeYear) {
-            throw new \Exception('Tidak ada tahun ajaran aktif.');
+            throw new \Exception('Tidak ada tahun ajaran terdaftar di sistem. Silakan tambahkan tahun ajaran terlebih dahulu.');
         }
 
         // Cache existing students for the ACTIVE YEAR ONLY to minimize DB queries
@@ -131,11 +131,12 @@ class StudentsImport
                 continue;
             }
 
-            // Fallback class detection from Excel sheet tab name (e.g. "kls IA", "1A", "Kelas 2B")
+            // Class detection from Excel sheet tab name (e.g. "kls IA", "1A", "Kelas 2B", "kls 6A")
             if (!$class && isset($sheetNames[$sheetIndex])) {
                 $sName = trim((string)$sheetNames[$sheetIndex]);
-                if (preg_match('/^(?:kelas|kls|class|rombel)?\s*([VI]+[A-Z]?|[1-6][A-Z]?)$/i', $sName, $m)) {
-                    $class = self::normalizeClass($m[1]);
+                if (preg_match('/(?:kelas|kls|class|rombel)?\s*([VI]+|[1-6])\s*[\-\s]?\s*([A-Z])?/i', $sName, $m)) {
+                    $gradeStr = $m[1] . (isset($m[2]) ? $m[2] : '');
+                    $class = self::normalizeClass($gradeStr);
                 }
             }
             
@@ -324,7 +325,9 @@ class StudentsImport
             // Check for per-row Class column
             $colClass = -1;
             foreach ($headers as $k => $h) {
-                if ($h === 'kelas') $colClass = $k;
+                if ($h === 'kelas' || $h === 'kls' || $h === 'rombel' || str_contains($h, 'kelas') || str_contains($h, 'rombel')) {
+                    $colClass = $k;
+                }
             }
 
             // If no global class detected, strictly require a Class column
@@ -428,6 +431,8 @@ class StudentsImport
                     $colFatherName = $k;
                 } elseif (str_contains($h, 'ibu')) {
                     $colMotherName = $k;
+                } elseif (str_contains($h, 'orang tua') || str_contains($h, 'orangtua') || str_contains($h, 'wali')) {
+                    if ($colFatherName === -1) $colFatherName = $k;
                 } elseif (str_contains($h, 'diterima') || str_contains($h, 'tanggal masuk') || str_contains($h, 'tgl masuk') || str_contains($h, 'registrasi')) {
                     $colAdmissionDate = $k;
                 } elseif (str_contains($h, 'program') || str_contains($h, 'boarding') || str_contains($h, 'full day') || str_contains($h, 'fullday') || str_contains($h, 'status masuk') || str_contains($h, 'jalur')) {
@@ -945,19 +950,17 @@ class StudentsImport
         $raw = preg_replace('/^(Kelas|Kls|Class|Rombel)\s*:?\s*/i', '', $raw);
         $raw = trim($raw);
 
-        // Petakan angka Romawi di awal string ke angka Arab (1-6)
-        $romans = [
-            'VI' => '6', 'V' => '5', 'IV' => '4', 'III' => '3', 'II' => '2', 'I' => '1'
-        ];
-        
-        foreach ($romans as $roman => $num) {
-            if (preg_match('/^' . $roman . '([A-Z\s\-].*|$)/i', $raw, $m)) {
-                $raw = $num . ($m[1] ?? '');
-                break;
+        // Cari pola kelas: Angka Romawi (I-VI) atau angka Arab (1-6) diikuti opsional huruf (A-Z)
+        if (preg_match('/^([VI]+|[1-6])\s*[\-\s]?\s*([A-Z])?/i', $raw, $m)) {
+            $gradePart = strtoupper($m[1]);
+            $letterPart = isset($m[2]) ? strtoupper($m[2]) : '';
+            $romans = ['VI' => '6', 'V' => '5', 'IV' => '4', 'III' => '3', 'II' => '2', 'I' => '1'];
+            if (isset($romans[$gradePart])) {
+                $gradePart = $romans[$gradePart];
             }
+            return $gradePart . $letterPart;
         }
 
-        // Hapus spasi dan tanda hubung: "1 A" -> "1A", "1 - A" -> "1A"
-        return strtoupper(preg_replace('/[\s\-]+/', '', $raw));
+        return strtoupper(preg_replace('/[^0-9A-Z]/', '', $raw));
     }
 }

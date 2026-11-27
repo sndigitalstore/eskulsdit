@@ -1898,7 +1898,7 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
 
         {{-- File Panel --}}
         <div id="panelFile" style="display:none;">
-            <form action="{{ route('students.import_excel') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('students.import_excel') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateStudentImport(event)">
                 @csrf
                 <div class="drop-zone" onclick="document.getElementById('fileInput').click()"
                      ondragover="event.preventDefault(); this.classList.add('dragover')"
@@ -1908,8 +1908,8 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
                     <p>Klik atau seret file Excel ke sini</p>
                     <small>Format: .xlsx, .xls, .csv | Mendukung multi-sheet per kelas (kls IA, kls IB, dst.)</small>
                     <input type="file" id="fileInput" name="file"
-                           accept=".xlsx,.xls,.csv" required
-                           style="display:none;" onchange="updateFileName(this)">
+                           accept=".xlsx,.xls,.csv"
+                           style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; left:-9999px;" onchange="updateFileName(this)">
                     <p id="fileNameDisplay"></p>
                 </div>
                 <div style="margin: 12px 0; text-align: left;">
@@ -2066,6 +2066,16 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
         document.getElementById('panelFile').style.display  = tab === 'file'  ? 'block' : 'none';
         document.getElementById('tabBtnPaste').classList.toggle('active', tab === 'paste');
         document.getElementById('tabBtnFile').classList.toggle('active',  tab === 'file');
+    }
+
+    function validateStudentImport(e) {
+        const fi = document.getElementById('fileInput');
+        if (!fi.files || fi.files.length === 0) {
+            e.preventDefault();
+            alert('Silakan pilih atau seret file Excel terlebih dahulu.');
+            return false;
+        }
+        return true;
     }
 
     function updateFileName(input) {

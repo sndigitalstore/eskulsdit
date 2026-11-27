@@ -330,12 +330,20 @@ class StudentController extends Controller
         try {
             $sheetNames = [];
             try {
-                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($file->getRealPath());
+                $readerType = ($extension === 'xls') ? 'Xls' : (($extension === 'csv') ? 'Csv' : 'Xlsx');
+                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($readerType);
                 if (method_exists($reader, 'listWorksheetNames')) {
                     $sheetNames = $reader->listWorksheetNames($file->getRealPath());
                 }
             } catch (\Throwable $t) {
-                $sheetNames = [];
+                try {
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($file->getRealPath());
+                    if (method_exists($reader, 'listWorksheetNames')) {
+                        $sheetNames = $reader->listWorksheetNames($file->getRealPath());
+                    }
+                } catch (\Throwable $t2) {
+                    $sheetNames = [];
+                }
             }
 
             // Read all sheets as array

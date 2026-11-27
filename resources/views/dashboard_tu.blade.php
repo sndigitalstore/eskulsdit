@@ -590,7 +590,7 @@
             </button>
         </div>
 
-        <form action="{{ route('students.import_excel') }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
+        <form id="tuImportForm" action="{{ route('students.import_excel') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateTuImport(event)" style="padding:24px;">
             @csrf
             <input type="hidden" name="redirect_to" value="dashboard">
 
@@ -608,7 +608,7 @@
                 <div style="font-weight:700; color:#1e293b; font-size:0.95rem;">Klik atau seret file Excel ke sini</div>
                 <div style="font-size:0.78rem; color:#64748b; margin-top:4px;">Format didukung: .xlsx, .xls, .csv</div>
                 <div id="tuFileNameLabel" style="margin-top:10px; font-size:0.85rem; font-weight:700; color:#059669; display:none;"></div>
-                <input type="file" id="tuImportFile" name="file" accept=".xlsx,.xls,.csv" required style="display:none;" onchange="updateTuFileName(this)">
+                <input type="file" id="tuImportFile" name="file" accept=".xlsx,.xls,.csv" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; left:-9999px;" onchange="updateTuFileName(this)">
             </div>
 
             <div style="margin-bottom:18px;">
@@ -635,7 +635,7 @@
                 </a>
                 <div style="display:flex; gap:8px;">
                     <button type="button" onclick="closeTuImportModal()" style="padding:9px 16px; border-radius:10px; border:1px solid #cbd5e1; background:#fff; color:#475569; font-weight:600; font-size:0.85rem; cursor:pointer;">Batal</button>
-                    <button type="submit" style="padding:9px 18px; border-radius:10px; border:none; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer;">
+                    <button type="submit" id="tuBtnSubmitImport" style="padding:9px 18px; border-radius:10px; border:none; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
                         <i class="fas fa-upload"></i> Upload &amp; Proses Import
                     </button>
                 </div>
@@ -667,14 +667,84 @@ function handleTuDrop(e) {
     zone.style.borderColor = '#cbd5e1';
     zone.style.background = '#f8fafc';
     const files = e.dataTransfer.files;
-    if (files.length > 0) {
+    if (files && files.length > 0) {
         const input = document.getElementById('tuImportFile');
-        input.files = files;
+        try {
+            const dt = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                dt.items.add(files[i]);
+            }
+            input.files = dt.files;
+        } catch (err) {
+            input.files = files;
+        }
         updateTuFileName(input);
     }
 }
+function validateTuImport(e) {
+    const fileInput = document.getElementById('tuImportFile');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        e.preventDefault();
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'File Belum Dipilih',
+                text: 'Silakan pilih atau seret file Excel (.xlsx, .xls) data siswa terlebih dahulu.',
+                confirmButtonColor: '#7c3aed'
+            });
+        } else {
+            alert('Silakan pilih file Excel terlebih dahulu.');
+        }
+        return false;
+    }
+    const btn = document.getElementById('tuBtnSubmitImport');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Import Data...';
+        btn.style.opacity = '0.75';
+        btn.style.cursor = 'not-allowed';
+    }
+    return true;
+}
 document.getElementById('tuImportModal').addEventListener('click', function(e) {
     if (e.target === this) closeTuImportModal();
+});
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('success'))
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Import Data Siswa Berhasil',
+                html: {!! json_encode(session('success')) !!},
+                confirmButtonText: 'Selesai',
+                confirmButtonColor: '#7c3aed'
+            });
+        }
+    @endif
+
+    @if(session('error'))
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Memproses Data',
+                html: {!! json_encode(session('error')) !!},
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#ef4444'
+            });
+        }
+    @endif
+
+    @if(session('warning_html'))
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Catatan Import Siswa',
+                html: {!! json_encode(session('warning_html')) !!},
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#f59e0b'
+            });
+        }
+    @endif
 });
 function filterQuickTable() {
     var input = document.getElementById("quickSearchInput");
