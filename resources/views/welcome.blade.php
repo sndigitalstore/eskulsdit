@@ -203,16 +203,24 @@
         .nav-menu {
             display: flex;
             align-items: center;
-            gap: 28px;
+            gap: 24px;
         }
 
         .nav-link {
             text-decoration: none;
             color: #475569;
             font-weight: 600;
-            font-size: 0.93rem;
+            font-size: 0.92rem;
             transition: color 0.2s ease;
             position: relative;
+            background: none;
+            border: none;
+            padding: 4px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-family: inherit;
         }
 
         .nav-link:hover {
@@ -222,7 +230,7 @@
         .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -4px;
+            bottom: -2px;
             left: 0;
             width: 0;
             height: 2px;
@@ -233,6 +241,101 @@
 
         .nav-link:hover::after {
             width: 100%;
+        }
+
+        /* Dropdown Layanan Publik Elegan */
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-toggle {
+            cursor: pointer;
+        }
+
+        .nav-dropdown-toggle .chevron-icon {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            transition: transform 0.25s ease, color 0.2s ease;
+        }
+
+        .nav-dropdown:hover .nav-dropdown-toggle .chevron-icon,
+        .nav-dropdown.active .nav-dropdown-toggle .chevron-icon {
+            transform: rotate(180deg);
+            color: #064e3b;
+        }
+
+        .nav-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 14px);
+            right: -20px;
+            width: 330px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 18px;
+            padding: 10px;
+            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.06);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1050;
+        }
+
+        .nav-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -14px;
+            left: 0;
+            right: 0;
+            height: 14px;
+        }
+
+        .nav-dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown.active .nav-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item-rich {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+
+        .dropdown-item-rich:hover {
+            background: #f8fafc;
+            transform: translateX(3px);
+        }
+
+        .dropdown-item-rich .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+
+        .dropdown-item-rich .item-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.25;
+        }
+
+        .dropdown-item-rich .item-desc {
+            font-size: 0.74rem;
+            color: #64748b;
+            margin-top: 2px;
+            line-height: 1.25;
         }
 
         .btn-nav-portal {
@@ -1810,15 +1913,37 @@
         </a>
 
         <div class="nav-menu">
-            <a href="#pilar" class="nav-link">4 Pilar Pendidikan</a>
+            <a href="#pilar" class="nav-link">Pilar Pendidikan</a>
             <a href="#keunggulan" class="nav-link">Fitur Terpadu</a>
             <a href="#statistik" class="nav-link">Statistik</a>
-            <a href="{{ route('student-status.index') }}" class="nav-link" style="color: #047857; font-weight: 700;">
-                <i class="fas fa-search" style="font-size: 0.8rem; color: #059669;"></i> Portal Ayah Bunda
-            </a>
-            <a href="{{ route('public.character.index') }}" class="nav-link" style="color: #be123c; font-weight: 700;">
-                <i class="fas fa-shield-alt" style="font-size: 0.85rem; color: #e11d48;"></i> Layanan TPPK & Apresiasi
-            </a>
+
+            <div class="nav-dropdown" id="publicServiceDropdown">
+                <button type="button" class="nav-link nav-dropdown-toggle" onclick="togglePublicDropdown(event)" aria-haspopup="true" aria-expanded="false">
+                    <span>Layanan Publik</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </button>
+                <div class="nav-dropdown-menu">
+                    <a href="{{ route('student-status.index') }}" class="dropdown-item-rich">
+                        <div class="icon-box" style="background: #ecfdf5; color: #059669;">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div>
+                            <div class="item-title">Portal Ayah Bunda</div>
+                            <div class="item-desc">Cek mutaba'ah, tilawati &amp; tahfidz ananda</div>
+                        </div>
+                    </a>
+                    <a href="{{ route('public.character.index') }}" class="dropdown-item-rich">
+                        <div class="icon-box" style="background: #fff1f2; color: #e11d48;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div class="item-title">Layanan TPPK &amp; Apresiasi</div>
+                            <div class="item-desc">Pengaduan insiden &amp; apresiasi karakter</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
             @auth
                 <a href="{{ url('/dashboard') }}" class="btn-nav-portal">
                     <i class="fas fa-th-large"></i> Buka Dashboard
@@ -2316,6 +2441,20 @@
     </footer>
 
     <script>
+        // Desktop Dropdown Layanan Publik
+        function togglePublicDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('publicServiceDropdown');
+            if (dropdown) dropdown.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('publicServiceDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
         // Mobile Drawer Navigation
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobileDrawer');
