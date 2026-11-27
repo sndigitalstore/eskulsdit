@@ -203,6 +203,8 @@
         </div>
 
         {{-- ===== ESKUL ===== --}}
+        {{-- Eskul hanya bisa diubah oleh Admin/Kesiswaan, bukan TU --}}
+        @if(Auth::user()->role !== 'tu')
         <div class="form-section">
             <h4><i class="fas fa-running" style="color:#f59e0b;"></i> Kelola Pilihan Eskul</h4>
             <div class="form-grid-2">
@@ -233,6 +235,21 @@
                 </div>
             </div>
         </div>
+        @else
+        {{-- Tampilkan eskul yang sudah ada (read-only) untuk TU --}}
+        @if($student->eskuls->count() > 0)
+        <div class="form-section" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px;">
+            <h4 style="color:#64748b;"><i class="fas fa-running" style="color:#94a3b8;"></i> Pilihan Eskul Siswa <span style="font-size:0.75rem; font-weight:400; color:#94a3b8;">(hanya bisa diubah oleh Admin / Kesiswaan)</span></h4>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+                @foreach($student->eskuls as $eskul)
+                <span style="background:#fef3c7; color:#92400e; padding:5px 14px; border-radius:20px; font-size:0.82rem; font-weight:600;">
+                    <i class="fas fa-futbol"></i> {{ $eskul->name }}
+                </span>
+                @endforeach
+            </div>
+        </div>
+        @endif
+        @endif
 
         <button type="submit" class="btn-submit" style="width: 100%; padding: 13px; font-size: 1rem; border-radius: 10px;">
             <i class="fas fa-save"></i> Simpan Perubahan

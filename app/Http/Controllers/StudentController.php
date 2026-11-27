@@ -515,32 +515,34 @@ class StudentController extends Controller
 
         $student->update($updateData);
 
-        // Sync IDs
+        // Sync IDs - Eskul hanya bisa diubah oleh Admin, bukan TU
         $activeYear = \App\Models\AcademicYear::where('is_active', true)->first();
         if (!$activeYear) {
              return back()->with('error', 'Tidak ada tahun ajaran aktif.');
         }
 
-        // Remove existing choices for THIS year to overwrite (Transfer)
-        \Illuminate\Support\Facades\DB::table('student_eskul')
-            ->where('student_id', $student->id)
-            ->where('academic_year_id', $activeYear->id)
-            ->delete();
+        if (Auth::user()->role !== 'tu') {
+            // Remove existing choices for THIS year to overwrite (Transfer)
+            \Illuminate\Support\Facades\DB::table('student_eskul')
+                ->where('student_id', $student->id)
+                ->where('academic_year_id', $activeYear->id)
+                ->delete();
 
-        // Attach Eskul 1 if provided
-        if (!empty($validated['eskul_1_id'])) {
-            $student->eskuls()->attach($validated['eskul_1_id'], [
-                 'academic_year_id' => $activeYear->id,
-                 'semester' => $activeYear->active_semester ?? '1'
-            ]);
-        }
+            // Attach Eskul 1 if provided
+            if (!empty($validated['eskul_1_id'])) {
+                $student->eskuls()->attach($validated['eskul_1_id'], [
+                     'academic_year_id' => $activeYear->id,
+                     'semester' => $activeYear->active_semester ?? '1'
+                ]);
+            }
 
-        // Attach Eskul 2 if provided and different
-        if (!empty($validated['eskul_2_id']) && $validated['eskul_2_id'] != $validated['eskul_1_id']) {
-            $student->eskuls()->attach($validated['eskul_2_id'], [
-                 'academic_year_id' => $activeYear->id,
-                 'semester' => $activeYear->active_semester ?? '1'
-            ]);
+            // Attach Eskul 2 if provided and different
+            if (!empty($validated['eskul_2_id']) && $validated['eskul_2_id'] != $validated['eskul_1_id']) {
+                $student->eskuls()->attach($validated['eskul_2_id'], [
+                     'academic_year_id' => $activeYear->id,
+                     'semester' => $activeYear->active_semester ?? '1'
+                ]);
+            }
         }
         
         \App\Models\ActivityLog::log('Students', 'Update', "Memperbarui data siswa: {$student->name} (Kelas {$student->class})");
