@@ -839,6 +839,7 @@ class StudentsImport
                             if ($colSas2 !== -1 && isset($row[$colSas2])) $saveGrade('sas2', $row[$colSas2]);
                         }
                     }
+                }
             }
 
             // 4. Process Achievements (Data Prestasi)
