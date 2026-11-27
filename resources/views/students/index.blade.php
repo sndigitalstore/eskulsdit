@@ -802,6 +802,9 @@
     /* ===== VIEW SWITCHING ===== */
     .desktop-table-view {
         display: block;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
     }
     .mobile-students-view {
         display: none;
@@ -1337,15 +1340,27 @@
 
         <div class="topbar-actions">
             {{-- Search --}}
-            <form action="{{ route('students.index') }}" method="GET" class="search-wrap" style="position: relative;">
+            <form action="{{ route('students.index') }}" method="GET" class="search-wrap" style="position: relative; display:flex; gap:6px; align-items:center; width:100%;">
                 <input type="hidden" name="status" value="{{ $status }}">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" name="search"
-                       placeholder="Cari nama / NIS..."
-                       value="{{ request('search') }}"
-                       autocomplete="off"
-                       data-api-url="{{ route('api.students.search') }}">
-                <div id="searchSuggestions"></div>
+                @if(request('class'))
+                    <input type="hidden" name="class" value="{{ request('class') }}">
+                @endif
+                <div style="position: relative; flex: 1;">
+                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="text" id="searchInput" name="search"
+                           placeholder="Cari nama / NIS..."
+                           value="{{ request('search') }}"
+                           autocomplete="off"
+                           style="width: 100%; padding: 10px 14px 10px 36px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.85rem;"
+                           data-api-url="{{ route('api.students.search') }}">
+                    @if(request('search'))
+                        <a href="{{ route('students.index', array_merge(request()->except('search', 'page'), ['status' => $status])) }}"
+                           style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; text-decoration: none; font-size: 0.9rem;" title="Hapus pencarian">
+                           <i class="fas fa-times-circle"></i>
+                        </a>
+                    @endif
+                    <div id="searchSuggestions"></div>
+                </div>
             </form>
 
             @if(Auth::user()->role == 'admin')
@@ -1395,6 +1410,40 @@
                     </div>
                 </div>
             @endif
+        </div>
+    </div>
+
+    {{-- ===== BARIS FILTER KELAS & TOGGLE VIEW MODE ===== --}}
+    <div class="filter-view-toolbar" style="background:#fff; border-radius:14px; padding:10px 16px; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+        {{-- Class Pills --}}
+        <div class="class-pills-scroll" style="display:flex; align-items:center; gap:6px; overflow-x:auto; flex:1; min-width:240px; padding:2px 0; -webkit-overflow-scrolling:touch; touch-action:pan-x;">
+            <span style="font-size:0.76rem; font-weight:700; color:#64748b; white-space:nowrap; margin-right:4px;">
+                <i class="fas fa-filter" style="color:#7367f0;"></i> Kelas:
+            </span>
+            <a href="{{ route('students.index', array_merge(request()->except('class', 'page'), ['status' => $status])) }}"
+               style="padding:5px 12px; border-radius:20px; font-size:0.78rem; font-weight:700; text-decoration:none; white-space:nowrap; transition:all 0.15s; {{ !request('class') ? 'background:#7367f0; color:#fff;' : 'background:#f1f5f9; color:#475569;' }}">
+               Semua
+            </a>
+            @if(isset($availableClasses))
+                @foreach($availableClasses as $cls)
+                <a href="{{ route('students.index', array_merge(request()->except('page'), ['class' => $cls, 'status' => $status])) }}"
+                   style="padding:5px 12px; border-radius:20px; font-size:0.78rem; font-weight:700; text-decoration:none; white-space:nowrap; transition:all 0.15s; {{ request('class') == $cls ? 'background:#7367f0; color:#fff;' : 'background:#f1f5f9; color:#475569;' }}">
+                   Kelas {{ $cls }}
+                </a>
+                @endforeach
+            @endif
+        </div>
+
+        {{-- Switch View Mode (HP vs Desktop) --}}
+        <div style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:10px; gap:4px; flex-shrink:0;">
+            <button type="button" id="btnViewCard" onclick="switchStudentView('card')"
+                    style="padding:6px 12px; border-radius:7px; border:none; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:#fff; color:#7367f0; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                <i class="fas fa-th-large"></i> <span>Kartu (HP)</span>
+            </button>
+            <button type="button" id="btnViewTable" onclick="switchStudentView('table')"
+                    style="padding:6px 12px; border-radius:7px; border:none; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:transparent; color:#64748b;">
+                <i class="fas fa-table"></i> <span>Tabel</span>
+            </button>
         </div>
     </div>
 
@@ -1686,7 +1735,7 @@
                                         <i class="fas fa-pen"></i>
                                     </a>
                                     @endif
-                                    @if(Auth::user()->role == 'admin')
+                                    @if(in_array(Auth::user()->role, ['admin', 'tu']))
                                     <button type="button"
                                              onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')"
                                              class="row-btn row-btn-delete" title="Hapus">
@@ -1814,7 +1863,7 @@
                                     <i class="fas fa-pen"></i> Edit
                                 </a>
                             @endif
-                            @if(Auth::user()->role == 'admin')
+                            @if(in_array(Auth::user()->role, ['admin', 'tu']))
                                 <button type="button" onclick="deleteIndividual('{{ route('students.destroy', $student->id) }}')" class="m-btn m-btn-delete" style="flex:1; text-align:center; padding:6px 8px; border-radius:6px; font-size:0.78rem; cursor:pointer;" title="Hapus Siswa">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
@@ -2102,6 +2151,54 @@ Budi&#10;1B&#10;Tari&#10;Bu Siti"></textarea>
         const importModal  = document.getElementById('importModal');
         if (e.target === confirmModal) closeConfirmModal();
         if (e.target === importModal)  closeImportModal();
+    });
+
+    // ===== TOGGLE VIEW MODE (KARTU HP VS TABEL) =====
+    function switchStudentView(mode) {
+        try { localStorage.setItem('student_view_mode', mode); } catch(e){}
+        applyStudentView(mode);
+    }
+    function applyStudentView(mode) {
+        const desktopView = document.querySelector('.desktop-table-view');
+        const mobileView = document.querySelector('.mobile-students-view');
+        const btnCard = document.getElementById('btnViewCard');
+        const btnTable = document.getElementById('btnViewTable');
+
+        if (mode === 'card') {
+            if (desktopView) desktopView.style.setProperty('display', 'none', 'important');
+            if (mobileView) mobileView.style.setProperty('display', 'flex', 'important');
+            if (btnCard) {
+                btnCard.style.background = '#fff';
+                btnCard.style.color = '#7367f0';
+                btnCard.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+            }
+            if (btnTable) {
+                btnTable.style.background = 'transparent';
+                btnTable.style.color = '#64748b';
+                btnTable.style.boxShadow = 'none';
+            }
+        } else {
+            if (desktopView) desktopView.style.setProperty('display', 'block', 'important');
+            if (mobileView) mobileView.style.setProperty('display', 'none', 'important');
+            if (btnCard) {
+                btnCard.style.background = 'transparent';
+                btnCard.style.color = '#64748b';
+                btnCard.style.boxShadow = 'none';
+            }
+            if (btnTable) {
+                btnTable.style.background = '#fff';
+                btnTable.style.color = '#7367f0';
+                btnTable.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+            }
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        let saved = null;
+        try { saved = localStorage.getItem('student_view_mode'); } catch(e){}
+        if (!saved) {
+            saved = window.innerWidth <= 768 ? 'card' : 'table';
+        }
+        applyStudentView(saved);
     });
 
     // ===== KEYBOARD SHORTCUTS =====

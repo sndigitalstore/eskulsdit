@@ -920,6 +920,29 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        // Tracing hasil import masal siswa (session batch atau fallback data siswa terbaru)
+        $lastImportBatch = session('last_import_batch');
+        $lastImportedStudents = session('last_imported_students');
+        if (empty($lastImportedStudents)) {
+            $lastImportedStudents = Student::activeYear()->active()
+                ->orderBy('updated_at', 'desc')
+                ->take(30)
+                ->get()
+                ->map(function($s) {
+                    $isNew = $s->created_at->diffInHours(now()) < 48;
+                    return [
+                        'id' => $s->id,
+                        'name' => $s->name,
+                        'nis' => $s->nis ?: '-',
+                        'nisn' => $s->nisn ?: '-',
+                        'class' => $s->class,
+                        'gender' => $s->gender ?: '-',
+                        'status' => $isNew ? 'Baru' : 'Tersimpan',
+                        'details' => 'Diperbarui ' . $s->updated_at->diffForHumans(),
+                    ];
+                })->toArray();
+        }
+
         return view('dashboard_tu', compact(
             'activeYear',
             'totalStudents',
@@ -936,7 +959,9 @@ class DashboardController extends Controller
             'recentStudents',
             'studentLogs',
             'biodataStats',
-            'overallPct'
+            'overallPct',
+            'lastImportBatch',
+            'lastImportedStudents'
         ));
     }
 }

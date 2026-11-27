@@ -44,6 +44,10 @@ class StudentController extends Controller
 
         $query = clone $baseQuery;
 
+        if ($request->filled('class')) {
+            $query->where('students.class', $request->class);
+        }
+
         if ($request->has('search') && !empty($request->search)) {
             $searchRaw = $request->search;
             $search = str_replace(' ', '%', $searchRaw);
@@ -62,8 +66,16 @@ class StudentController extends Controller
         $perPage = (int)$request->input('per_page', 25);
         $students = $query->paginate($perPage)->withQueryString();
 
+        $availableClasses = \App\Models\Student::activeYear()
+            ->select('class')
+            ->whereNotNull('class')
+            ->where('class', '!=', '')
+            ->distinct()
+            ->orderBy('class')
+            ->pluck('class');
+
         return view('students.index', compact(
-            'students', 'status', 'totalActive', 'totalMale', 'totalFemale', 'totalFullDay', 'totalBoarding'
+            'students', 'status', 'totalActive', 'totalMale', 'totalFemale', 'totalFullDay', 'totalBoarding', 'availableClasses'
         ));
     }
 
@@ -353,11 +365,23 @@ class StudentController extends Controller
             $counts = \App\Imports\StudentsImport::processArrays($data, $sheetNames, [
                 'update_mode' => $updateMode,
             ]);
+
+            session([
+                'last_imported_students' => $counts['student_list'] ?? [],
+                'last_import_batch' => [
+                    'time' => now()->translatedFormat('d M Y, H:i') . ' WIB',
+                    'file' => $file->getClientOriginalName(),
+                    'created' => $counts['students_created'] ?? 0,
+                    'updated' => $counts['students_updated'] ?? 0,
+                    'unchanged' => $counts['students_unchanged'] ?? 0,
+                    'total' => count($counts['student_list'] ?? []),
+                ]
+            ]);
             
             \App\Models\ActivityLog::log(
                 'Students',
                 'Import',
-                "Import Masal Data Siswa (Excel): {$counts['students_created']} baru, {$counts['students_updated']} dilengkapi/diperbarui, {$counts['students_unchanged']} sudah lengkap."
+                "Import Masal file '{$file->getClientOriginalName()}': {$counts['students_created']} baru, {$counts['students_updated']} dilengkapi, {$counts['students_unchanged']} tidak berubah."
             );
             
             $parts = [];

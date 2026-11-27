@@ -59,6 +59,7 @@ class StudentsImport
             'teacher_attendance' => 0,
             'teachers'           => 0,
         ];
+        $importedStudentsList = [];
 
         foreach ($sheets as $sheetIndex => $rows) {
             $class = null;
@@ -669,8 +670,28 @@ class StudentsImport
                         $student->update($fieldsToSave);
                         $counts['students_updated']++;
                         $counts['students']++;
+                        $importedStudentsList[] = [
+                            'id' => $student->id,
+                            'name' => $student->name,
+                            'nis' => $student->nis ?: '-',
+                            'nisn' => $student->nisn ?: '-',
+                            'class' => $student->class,
+                            'gender' => $student->gender ?: '-',
+                            'status' => 'Dilengkapi',
+                            'details' => count($fieldsToSave) . ' kolom biodata diperbarui'
+                        ];
                     } else {
                         $counts['students_unchanged']++;
+                        $importedStudentsList[] = [
+                            'id' => $student->id,
+                            'name' => $student->name,
+                            'nis' => $student->nis ?: '-',
+                            'nisn' => $student->nisn ?: '-',
+                            'class' => $student->class,
+                            'gender' => $student->gender ?: '-',
+                            'status' => 'Sudah Lengkap',
+                            'details' => 'Data sudah sesuai / tidak ada kolom kosong'
+                        ];
                     }
 
                     if ($student->nis) $mapNis[trim((string)$student->nis)] = $student;
@@ -686,6 +707,16 @@ class StudentsImport
                     ], $studentData));
                     $counts['students_created']++;
                     $counts['students']++;
+                    $importedStudentsList[] = [
+                        'id' => $student->id,
+                        'name' => $student->name,
+                        'nis' => $student->nis ?: '-',
+                        'nisn' => $student->nisn ?: '-',
+                        'class' => $student->class,
+                        'gender' => $student->gender ?: '-',
+                        'status' => 'Baru',
+                        'details' => 'Siswa baru ditambahkan ke sistem'
+                    ];
                     if ($student->nis) $mapNis[trim((string)$student->nis)] = $student;
                     $sNormName = strtoupper(preg_replace('/\s+/', ' ', trim($student->name)));
                     $sNormClass = strtoupper(trim((string)$student->class));
@@ -940,6 +971,7 @@ class StudentsImport
             self::$warnings[] = "Ada {$skippedRowsCount} baris data siswa/nilai/absensi dilewati karena nama atau kelas kosong.";
         }
 
+        $counts['student_list'] = $importedStudentsList;
         return $counts;
     }
 

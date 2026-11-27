@@ -454,19 +454,30 @@
                 <i class="fas fa-id-card-alt" style="color: #8b5cf6;"></i> Data Siswa & Cetak Portofolio
             </h3>
             <p style="margin: 0; font-size: 0.82rem; color: #64748b;">
-                Klik tombol <span style="background: #8b5cf6; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-id-card-alt"></i> Portofolio</span> untuk mencetak dokumen portofolio siap cetak masing-masing anak.
+                Kelola biodata, edit, hapus, dan cetak dokumen portofolio serta kartu siswa.
             </p>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="text" id="quickSearchInput" placeholder="Cari nama, NIS, kelas..." style="padding: 8px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; width: 220px;" onkeyup="filterQuickTable()">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="quickSearchInput" placeholder="Cari nama, NIS, kelas..." style="padding: 8px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; width: 190px;" onkeyup="filterQuickTable()">
+            <button type="button" onclick="openTuImportTracingModal()" style="display:inline-flex; align-items:center; gap:6px; background:#f5f3ff; color:#7c3aed; border:1.5px solid #c4b5fd; padding:8px 12px; font-size:0.84rem; font-weight:700; border-radius:8px; cursor:pointer;" title="Tracing Daftar Siswa Hasil Import Masal">
+                <i class="fas fa-search-location"></i> Tracing Import ({{ count($lastImportedStudents ?? []) }})
+            </button>
+            <a href="{{ route('students.create', ['from' => 'dashboard']) }}" style="display:inline-flex; align-items:center; gap:6px; background:#7c3aed; color:#fff; padding:8px 14px; font-size:0.84rem; font-weight:700; border-radius:8px; text-decoration:none;">
+                <i class="fas fa-user-plus"></i> Tambah Siswa
+            </a>
             <a href="{{ route('students.index') }}" class="btn-filter" style="background: #065f46; color: white; padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                Lihat Semua Siswa &rarr;
+                Semua Siswa &rarr;
             </a>
         </div>
     </div>
 
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;" id="tuStudentsTable">
+    <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+        <i class="fas fa-info-circle" style="color:#7c3aed;"></i>
+        <span>Geser tabel ke kanan/kiri di layar HP untuk melihat seluruh kolom data dan aksi siswa.</span>
+    </div>
+
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 820px;" id="tuStudentsTable">
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left;">
                     <th style="padding: 10px 12px; width: 45px;">No</th>
@@ -476,7 +487,7 @@
                     <th style="padding: 10px 12px;">Gender</th>
                     <th style="padding: 10px 12px;">Program</th>
                     <th style="padding: 10px 12px;">Kontak Ortu</th>
-                    <th style="padding: 10px 12px; text-align: center; width: 170px;">Aksi Cepat</th>
+                    <th style="padding: 10px 12px; text-align: center; width: 210px;">Aksi Cepat</th>
                 </tr>
             </thead>
             <tbody>
@@ -540,15 +551,7 @@
                         @endif
                     </td>
                     <td style="padding: 10px 12px; text-align: center;">
-                        <div class="student-row-actions" style="justify-content: center;">
-                            {{-- Cetak Portofolio --}}
-                            <a href="{{ route('students.portfolio', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #8b5cf6;" title="Cetak Portofolio Lengkap Siap Cetak">
-                                <i class="fas fa-id-card-alt"></i>
-                            </a>
-                            {{-- Cetak Kartu --}}
-                            <a href="{{ route('students.card', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #0284c7;" title="Cetak Kartu Siswa">
-                                <i class="fas fa-id-card"></i>
-                            </a>
+                        <div class="student-row-actions" style="justify-content: center; gap: 4px;">
                             {{-- Lihat Biodata --}}
                             <a href="{{ route('students.show', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #64748b;" title="Lihat Detail Biodata">
                                 <i class="fas fa-eye"></i>
@@ -556,6 +559,18 @@
                             {{-- Edit --}}
                             <a href="{{ route('students.edit', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #f59e0b;" title="Edit Data Siswa">
                                 <i class="fas fa-pen"></i>
+                            </a>
+                            {{-- Hapus --}}
+                            <button type="button" onclick="confirmDeleteTuStudent('{{ route('students.destroy', $s->id) }}', '{{ addslashes($s->name) }}')" class="btn-mini" style="background: #ef4444; border:none; cursor:pointer;" title="Hapus Siswa">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            {{-- Cetak Portofolio --}}
+                            <a href="{{ route('students.portfolio', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #8b5cf6;" title="Cetak Portofolio Lengkap Siap Cetak">
+                                <i class="fas fa-id-card-alt"></i>
+                            </a>
+                            {{-- Cetak Kartu --}}
+                            <a href="{{ route('students.card', ['student' => $s->id, 'from' => 'dashboard']) }}" class="btn-mini" style="background: #0284c7;" title="Cetak Kartu Siswa">
+                                <i class="fas fa-id-card"></i>
                             </a>
                         </div>
                     </td>
@@ -644,6 +659,135 @@
     </div>
 </div>
 
+{{-- MODAL TRACING HASIL IMPORT MASAL SISWA --}}
+<div id="tuImportTracingModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; border-radius:20px; max-width:900px; width:100%; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); overflow:hidden;">
+        {{-- Header --}}
+        <div style="background:linear-gradient(135deg,#7c3aed,#4c1d95); padding:18px 24px; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                    <i class="fas fa-search-location"></i>
+                </div>
+                <div>
+                    <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Tracing Siswa Hasil Import Masal</h3>
+                    <p style="margin:2px 0 0; font-size:0.78rem; color:#ddd6fe;">
+                        {{ !empty($lastImportBatch['file']) ? 'File: ' . $lastImportBatch['file'] . ' (' . ($lastImportBatch['time'] ?? '') . ')' : 'Daftar riwayat siswa baru & biodata yang baru diperbarui' }}
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="closeTuImportTracingModal()" style="background:rgba(255,255,255,0.2); border:none; color:#fff; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:1rem;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        {{-- Filter & Summary Bar --}}
+        <div style="padding:12px 24px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                @if(!empty($lastImportBatch))
+                    <span style="font-size:0.78rem; background:#ecfdf5; color:#065f46; font-weight:700; padding:4px 10px; border-radius:20px; border:1px solid #a7f3d0;">
+                        <i class="fas fa-user-plus"></i> {{ $lastImportBatch['created'] }} Siswa Baru
+                    </span>
+                    <span style="font-size:0.78rem; background:#f5f3ff; color:#6d28d9; font-weight:700; padding:4px 10px; border-radius:20px; border:1px solid #ddd6fe;">
+                        <i class="fas fa-check-double"></i> {{ $lastImportBatch['updated'] }} Dilengkapi
+                    </span>
+                    @if(!empty($lastImportBatch['unchanged']))
+                    <span style="font-size:0.78rem; background:#f1f5f9; color:#475569; font-weight:700; padding:4px 10px; border-radius:20px; border:1px solid #cbd5e1;">
+                        <i class="fas fa-check"></i> {{ $lastImportBatch['unchanged'] }} Sudah Lengkap
+                    </span>
+                    @endif
+                @else
+                    <span style="font-size:0.78rem; color:#64748b; font-weight:600;">
+                        Menampilkan {{ count($lastImportedStudents ?? []) }} data siswa terbaru di sistem
+                    </span>
+                @endif
+            </div>
+            <div>
+                <input type="text" id="tracingSearchInput" placeholder="Filter tracing nama / kelas..." onkeyup="filterTracingTable()" style="padding:6px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.82rem; width:220px;">
+            </div>
+        </div>
+
+        {{-- Table Container --}}
+        <div style="flex:1; overflow-y:auto; overflow-x:auto; padding:16px 24px; -webkit-overflow-scrolling:touch;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem; min-width:700px;" id="tuTracingTable">
+                <thead>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0; text-align:left;">
+                        <th style="padding:8px 10px; width:40px;">No</th>
+                        <th style="padding:8px 10px;">Nama Siswa</th>
+                        <th style="padding:8px 10px;">NIS / NISN</th>
+                        <th style="padding:8px 10px;">Kelas</th>
+                        <th style="padding:8px 10px;">Status</th>
+                        <th style="padding:8px 10px;">Keterangan</th>
+                        <th style="padding:8px 10px; text-align:center; width:110px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($lastImportedStudents ?? [] as $tIdx => $tStu)
+                    @php
+                        $badgeBg = '#ecfdf5'; $badgeColor = '#059669';
+                        if (($tStu['status'] ?? '') === 'Dilengkapi') {
+                            $badgeBg = '#f5f3ff'; $badgeColor = '#7c3aed';
+                        } elseif (($tStu['status'] ?? '') === 'Sudah Lengkap') {
+                            $badgeBg = '#f1f5f9'; $badgeColor = '#475569';
+                        }
+                    @endphp
+                    <tr style="border-bottom:1px solid #f1f5f9;" onmouseover="this.style.background='#fafbfc'" onmouseout="this.style.background='white'">
+                        <td style="padding:8px 10px; color:#64748b;">{{ $tIdx + 1 }}</td>
+                        <td style="padding:8px 10px; font-weight:700; color:#1e293b;">
+                            {{ $tStu['name'] }}
+                            @if(!empty($tStu['gender']) && $tStu['gender'] !== '-')
+                                <span style="font-size:0.75rem; color:{{ $tStu['gender'] == 'L' ? '#0284c7' : '#db2777' }};">({{ $tStu['gender'] }})</span>
+                            @endif
+                        </td>
+                        <td style="padding:8px 10px;">
+                            <span style="font-weight:600; color:#334155;">{{ $tStu['nis'] }}</span>
+                            @if(!empty($tStu['nisn']) && $tStu['nisn'] !== '-')
+                                <div style="font-size:0.72rem; color:#64748b;">NISN: {{ $tStu['nisn'] }}</div>
+                            @endif
+                        </td>
+                        <td style="padding:8px 10px;">
+                            <span style="background:#e0f2fe; color:#0369a1; padding:2px 7px; border-radius:5px; font-weight:700; font-size:0.78rem;">
+                                {{ $tStu['class'] }}
+                            </span>
+                        </td>
+                        <td style="padding:8px 10px;">
+                            <span style="background:{{ $badgeBg }}; color:{{ $badgeColor }}; font-weight:700; font-size:0.75rem; padding:3px 8px; border-radius:6px; white-space:nowrap;">
+                                {{ $tStu['status'] }}
+                            </span>
+                        </td>
+                        <td style="padding:8px 10px; font-size:0.78rem; color:#64748b;">
+                            {{ $tStu['details'] }}
+                        </td>
+                        <td style="padding:8px 10px; text-align:center;">
+                            <div style="display:flex; gap:4px; justify-content:center;">
+                                <a href="{{ route('students.show', ['student' => $tStu['id'], 'from' => 'dashboard']) }}" class="btn-mini" style="background:#64748b;" title="Lihat Profil">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('students.edit', ['student' => $tStu['id'], 'from' => 'dashboard']) }}" class="btn-mini" style="background:#f59e0b;" title="Edit Biodata">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:2rem; color:#94a3b8;">
+                            Belum ada riwayat tracing import siswa yang tersimpan.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Footer --}}
+        <div style="padding:14px 24px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end;">
+            <button type="button" onclick="closeTuImportTracingModal()" style="padding:8px 20px; border-radius:10px; border:1px solid #cbd5e1; background:#fff; color:#475569; font-weight:600; cursor:pointer;">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 function openTuImportModal() {
@@ -706,6 +850,79 @@ function validateTuImport(e) {
     }
     return true;
 }
+function openTuImportTracingModal() {
+    document.getElementById('tuImportTracingModal').style.display = 'flex';
+}
+function closeTuImportTracingModal() {
+    document.getElementById('tuImportTracingModal').style.display = 'none';
+}
+document.getElementById('tuImportTracingModal').addEventListener('click', function(e) {
+    if (e.target === this) closeTuImportTracingModal();
+});
+function filterTracingTable() {
+    var input = document.getElementById("tracingSearchInput");
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("tuTracingTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) {
+        var tdName = tr[i].getElementsByTagName("td")[1];
+        var tdNis = tr[i].getElementsByTagName("td")[2];
+        var tdClass = tr[i].getElementsByTagName("td")[3];
+        var tdStatus = tr[i].getElementsByTagName("td")[4];
+        if (tdName || tdNis || tdClass || tdStatus) {
+            var txtValue = (tdName ? tdName.textContent : "") + " " +
+                           (tdNis ? tdNis.textContent : "") + " " +
+                           (tdClass ? tdClass.textContent : "") + " " +
+                           (tdStatus ? tdStatus.textContent : "");
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+function confirmDeleteTuStudent(deleteUrl, studentName) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Hapus Siswa?',
+            html: `Apakah Anda yakin ingin menghapus data siswa <strong>${studentName}</strong>?<br><small style="color:#ef4444; margin-top:4px; display:block;">Semua riwayat nilai, absensi, dan portofolio anak ini akan ikut terhapus.</small>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: '<i class="fas fa-trash-alt"></i> Ya, Hapus Siswa',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = deleteUrl;
+                form.innerHTML = `
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <input type="hidden" name="from" value="dashboard">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    } else {
+        if (confirm(`Apakah Anda yakin ingin menghapus siswa ${studentName}?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = deleteUrl;
+            form.innerHTML = `
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="from" value="dashboard">
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
 document.getElementById('tuImportModal').addEventListener('click', function(e) {
     if (e.target === this) closeTuImportModal();
 });
@@ -716,8 +933,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: 'success',
                 title: 'Import Data Siswa Berhasil',
                 html: {!! json_encode(session('success')) !!},
+                showDenyButton: true,
                 confirmButtonText: 'Selesai',
-                confirmButtonColor: '#7c3aed'
+                denyButtonText: '<i class="fas fa-search-location"></i> Buka Tracing Siswa',
+                confirmButtonColor: '#7c3aed',
+                denyButtonColor: '#059669'
+            }).then((res) => {
+                if (res.isDenied) {
+                    openTuImportTracingModal();
+                }
             });
         }
     @endif
